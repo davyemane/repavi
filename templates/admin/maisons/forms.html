@@ -1,0 +1,353 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ action }} une maison - Administration RepAvi{% endblock %}
+{% block page_title %}{{ action }} une maison{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'custom_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'custom_admin:maisons_list' %}" class="hover:text-gray-700">Maisons</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">{{ action }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <form method="post" enctype="multipart/form-data" class="max-w-4xl">
+        {% csrf_token %}
+        
+        <div class="space-y-8">
+            <!-- Informations principales -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Informations principales</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nom de la maison *
+                        </label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.nom.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.slug.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Slug URL
+                        </label>
+                        {{ form.slug }}
+                        {% if form.slug.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.slug.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Laissez vide pour génération automatique</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description *
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Localisation -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Localisation</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.adresse.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Adresse *
+                        </label>
+                        {{ form.adresse }}
+                        {% if form.adresse.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.adresse.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.ville.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Ville *
+                        </label>
+                        {{ form.ville }}
+                        {% if form.ville.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.ville.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Caractéristiques -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Caractéristiques</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <label for="{{ form.capacite_personnes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Capacité *
+                        </label>
+                        {{ form.capacite_personnes }}
+                        {% if form.capacite_personnes.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.capacite_personnes.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.nombre_chambres.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Chambres *
+                        </label>
+                        {{ form.nombre_chambres }}
+                        {% if form.nombre_chambres.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.nombre_chambres.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.nombre_salles_bain.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Salles de bain *
+                        </label>
+                        {{ form.nombre_salles_bain }}
+                        {% if form.nombre_salles_bain.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.nombre_salles_bain.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.superficie.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Superficie (m²) *
+                        </label>
+                        {{ form.superficie }}
+                        {% if form.superficie.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.superficie.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prix et statut -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Prix et statut</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="{{ form.prix_par_nuit.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Prix par nuit (€) *
+                        </label>
+                        {{ form.prix_par_nuit }}
+                        {% if form.prix_par_nuit.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.prix_par_nuit.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.categorie.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Catégorie
+                        </label>
+                        {{ form.categorie }}
+                        {% if form.categorie.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.categorie.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.proprietaire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Propriétaire *
+                        </label>
+                        {{ form.proprietaire }}
+                        {% if form.proprietaire.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.proprietaire.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.disponible }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.disponible.id_for_label }}" class="font-medium text-gray-700">
+                                Maison disponible à la réservation
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.featured }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.featured.id_for_label }}" class="font-medium text-gray-700">
+                                Mettre en avant sur la page d'accueil
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Équipements -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Équipements disponibles</h3>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.wifi }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.wifi.id_for_label }}" class="font-medium text-gray-700">
+                                <i class="fas fa-wifi mr-2"></i>WiFi
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.parking }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.parking.id_for_label }}" class="font-medium text-gray-700">
+                                <i class="fas fa-car mr-2"></i>Parking
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.piscine }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.piscine.id_for_label }}" class="font-medium text-gray-700">
+                                <i class="fas fa-swimmer mr-2"></i>Piscine
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.jardin }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.jardin.id_for_label }}" class="font-medium text-gray-700">
+                                <i class="fas fa-tree mr-2"></i>Jardin
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.climatisation }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.climatisation.id_for_label }}" class="font-medium text-gray-700">
+                                <i class="fas fa-snowflake mr-2"></i>Climatisation
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.lave_vaisselle }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.lave_vaisselle.id_for_label }}" class="font-medium text-gray-700">
+                                <i class="fas fa-utensils mr-2"></i>Lave-vaisselle
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex items-center h-5">
+                            {{ form.machine_laver }}
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="{{ form.machine_laver.id_for_label }}" class="font-medium text-gray-700">
+                                <i class="fas fa-tshirt mr-2"></i>Machine à laver
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-8 border-t border-gray-200 mt-8">
+            <a href="{% url 'custom_admin:maisons_list' %}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Retour à la liste
+            </a>
+            
+            <div class="flex items-center space-x-4">
+                {% if objet %}
+                    <a href="{% url 'home:maison_detail' objet.slug %}" 
+                       target="_blank"
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>
+                        Voir sur le site
+                    </a>
+                {% endif %}
+                
+                <button type="submit" 
+                        class="inline-flex items-center px-6 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>
+                    {% if objet %}Mettre à jour{% else %}Créer la maison{% endif %}
+                </button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-génération du slug à partir du nom
+    document.getElementById('{{ form.nom.id_for_label }}').addEventListener('input', function() {
+        const slugField = document.getElementById('{{ form.slug.id_for_label }}');
+        if (!slugField.value || slugField.dataset.autoGenerated === 'true') {
+            const slug = this.value
+                .toLowerCase()
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+            slugField.value = slug;
+            slugField.dataset.autoGenerated = 'true';
+        }
+    });
+    
+    // Marquer le slug comme modifié manuellement si l'utilisateur le change
+    document.getElementById('{{ form.slug.id_for_label }}').addEventListener('input', function() {
+        this.dataset.autoGenerated = 'false';
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control {
+        @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
+    }
+    
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-2;
+    }
+    
+    .form-error {
+        @apply mt-1 text-sm text-red-600;
+    }
+    .form-checkbox {
+        @apply h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500;
+    }
+    .form-checkbox-label {
+        @apply ml-3 text-sm font-medium text-gray-700;
+    }   
+</style>
+{% endblock %}

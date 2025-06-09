@@ -1,0 +1,243 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Gestion des maisons - Administration RepAvi{% endblock %}
+{% block page_title %}Gestion des maisons{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'custom_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Maisons</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block header_actions %}
+    <a href="{% url 'custom_admin:maison_create' %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+        <i class="fas fa-plus mr-2"></i>
+        Nouvelle maison
+    </a>
+{% endblock %}
+
+{% block content %}
+    <!-- Filtres -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Filtres de recherche</h3>
+        <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+                {{ form.search.label_tag }}
+                {{ form.search }}
+            </div>
+            <div>
+                {{ form.ville.label_tag }}
+                {{ form.ville }}
+            </div>
+            <div>
+                {{ form.categorie.label_tag }}
+                {{ form.categorie }}
+            </div>
+            <div>
+                {{ form.disponible.label_tag }}
+                {{ form.disponible }}
+            </div>
+            <div class="flex items-end">
+                <button type="submit" 
+                        class="w-full bg-blue-600 text-white px-4 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Résultats -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    Maisons 
+                    <span class="text-sm font-normal text-gray-500">
+                        ({{ page_obj.paginator.count }} résultat{{ page_obj.paginator.count|pluralize }})
+                    </span>
+                </h3>
+                
+                <div class="flex items-center space-x-2">
+                    <div class="flex items-center text-sm text-gray-500">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        Disponible
+                    </div>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                        Indisponible
+                    </div>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i>
+                        Featured
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if page_obj %}
+            <!-- Liste des maisons -->
+            <div class="divide-y divide-gray-200">
+                {% for maison in page_obj %}
+                <div class="p-6 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center space-x-4">
+                        <!-- Photo -->
+                        <div class="flex-shrink-0">
+                            {% if maison.photo_principale %}
+                                <img src="{{ maison.photo_principale.url }}" 
+                                     alt="{{ maison.nom }}" 
+                                     class="w-20 h-20 rounded-lg object-cover">
+                            {% else %}
+                                <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-home text-gray-400 text-2xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Informations principales -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <h4 class="text-lg font-semibold text-gray-900">{{ maison.nom }}</h4>
+                                
+                                <!-- Statuts -->
+                                <div class="flex items-center space-x-2">
+                                    {% if maison.disponible %}
+                                        <span class="w-3 h-3 bg-green-500 rounded-full" title="Disponible"></span>
+                                    {% else %}
+                                        <span class="w-3 h-3 bg-red-500 rounded-full" title="Indisponible"></span>
+                                    {% endif %}
+                                    
+                                    {% if maison.featured %}
+                                        <i class="fas fa-star text-yellow-500" title="Featured"></i>
+                                    {% endif %}
+                                    
+                                    {% if maison.categorie %}
+                                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-{{ maison.categorie.couleur }}-100 text-{{ maison.categorie.couleur }}-800">
+                                            {{ maison.categorie.nom }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-6 text-sm text-gray-500 mb-2">
+                                <span><i class="fas fa-map-marker-alt mr-1"></i>{{ maison.ville }}</span>
+                                <span><i class="fas fa-users mr-1"></i>{{ maison.capacite_personnes }} personnes</span>
+                                <span><i class="fas fa-bed mr-1"></i>{{ maison.nombre_chambres }} chambres</span>
+                                <span><i class="fas fa-euro-sign mr-1"></i>{{ maison.prix_par_nuit }}/nuit</span>
+                            </div>
+                            
+                            <p class="text-gray-600 text-sm line-clamp-2">{{ maison.description|truncatewords:20 }}</p>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex-shrink-0 flex flex-col space-y-2">
+                            <a href="{% url 'custom_admin:maison_edit' maison.pk %}" 
+                               class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>
+                                Modifier
+                            </a>
+                            
+                            <a href="{% url 'home:maison_detail' maison.slug %}" 
+                               target="_blank"
+                               class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-eye mr-2"></i>
+                                Voir
+                            </a>
+                            
+                            <a href="{% url 'custom_admin:maison_delete' maison.pk %}" 
+                               class="inline-flex items-center px-3 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors"
+                               onclick="return confirmDelete()">
+                                <i class="fas fa-trash mr-2"></i>
+                                Supprimer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="p-6 border-t border-gray-200">
+                <nav class="flex items-center justify-between">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                                Précédent
+                            </a>
+                        {% endif %}
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                                Suivant
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Affichage de 
+                                <span class="font-medium">{{ page_obj.start_index }}</span>
+                                à 
+                                <span class="font-medium">{{ page_obj.end_index }}</span>
+                                sur 
+                                <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                                résultats
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px">
+                                {% if page_obj.has_previous %}
+                                    <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                                       class="relative inline-flex items-center px-2 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                                            {{ num }}
+                                        </span>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            {{ num }}
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                    <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                                       class="relative inline-flex items-center px-2 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            {% endif %}
+            
+        {% else %}
+            <div class="p-12 text-center">
+                <i class="fas fa-home text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune maison trouvée</h3>
+                <p class="text-gray-500 mb-6">Commencez par ajouter votre première maison.</p>
+                <a href="{% url 'custom_admin:maison_create' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Ajouter une maison
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

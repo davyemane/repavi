@@ -1,0 +1,211 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Tableau de bord - Administration RepAvi{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+    <!-- Statistiques principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-home text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Maisons totales</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ stats.total_maisons }}</p>
+                </div>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <span class="text-green-600 font-medium">{{ stats.maisons_disponibles }}</span> disponibles
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-calendar-check text-green-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Réservations</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ stats.total_reservations }}</p>
+                </div>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <span class="text-orange-600 font-medium">{{ stats.reservations_en_attente }}</span> en attente
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-map-marker-alt text-purple-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Villes</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ stats.total_villes }}</p>
+                </div>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                <span class="text-blue-600 font-medium">{{ stats.total_categories }}</span> catégories
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-star text-yellow-600 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Featured</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ stats.maisons_featured }}</p>
+                </div>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+                Maisons mises en avant
+            </div>
+        </div>
+    </div>
+    
+    <!-- Actions rapides -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'custom_admin:maison_create' %}" 
+               class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="fas fa-plus-circle text-blue-600 text-xl mr-3"></i>
+                <span class="font-medium text-gray-900">Ajouter une maison</span>
+            </a>
+            
+            <a href="{% url 'custom_admin:photo_create' %}" 
+               class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="fas fa-camera text-green-600 text-xl mr-3"></i>
+                <span class="font-medium text-gray-900">Ajouter des photos</span>
+            </a>
+            
+            <a href="{% url 'custom_admin:ville_create' %}" 
+               class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="fas fa-map-marker-alt text-purple-600 text-xl mr-3"></i>
+                <span class="font-medium text-gray-900">Ajouter une ville</span>
+            </a>
+            
+            <a href="{% url 'custom_admin:categorie_create' %}" 
+               class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <i class="fas fa-tag text-orange-600 text-xl mr-3"></i>
+                <span class="font-medium text-gray-900">Ajouter une catégorie</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Dernières maisons -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Dernières maisons ajoutées</h3>
+                <a href="{% url 'custom_admin:maisons_list' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    Voir tout
+                </a>
+            </div>
+            
+            {% if dernieres_maisons %}
+                <div class="space-y-4">
+                    {% for maison in dernieres_maisons %}
+                    <div class="flex items-center p-3 border border-gray-100 rounded-lg">
+                        {% if maison.photo_principale %}
+                            <img src="{{ maison.photo_principale.url }}" 
+                                 alt="{{ maison.nom }}" 
+                                 class="w-12 h-12 rounded-lg object-cover mr-3">
+                        {% else %}
+                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-home text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">{{ maison.nom }}</h4>
+                            <p class="text-sm text-gray-500">{{ maison.ville }} • {{ maison.prix_par_nuit }}€/nuit</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            {% if maison.featured %}
+                                <span class="text-yellow-500"><i class="fas fa-star"></i></span>
+                            {% endif %}
+                            {% if maison.disponible %}
+                                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                            {% else %}
+                                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-8">Aucune maison ajoutée récemment</p>
+            {% endif %}
+        </div>
+        
+        <!-- Dernières réservations -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Dernières réservations</h3>
+                <a href="{% url 'custom_admin:reservations_list' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    Voir tout
+                </a>
+            </div>
+            
+            {% if dernieres_reservations %}
+                <div class="space-y-4">
+                    {% for reservation in dernieres_reservations %}
+                    <div class="flex items-center p-3 border border-gray-100 rounded-lg">
+                        <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-calendar text-gray-400"></i>
+                        </div>
+                        
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">{{ reservation.maison.nom }}</h4>
+                            <p class="text-sm text-gray-500">{{ reservation.locataire.username }} • {{ reservation.date_debut }}</p>
+                        </div>
+                        
+                        <div class="text-right">
+                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full
+                                {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                                {% elif reservation.statut == 'annulee' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ reservation.get_statut_display }}
+                            </span>
+                            <p class="text-sm font-medium text-gray-900 mt-1">{{ reservation.prix_total }}€</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-8">Aucune réservation récente</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Maisons populaires -->
+    {% if maisons_populaires %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Maisons les plus populaires</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {% for maison in maisons_populaires %}
+            <div class="text-center p-4 border border-gray-100 rounded-lg">
+                {% if maison.photo_principale %}
+                    <img src="{{ maison.photo_principale.url }}" 
+                         alt="{{ maison.nom }}" 
+                         class="w-16 h-16 rounded-lg object-cover mx-auto mb-2">
+                {% else %}
+                    <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-home text-gray-400"></i>
+                    </div>
+                {% endif %}
+                <h4 class="font-medium text-gray-900 text-sm">{{ maison.nom|truncatechars:20 }}</h4>
+                <p class="text-xs text-gray-500">{{ maison.nb_reservations }} réservation{{ maison.nb_reservations|pluralize }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

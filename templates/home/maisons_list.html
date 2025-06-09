@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nos Maisons - RepAvi{% endblock %}
+
+{% block content %}
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-white/20 fixed w-full z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'home:index' %}" class="text-2xl font-bold text-gray-800">RepAvi</a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home:index' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
+                    <a href="{% url 'home:maisons_list' %}" class="text-gray-700 hover:text-gray-900 font-medium transition-colors">Maisons</a>
+                    <a href="{% url 'home:apropos' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">À propos</a>
+                    <a href="{% url 'home:contact' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="pt-16 pb-12 gradient-background">
+        <div class="max-w-6xl mx-auto px-4 pt-8">
+            <div class="text-center text-white">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Nos maisons</h1>
+                <p class="text-xl text-white/90 max-w-2xl mx-auto font-light">
+                    Découvrez notre collection complète de maisons d'exception
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filtres -->
+    <section class="py-8 bg-white soft-shadow">
+        <div class="max-w-6xl mx-auto px-4">
+            <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <input type="text" name="search" value="{{ current_filters.search }}" 
+                           placeholder="Rechercher une maison..." 
+                           class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <select name="ville" class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Toutes les destinations</option>
+                        {% for ville in villes %}
+                            <option value="{{ ville.id }}" {% if current_filters.ville == ville.id|stringformat:"s" %}selected{% endif %}>
+                                {{ ville.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <select name="categorie" class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Tous les types</option>
+                        {% for categorie in categories %}
+                            <option value="{{ categorie.id }}" {% if current_filters.categorie == categorie.id|stringformat:"s" %}selected{% endif %}>
+                                {{ categorie.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <select name="prix_max" class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Budget maximum</option>
+                        <option value="100" {% if current_filters.prix_max == "100" %}selected{% endif %}>Jusqu'à 100€</option>
+                        <option value="200" {% if current_filters.prix_max == "200" %}selected{% endif %}>Jusqu'à 200€</option>
+                        <option value="300" {% if current_filters.prix_max == "300" %}selected{% endif %}>Jusqu'à 300€</option>
+                        <option value="500" {% if current_filters.prix_max == "500" %}selected{% endif %}>Jusqu'à 500€</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button type="submit" class="w-full bg-gray-900 text-white px-4 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors">
+                        Rechercher
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Résultats -->
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            {% if maisons %}
+                <!-- Compteur de résultats -->
+                <div class="mb-8">
+                    <p class="text-gray-600">
+                        <span class="font-semibold text-gray-900">{{ maisons|length }}</span> 
+                        maison{{ maisons|length|pluralize }} trouvée{{ maisons|length|pluralize }}
+                    </p>
+                </div>
+
+                <!-- Grille des maisons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {% for maison in maisons %}
+                    <div class="bg-white rounded-2xl overflow-hidden soft-shadow hover-lift">
+                        <div class="relative">
+                            {% if maison.photo_principale %}
+                                <img src="{{ maison.photo_principale.url }}" 
+                                     alt="{{ maison.nom }}" 
+                                     class="w-full h-64 object-cover">
+                            {% else %}
+                                <div class="w-full h-64 bg-gray-100 flex items-center justify-center">
+                                    <i class="fas fa-home text-3xl text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            
+                            {% if maison.categorie %}
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-white/90 text-gray-700 px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                                    {{ maison.categorie.nom }}
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="absolute top-4 right-4">
+                                <button class="bg-white/90 p-2 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
+                                    <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ maison.nom }}</h3>
+                            <p class="text-gray-600 mb-4 line-clamp-2">{{ maison.description|truncatewords:12 }}</p>
+                            
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-2"></i>
+                                    <span>{{ maison.ville }}</span>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span><i class="fas fa-users mr-1"></i>{{ maison.capacite_personnes }}</span>
+                                    <span><i class="fas fa-bed mr-1"></i>{{ maison.nombre_chambres }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="text-2xl font-bold text-gray-900">
+                                    {{ maison.prix_par_nuit }}€
+                                    <span class="text-sm font-normal text-gray-500">/nuit</span>
+                                </div>
+                                <a href="{% url 'home:maison_detail' maison.slug %}" 
+                                   class="bg-gray-900 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+                                    Voir détails
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="mt-12 flex justify-center">
+                    <nav class="flex items-center space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1{% for key, value in current_filters.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-white transition-all">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                            <a href="?page={{ page_obj.previous_page_number }}{% for key, value in current_filters.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-white transition-all">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <span class="px-4 py-2 bg-gray-900 text-white rounded-lg font-medium">{{ num }}</span>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a href="?page={{ num }}{% for key, value in current_filters.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                                   class="px-4 py-2 text-gray-500 hover:text-gray-700 hover:bg-white rounded-lg transition-all">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% for key, value in current_filters.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-white transition-all">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in current_filters.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-white transition-all">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <!-- État vide -->
+                <div class="text-center py-20">
+                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-search text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Aucune maison trouvée</h3>
+                    <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                        Essayez de modifier vos critères de recherche ou explorez toutes nos maisons disponibles
+                    </p>
+                    <a href="{% url 'home:maisons_list' %}" 
+                       class="bg-gray-900 text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition-colors">
+                        Voir toutes les maisons
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <h3 class="text-2xl font-bold mb-4">RepAvi</h3>
+                    <p class="text-gray-300 mb-6 max-w-md">
+                        La plateforme de référence pour la location de maisons d'exception.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Navigation</h4>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'home:index' %}" class="text-gray-300 hover:text-white transition-colors">Accueil</a></li>
+                        <li><a href="{% url 'home:apropos' %}" class="text-gray-300 hover:text-white transition-colors">À propos</a></li>
+                        <li><a href="{% url 'home:contact' %}" class="text-gray-300 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Centre d'aide</a></li>
+                        <li><a href="{% url 'home:contact' %}" class="text-gray-300 hover:text-white transition-colors">Nous contacter</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 RepAvi. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+{% endblock %}

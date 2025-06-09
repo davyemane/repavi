@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact - RepAvi{% endblock %}
+
+{% block content %}
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-white/20 fixed w-full z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'home:index' %}" class="text-2xl font-bold text-gray-800">RepAvi</a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home:index' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
+                    <a href="{% url 'home:maisons_list' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
+                    <a href="{% url 'home:apropos' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">À propos</a>
+                    <a href="{% url 'home:contact' %}" class="text-gray-700 hover:text-gray-900 font-medium transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <section class="pt-16 pb-12 gradient-background">
+        <div class="max-w-6xl mx-auto px-4 pt-8">
+            <div class="text-center text-white">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Contactez-nous</h1>
+                <p class="text-xl text-white/90 max-w-2xl mx-auto font-light">
+                    Notre équipe dédiée est là pour vous accompagner
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenu Contact -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Formulaire -->
+                <div class="bg-white rounded-2xl p-8 soft-shadow">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Envoyez-nous un message</h2>
+                    <p class="text-gray-600 mb-8">Nous vous répondrons dans les plus brefs délais</p>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-xl">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    {{ message }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                                <input type="text" id="nom" name="nom" required 
+                                       class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Adresse email</label>
+                                <input type="email" id="email" name="email" required 
+                                       class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="sujet" class="block text-sm font-medium text-gray-700 mb-2">Sujet de votre demande</label>
+                            <select id="sujet" name="sujet" required 
+                                    class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                <option value="">Sélectionnez un sujet</option>
+                                <option value="reservation">Réservation</option>
+                                <option value="information">Demande d'information</option>
+                                <option value="probleme">Problème technique</option>
+                                <option value="partenariat">Partenariat</option>
+                                <option value="autre">Autre demande</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Votre message</label>
+                            <textarea id="message" name="message" rows="6" required 
+                                      class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                                      placeholder="Décrivez votre demande en détail..."></textarea>
+                        </div>
+                        
+                        <button type="submit" 
+                                class="w-full bg-gray-900 text-white py-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Envoyer le message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Informations et FAQ -->
+                <div class="space-y-8">
+                    <!-- Coordonnées -->
+                    <div class="bg-white rounded-2xl p-8 soft-shadow">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Nos coordonnées</h2>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fas fa-phone text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 mb-1">Téléphone</h3>
+                                    <p class="text-gray-600">+33 1 23 45 67 89</p>
+                                    <p class="text-sm text-gray-500">Lun-Ven 9h-18h, Sam 10h-16h</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fas fa-envelope text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
+                                    <p class="text-gray-600">contact@repavi.com</p>
+                                    <p class="text-sm text-gray-500">Réponse sous 24h</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fas fa-map-marker-alt text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 mb-1">Adresse</h3>
+                                    <p class="text-gray-600">123 Rue de la République<br>75001 Paris, France</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fas fa-clock text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 mb-1">Horaires</h3>
+                                    <p class="text-gray-600">Lun-Ven: 9h-18h<br>Sam: 10h-16h<br>Dim: Fermé</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ rapide -->
+                    <div class="bg-gray-900 rounded-2xl p-8 text-white">
+                        <h2 class="text-2xl font-bold mb-6">Questions fréquentes</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="font-semibold mb-2 text-white">Comment réserver une maison ?</h3>
+                                <p class="text-gray-300 text-sm leading-relaxed">
+                                    Parcourez notre catalogue, sélectionnez vos dates et cliquez sur "Réserver". 
+                                    Le processus est simple et sécurisé.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2 text-white">Politique d'annulation ?</h3>
+                                <p class="text-gray-300 text-sm leading-relaxed">
+                                    Annulation gratuite jusqu'à 48h avant votre arrivée. 
+                                    Consultez nos conditions pour plus de détails.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2 text-white">Les maisons sont-elles assurées ?</h3>
+                                <p class="text-gray-300 text-sm leading-relaxed">
+                                    Toutes nos propriétés bénéficient d'une assurance complète 
+                                    pour votre tranquillité d'esprit.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2 text-white">Support en cas de problème ?</h3>
+                                <p class="text-gray-300 text-sm leading-relaxed">
+                                    Notre équipe est disponible 24/7 pendant votre séjour 
+                                    pour toute assistance nécessaire.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 pt-6 border-t border-gray-700">
+                            <p class="text-gray-300 text-sm text-center">
+                                Vous ne trouvez pas la réponse à votre question ? 
+                                <a href="#" class="text-white hover:text-gray-200 font-medium">Consultez notre centre d'aide</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <h3 class="text-2xl font-bold mb-4">RepAvi</h3>
+                    <p class="text-gray-300 mb-6 max-w-md">
+                        La plateforme de référence pour la location de maisons d'exception.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Navigation</h4>
+                    <ul class="space-y-3">
+                        <li><a href="{% url 'home:index' %}" class="text-gray-300 hover:text-white transition-colors">Accueil</a></li>
+                        <li><a href="{% url 'home:maisons_list' %}" class="text-gray-300 hover:text-white transition-colors">Nos maisons</a></li>
+                        <li><a href="{% url 'home:apropos' %}" class="text-gray-300 hover:text-white transition-colors">À propos</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Centre d'aide</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Conditions d'utilisation</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors">Confidentialité</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2025 RepAvi. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+{% endblock %}
