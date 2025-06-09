@@ -2,9 +2,7 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
   test:
@@ -14,8 +12,9 @@ jobs:
       postgres:
         image: postgres:13
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_PASSWORD: Felicien@2002
+          POSTGRES_DB: repavi
+          POSTGRES_USER: repaviuser
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -46,7 +45,7 @@ jobs:
     
     - name: Run tests
       env:
-        DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+        DATABASE_URL: postgres://repaviuser:Felicien@2002@localhost:5432/repavi
       run: |
         python manage.py collectstatic --noinput
         python manage.py migrate
@@ -66,39 +65,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Deploy to server
+    - name: Deploy using optimized script
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
+        timeout: 600s
         script: |
           cd /root/repavi
           
-          # Backup current version
-          timestamp=$(date +%Y%m%d_%H%M%S)
-          cp -r /root/repavi /root/backup_repavi_$timestamp
+          # S'assurer que le script est exécutable
+          chmod +x deploy/deploy.sh
           
-          # Pull latest changes
-          git pull origin main
-          
-          # Activate virtual environment and update dependencies
-          source venv/bin/activate
-          pip install -r requirements.txt
-          
-          # Run Django commands
-          python manage.py collectstatic --noinput
-          python manage.py migrate
-          
-          # Restart services
-          sudo systemctl restart repavi-uvicorn
-          sudo systemctl reload nginx
-          
-          # Health check
-          sleep 5
-          curl -f http://127.0.0.1:8000 || exit 1
-          
-          echo "Deployment successful!"
+          # Exécuter le script de déploiement optimisé
+          echo "🚀 Lancement du script de déploiement optimisé..."
+          ./deploy/deploy.sh main
 
   notify:
     needs: [test, deploy]
