@@ -25,8 +25,19 @@ SECRET_KEY = 'django-insecure-082n3q0&(q!4p((fti#g^prqwqnueq)zxl82g!69ob88mm9ui5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# settings.py
+ALLOWED_HOSTS = ['repavilodges.com', 'www.repavilodges.com', '127.0.0.1']
 
+# Configuration pour les proxy
+USE_TZ = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+
+# Fichiers statiques
+STATIC_URL = '/static/'
+STATIC_ROOT = '/root/repavi/staticfiles/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/root/repavi/media/'
 
 # Application definition
 
