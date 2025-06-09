@@ -20,4 +20,4 @@ jobs:
 
     - name: Deploy to Server
       run: |
-        ssh -o StrictHostKeyChecking=no -p 65002 u368183954@92.112.195.192 'bash -s' < deploy.sh
+        ssh -o StrictHostKeyChecking=no -p 65002 u368183954@92.112.195.192 'bash -s' < deploy/deploy.sh
