@@ -88,7 +88,7 @@ health_check_pre() {
 deploy_code() {
     log_info "Déploiement du code depuis la branche: $BRANCH"
     
-    # Mise à jour du code
+    # Mise à jour du c ode
     git fetch origin
     git checkout "$BRANCH"
     git pull origin "$BRANCH"
