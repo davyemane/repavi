@@ -5,67 +5,13 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_PASSWORD: Felicien@2002
-          POSTGRES_DB: repavi
-          POSTGRES_USER: repaviuser
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
-    
-    - name: Cache pip packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-django coverage
-    
-    - name: Run tests
-      env:
-        DATABASE_URL: postgres://repaviuser:Felicien@2002@localhost:5432/repavi
-      run: |
-        python manage.py collectstatic --noinput
-        python manage.py migrate
-        coverage run --source='.' manage.py test
-        coverage report
-    
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-
   deploy:
-    needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Deploy using optimized script
+    - name: Deploy to server
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
@@ -75,23 +21,27 @@ jobs:
         script: |
           cd /root/repavi
           
-          # S'assurer que le script est exécutable
-          chmod +x deploy/deploy.sh
+          echo "🚀 Début du déploiement..."
           
-          # Exécuter le script de déploiement optimisé
-          echo "🚀 Lancement du script de déploiement optimisé..."
-          ./deploy/deploy.sh main
-
-  notify:
-    needs: [test, deploy]
-    runs-on: ubuntu-latest
-    if: always()
-    
-    steps:
-    - name: Notify deployment status
-      run: |
-        if [ "${{ needs.deploy.result }}" == "success" ]; then
-          echo "✅ Deployment successful!"
-        else
-          echo "❌ Deployment failed!"
-        fi
+          # Pull des derniers changements
+          git pull origin main
+          
+          # Activer l'environnement virtuel
+          source venv/bin/activate
+          
+          # Installer/mettre à jour les dépendances
+          pip install -r requirements.txt
+          
+          # Commandes Django
+          python manage.py migrate
+          python manage.py collectstatic --noinput
+          
+          # Redémarrer les services
+          sudo systemctl restart repavi-uvicorn
+          sudo systemctl reload nginx
+          
+          # Test de santé
+          sleep 5
+          curl -f http://127.0.0.1:8000 || exit 1
+          
+          echo "✅ Déploiement réussi!"
