@@ -1,3 +1,9 @@
 asgiref==3.8.1
 Django==5.2.2
+django-browser-reload==1.18.0
+django-tailwind==4.0.1
+pillow==11.2.1
+psycopg==3.2.9
+psycopg-binary==3.2.9
 sqlparse==0.5.3
+typing_extensions==4.14.0
