@@ -1,47 +1,23 @@
-name: Deploy to Production
+name: Deploy Production 
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Deploy to server
-      uses: appleboy/ssh-action@v1.0.3
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.7.0
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        timeout: 600s
-        script: |
-          cd /root/repavi
-          
-          echo "🚀 Début du déploiement..."
-          
-          # Pull des derniers changements
-          git pull origin main
-          
-          # Activer l'environnement virtuel
-          source venv/bin/activate
-          
-          # Installer/mettre à jour les dépendances
-          pip install -r requirements.txt
-          
-          # Commandes Django
-          python manage.py migrate
-          python manage.py collectstatic --noinput
-          
-          # Redémarrer les services
-          sudo systemctl restart repavi-uvicorn
-          sudo systemctl reload nginx
-          
-          # Test de santé
-          sleep 5
-          curl -f http://127.0.0.1:8000 || exit 1
-          
-          echo "✅ Déploiement réussi!"
+        ssh-private-key: ${{ secrets.SSH_KEY }}
+
+    - name: Deploy to Server
+      run: |
+        ssh -o StrictHostKeyChecking=no -p 65002 u368183954@92.112.195.192 'bash -s' < deploy.sh
