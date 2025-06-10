@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-082n3q0&(q!4p((fti#g^prqwqnueq)zxl82g!69ob88mm9ui5'
 
 # === DEBUG & ENV DETECTION ===
-DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'  # mettre à '0' en production
+DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '0'  # mettre à '0' en production
 IS_PRODUCTION = not DEBUG
 
 # === ALLOWED HOSTS ===
