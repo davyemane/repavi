@@ -90,7 +90,7 @@ def admin_ville_create(request):
         if form.is_valid():
             ville = form.save()
             messages.success(request, f'La ville "{ville.nom}" a été créée avec succès.')
-            return redirect('admin_villes_list')
+            return redirect('repavi_admin:villes_list')
     else:
         form = VilleForm()
     
@@ -108,7 +108,7 @@ def admin_ville_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'La ville "{ville.nom}" a été modifiée avec succès.')
-            return redirect('admin_villes_list')
+            return redirect('repavi_admin:villes_list')
     else:
         form = VilleForm(instance=ville)
     
