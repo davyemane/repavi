@@ -1,0 +1,184 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ action }} une photo - Administration RepAvi{% endblock %}
+{% block page_title %}{{ action }} une photo{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'repavi_admin:photos_list' %}" class="hover:text-gray-700">Photos</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">{{ action }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-2xl">
+        <form method="post" enctype="multipart/form-data" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <div>
+                    <label for="{{ form.maison.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Maison *
+                    </label>
+                    {{ form.maison }}
+                    {% if form.maison.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.maison.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Fichier image *
+                    </label>
+                    {{ form.image }}
+                    {% if form.image.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.image.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Formats acceptés : JPEG, PNG, WebP. Taille recommandée : 1200x800px</p>
+                    
+                    <!-- Aperçu de l'image actuelle si modification -->
+                    {% if objet and objet.image %}
+                        <div class="mt-4">
+                            <p class="text-sm font-medium text-gray-700 mb-2">Image actuelle :</p>
+                            <img src="{{ objet.image.url }}" 
+                                 alt="{{ objet.titre }}" 
+                                 class="w-40 h-28 object-cover rounded-lg border border-gray-200">
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.titre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Titre de la photo
+                    </label>
+                    {{ form.titre }}
+                    {% if form.titre.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.titre.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Description courte de la photo (optionnel)</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="{{ form.ordre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Ordre d'affichage
+                        </label>
+                        {{ form.ordre }}
+                        {% if form.ordre.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.ordre.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Plus le nombre est petit, plus la photo apparaît en premier</p>
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center h-12">
+                            <div class="flex items-center h-5">
+                                {{ form.principale }}
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="{{ form.principale.id_for_label }}" class="font-medium text-gray-700">
+                                    Photo principale de la maison
+                                </label>
+                                <p class="text-gray-500">Cette photo sera affichée en premier</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Zone de drag & drop pour l'upload -->
+                <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors hidden">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-600 mb-2">Glissez-déposez votre image ici</p>
+                    <p class="text-sm text-gray-500">ou cliquez pour sélectionner un fichier</p>
+                </div>
+                
+                <!-- Aperçu de l'image sélectionnée -->
+                <div id="image-preview" class="hidden">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Aperçu :</p>
+                    <img id="preview-img" src="" alt="Aperçu" class="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200">
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-8 border-t border-gray-200 mt-8">
+                <a href="{% url 'repavi_admin:photos_list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour à la liste
+                </a>
+                
+                <button type="submit" 
+                        class="inline-flex items-center px-6 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>
+                    {% if objet %}Mettre à jour{% else %}Ajouter la photo{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Gestion de l'aperçu d'image
+    const imageInput = document.getElementById('{{ form.image.id_for_label }}');
+    const imagePreview = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.classList.add('hidden');
+        }
+    });
+    
+    // Drag & Drop functionality (optionnel - peut être ajouté plus tard)
+    const dropZone = document.getElementById('drop-zone');
+    
+    // Auto-génération du titre à partir du nom de fichier
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const titreInput = document.getElementById('{{ form.titre.id_for_label }}');
+        
+        if (file && !titreInput.value) {
+            // Enlever l'extension et nettoyer le nom
+            let fileName = file.name.replace(/\.[^/.]+$/, "");
+            fileName = fileName.replace(/[-_]/g, ' ');
+            fileName = fileName.charAt(0).toUpperCase() + fileName.slice(1);
+            titreInput.value = fileName;
+        }
+    });
+    
+    // Validation de la taille et du format
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Vérifier le type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Format non supporté. Utilisez JPEG, PNG ou WebP.');
+                this.value = '';
+                return;
+            }
+            
+            // Vérifier la taille (par exemple, max 10MB)
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                alert('Fichier trop volumineux. Taille maximum : 10MB.');
+                this.value = '';
+                return;
+            }
+        }
+    });
+</script>
+{% endblock %}

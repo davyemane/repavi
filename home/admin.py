@@ -2,16 +2,26 @@
 from django.contrib import admin
 from .models import Ville, CategorieMaison, Maison, PhotoMaison, Reservation
 
+# Configuration générale de l'admin Django
+admin.site.site_header = "RepAvi - Administration Django"
+admin.site.site_title = "RepAvi Admin"
+admin.site.index_title = "Administration Django (Backup)"
+
+# Administration basique pour backup
+# (L'administration principale se trouve à /repavi-admin/)
+
 @admin.register(Ville)
 class VilleAdmin(admin.ModelAdmin):
     list_display = ['nom', 'departement', 'code_postal', 'pays']
     list_filter = ['departement', 'pays']
     search_fields = ['nom', 'departement']
+    ordering = ['nom']
 
 @admin.register(CategorieMaison)
 class CategorieMaisonAdmin(admin.ModelAdmin):
-    list_display = ['nom', 'couleur']
+    list_display = ['nom', 'couleur', 'description']
     list_editable = ['couleur']
+    search_fields = ['nom']
 
 class PhotoMaisonInline(admin.TabularInline):
     model = PhotoMaison
@@ -20,7 +30,7 @@ class PhotoMaisonInline(admin.TabularInline):
 
 @admin.register(Maison)
 class MaisonAdmin(admin.ModelAdmin):
-    list_display = ['nom', 'ville', 'prix_par_nuit', 'capacite_personnes', 'disponible', 'featured']
+    list_display = ['nom', 'ville', 'prix_par_nuit', 'disponible', 'featured']
     list_filter = ['disponible', 'featured', 'ville', 'categorie']
     search_fields = ['nom', 'description', 'ville__nom']
     list_editable = ['disponible', 'featured']
@@ -28,16 +38,16 @@ class MaisonAdmin(admin.ModelAdmin):
     inlines = [PhotoMaisonInline]
     
     fieldsets = (
-        ('Informations générales', {
+        ('Informations de base', {
             'fields': ('nom', 'slug', 'description', 'categorie')
         }),
         ('Localisation', {
             'fields': ('adresse', 'ville')
         }),
-        ('Détails', {
+        ('Caractéristiques', {
             'fields': ('capacite_personnes', 'nombre_chambres', 'nombre_salles_bain', 'superficie')
         }),
-        ('Prix et disponibilité', {
+        ('Prix et statut', {
             'fields': ('prix_par_nuit', 'disponible', 'featured')
         }),
         ('Équipements', {
@@ -58,18 +68,6 @@ class PhotoMaisonAdmin(admin.ModelAdmin):
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
     list_display = ['maison', 'locataire', 'date_debut', 'date_fin', 'statut', 'prix_total']
-    list_filter = ['statut', 'date_creation', 'maison__ville']
-    search_fields = ['maison__nom', 'locataire__username', 'locataire__email']
+    list_filter = ['statut', 'date_creation']
+    search_fields = ['maison__nom', 'locataire__username']
     date_hierarchy = 'date_debut'
-    
-    fieldsets = (
-        ('Réservation', {
-            'fields': ('maison', 'locataire', 'date_debut', 'date_fin', 'nombre_personnes')
-        }),
-        ('Prix et statut', {
-            'fields': ('prix_total', 'statut')
-        }),
-        ('Contact', {
-            'fields': ('telephone', 'message')
-        }),
-    )

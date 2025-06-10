@@ -6,9 +6,9 @@
 {% block breadcrumb %}
     <nav class="text-sm">
         <ol class="flex items-center space-x-2 text-gray-500">
-            <li><a href="{% url 'custom_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
             <li><i class="fas fa-chevron-right text-xs"></i></li>
-            <li><a href="{% url 'custom_admin:maisons_list' %}" class="hover:text-gray-700">Maisons</a></li>
+            <li><a href="{% url 'repavi_admin:maisons_list' %}" class="hover:text-gray-700">Maisons</a></li>
             <li><i class="fas fa-chevron-right text-xs"></i></li>
             <li class="text-gray-900 font-medium">{{ action }}</li>
         </ol>
@@ -280,7 +280,7 @@
         
         <!-- Actions -->
         <div class="flex items-center justify-between pt-8 border-t border-gray-200 mt-8">
-            <a href="{% url 'custom_admin:maisons_list' %}" 
+            <a href="{% url 'repavi_admin:maisons_list' %}" 
                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Retour à la liste
@@ -330,24 +330,3 @@
 </script>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    .form-control {
-        @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
-    }
-    
-    .form-label {
-        @apply block text-sm font-medium text-gray-700 mb-2;
-    }
-    
-    .form-error {
-        @apply mt-1 text-sm text-red-600;
-    }
-    .form-checkbox {
-        @apply h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500;
-    }
-    .form-checkbox-label {
-        @apply ml-3 text-sm font-medium text-gray-700;
-    }   
-</style>
-{% endblock %}

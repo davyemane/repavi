@@ -1,0 +1,161 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ action }} une catégorie - Administration RepAvi{% endblock %}
+{% block page_title %}{{ action }} une catégorie{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'repavi_admin:categories_list' %}" class="hover:text-gray-700">Catégories</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">{{ action }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-2xl">
+        <form method="post" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <div>
+                    <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nom de la catégorie *
+                    </label>
+                    {{ form.nom }}
+                    {% if form.nom.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.nom.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Ex: Villa, Appartement, Maison de campagne...</p>
+                </div>
+                
+                <div>
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Description courte de cette catégorie</p>
+                </div>
+                
+                <div>
+                    <label for="{{ form.couleur.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Couleur du badge *
+                    </label>
+                    {{ form.couleur }}
+                    {% if form.couleur.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.couleur.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Couleur d'affichage des badges de cette catégorie</p>
+                    
+                    <!-- Aperçu des couleurs -->
+                    <div class="mt-3 grid grid-cols-4 gap-2" id="color-preview">
+                        <div class="flex items-center p-2 border rounded-lg hover:bg-gray-50 cursor-pointer" data-color="blue">
+                            <div class="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
+                            <span class="text-sm">Bleu</span>
+                        </div>
+                        <div class="flex items-center p-2 border rounded-lg hover:bg-gray-50 cursor-pointer" data-color="green">
+                            <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-sm">Vert</span>
+                        </div>
+                        <div class="flex items-center p-2 border rounded-lg hover:bg-gray-50 cursor-pointer" data-color="purple">
+                            <div class="w-4 h-4 bg-purple-500 rounded-full mr-2"></div>
+                            <span class="text-sm">Violet</span>
+                        </div>
+                        <div class="flex items-center p-2 border rounded-lg hover:bg-gray-50 cursor-pointer" data-color="red">
+                            <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
+                            <span class="text-sm">Rouge</span>
+                        </div>
+                        <div class="flex items-center p-2 border rounded-lg hover:bg-gray-50 cursor-pointer" data-color="yellow">
+                            <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
+                            <span class="text-sm">Jaune</span>
+                        </div>
+                        <div class="flex items-center p-2 border rounded-lg hover:bg-gray-50 cursor-pointer" data-color="indigo">
+                            <div class="w-4 h-4 bg-indigo-500 rounded-full mr-2"></div>
+                            <span class="text-sm">Indigo</span>
+                        </div>
+                        <div class="flex items-center p-2 border rounded-lg hover:bg-gray-50 cursor-pointer" data-color="pink">
+                            <div class="w-4 h-4 bg-pink-500 rounded-full mr-2"></div>
+                            <span class="text-sm">Rose</span>
+                        </div>
+                        <div class="flex items-center p-2 border rounded-lg hover:bg-gray-50 cursor-pointer" data-color="gray">
+                            <div class="w-4 h-4 bg-gray-500 rounded-full mr-2"></div>
+                            <span class="text-sm">Gris</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Aperçu du badge -->
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Aperçu du badge :</p>
+                    <span id="badge-preview" class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                        <span id="badge-text">{{ form.nom.value|default:"Nom de la catégorie" }}</span>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-8 border-t border-gray-200 mt-8">
+                <a href="{% url 'repavi_admin:categories_list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour à la liste
+                </a>
+                
+                <button type="submit" 
+                        class="inline-flex items-center px-6 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>
+                    {% if objet %}Mettre à jour{% else %}Créer la catégorie{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Mise à jour de l'aperçu du badge
+    function updateBadgePreview() {
+        const nom = document.getElementById('{{ form.nom.id_for_label }}').value || 'Nom de la catégorie';
+        const couleur = document.getElementById('{{ form.couleur.id_for_label }}').value || 'blue';
+        
+        const badgePreview = document.getElementById('badge-preview');
+        const badgeText = document.getElementById('badge-text');
+        
+        badgeText.textContent = nom;
+        badgePreview.className = `inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-${couleur}-100 text-${couleur}-800`;
+    }
+    
+    // Écouter les changements sur le nom
+    document.getElementById('{{ form.nom.id_for_label }}').addEventListener('input', updateBadgePreview);
+    
+    // Écouter les changements sur la couleur
+    document.getElementById('{{ form.couleur.id_for_label }}').addEventListener('change', updateBadgePreview);
+    
+    // Sélection de couleur visuelle
+    document.querySelectorAll('[data-color]').forEach(function(element) {
+        element.addEventListener('click', function() {
+            const color = this.getAttribute('data-color');
+            document.getElementById('{{ form.couleur.id_for_label }}').value = color;
+            updateBadgePreview();
+            
+            // Mise en évidence de la couleur sélectionnée
+            document.querySelectorAll('[data-color]').forEach(el => el.classList.remove('ring-2', 'ring-blue-500'));
+            this.classList.add('ring-2', 'ring-blue-500');
+        });
+    });
+    
+    // Mise en évidence initiale
+    const currentColor = document.getElementById('{{ form.couleur.id_for_label }}').value;
+    if (currentColor) {
+        document.querySelector(`[data-color="${currentColor}"]`)?.classList.add('ring-2', 'ring-blue-500');
+    }
+    
+    // Aperçu initial
+    updateBadgePreview();
+</script>
+{% endblock %}

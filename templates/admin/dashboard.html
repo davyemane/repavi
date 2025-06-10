@@ -71,25 +71,25 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="{% url 'custom_admin:maison_create' %}" 
+            <a href="{% url 'repavi_admin:maison_create' %}" 
                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <i class="fas fa-plus-circle text-blue-600 text-xl mr-3"></i>
                 <span class="font-medium text-gray-900">Ajouter une maison</span>
             </a>
             
-            <a href="{% url 'custom_admin:photo_create' %}" 
+            <a href="{% url 'repavi_admin:photo_create' %}" 
                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <i class="fas fa-camera text-green-600 text-xl mr-3"></i>
                 <span class="font-medium text-gray-900">Ajouter des photos</span>
             </a>
             
-            <a href="{% url 'custom_admin:ville_create' %}" 
+            <a href="{% url 'repavi_admin:ville_create' %}" 
                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <i class="fas fa-map-marker-alt text-purple-600 text-xl mr-3"></i>
                 <span class="font-medium text-gray-900">Ajouter une ville</span>
             </a>
             
-            <a href="{% url 'custom_admin:categorie_create' %}" 
+            <a href="{% url 'repavi_admin:categorie_create' %}" 
                class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                 <i class="fas fa-tag text-orange-600 text-xl mr-3"></i>
                 <span class="font-medium text-gray-900">Ajouter une catégorie</span>
@@ -102,7 +102,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">Dernières maisons ajoutées</h3>
-                <a href="{% url 'custom_admin:maisons_list' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                <a href="{% url 'repavi_admin:maisons_list' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                     Voir tout
                 </a>
             </div>
@@ -148,7 +148,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">Dernières réservations</h3>
-                <a href="{% url 'custom_admin:reservations_list' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                <a href="{% url 'repavi_admin:reservations_list' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                     Voir tout
                 </a>
             </div>

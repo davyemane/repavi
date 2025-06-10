@@ -2,7 +2,8 @@
 from django.urls import path
 from . import admin_views
 
-app_name = 'custom_admin'
+# Utilisons 'repavi_admin' comme namespace pour éviter les conflits
+app_name = 'repavi_admin'
 
 urlpatterns = [
     # Dashboard

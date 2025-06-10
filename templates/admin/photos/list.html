@@ -1,0 +1,188 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Gestion des photos - Administration RepAvi{% endblock %}
+{% block page_title %}Gestion des photos{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Photos</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block header_actions %}
+    <a href="{% url 'repavi_admin:photo_create' %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+        <i class="fas fa-plus mr-2"></i>
+        Ajouter une photo
+    </a>
+{% endblock %}
+
+{% block content %}
+    <!-- Filtre par maison -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <form method="get" class="flex items-center space-x-4">
+            <div class="flex-1">
+                <label for="maison" class="block text-sm font-medium text-gray-700 mb-2">Filtrer par maison</label>
+                <select name="maison" id="maison" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Toutes les maisons</option>
+                    {% for maison in maisons %}
+                        <option value="{{ maison.id }}" {% if maison_selectionnee == maison.id|stringformat:"s" %}selected{% endif %}>
+                            {{ maison.nom }} - {{ maison.ville }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="pt-7">
+                <button type="submit" 
+                        class="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-filter mr-2"></i>Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Liste des photos -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">
+                Photos 
+                <span class="text-sm font-normal text-gray-500">
+                    ({{ page_obj.paginator.count }} photo{{ page_obj.paginator.count|pluralize }})
+                </span>
+            </h3>
+        </div>
+        
+        {% if page_obj %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
+                {% for photo in page_obj %}
+                <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="{{ photo.image.url }}" 
+                             alt="{{ photo.titre|default:photo.maison.nom }}" 
+                             class="w-full h-48 object-cover">
+                        
+                        <div class="absolute top-2 right-2 flex items-center space-x-1">
+                            {% if photo.principale %}
+                                <span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    <i class="fas fa-star mr-1"></i>Principale
+                                </span>
+                            {% endif %}
+                            <span class="bg-gray-900 bg-opacity-75 text-white px-2 py-1 rounded-full text-xs">
+                                #{{ photo.ordre }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">
+                            {{ photo.titre|default:"Sans titre" }}
+                        </h4>
+                        <p class="text-sm text-gray-600 mb-3">{{ photo.maison.nom }}</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-500">
+                                {{ photo.maison.ville }}
+                            </span>
+                            
+                            <div class="flex items-center space-x-1">
+                                <a href="{% url 'repavi_admin:photo_edit' photo.pk %}" 
+                                   class="text-blue-600 hover:text-blue-900 transition-colors p-1 rounded hover:bg-blue-50">
+                                    <i class="fas fa-edit text-sm"></i>
+                                </a>
+                                <a href="{% url 'repavi_admin:photo_delete' photo.pk %}" 
+                                   class="text-red-600 hover:text-red-900 transition-colors p-1 rounded hover:bg-red-50"
+                                   onclick="return confirmDelete()">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="p-6 border-t border-gray-200">
+                <nav class="flex items-center justify-between">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if maison_selectionnee %}&maison={{ maison_selectionnee }}{% endif %}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                                Précédent
+                            </a>
+                        {% endif %}
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if maison_selectionnee %}&maison={{ maison_selectionnee }}{% endif %}" 
+                               class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                                Suivant
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Affichage de 
+                                <span class="font-medium">{{ page_obj.start_index }}</span>
+                                à 
+                                <span class="font-medium">{{ page_obj.end_index }}</span>
+                                sur 
+                                <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                                résultats
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px">
+                                {% if page_obj.has_previous %}
+                                    <a href="?page={{ page_obj.previous_page_number }}{% if maison_selectionnee %}&maison={{ maison_selectionnee }}{% endif %}" 
+                                       class="relative inline-flex items-center px-2 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                                            {{ num }}
+                                        </span>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <a href="?page={{ num }}{% if maison_selectionnee %}&maison={{ maison_selectionnee }}{% endif %}" 
+                                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            {{ num }}
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                    <a href="?page={{ page_obj.next_page_number }}{% if maison_selectionnee %}&maison={{ maison_selectionnee }}{% endif %}" 
+                                       class="relative inline-flex items-center px-2 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            {% endif %}
+            
+        {% else %}
+            <div class="p-12 text-center">
+                <i class="fas fa-images text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune photo</h3>
+                <p class="text-gray-500 mb-6">Commencez par ajouter des photos à vos maisons.</p>
+                <a href="{% url 'repavi_admin:photo_create' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Ajouter une photo
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Administration RepAvi{% endblock %}</title>
     
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (build local, pas CDN) -->
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,7 +52,7 @@
             
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-2">
-                <a href="{% url 'custom_admin:dashboard' %}" 
+                <a href="{% url 'repavi_admin:dashboard' %}" 
                    class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="fas fa-chart-bar mr-3"></i>
                     Tableau de bord
@@ -62,19 +62,19 @@
                     <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Gestion</p>
                 </div>
                 
-                <a href="{% url 'custom_admin:maisons_list' %}" 
+                <a href="{% url 'repavi_admin:maisons_list' %}" 
                    class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'maisons' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fas fa-home mr-3"></i>
                     Maisons
                 </a>
                 
-                <a href="{% url 'custom_admin:photos_list' %}" 
+                <a href="{% url 'repavi_admin:photos_list' %}" 
                    class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'photos' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fas fa-images mr-3"></i>
                     Photos
                 </a>
                 
-                <a href="{% url 'custom_admin:reservations_list' %}" 
+                <a href="{% url 'repavi_admin:reservations_list' %}" 
                    class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'reservations' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fas fa-calendar-alt mr-3"></i>
                     Réservations
@@ -84,13 +84,13 @@
                     <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Configuration</p>
                 </div>
                 
-                <a href="{% url 'custom_admin:villes_list' %}" 
+                <a href="{% url 'repavi_admin:villes_list' %}" 
                    class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'villes' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fas fa-map-marker-alt mr-3"></i>
                     Villes
                 </a>
                 
-                <a href="{% url 'custom_admin:categories_list' %}" 
+                <a href="{% url 'repavi_admin:categories_list' %}" 
                    class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'categories' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fas fa-tags mr-3"></i>
                     Catégories
@@ -102,7 +102,7 @@
                 <div class="flex items-center">
                     <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
                         <i class="fas fa-user text-gray-600 text-sm"></i>
-                    </div>
+                    </div>custom
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-900">{{ user.username }}</p>
                         <p class="text-xs text-gray-500">Administrateur</p>

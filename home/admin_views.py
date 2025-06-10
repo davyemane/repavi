@@ -150,7 +150,7 @@ def admin_categorie_create(request):
         if form.is_valid():
             categorie = form.save()
             messages.success(request, f'La catégorie "{categorie.nom}" a été créée avec succès.')
-            return redirect('admin_categories_list')
+            return redirect('repavi_admin:categories_list')
     else:
         form = CategorieMaisonForm()
     
@@ -247,7 +247,7 @@ def admin_maison_create(request):
         if form.is_valid():
             maison = form.save()
             messages.success(request, f'La maison "{maison.nom}" a été créée avec succès.')
-            return redirect('admin_maisons_list')
+            return redirect('repavi_admin:maisons_list')
     else:
         form = MaisonForm()
     
@@ -324,7 +324,7 @@ def admin_photo_create(request):
         if form.is_valid():
             photo = form.save()
             messages.success(request, f'Photo ajoutée avec succès pour "{photo.maison.nom}".')
-            return redirect('admin_photos_list')
+            return redirect('repavi_admin:photos_list')
     else:
         form = PhotoMaisonForm()
     

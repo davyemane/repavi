@@ -8,7 +8,8 @@
     <meta name="description" content="{% block meta_description %}Trouvez et réservez la maison parfaite pour vos vacances{% endblock %}">
 
     <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (build local, pas CDN) -->
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
 
     <!-- Optionnel : config Tailwind inline -->
     <script>
