@@ -136,3 +136,7 @@ main() {
 
 # Exécution
 main "$@"
+
+# Redémarrer le serveur Uvicorn (à adapter selon ton setup)
+pkill -f uvicorn
+nohup uvicorn repavi.asgi:application --host 127.0.0.1 --port 8000 --workers 2 &
