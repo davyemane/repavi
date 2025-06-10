@@ -1,0 +1,159 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Gestion des réservations - Admin RepAvi{% endblock %}
+{% block page_title %}Réservations{% endblock %}
+
+{% block content %}
+<!-- Header avec filtres -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+        <div>
+            <h2 class="text-lg font-semibold text-gray-900">Gestion des réservations</h2>
+            <p class="text-sm text-gray-600">{{ page_obj.paginator.count }} réservation{{ page_obj.paginator.count|pluralize }}</p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            <!-- Recherche -->
+            <form method="get" class="flex">
+                <input type="text" name="search" value="{{ search }}" 
+                       placeholder="Rechercher..." 
+                       class="px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <button type="submit" class="px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200">
+                    <i class="fas fa-search text-gray-600"></i>
+                </button>
+            </form>
+            
+            <!-- Filtre statut -->
+            <select name="statut" onchange="this.form.submit()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">Tous les statuts</option>
+                {% for value, label in statuts %}
+                    <option value="{{ value }}" {% if statut_actuel == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            
+            <a href="{% url 'repavi_admin:reservation_create' %}" 
+               class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                <i class="fas fa-plus mr-2"></i>Nouvelle réservation
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des réservations -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    {% if page_obj %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Maison</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dates</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for reservation in page_obj %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if reservation.maison.photo_principale %}
+                                        <img class="h-10 w-10 rounded-lg object-cover" src="{{ reservation.maison.photo_principale.url }}" alt="">
+                                    {% else %}
+                                        <div class="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                                            <i class="fas fa-home text-gray-400"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ reservation.maison.nom }}</div>
+                                        <div class="text-sm text-gray-500">{{ reservation.maison.ville }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ reservation.locataire.nom_complet|default:reservation.locataire.username }}</div>
+                                <div class="text-sm text-gray-500">{{ reservation.locataire.email }}</div>
+                                <div class="text-sm text-gray-500">{{ reservation.telephone }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ reservation.date_debut|date:"d M Y" }}</div>
+                                <div class="text-sm text-gray-500">{{ reservation.date_fin|date:"d M Y" }}</div>
+                                <div class="text-xs text-gray-400">{{ reservation.duree_sejour }} jour{{ reservation.duree_sejour|pluralize }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                    {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                    {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                                    {% elif reservation.statut == 'annulee' %}bg-red-100 text-red-800
+                                    {% elif reservation.statut == 'terminee' %}bg-gray-100 text-gray-800
+                                    {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    {{ reservation.get_statut_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ reservation.prix_total }}€</div>
+                                <div class="text-sm text-gray-500">{{ reservation.nombre_personnes }} pers.</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'repavi_admin:reservation_edit' reservation.pk %}" 
+                                       class="text-indigo-600 hover:text-indigo-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'repavi_admin:reservation_delete' reservation.pk %}" 
+                                       class="text-red-600 hover:text-red-900"
+                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-700">
+                        Affichage de {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ page_obj.paginator.count }} résultats
+                    </div>
+                    <div class="flex space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if statut_actuel %}&statut={{ statut_actuel }}{% endif %}" 
+                               class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                Précédent
+                            </a>
+                        {% endif %}
+                        
+                        <span class="px-3 py-2 text-sm bg-indigo-50 border border-indigo-200 rounded-md">
+                            Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if statut_actuel %}&statut={{ statut_actuel }}{% endif %}" 
+                               class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                Suivant
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-calendar-times text-gray-300 text-6xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune réservation</h3>
+            <p class="text-gray-600 mb-6">Aucune réservation ne correspond à vos critères</p>
+            <a href="{% url 'repavi_admin:reservation_create' %}" 
+               class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                <i class="fas fa-plus mr-2"></i>Créer la première réservation
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

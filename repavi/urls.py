@@ -13,6 +13,9 @@ urlpatterns = [
     
     # Site public
     path('', include('home.urls')),
+
+    path('users/', include('users.urls')),  # ← Ajouter cette ligne
+
 ]
 
 # Servir les fichiers média et statiques en développement

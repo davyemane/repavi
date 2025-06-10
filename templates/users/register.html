@@ -1,0 +1,191 @@
+{% extends 'users/base_auth.html' %}
+
+{% block title %}Inscription - RepAvi{% endblock %}
+
+{% block content %}
+<div>
+    <h2 class="text-center text-3xl font-bold text-gray-900 mb-8">
+        Créer votre compte RepAvi
+    </h2>
+
+    <form method="post" action="{% url 'users:register' %}" class="space-y-6" id="registerForm">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.username.label }}
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.username.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.email.label }}
+                </label>
+                {{ form.email }}
+                <div id="email-feedback" class="mt-1 text-sm"></div>
+                {% if form.email.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.email.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.first_name.label }}
+                </label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.first_name.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.last_name.label }}
+                </label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.last_name.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <label for="{{ form.telephone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                {{ form.telephone.label }}
+            </label>
+            {{ form.telephone }}
+            {% if form.telephone.errors %}
+                <div class="mt-1 text-sm text-red-600">
+                    {{ form.telephone.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-4">
+                {{ form.type_utilisateur.label }}
+            </label>
+            <div class="space-y-3">
+                {% for choice in form.type_utilisateur %}
+                    <div class="flex items-center p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition">
+                        {{ choice.tag }}
+                        <div class="ml-3">
+                            <span class="text-sm font-medium text-gray-900">{{ choice.choice_label }}</span>
+                            <p class="text-xs text-gray-500">
+                                {% if choice.data.value == 'locataire' %}
+                                    Je recherche des maisons à louer
+                                {% elif choice.data.value == 'proprietaire' %}
+                                    Je souhaite mettre en location mes biens
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                {{ form.password1.label }}
+            </label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+                <div class="mt-1 text-sm text-red-600">
+                    {{ form.password1.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                {{ form.password2.label }}
+            </label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+                <div class="mt-1 text-sm text-red-600">
+                    {{ form.password2.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="space-y-3">
+            <div class="flex items-start">
+                {{ form.accepter_conditions }}
+                <label for="{{ form.accepter_conditions.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                    {{ form.accepter_conditions.label }}
+                </label>
+            </div>
+            {% if form.accepter_conditions.errors %}
+                <div class="text-sm text-red-600">
+                    {{ form.accepter_conditions.errors.0 }}
+                </div>
+            {% endif %}
+
+            <div class="flex items-start">
+                {{ form.newsletter }}
+                <label for="{{ form.newsletter.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                    {{ form.newsletter.label }}
+                </label>
+            </div>
+        </div>
+
+        <div>
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                <i class="fas fa-user-plus mr-2"></i>
+                Créer mon compte
+            </button>
+        </div>
+    </form>
+
+    <div class="mt-6">
+        <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white text-gray-500">Déjà inscrit ?</span>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'users:login' %}" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                Se connecter
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Vérification email en temps réel
+$('#id_email').on('blur', function() {
+    const email = $(this).val();
+    if (email) {
+        $.get('{% url "users:user_exists_ajax" %}', {email: email}, function(data) {
+            if (data.exists) {
+                $('#email-feedback').html('<span class="text-red-600"><i class="fas fa-times mr-1"></i>Cet email est déjà utilisé</span>');
+            } else {
+                $('#email-feedback').html('<span class="text-green-600"><i class="fas fa-check mr-1"></i>Email disponible</span>');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,6 +1,6 @@
 # home/models.py
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings  # ← Changez cette ligne
 from django.urls import reverse
 from PIL import Image
 
@@ -60,7 +60,7 @@ class Maison(models.Model):
     machine_laver = models.BooleanField(default=False)
     
     # Métadonnées
-    proprietaire = models.ForeignKey(User, on_delete=models.CASCADE)
+    proprietaire = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
     
@@ -122,7 +122,7 @@ class Reservation(models.Model):
     ]
     
     maison = models.ForeignKey(Maison, on_delete=models.CASCADE)
-    locataire = models.ForeignKey(User, on_delete=models.CASCADE)
+    locataire = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_debut = models.DateField()
     date_fin = models.DateField()
     nombre_personnes = models.PositiveIntegerField()
