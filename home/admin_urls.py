@@ -1,4 +1,4 @@
-# home/admin_urls.py
+# home/admin_urls.py - Version adaptée avec décorateurs de permissions
 from django.urls import path
 from . import admin_views
 

@@ -1,12 +1,12 @@
-# users/forms.py
+# users/forms.py - Version adaptée avec nouveaux rôles
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from .models import User, ProfilProprietaire, ProfilLocataire
+from .models import User, ProfilGestionnaire, ProfilClient
 
 class CustomLoginForm(AuthenticationForm):
-    """Formulaire de connexion personnalisé"""
+    """Formulaire de connexion personnalisé - ADAPTÉ"""
     
     username = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -36,7 +36,7 @@ class CustomLoginForm(AuthenticationForm):
 
 
 class CustomRegistrationForm(UserCreationForm):
-    """Formulaire d'inscription personnalisé"""
+    """Formulaire d'inscription personnalisé - ADAPTÉ AVEC NOUVEAUX RÔLES"""
     
     username = forms.CharField(
         max_length=150,
@@ -83,13 +83,17 @@ class CustomRegistrationForm(UserCreationForm):
         label='Téléphone (optionnel)'
     )
     
-    type_utilisateur = forms.ChoiceField(
-        choices=User.TYPE_CHOICES,
+    # ADAPTATION: nouveaux rôles
+    role = forms.ChoiceField(
+        choices=[
+            ('CLIENT', 'Client - Je souhaite réserver des maisons'),
+            ('GESTIONNAIRE', 'Gestionnaire - Je souhaite mettre mes maisons en location'),
+        ],
         widget=forms.RadioSelect(attrs={
             'class': 'text-indigo-600 focus:ring-indigo-500'
         }),
         label='Je suis un(e)',
-        initial='locataire'
+        initial='CLIENT'
     )
     
     password1 = forms.CharField(
@@ -126,7 +130,7 @@ class CustomRegistrationForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'telephone', 'type_utilisateur', 
+        fields = ('username', 'email', 'first_name', 'last_name', 'telephone', 'role', 
                  'password1', 'password2', 'accepter_conditions', 'newsletter')
     
     def clean_username(self):
@@ -148,23 +152,23 @@ class CustomRegistrationForm(UserCreationForm):
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.telephone = self.cleaned_data.get('telephone', '')
-        user.type_utilisateur = self.cleaned_data['type_utilisateur']
+        user.role = self.cleaned_data['role']  # NOUVEAU
         user.newsletter = self.cleaned_data.get('newsletter', True)
         
         if commit:
             user.save()
             
-            # Créer le profil étendu selon le type d'utilisateur
-            if user.type_utilisateur == 'proprietaire':
-                ProfilProprietaire.objects.create(user=user)
-            elif user.type_utilisateur == 'locataire':
-                ProfilLocataire.objects.create(user=user)
+            # Créer le profil étendu selon le nouveau rôle
+            if user.role == 'GESTIONNAIRE':
+                ProfilGestionnaire.objects.create(user=user)
+            elif user.role == 'CLIENT':
+                ProfilClient.objects.create(user=user)
         
         return user
 
 
 class ProfileForm(forms.ModelForm):
-    """Formulaire de modification du profil"""
+    """Formulaire de modification du profil - ADAPTÉ"""
     
     class Meta:
         model = User
@@ -213,6 +217,83 @@ class ProfileForm(forms.ModelForm):
             'notifications_sms': forms.CheckboxInput(attrs={
                 'class': 'w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
             }),
+        }
+
+
+# NOUVEAU : Formulaire pour profil gestionnaire
+class ProfilGestionnaireForm(forms.ModelForm):
+    """Formulaire pour le profil étendu des gestionnaires"""
+    
+    class Meta:
+        model = ProfilGestionnaire
+        fields = ['siret', 'raison_sociale', 'iban', 'bic', 'piece_identite', 
+                 'justificatif_domicile', 'kbis', 'auto_acceptation', 'delai_reponse_max']
+        
+        widgets = {
+            'siret': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'placeholder': '12345678901234'
+            }),
+            'raison_sociale': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'placeholder': 'Nom de votre société'
+            }),
+            'iban': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'placeholder': 'FR76 XXXX XXXX XXXX XXXX XXXX XXX'
+            }),
+            'bic': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'placeholder': 'BNPAFRPP'
+            }),
+            'piece_identite': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'accept': '.pdf,.jpg,.jpeg,.png'
+            }),
+            'justificatif_domicile': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'accept': '.pdf,.jpg,.jpeg,.png'
+            }),
+            'kbis': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'accept': '.pdf,.jpg,.jpeg,.png'
+            }),
+            'auto_acceptation': forms.CheckboxInput(attrs={
+                'class': 'w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
+            }),
+            'delai_reponse_max': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'min': 1,
+                'max': 168
+            }),
+        }
+
+
+# NOUVEAU : Formulaire pour profil client
+class ProfilClientForm(forms.ModelForm):
+    """Formulaire pour le profil étendu des clients"""
+    
+    class Meta:
+        model = ProfilClient
+        fields = ['type_sejour_prefere', 'piece_identite', 'langue_preferee']
+        
+        widgets = {
+            'type_sejour_prefere': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
+            }),
+            'piece_identite': forms.ClearableFileInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'accept': '.pdf,.jpg,.jpeg,.png'
+            }),
+            'langue_preferee': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
+            }, choices=[
+                ('fr', 'Français'),
+                ('en', 'English'),
+                ('es', 'Español'),
+                ('de', 'Deutsch'),
+                ('it', 'Italiano'),
+            ]),
         }
 
 
@@ -292,3 +373,22 @@ class PasswordResetForm(forms.Form):
             raise ValidationError("Les mots de passe ne correspondent pas.")
         
         return cleaned_data
+
+
+# NOUVEAU : Formulaire de changement de rôle (Super Admin seulement)
+class ChangeUserRoleForm(forms.ModelForm):
+    """Formulaire pour changer le rôle d'un utilisateur (Super Admin)"""
+    
+    class Meta:
+        model = User
+        fields = ['role']
+        widgets = {
+            'role': forms.Select(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
+            })
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Seuls les super admins peuvent changer les rôles
+        self.fields['role'].choices = User.ROLE_CHOICES

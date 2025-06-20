@@ -1,0 +1,257 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance en cours - RepAvi</title>
+    <meta name="description" content="Site en maintenance - RepAvi">
+
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-background {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .maintenance-animation {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        .progress-bar {
+            animation: progress 8s ease-in-out infinite;
+        }
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 75%; }
+            100% { width: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <div class="min-h-screen bg-gray-50 flex flex-col justify-center">
+        <div class="max-w-lg mx-auto px-4 text-center">
+            <!-- Illustration de maintenance -->
+            <div class="mb-8">
+                <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-indigo-400 to-purple-600 rounded-full flex items-center justify-center maintenance-animation">
+                    <i class="fas fa-tools text-6xl text-white"></i>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">
+                    Maintenance en cours
+                </h1>
+                
+                <p class="text-gray-600 text-lg mb-8">
+                    Nous effectuons actuellement une maintenance programmée pour améliorer votre expérience. 
+                    Le site sera de nouveau disponible très bientôt !
+                </p>
+            </div>
+
+            <!-- Barre de progression -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-8">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-cog mr-2 text-indigo-600"></i>
+                        Progression de la maintenance
+                    </h3>
+                    <span class="text-sm text-gray-500" id="progress-text">En cours...</span>
+                </div>
+                
+                <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                    <div class="progress-bar bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full"></div>
+                </div>
+                
+                <div class="text-sm text-gray-600">
+                    <p>Mise à jour des serveurs et amélioration des performances</p>
+                </div>
+            </div>
+
+            <!-- Informations sur la maintenance -->
+            <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 mb-8">
+                <h3 class="text-lg font-medium text-indigo-900 mb-4">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Informations sur la maintenance
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-indigo-800">
+                    <div>
+                        <strong>Début :</strong> 02:00 CET
+                    </div>
+                    <div>
+                        <strong>Fin prévue :</strong> 04:00 CET
+                    </div>
+                    <div>
+                        <strong>Durée :</strong> ~2 heures
+                    </div>
+                    <div>
+                        <strong>Statut :</strong> 
+                        <span class="inline-flex items-center">
+                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
+                            En cours
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Améliorations apportées -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-rocket mr-2 text-green-600"></i>
+                    Améliorations en cours
+                </h3>
+                
+                <div class="grid grid-cols-1 gap-3 text-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        <span class="text-gray-700">Optimisation des performances</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-500 mr-3"></i>
+                        <span class="text-gray-700">Mise à jour de sécurité</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-spinner fa-spin text-blue-500 mr-3"></i>
+                        <span class="text-gray-700">Amélioration de l'interface</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-orange-500 mr-3"></i>
+                        <span class="text-gray-700">Nouvelles fonctionnalités</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temps d'attente estimé -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
+                <h3 class="text-lg font-medium text-yellow-900 mb-3">
+                    <i class="fas fa-clock mr-2"></i>
+                    Temps d'attente estimé
+                </h3>
+                
+                <div class="text-3xl font-bold text-yellow-800 mb-2" id="countdown">
+                    -- : -- : --
+                </div>
+                
+                <p class="text-yellow-700 text-sm">
+                    Le site sera automatiquement rechargé dès la fin de la maintenance
+                </p>
+            </div>
+
+            <!-- Actions alternatives -->
+            <div class="space-y-4 mb-8">
+                <div class="text-lg font-medium text-gray-900 mb-4">
+                    En attendant, vous pouvez :
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="mailto:contact@repavi.com" 
+                       class="flex items-center justify-center px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Nous contacter
+                    </a>
+                    
+                    <a href="tel:+33123456789" 
+                       class="flex items-center justify-center px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-phone mr-2"></i>
+                        Appeler le support
+                    </a>
+                </div>
+                
+                <button onclick="location.reload()" 
+                        class="w-full flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-refresh mr-2"></i>
+                    Actualiser la page
+                </button>
+            </div>
+
+            <!-- Réseaux sociaux -->
+            <div class="bg-gray-100 rounded-2xl p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    Suivez-nous pour les dernières nouvelles
+                </h3>
+                
+                <div class="flex justify-center space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-blue-500 transition-colors">
+                        <i class="fab fa-facebook-f text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors">
+                        <i class="fab fa-twitter text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-pink-500 transition-colors">
+                        <i class="fab fa-instagram text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-blue-600 transition-colors">
+                        <i class="fab fa-linkedin-in text-2xl"></i>
+                    </a>
+                </div>
+                
+                <p class="text-gray-500 text-sm mt-4">
+                    Merci pour votre patience ! 💙
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Countdown timer (estimation)
+        function updateCountdown() {
+            const targetTime = new Date();
+            targetTime.setHours(4, 0, 0, 0); // 4:00 AM
+            
+            if (targetTime <= new Date()) {
+                targetTime.setDate(targetTime.getDate() + 1);
+            }
+            
+            const now = new Date();
+            const timeLeft = targetTime - now;
+            
+            if (timeLeft > 0) {
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdown').textContent = 
+                    `${hours.toString().padStart(2, '0')} : ${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')}`;
+            } else {
+                document.getElementById('countdown').textContent = '00 : 00 : 00';
+                document.getElementById('progress-text').textContent = 'Terminé !';
+                // Auto-reload après la fin prévue
+                setTimeout(() => location.reload(), 5000);
+            }
+        }
+        
+        // Mettre à jour toutes les secondes
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        
+        // Auto-refresh toutes les 30 secondes pour vérifier si la maintenance est finie
+        setInterval(() => {
+            // Dans un vrai environnement, vous pourriez faire un appel AJAX pour vérifier le statut
+            // location.reload();
+        }, 30000);
+        
+        // Simuler la progression
+        let progress = 0;
+        setInterval(() => {
+            progress += Math.random() * 5;
+            if (progress > 100) progress = 100;
+            document.getElementById('progress-text').textContent = `${Math.round(progress)}% terminé`;
+        }, 2000);
+    </script>
+</body>
+</html>

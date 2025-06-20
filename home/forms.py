@@ -1,7 +1,10 @@
-# home/forms.py
+# home/forms.py - Version adaptée avec nouveaux rôles
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Ville, CategorieMaison, Maison, PhotoMaison, Reservation
+
+User = get_user_model()
+
 
 class VilleForm(forms.ModelForm):
     class Meta:
@@ -25,6 +28,7 @@ class VilleForm(forms.ModelForm):
                 'value': 'France'
             }),
         }
+
 
 class CategorieMaisonForm(forms.ModelForm):
     COULEUR_CHOICES = [
@@ -60,7 +64,10 @@ class CategorieMaisonForm(forms.ModelForm):
             }),
         }
 
+
 class MaisonForm(forms.ModelForm):
+    """Formulaire pour les maisons - ADAPTÉ avec gestionnaire"""
+    
     class Meta:
         model = Maison
         fields = [
@@ -68,7 +75,7 @@ class MaisonForm(forms.ModelForm):
             'nombre_chambres', 'nombre_salles_bain', 'superficie', 'prix_par_nuit',
             'disponible', 'featured', 'categorie', 'wifi', 'parking', 'piscine',
             'jardin', 'climatisation', 'lave_vaisselle', 'machine_laver',
-            'proprietaire', 'slug'
+            'gestionnaire', 'slug'
         ]
         widgets = {
             'nom': forms.TextInput(attrs={
@@ -116,7 +123,7 @@ class MaisonForm(forms.ModelForm):
             'categorie': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
             }),
-            'proprietaire': forms.Select(attrs={
+            'gestionnaire': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
             }),
             'slug': forms.TextInput(attrs={
@@ -152,6 +159,26 @@ class MaisonForm(forms.ModelForm):
                 'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filtrer les gestionnaires disponibles selon les permissions
+        if user:
+            if user.is_super_admin():
+                # Super admin peut assigner n'importe quel gestionnaire
+                self.fields['gestionnaire'].queryset = User.objects.filter(
+                    role__in=['GESTIONNAIRE', 'SUPER_ADMIN']
+                )
+            elif user.is_gestionnaire():
+                # Gestionnaire ne peut s'assigner que lui-même
+                self.fields['gestionnaire'].queryset = User.objects.filter(id=user.id)
+                self.fields['gestionnaire'].initial = user
+            else:
+                # Autres utilisateurs ne peuvent pas créer de maisons
+                self.fields['gestionnaire'].queryset = User.objects.none()
+
 
 class PhotoMaisonForm(forms.ModelForm):
     class Meta:
@@ -162,7 +189,8 @@ class PhotoMaisonForm(forms.ModelForm):
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
             }),
             'image': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'accept': 'image/*'
             }),
             'titre': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
@@ -177,19 +205,30 @@ class PhotoMaisonForm(forms.ModelForm):
                 'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filtrer les maisons selon les permissions
+        if user and not user.is_super_admin():
+            self.fields['maison'].queryset = Maison.objects.filter(gestionnaire=user)
+
 
 class ReservationForm(forms.ModelForm):
+    """Formulaire pour les réservations - ADAPTÉ avec client"""
+    
     class Meta:
         model = Reservation
         fields = [
-            'maison', 'locataire', 'date_debut', 'date_fin', 'nombre_personnes',
+            'maison', 'client', 'date_debut', 'date_fin', 'nombre_personnes',
             'prix_total', 'statut', 'telephone', 'message'
         ]
         widgets = {
             'maison': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
             }),
-            'locataire': forms.Select(attrs={
+            'client': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
             }),
             'date_debut': forms.DateInput(attrs={
@@ -206,7 +245,8 @@ class ReservationForm(forms.ModelForm):
             }),
             'prix_total': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'step': '0.01'
+                'step': '0.01',
+                'readonly': True
             }),
             'statut': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
@@ -221,8 +261,33 @@ class ReservationForm(forms.ModelForm):
                 'placeholder': 'Message du client...'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filtrer selon les permissions utilisateur
+        if user:
+            if user.is_super_admin():
+                # Super admin voit tout
+                self.fields['client'].queryset = User.objects.filter(role='CLIENT')
+                self.fields['maison'].queryset = Maison.objects.all()
+            elif user.is_gestionnaire():
+                # Gestionnaire voit ses maisons et tous les clients
+                self.fields['client'].queryset = User.objects.filter(role='CLIENT')
+                self.fields['maison'].queryset = Maison.objects.filter(gestionnaire=user)
+            elif user.is_client():
+                # Client ne peut réserver que pour lui-même
+                self.fields['client'].queryset = User.objects.filter(id=user.id)
+                self.fields['client'].initial = user
+                self.fields['client'].widget = forms.HiddenInput()
+                self.fields['maison'].queryset = Maison.objects.filter(disponible=True)
+                # Masquer certains champs pour les clients
+                self.fields['statut'].widget = forms.HiddenInput()
+                self.fields['prix_total'].widget = forms.HiddenInput()
 
-# Formulaire de recherche/filtre
+
+# Formulaire de recherche/filtre - ADAPTÉ
 class MaisonFilterForm(forms.Form):
     search = forms.CharField(
         required=False,
@@ -260,4 +325,143 @@ class MaisonFilterForm(forms.Form):
         widget=forms.Select(attrs={
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
         })
+    )
+    prix_min = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'placeholder': 'Prix min €'
+        })
+    )
+    prix_max = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'placeholder': 'Prix max €'
+        })
+    )
+    capacite_min = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'placeholder': 'Personnes min'
+        })
+    )
+
+
+# NOUVEAU : Formulaire de réservation pour clients
+class ClientReservationForm(forms.Form):
+    """Formulaire simplifié pour les clients sur la page publique"""
+    
+    date_debut = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'type': 'date',
+            'id': 'date_debut'
+        }),
+        label='Date d\'arrivée'
+    )
+    
+    date_fin = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'type': 'date',
+            'id': 'date_fin'
+        }),
+        label='Date de départ'
+    )
+    
+    nombre_personnes = forms.IntegerField(
+        min_value=1,
+        max_value=20,
+        widget=forms.NumberInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'id': 'nombre_personnes'
+        }),
+        label='Nombre de personnes'
+    )
+    
+    message = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'rows': 3,
+            'placeholder': 'Message pour le gestionnaire (optionnel)...'
+        }),
+        label='Message'
+    )
+    
+    telephone = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'placeholder': 'Votre numéro de téléphone'
+        }),
+        label='Téléphone'
+    )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        date_debut = cleaned_data.get('date_debut')
+        date_fin = cleaned_data.get('date_fin')
+        
+        if date_debut and date_fin:
+            if date_debut >= date_fin:
+                raise forms.ValidationError("La date de départ doit être postérieure à la date d'arrivée.")
+            
+            # Vérifier que la date de début n'est pas dans le passé
+            from django.utils import timezone
+            if date_debut < timezone.now().date():
+                raise forms.ValidationError("La date d'arrivée ne peut pas être dans le passé.")
+        
+        return cleaned_data
+
+
+# NOUVEAU : Formulaire de contact
+class ContactForm(forms.Form):
+    """Formulaire de contact"""
+    
+    nom = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'placeholder': 'Votre nom'
+        })
+    )
+    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'placeholder': 'votre@email.com'
+        })
+    )
+    
+    sujet = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'placeholder': 'Sujet de votre message'
+        })
+    )
+    
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            'rows': 6,
+            'placeholder': 'Votre message...'
+        })
+    )
+    
+    type_demande = forms.ChoiceField(
+        choices=[
+            ('info', 'Demande d\'information'),
+            ('reservation', 'Question sur une réservation'),
+            ('gestionnaire', 'Devenir gestionnaire'),
+            ('support', 'Support technique'),
+            ('autre', 'Autre')
+        ],
+        widget=forms.Select(attrs={
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
+        }),
+        label='Type de demande'
     )

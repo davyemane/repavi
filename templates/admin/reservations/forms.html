@@ -1,0 +1,244 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ action }} une réservation - Administration RepAvi{% endblock %}
+{% block page_title %}{{ action }} une réservation{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'repavi_admin:reservations_list' %}" class="hover:text-gray-700">Réservations</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">{{ action }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-3xl">
+        <form method="post" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+            {% csrf_token %}
+            
+            <div class="space-y-8">
+                <!-- Informations principales -->
+                <div class="bg-gray-50 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations de base</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.maison.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Maison *
+                            </label>
+                            {{ form.maison }}
+                            {% if form.maison.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.maison.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.locataire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Locataire *
+                            </label>
+                            {{ form.locataire }}
+                            {% if form.locataire.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.locataire.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dates et séjour -->
+                <div class="bg-blue-50 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Dates et séjour</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="{{ form.date_debut.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Date d'arrivée *
+                            </label>
+                            {{ form.date_debut }}
+                            {% if form.date_debut.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.date_debut.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.date_fin.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Date de départ *
+                            </label>
+                            {{ form.date_fin }}
+                            {% if form.date_fin.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.date_fin.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.nombre_personnes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Nombre de personnes *
+                            </label>
+                            {{ form.nombre_personnes }}
+                            {% if form.nombre_personnes.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.nombre_personnes.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prix et statut -->
+                <div class="bg-green-50 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Prix et statut</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.prix_total.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Prix total (€) *
+                            </label>
+                            {{ form.prix_total }}
+                            {% if form.prix_total.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.prix_total.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-sm text-gray-500">Montant total de la réservation</p>
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.statut.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Statut de la réservation *
+                            </label>
+                            {{ form.statut }}
+                            {% if form.statut.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.statut.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact et message -->
+                <div class="bg-purple-50 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations de contact</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label for="{{ form.telephone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Téléphone de contact
+                            </label>
+                            {{ form.telephone }}
+                            {% if form.telephone.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.telephone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.message.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Message du client
+                            </label>
+                            {{ form.message }}
+                            {% if form.message.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.message.errors.0 }}</p>
+                            {% endif %}
+                            <p class="mt-1 text-sm text-gray-500">Demandes spéciales ou commentaires</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Résumé de la réservation (si modification) -->
+                {% if objet %}
+                <div class="bg-gray-100 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Résumé actuel</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium text-gray-600">Durée :</span>
+                            <span class="text-gray-900">{{ objet.duree_sejour }} jour{{ objet.duree_sejour|pluralize }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-600">Créée le :</span>
+                            <span class="text-gray-900">{{ objet.date_creation|date:"d/m/Y à H:i" }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-600">Dernière modif :</span>
+                            <span class="text-gray-900">{{ objet.date_modification|date:"d/m/Y à H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex items-center justify-between pt-8 border-t border-gray-200 mt-8">
+                <a href="{% url 'repavi_admin:reservations_list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour à la liste
+                </a>
+                
+                <div class="flex items-center space-x-4">
+                    {% if objet %}
+                        <a href="mailto:{{ objet.locataire.email }}?subject=Réservation {{ objet.maison.nom }}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-envelope mr-2"></i>
+                            Contacter le client
+                        </a>
+                    {% endif %}
+                    
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-save mr-2"></i>
+                        {% if objet %}Mettre à jour{% else %}Créer la réservation{% endif %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Calcul automatique du prix total basé sur les dates
+    function calculateTotal() {
+        const dateDebut = document.getElementById('{{ form.date_debut.id_for_label }}').value;
+        const dateFin = document.getElementById('{{ form.date_fin.id_for_label }}').value;
+        const maisonSelect = document.getElementById('{{ form.maison.id_for_label }}');
+        
+        if (dateDebut && dateFin && maisonSelect.value) {
+            const debut = new Date(dateDebut);
+            const fin = new Date(dateFin);
+            const diffTime = Math.abs(fin - debut);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Ici vous pourriez faire un appel AJAX pour récupérer le prix de la maison
+            // ou utiliser une méthode côté client si les prix sont disponibles
+            console.log(`Séjour de ${diffDays} jours`);
+        }
+    }
+    
+    // Écouteurs d'événements pour le calcul automatique
+    document.getElementById('{{ form.date_debut.id_for_label }}').addEventListener('change', calculateTotal);
+    document.getElementById('{{ form.date_fin.id_for_label }}').addEventListener('change', calculateTotal);
+    document.getElementById('{{ form.maison.id_for_label }}').addEventListener('change', calculateTotal);
+    
+    // Validation des dates
+    document.getElementById('{{ form.date_debut.id_for_label }}').addEventListener('change', function() {
+        const dateDebut = this.value;
+        const dateFin = document.getElementById('{{ form.date_fin.id_for_label }}');
+        
+        // La date de fin ne peut pas être antérieure à la date de début
+        if (dateDebut) {
+            dateFin.min = dateDebut;
+            
+            // Si la date de fin est déjà renseignée et est antérieure, la corriger
+            if (dateFin.value && dateFin.value <= dateDebut) {
+                const nextDay = new Date(dateDebut);
+                nextDay.setDate(nextDay.getDate() + 1);
+                dateFin.value = nextDay.toISOString().split('T')[0];
+            }
+        }
+    });
+</script>
+{% if not objet %}
+<script>
+    // Définir la date minimum à aujourd'hui pour les nouvelles réservations
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('{{ form.date_debut.id_for_label }}').min = today;
+</script>
+{% endif %}
+{% endblock %}

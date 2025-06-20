@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur technique - RepAvi</title>
+    <meta name="description" content="Une erreur technique est survenue">
+
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-background {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <div class="min-h-screen bg-gray-50 flex flex-col justify-center">
+        <div class="max-w-lg mx-auto px-4 text-center">
+            <!-- Illustration d'erreur -->
+            <div class="mb-8">
+                <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-red-400 to-orange-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-6xl text-white"></i>
+                </div>
+                
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                    Erreur technique
+                </h1>
+                
+                <p class="text-gray-600 text-lg mb-8">
+                    Une erreur inattendue s'est produite sur nos serveurs. 
+                    Nos équipes techniques ont été automatiquement alertées et travaillent à résoudre le problème.
+                </p>
+            </div>
+
+            <!-- Code d'erreur -->
+            <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+                <div class="flex items-center justify-center mb-3">
+                    <i class="fas fa-bug text-red-500 mr-2"></i>
+                    <span class="text-red-700 font-medium">Erreur 500 - Erreur interne du serveur</span>
+                </div>
+                <p class="text-red-600 text-sm">
+                    Veuillez réessayer dans quelques minutes. Si le problème persiste, contactez notre support.
+                </p>
+            </div>
+
+            <!-- Actions suggérées -->
+            <div class="space-y-4 mb-8">
+                <button onclick="location.reload()" 
+                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    <i class="fas fa-redo mr-2"></i>
+                    Réessayer
+                </button>
+                
+                <a href="/" 
+                   class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    <i class="fas fa-home mr-2"></i>
+                    Retour à l'accueil
+                </a>
+                
+                <button onclick="history.back()" 
+                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour à la page précédente
+                </button>
+            </div>
+
+            <!-- Statut du service -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-chart-line mr-2 text-green-600"></i>
+                    Statut des services
+                </h3>
+                
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Site web</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                            <span class="text-red-600 font-medium">Problème détecté</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Base de données</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                            <span class="text-yellow-600 font-medium">En cours de vérification</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Paiements</span>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-green-600 font-medium">Opérationnel</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-xs text-gray-500">
+                        Dernière mise à jour : <span id="currentTime"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Informations de contact -->
+            <div class="bg-gray-100 rounded-2xl p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-headset mr-2 text-indigo-600"></i>
+                    Besoin d'aide immédiate ?
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div class="text-center p-3 bg-white rounded-lg">
+                        <i class="fas fa-envelope text-indigo-600 mb-2"></i>
+                        <p class="text-gray-600">Email</p>
+                        <a href="mailto:support@repavi.com" class="text-indigo-600 hover:text-indigo-700 font-medium">
+                            support@repavi.com
+                        </a>
+                    </div>
+                    <div class="text-center p-3 bg-white rounded-lg">
+                        <i class="fas fa-phone text-indigo-600 mb-2"></i>
+                        <p class="text-gray-600">Téléphone</p>
+                        <a href="tel:+33123456789" class="text-indigo-600 hover:text-indigo-700 font-medium">
+                            +33 1 23 45 67 89
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-gray-500">
+                        Support disponible 24h/7j pour les urgences techniques
+                    </p>
+                </div>
+            </div>
+
+            <!-- Message d'excuses -->
+            <div class="mt-8 text-center">
+                <p class="text-gray-500 text-sm">
+                    Nous nous excusons pour la gêne occasionnée et mettons tout en œuvre pour résoudre ce problème rapidement.
+                </p>
+                <p class="text-gray-400 text-xs mt-2">
+                    Équipe technique RepAvi
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Afficher l'heure actuelle
+        document.getElementById('currentTime').textContent = new Date().toLocaleString('fr-FR');
+        
+        // Auto-refresh après 30 secondes
+        setTimeout(function() {
+            if (confirm('Voulez-vous réessayer de charger la page ?')) {
+                location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

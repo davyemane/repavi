@@ -1,4 +1,4 @@
-# users/urls.py
+# users/urls.py - Version adaptée avec nouveaux rôles
 from django.urls import path
 from . import views
 
@@ -24,10 +24,21 @@ urlpatterns = [
     path('account-settings/', views.account_settings_view, name='account_settings'),
     path('delete-account/', views.delete_account_view, name='delete_account'),
     
-    # Dashboards
+    # Dashboards selon les nouveaux rôles
     path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('dashboard/proprietaire/', views.dashboard_proprietaire_view, name='dashboard_proprietaire'),
-    path('dashboard/locataire/', views.dashboard_locataire_view, name='dashboard_locataire'),
+    path('dashboard/gestionnaire/', views.dashboard_gestionnaire_view, name='dashboard_gestionnaire'),
+    path('dashboard/client/', views.dashboard_client_view, name='dashboard_client'),
+    
+    # NOUVELLES VUES SPÉCIFIQUES AUX RÔLES
+    # Pour les clients
+    path('mes-reservations/', views.mes_reservations_view, name='mes_reservations'),
+    
+    # Pour les gestionnaires
+    path('mes-maisons/', views.mes_maisons_view, name='mes_maisons'),
+    
+    # Pour les super admins
+    path('admin/users/', views.admin_users_list, name='admin_users_list'),
+    path('admin/users/<int:user_id>/change-role/', views.change_user_role_view, name='change_user_role'),
     
     # API/AJAX endpoints
     path('api/check-password/', views.check_password_ajax, name='check_password_ajax'),

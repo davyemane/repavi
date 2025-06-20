@@ -1,0 +1,15 @@
+<!-- components/footer.html -->
+<!-- Footer principal avec liens et informations -->
+
+<footer class="bg-gray-900 text-white">
+    <!-- Section principale -->
+    <div class="max-w-6xl mx-auto px-4 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Logo et description -->
+            <div class="lg:col-span-1">
+                <a href="{% url 'home:index' %}" class="flex items-center mb-4">
+                    <img src="{% static 'images/logo.png' %}" alt="Logo RepAvi" class="h-10 mr-3">
+                    <span class="text-2xl font-bold">RepAvi</span>
+                </a>
+                <p class="text-gray-400">Votre plateforme de location de maisons d'exception.</p>
+            </div>  

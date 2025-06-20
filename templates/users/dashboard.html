@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - RepAvi{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header avec navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'home:index' %}" class="text-2xl font-bold text-indigo-600">RepAvi</a>
+                    <span class="ml-3 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full font-medium">
+                        Dashboard
+                    </span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'home:index' %}" 
+                       class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fas fa-home mr-1"></i>Accueil
+                    </a>
+                    
+                    <!-- Menu utilisateur -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors">
+                            {% if user.photo_profil %}
+                                <img src="{{ user.photo_profil.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-500"></i>
+                                </div>
+                            {% endif %}
+                            <span class="font-medium">{{ user.first_name|default:user.username }}</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        
+                        <!-- Dropdown -->
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <div class="py-2">
+                                <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-user mr-2"></i>Mon profil
+                                </a>
+                                <a href="{% url 'users:account_settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <i class="fas fa-cog mr-2"></i>Paramètres
+                                </a>
+                                <hr class="my-1">
+                                <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal basé sur le type d'utilisateur -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {% if user.est_admin %}
+            <!-- Dashboard Admin -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard Administrateur</h1>
+                <p class="text-gray-600 mt-2">Gérez votre plateforme RepAvi</p>
+            </div>
+
+            <!-- Statistiques Admin -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-home text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Total Maisons</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ stats.total_maisons|default:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Utilisateurs</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ stats.total_users|default:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Réservations</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ stats.total_reservations|default:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-euro-sign text-yellow-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">CA ce mois</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ stats.revenus_mois|default:0 }}€</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions rapides Admin -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Actions rapides</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="{% url 'repavi_admin:dashboard' %}" 
+                       class="flex flex-col items-center p-6 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors group">
+                        <i class="fas fa-tachometer-alt text-blue-600 text-2xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium text-gray-900">Interface Admin</span>
+                    </a>
+                    
+                    <a href="{% url 'repavi_admin:maisons_list' %}" 
+                       class="flex flex-col items-center p-6 bg-green-50 hover:bg-green-100 rounded-xl transition-colors group">
+                        <i class="fas fa-home text-green-600 text-2xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium text-gray-900">Gérer Maisons</span>
+                    </a>
+                    
+                    <a href="{% url 'repavi_admin:reservations_list' %}" 
+                       class="flex flex-col items-center p-6 bg-purple-50 hover:bg-purple-100 rounded-xl transition-colors group">
+                        <i class="fas fa-calendar text-purple-600 text-2xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium text-gray-900">Réservations</span>
+                    </a>
+                    
+                    <a href="{% url 'users:account_settings' %}" 
+                       class="flex flex-col items-center p-6 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors group">
+                        <i class="fas fa-cog text-orange-600 text-2xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium text-gray-900">Paramètres</span>
+                    </a>
+                </div>
+            </div>
+
+        {% elif user.est_proprietaire %}
+            <!-- Redirection vers dashboard propriétaire -->
+            <div class="text-center py-16">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-home text-blue-600 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Redirection vers votre espace propriétaire</h2>
+                <p class="text-gray-600 mb-6">Vous allez être redirigé vers votre tableau de bord propriétaire...</p>
+                <a href="{% url 'users:dashboard_proprietaire' %}" 
+                   class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    Accéder au dashboard propriétaire
+                </a>
+            </div>
+            
+            <script>
+                // Redirection automatique après 2 secondes
+                setTimeout(function() {
+                    window.location.href = "{% url 'users:dashboard_proprietaire' %}";
+                }, 2000);
+            </script>
+
+        {% elif user.est_locataire %}
+            <!-- Redirection vers dashboard locataire -->
+            <div class="text-center py-16">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user text-green-600 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Redirection vers votre espace locataire</h2>
+                <p class="text-gray-600 mb-6">Vous allez être redirigé vers votre tableau de bord locataire...</p>
+                <a href="{% url 'users:dashboard_locataire' %}" 
+                   class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    Accéder au dashboard locataire
+                </a>
+            </div>
+            
+            <script>
+                // Redirection automatique après 2 secondes
+                setTimeout(function() {
+                    window.location.href = "{% url 'users:dashboard_locataire' %}";
+                }, 2000);
+            </script>
+
+        {% else %}
+            <!-- Utilisateur sans type défini -->
+            <div class="text-center py-16">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-question text-gray-400 text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Configuration de compte nécessaire</h2>
+                <p class="text-gray-600 mb-6">Votre type de compte n'est pas défini. Veuillez contacter l'administrateur.</p>
+                <div class="space-x-4">
+                    <a href="{% url 'users:profile' %}" 
+                       class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-user mr-2"></i>
+                        Mon profil
+                    </a>
+                    <a href="{% url 'home:contact' %}" 
+                       class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-headset mr-2"></i>
+                        Contacter le support
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Section aide commune -->
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white">
+            <div class="max-w-3xl">
+                <h3 class="text-2xl font-bold mb-4">Besoin d'aide ?</h3>
+                <p class="text-indigo-100 mb-6">
+                    Notre équipe support est disponible pour vous accompagner dans l'utilisation de RepAvi.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'home:contact' %}" 
+                       class="inline-flex items-center px-6 py-3 bg-white text-indigo-600 rounded-xl font-medium hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Nous contacter
+                    </a>
+                    <a href="{% url 'home:apropos' %}" 
+                       class="inline-flex items-center px-6 py-3 border-2 border-white text-white rounded-xl font-medium hover:bg-white hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        En savoir plus
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

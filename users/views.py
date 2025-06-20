@@ -1,4 +1,4 @@
-# users/views.py
+# users/views.py - Version adaptée avec nouveaux rôles et services
 import uuid
 from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,15 +14,18 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 
-from .models import User, TokenVerificationEmail, PasswordResetToken
+from services.reservation_service import ReservationService
+from services.statistics_service import StatisticsService
+from .models import User, TokenVerificationEmail, PasswordResetToken, ProfilGestionnaire, ProfilClient
 from .forms import (
     CustomLoginForm, CustomRegistrationForm, ProfileForm,
-    CustomPasswordChangeForm, PasswordResetRequestForm, PasswordResetForm
+    CustomPasswordChangeForm, PasswordResetRequestForm, PasswordResetForm,
+    ProfilGestionnaireForm, ProfilClientForm, ChangeUserRoleForm
 )
 
 
 def login_view(request):
-    """Vue de connexion"""
+    """Vue de connexion - ADAPTÉE AVEC REDIRECTIONS PAR RÔLE"""
     if request.user.is_authenticated:
         return redirect('home:index')
     
@@ -34,7 +37,7 @@ def login_view(request):
             
             # Gérer "Se souvenir de moi"
             if not form.cleaned_data.get('remember_me'):
-                request.session.set_expiry(0)  # Session expire à la fermeture du navigateur
+                request.session.set_expiry(0)
             
             # Mettre à jour les infos de connexion
             user.date_derniere_connexion_complete = timezone.now()
@@ -44,16 +47,18 @@ def login_view(request):
             
             messages.success(request, f'Bon retour, {user.first_name}!')
             
-            # Redirection après connexion
+            # Redirection après connexion selon le NOUVEAU SYSTÈME DE RÔLES
             next_url = request.GET.get('next')
             if next_url:
                 return redirect(next_url)
             
-            # Redirection selon le type d'utilisateur
-            if user.est_admin:
+            # Redirection selon le nouveau rôle
+            if user.is_super_admin() or user.is_superuser:
                 return redirect('repavi_admin:dashboard')
-            elif user.est_proprietaire:
-                return redirect('users:dashboard_proprietaire')
+            elif user.is_gestionnaire():
+                return redirect('users:dashboard_gestionnaire')
+            elif user.is_client():
+                return redirect('users:dashboard_client')
             else:
                 return redirect('home:index')
         else:
@@ -65,7 +70,7 @@ def login_view(request):
 
 
 def register_view(request):
-    """Vue d'inscription"""
+    """Vue d'inscription - ADAPTÉE AVEC NOUVEAUX RÔLES"""
     if request.user.is_authenticated:
         return redirect('home:index')
     
@@ -79,8 +84,14 @@ def register_view(request):
                     # Envoyer l'email de vérification
                     send_email_verification(user)
                     
+                    # Message selon le rôle choisi
+                    role_messages = {
+                        'CLIENT': 'Votre compte client a été créé avec succès!',
+                        'GESTIONNAIRE': 'Votre compte gestionnaire a été créé avec succès! Un administrateur vérifiera vos informations.'
+                    }
+                    
                     messages.success(request, 
-                        'Votre compte a été créé avec succès! '
+                        f'{role_messages.get(user.role, "Votre compte a été créé avec succès!")} '
                         'Veuillez vérifier votre email pour activer votre compte.')
                     
                     return redirect('users:login')
@@ -94,8 +105,222 @@ def register_view(request):
     return render(request, 'users/register.html', {'form': form})
 
 
+@login_required
+def dashboard_view(request):
+    """Dashboard principal selon le NOUVEAU type d'utilisateur"""
+    if request.user.is_gestionnaire():
+        return dashboard_gestionnaire_view(request)
+    elif request.user.is_client():
+        return dashboard_client_view(request)
+    elif request.user.is_super_admin():
+        return redirect('repavi_admin:dashboard')
+    else:
+        return redirect('home:index')
+
+
+@login_required
+def dashboard_gestionnaire_view(request):
+    """Dashboard pour les gestionnaires - ADAPTÉ AVEC SERVICES"""
+    if not request.user.is_gestionnaire():
+        messages.error(request, "Accès réservé aux gestionnaires.")
+        return redirect('home:index')
+    
+    # Utiliser le service de statistiques
+    stats = StatisticsService.get_dashboard_stats(request.user)
+    
+    # Réservations récentes
+    reservations_recentes = ReservationService.get_reservations_for_user(request.user)[:5]
+    
+    # Maisons du gestionnaire
+    from home.models import Maison
+    maisons = Maison.objects.filter(gestionnaire=request.user).prefetch_related('photos')
+    
+    # Réservations en attente nécessitant une action
+    reservations_en_attente = ReservationService.get_reservations_for_user(request.user).filter(
+        statut='en_attente'
+    )[:3]
+    
+    # Vérifier si le profil gestionnaire est complet
+    try:
+        profil_gestionnaire = request.user.profil_gestionnaire
+        profil_complet = bool(profil_gestionnaire.piece_identite and profil_gestionnaire.justificatif_domicile)
+    except ProfilGestionnaire.DoesNotExist:
+        ProfilGestionnaire.objects.create(user=request.user)
+        profil_complet = False
+    
+    context = {
+        'stats': stats,
+        'maisons': maisons[:3],  # Les 3 dernières
+        'reservations_recentes': reservations_recentes,
+        'reservations_en_attente': reservations_en_attente,
+        'profil_complet': profil_complet,
+        'user_role': request.user.role,
+    }
+    
+    return render(request, 'users/dashboard_gestionnaire.html', context)
+
+
+@login_required
+def dashboard_client_view(request):
+    """Dashboard pour les clients - ADAPTÉ AVEC SERVICES"""
+    if not request.user.is_client():
+        messages.error(request, "Accès réservé aux clients.")
+        return redirect('home:index')
+    
+    # Réservations du client
+    reservations = ReservationService.get_reservations_for_user(request.user)
+    reservations_actives = reservations.filter(statut__in=['en_attente', 'confirmee'])
+    reservations_passees = reservations.filter(statut='terminee')
+    
+    # Maisons favorites (à implémenter avec le système d'avis)
+    # maisons_favorites = FavoriteService.get_user_favorites(request.user)
+    
+    # Vérifier si le profil client est complet
+    try:
+        profil_client = request.user.profil_client
+        profil_complet = bool(profil_client.piece_identite)
+    except ProfilClient.DoesNotExist:
+        ProfilClient.objects.create(user=request.user)
+        profil_complet = False
+    
+    context = {
+        'reservations_actives': reservations_actives,
+        'reservations_passees': reservations_passees[:3],  # Les 3 dernières
+        'nombre_sejours': reservations_passees.count(),
+        'profil_complet': profil_complet,
+        'user_role': request.user.role,
+    }
+    
+    return render(request, 'users/dashboard_client.html', context)
+
+
+@login_required
+def profile_view(request):
+    """Vue du profil utilisateur - ADAPTÉE AVEC PROFILS ÉTENDUS"""
+    # Formulaire principal
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        
+        # Formulaires étendus selon le rôle
+        profil_form = None
+        if request.user.is_gestionnaire():
+            try:
+                profil_gestionnaire = request.user.profil_gestionnaire
+            except ProfilGestionnaire.DoesNotExist:
+                profil_gestionnaire = ProfilGestionnaire.objects.create(user=request.user)
+            
+            profil_form = ProfilGestionnaireForm(request.POST, request.FILES, instance=profil_gestionnaire)
+        
+        elif request.user.is_client():
+            try:
+                profil_client = request.user.profil_client
+            except ProfilClient.DoesNotExist:
+                profil_client = ProfilClient.objects.create(user=request.user)
+            
+            profil_form = ProfilClientForm(request.POST, request.FILES, instance=profil_client)
+        
+        # Validation et sauvegarde
+        if form.is_valid() and (profil_form is None or profil_form.is_valid()):
+            with transaction.atomic():
+                form.save()
+                if profil_form:
+                    profil_form.save()
+            
+            messages.success(request, 'Votre profil a été mis à jour avec succès.')
+            return redirect('users:profile')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
+    
+    else:
+        form = ProfileForm(instance=request.user)
+        profil_form = None
+        
+        if request.user.is_gestionnaire():
+            try:
+                profil_gestionnaire = request.user.profil_gestionnaire
+            except ProfilGestionnaire.DoesNotExist:
+                profil_gestionnaire = ProfilGestionnaire.objects.create(user=request.user)
+            profil_form = ProfilGestionnaireForm(instance=profil_gestionnaire)
+        
+        elif request.user.is_client():
+            try:
+                profil_client = request.user.profil_client
+            except ProfilClient.DoesNotExist:
+                profil_client = ProfilClient.objects.create(user=request.user)
+            profil_form = ProfilClientForm(instance=profil_client)
+    
+    context = {
+        'form': form,
+        'profil_form': profil_form,
+        'user_role': request.user.role,
+    }
+    
+    return render(request, 'users/profile.html', context)
+
+
+@login_required
+def mes_reservations_view(request):
+    """Vue des réservations de l'utilisateur - NOUVELLE"""
+    if request.user.is_client():
+        reservations = ReservationService.get_reservations_for_user(request.user)
+        
+        # Filtres
+        statut = request.GET.get('statut', '')
+        if statut:
+            reservations = reservations.filter(statut=statut)
+        
+        from django.core.paginator import Paginator
+        paginator = Paginator(reservations, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        context = {
+            'page_obj': page_obj,
+            'statut_actuel': statut,
+            'statuts': Reservation.STATUT_CHOICES,
+        }
+        
+        return render(request, 'users/mes_reservations.html', context)
+    
+    else:
+        messages.error(request, "Cette page est réservée aux clients.")
+        return redirect('users:dashboard')
+
+
+@login_required
+def mes_maisons_view(request):
+    """Vue des maisons du gestionnaire - NOUVELLE"""
+    if not request.user.is_gestionnaire():
+        messages.error(request, "Cette page est réservée aux gestionnaires.")
+        return redirect('users:dashboard')
+    
+    from home.models import Maison
+    from services.maison_service import MaisonService
+    
+    maisons = MaisonService.get_maisons_for_user(request.user)
+    
+    # Filtres
+    disponible = request.GET.get('disponible', '')
+    if disponible:
+        maisons = maisons.filter(disponible=disponible == 'True')
+    
+    from django.core.paginator import Paginator
+    paginator = Paginator(maisons, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'disponible_actuel': disponible,
+    }
+    
+    return render(request, 'users/mes_maisons.html', context)
+
+
+# ======== VUES EXISTANTES ADAPTÉES ========
+
 def send_email_verification(user):
-    """Envoyer un email de vérification"""
+    """Envoyer un email de vérification - GARDÉ IDENTIQUE"""
     token = str(uuid.uuid4())
     expires_at = timezone.now() + timedelta(hours=24)
     
@@ -111,7 +336,7 @@ def send_email_verification(user):
     message = f"""
     Bonjour {user.first_name},
     
-    Merci de vous être inscrit sur RepAvi !
+    Merci de vous être inscrit sur RepAvi en tant que {user.get_role_display()}!
     
     Pour activer votre compte, cliquez sur le lien ci-dessous :
     {verification_url}
@@ -133,7 +358,7 @@ def send_email_verification(user):
 
 
 def verify_email(request, token):
-    """Vérifier l'email avec le token"""
+    """Vérifier l'email avec le token - GARDÉ IDENTIQUE"""
     try:
         verification = get_object_or_404(TokenVerificationEmail, token=token)
         
@@ -145,7 +370,6 @@ def verify_email(request, token):
             messages.error(request, 'Ce lien de vérification a expiré.')
             return redirect('users:resend_verification')
         
-        # Activer le compte
         user = verification.user
         user.email_verifie = True
         user.is_active = True
@@ -154,7 +378,15 @@ def verify_email(request, token):
         verification.is_used = True
         verification.save()
         
-        messages.success(request, 'Votre email a été vérifié avec succès! Vous pouvez maintenant vous connecter.')
+        role_message = {
+            'CLIENT': 'Votre compte client est maintenant activé!',
+            'GESTIONNAIRE': 'Votre compte gestionnaire est activé! Vous pouvez commencer à ajouter vos maisons.',
+            'SUPER_ADMIN': 'Votre compte administrateur est activé!'
+        }
+        
+        messages.success(request, 
+            f'{role_message.get(user.role, "Votre email a été vérifié avec succès!")} '
+            'Vous pouvez maintenant vous connecter.')
         return redirect('users:login')
         
     except Exception:
@@ -164,37 +396,20 @@ def verify_email(request, token):
 
 @login_required
 def logout_view(request):
-    """Vue de déconnexion"""
+    """Vue de déconnexion - GARDÉE IDENTIQUE"""
     logout(request)
     messages.info(request, 'Vous avez été déconnecté avec succès.')
     return redirect('home:index')
 
 
 @login_required
-def profile_view(request):
-    """Vue du profil utilisateur"""
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Votre profil a été mis à jour avec succès.')
-            return redirect('users:profile')
-        else:
-            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
-    else:
-        form = ProfileForm(instance=request.user)
-    
-    return render(request, 'users/profile.html', {'form': form})
-
-
-@login_required
 def change_password_view(request):
-    """Vue de changement de mot de passe"""
+    """Vue de changement de mot de passe - GARDÉE IDENTIQUE"""
     if request.method == 'POST':
         form = CustomPasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
-            update_session_auth_hash(request, user)  # Important pour ne pas déconnecter l'utilisateur
+            update_session_auth_hash(request, user)
             messages.success(request, 'Votre mot de passe a été modifié avec succès.')
             return redirect('users:profile')
         else:
@@ -205,8 +420,130 @@ def change_password_view(request):
     return render(request, 'users/change_password.html', {'form': form})
 
 
+# ======== VUES POUR SUPER ADMIN ========
+
+@login_required
+def admin_users_list(request):
+    """Liste des utilisateurs - SUPER ADMIN SEULEMENT"""
+    if not request.user.is_super_admin():
+        messages.error(request, "Accès réservé aux super administrateurs.")
+        return redirect('users:dashboard')
+    
+    role_filter = request.GET.get('role', '')
+    search = request.GET.get('search', '')
+    
+    users = User.objects.all()
+    
+    if role_filter:
+        users = users.filter(role=role_filter)
+    
+    if search:
+        users = users.filter(
+            Q(username__icontains=search) |
+            Q(email__icontains=search) |
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search)
+        )
+    
+    users = users.order_by('-date_joined')
+    
+    from django.core.paginator import Paginator
+    paginator = Paginator(users, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'role_filter': role_filter,
+        'search': search,
+        'roles': User.ROLE_CHOICES,
+    }
+    
+    return render(request, 'users/admin_users_list.html', context)
+
+
+@login_required
+def change_user_role_view(request, user_id):
+    """Changer le rôle d'un utilisateur - SUPER ADMIN SEULEMENT"""
+    if not request.user.is_super_admin():
+        messages.error(request, "Accès réservé aux super administrateurs.")
+        return redirect('users:dashboard')
+    
+    user_to_modify = get_object_or_404(User, id=user_id)
+    
+    if request.method == 'POST':
+        form = ChangeUserRoleForm(request.POST, instance=user_to_modify)
+        if form.is_valid():
+            old_role = user_to_modify.role
+            new_role = form.cleaned_data['role']
+            
+            if old_role != new_role:
+                with transaction.atomic():
+                    form.save()
+                    
+                    # Créer/supprimer les profils étendus selon le nouveau rôle
+                    if new_role == 'GESTIONNAIRE' and old_role != 'GESTIONNAIRE':
+                        ProfilGestionnaire.objects.get_or_create(user=user_to_modify)
+                    elif new_role == 'CLIENT' and old_role != 'CLIENT':
+                        ProfilClient.objects.get_or_create(user=user_to_modify)
+                
+                messages.success(request, 
+                    f'Rôle de {user_to_modify.nom_complet} changé de {old_role} à {new_role}.')
+            
+            return redirect('users:admin_users_list')
+    else:
+        form = ChangeUserRoleForm(instance=user_to_modify)
+    
+    context = {
+        'form': form,
+        'user_to_modify': user_to_modify,
+    }
+    
+    return render(request, 'users/change_user_role.html', context)
+
+
+# ======== API ENDPOINTS POUR AJAX ========
+
+@login_required
+@require_http_methods(["POST"])
+def check_password_ajax(request):
+    """Vérifier le mot de passe actuel via AJAX - GARDÉ IDENTIQUE"""
+    password = request.POST.get('password')
+    user = authenticate(username=request.user.username, password=password)
+    
+    if user is not None and user == request.user:
+        return JsonResponse({'valid': True})
+    else:
+        return JsonResponse({'valid': False, 'error': 'Mot de passe incorrect'})
+
+
+@login_required
+@require_http_methods(["POST"])
+def toggle_notification_ajax(request):
+    """Activer/désactiver une notification via AJAX - GARDÉ IDENTIQUE"""
+    notification_type = request.POST.get('type')
+    enabled = request.POST.get('enabled') == 'true'
+    
+    if notification_type in ['notifications_email', 'notifications_sms', 'newsletter']:
+        setattr(request.user, notification_type, enabled)
+        request.user.save(update_fields=[notification_type])
+        return JsonResponse({'success': True})
+    
+    return JsonResponse({'success': False, 'error': 'Type de notification invalide'})
+
+
+def user_exists_ajax(request):
+    """Vérifier si un utilisateur existe déjà via AJAX - GARDÉ IDENTIQUE"""
+    email = request.GET.get('email')
+    if email:
+        exists = User.objects.filter(email=email).exists()
+        return JsonResponse({'exists': exists})
+    return JsonResponse({'exists': False})
+
+
+# Autres vues gardées identiques (password reset, etc.)
 def password_reset_request_view(request):
-    """Vue de demande de réinitialisation de mot de passe"""
+    """Vue de demande de réinitialisation de mot de passe - GARDÉE IDENTIQUE"""
     if request.method == 'POST':
         form = PasswordResetRequestForm(request.POST)
         if form.is_valid():
@@ -226,7 +563,7 @@ def password_reset_request_view(request):
 
 
 def send_password_reset_email(user):
-    """Envoyer un email de réinitialisation de mot de passe"""
+    """Envoyer un email de réinitialisation de mot de passe - GARDÉE IDENTIQUE"""
     token = str(uuid.uuid4())
     expires_at = timezone.now() + timedelta(hours=1)
     
@@ -264,7 +601,7 @@ def send_password_reset_email(user):
 
 
 def password_reset_view(request, token):
-    """Vue de réinitialisation de mot de passe"""
+    """Vue de réinitialisation de mot de passe - GARDÉE IDENTIQUE"""
     try:
         reset_token = get_object_or_404(PasswordResetToken, token=token)
         
@@ -299,73 +636,13 @@ def password_reset_view(request, token):
 
 
 @login_required
-def dashboard_view(request):
-    """Dashboard principal selon le type d'utilisateur"""
-    if request.user.est_proprietaire:
-        return dashboard_proprietaire_view(request)
-    elif request.user.est_locataire:
-        return dashboard_locataire_view(request)
-    else:
-        return redirect('home:index')
-
-
-@login_required
-def dashboard_proprietaire_view(request):
-    """Dashboard pour les propriétaires"""
-    from home.models import Maison, Reservation
-    
-    # Récupérer les maisons du propriétaire
-    maisons = Maison.objects.filter(proprietaire=request.user)
-    
-    # Réservations en cours
-    reservations_en_cours = Reservation.objects.filter(
-        maison__proprietaire=request.user,
-        statut__in=['en_attente', 'confirmee']
-    )
-    
-    # Statistiques calculées
-    maisons_disponibles = maisons.filter(disponible=True).count()
-    reservations_attente = reservations_en_cours.filter(statut='en_attente').count()
-    
-    context = {
-        'maisons': maisons,
-        'nombre_maisons': maisons.count(),
-        'maisons_disponibles': maisons_disponibles,
-        'reservations_en_cours': reservations_en_cours,
-        'nombre_reservations': reservations_en_cours.count(),
-        'reservations_attente': reservations_attente,
-        'revenus_mois': sum(r.prix_total for r in reservations_en_cours),
-    }
-    
-    return render(request, 'users/dashboard_proprietaire.html', context)
-
-@login_required
-def dashboard_locataire_view(request):
-    """Dashboard pour les locataires"""
-    from home.models import Reservation
-    
-    # Réservations du locataire
-    reservations = Reservation.objects.filter(locataire=request.user)
-    reservations_actives = reservations.filter(statut__in=['en_attente', 'confirmee'])
-    
-    context = {
-        'reservations': reservations[:5],  # Les 5 dernières
-        'reservations_actives': reservations_actives,
-        'nombre_sejours': reservations.filter(statut='terminee').count(),
-    }
-    
-    return render(request, 'users/dashboard_locataire.html', context)
-
-
-@login_required
 def resend_verification_view(request):
-    """Renvoyer l'email de vérification"""
+    """Renvoyer l'email de vérification - GARDÉE IDENTIQUE"""
     if request.user.email_verifie:
         messages.info(request, 'Votre email est déjà vérifié.')
         return redirect('users:profile')
     
     if request.method == 'POST':
-        # Supprimer les anciens tokens non utilisés
         TokenVerificationEmail.objects.filter(
             user=request.user,
             is_used=False
@@ -381,13 +658,12 @@ def resend_verification_view(request):
 @login_required
 @require_http_methods(["POST"])
 def delete_account_view(request):
-    """Supprimer le compte utilisateur"""
+    """Supprimer le compte utilisateur - GARDÉE IDENTIQUE"""
     if request.method == 'POST':
         password = request.POST.get('password')
         user = authenticate(username=request.user.username, password=password)
         
         if user is not None and user == request.user:
-            # Supprimer le compte
             user.delete()
             logout(request)
             messages.success(request, 'Votre compte a été supprimé avec succès.')
@@ -400,43 +676,5 @@ def delete_account_view(request):
 
 @login_required
 def account_settings_view(request):
-    """Paramètres du compte"""
+    """Paramètres du compte - GARDÉE IDENTIQUE"""
     return render(request, 'users/account_settings.html')
-
-
-# API Views pour AJAX
-@login_required
-@require_http_methods(["POST"])
-def check_password_ajax(request):
-    """Vérifier le mot de passe actuel via AJAX"""
-    password = request.POST.get('password')
-    user = authenticate(username=request.user.email, password=password)
-    
-    if user is not None and user == request.user:
-        return JsonResponse({'valid': True})
-    else:
-        return JsonResponse({'valid': False, 'error': 'Mot de passe incorrect'})
-
-
-@login_required
-@require_http_methods(["POST"])
-def toggle_notification_ajax(request):
-    """Activer/désactiver une notification via AJAX"""
-    notification_type = request.POST.get('type')
-    enabled = request.POST.get('enabled') == 'true'
-    
-    if notification_type in ['notifications_email', 'notifications_sms', 'newsletter']:
-        setattr(request.user, notification_type, enabled)
-        request.user.save(update_fields=[notification_type])
-        return JsonResponse({'success': True})
-    
-    return JsonResponse({'success': False, 'error': 'Type de notification invalide'})
-
-
-def user_exists_ajax(request):
-    """Vérifier si un utilisateur existe déjà via AJAX"""
-    email = request.GET.get('email')
-    if email:
-        exists = User.objects.filter(email=email).exists()
-        return JsonResponse({'exists': exists})
-    return JsonResponse({'exists': False})
