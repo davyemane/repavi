@@ -14,7 +14,10 @@ urlpatterns = [
     path('users/create-client/', admin_views.admin_create_client, name='admin_create_client'),
     path('users/create-gestionnaire/', admin_views.admin_create_gestionnaire, name='admin_create_gestionnaire'),
     path('users/<int:user_id>/change-role/', admin_views.change_user_role_view, name='change_user_role_view'),
-    
+    # Ajoutez ces URLs manquantes
+    path('statistiques/', admin_views.admin_statistiques, name='stats'),
+    path('api/stats/', admin_views.api_dashboard_stats, name='stats_api'),   
+     
     # ======== GESTION DES VILLES ========
     path('villes/', admin_views.admin_villes_list, name='villes_list'),
     path('villes/creer/', admin_views.admin_ville_create, name='ville_create'),

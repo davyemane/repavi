@@ -1,0 +1,340 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Recherche de disponibilité - RepAvi Lodges{% endblock %}
+
+{% block extra_css %}
+<style>
+  .search-card {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+  }
+  .result-card {
+    transition: all 0.3s ease;
+  }
+  .result-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section avec formulaire de recherche -->
+<div class="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 min-h-screen">
+  <div class="absolute inset-0 bg-black opacity-20"></div>
+  <div class="relative z-10">
+    
+    <!-- Header -->
+    <div class="container mx-auto px-4 pt-8">
+      <div class="text-center text-white mb-8">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4">
+          Trouvez votre maison idéale
+        </h1>
+        <p class="text-xl md:text-2xl text-blue-100 max-w-2xl mx-auto">
+          Découvrez nos maisons meublées au Cameroun pour un séjour inoubliable
+        </p>
+      </div>
+    </div>
+
+    <!-- Formulaire de recherche -->
+    <div class="container mx-auto px-4 pb-12">
+      <div class="max-w-4xl mx-auto">
+        <div class="search-card rounded-2xl shadow-2xl p-6 md:p-8">
+          <form method="get" class="space-y-6">
+            <!-- Dates et personnes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                  Date d'arrivée
+                </label>
+                {{ form.date_debut }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                  Date de départ
+                </label>
+                {{ form.date_fin }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <i class="fas fa-users text-blue-600 mr-2"></i>
+                  Nombre de personnes
+                </label>
+                {{ form.nombre_personnes }}
+              </div>
+            </div>
+
+            <!-- Filtres avancés -->
+            <div class="border-t pt-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Filtres avancés</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
+                  {{ form.ville }}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
+                  {{ form.categorie }}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Prix minimum</label>
+                  {{ form.prix_min }}
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Prix maximum</label>
+                  {{ form.prix_max }}
+                </div>
+              </div>
+
+              <!-- Équipements -->
+              <div class="mt-6">
+                <h4 class="text-md font-medium text-gray-900 mb-3">Équipements souhaités</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    {{ form.wifi }}
+                    <span class="text-sm text-gray-700">WiFi</span>
+                  </label>
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    {{ form.parking }}
+                    <span class="text-sm text-gray-700">Parking</span>
+                  </label>
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    {{ form.piscine }}
+                    <span class="text-sm text-gray-700">Piscine</span>
+                  </label>
+                  <label class="flex items-center space-x-2 cursor-pointer">
+                    {{ form.climatisation }}
+                    <span class="text-sm text-gray-700">Climatisation</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bouton de recherche -->
+            <div class="flex justify-center pt-4">
+              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-12 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105">
+                <i class="fas fa-search mr-2"></i>
+                Rechercher des maisons
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Résultats de recherche -->
+{% if maisons_disponibles %}
+<div class="bg-gray-50 py-12">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">
+        {{ total_resultats }} maison{{ total_resultats|pluralize }} disponible{{ total_resultats|pluralize }}
+      </h2>
+      <p class="text-gray-600">Trouvées pour vos critères de recherche</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for result in maisons_disponibles %}
+      <div class="result-card bg-white rounded-xl shadow-md overflow-hidden">
+        <!-- Image -->
+        <div class="relative h-48 overflow-hidden">
+          {% if result.maison.photo_principale %}
+            <img src="{{ result.maison.photo_principale.url }}" alt="{{ result.maison.nom }}" class="w-full h-full object-cover">
+          {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+              <i class="fas fa-home text-gray-400 text-4xl"></i>
+            </div>
+          {% endif %}
+          
+          <!-- Badge catégorie -->
+          {% if result.maison.categorie %}
+          <div class="absolute top-4 left-4">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white bg-opacity-90 text-gray-800">
+              <i class="fas fa-{{ result.maison.categorie.icone }} mr-1"></i>
+              {{ result.maison.categorie.nom }}
+            </span>
+          </div>
+          {% endif %}
+
+          <!-- Badge featured -->
+          {% if result.maison.featured %}
+          <div class="absolute top-4 right-4">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white">
+              <i class="fas fa-star mr-1"></i>
+              Coup de cœur
+            </span>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Contenu -->
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="text-xl font-bold text-gray-900 mb-1">{{ result.maison.nom }}</h3>
+              <p class="text-sm text-gray-600 flex items-center">
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                {{ result.maison.ville.nom }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Détails -->
+          <div class="flex items-center space-x-4 text-sm text-gray-600 mb-4">
+            <span class="flex items-center">
+              <i class="fas fa-bed mr-1"></i>
+              {{ result.maison.nombre_chambres }} ch.
+            </span>
+            <span class="flex items-center">
+              <i class="fas fa-bath mr-1"></i>
+              {{ result.maison.nombre_salles_bain }} sdb
+            </span>
+            <span class="flex items-center">
+              <i class="fas fa-users mr-1"></i>
+              {{ result.maison.capacite_personnes }} pers.
+            </span>
+          </div>
+
+          <!-- Équipements -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            {% if result.maison.wifi %}
+              <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                <i class="fas fa-wifi mr-1"></i>WiFi
+              </span>
+            {% endif %}
+            {% if result.maison.parking %}
+              <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                <i class="fas fa-car mr-1"></i>Parking
+              </span>
+            {% endif %}
+            {% if result.maison.piscine %}
+              <span class="inline-flex items-center px-2 py-1 bg-cyan-100 text-cyan-800 text-xs rounded-full">
+                <i class="fas fa-swimming-pool mr-1"></i>Piscine
+              </span>
+            {% endif %}
+            {% if result.maison.climatisation %}
+              <span class="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                <i class="fas fa-snowflake mr-1"></i>Clim
+              </span>
+            {% endif %}
+          </div>
+
+          <!-- Prix et action -->
+          <div class="border-t pt-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-2xl font-bold text-gray-900">
+                  {{ result.prix_total|floatformat:0 }} <span class="text-sm font-normal text-gray-600">FCFA</span>
+                </div>
+                <div class="text-sm text-gray-500">
+                  pour {{ result.nombre_nuits }} nuit{{ result.nombre_nuits|pluralize }}
+                </div>
+                <div class="text-xs text-gray-400">
+                  {{ result.prix_par_personne|floatformat:0 }} FCFA/pers.
+                </div>
+              </div>
+              
+              {% if user.is_authenticated and user.is_client %}
+                <a href="{% url 'reservations:reserver_maison' result.maison.slug %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&nombre_personnes={{ form.nombre_personnes.value }}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                  Réserver
+                </a>
+              {% else %}
+                <a href="{{ result.maison.get_absolute_url }}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                  Voir détails
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% elif form.is_bound %}
+<!-- Aucun résultat -->
+<div class="bg-gray-50 py-12">
+  <div class="container mx-auto px-4 text-center">
+    <div class="max-w-md mx-auto">
+      <i class="fas fa-search text-gray-400 text-6xl mb-6"></i>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Aucune maison trouvée</h2>
+      <p class="text-gray-600 mb-6">
+        Essayez de modifier vos critères de recherche ou vos dates.
+      </p>
+      <button onclick="window.scrollTo(0, 0)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg">
+        Nouvelle recherche
+      </button>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- Guide d'utilisation -->
+<div class="bg-white py-16">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">Comment ça marche ?</h2>
+      <p class="text-xl text-gray-600">Réservez votre maison en 3 étapes simples</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-search text-blue-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">1. Recherchez</h3>
+        <p class="text-gray-600">Choisissez vos dates, le nombre de personnes et vos préférences</p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-home text-green-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">2. Choisissez</h3>
+        <p class="text-gray-600">Parcourez les maisons disponibles et sélectionnez celle qui vous plaît</p>
+      </div>
+
+      <div class="text-center">
+        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-calendar-check text-purple-600 text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">3. Réservez</h3>
+        <p class="text-gray-600">Confirmez votre réservation et préparez-vous pour un séjour inoubliable</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+// Validation des dates côté client
+document.addEventListener('DOMContentLoaded', function() {
+  const dateDebut = document.querySelector('input[name="date_debut"]');
+  const dateFin = document.querySelector('input[name="date_fin"]');
+  
+  function validateDates() {
+    if (dateDebut.value && dateFin.value) {
+      const debut = new Date(dateDebut.value);
+      const fin = new Date(dateFin.value);
+      
+      if (fin <= debut) {
+        dateFin.setCustomValidity('La date de départ doit être après la date d\'arrivée');
+      } else {
+        dateFin.setCustomValidity('');
+      }
+    }
+  }
+  
+  dateDebut.addEventListener('change', validateDates);
+  dateFin.addEventListener('change', validateDates);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,452 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}Meubles - {{ maison.nom }}{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    {{ maison.numero }} • {{ maison.adresse }}
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <a href="{% url 'meubles:inventaire_create' %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-clipboard-list mr-2"></i>
+        Nouvel Inventaire
+    </a>
+    
+    <a href="{% url 'meubles:meuble_create' %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+        <i class="fas fa-plus mr-2"></i>
+        Ajouter Meuble
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- En-tête de la maison -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-16 w-16 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                        <i class="fas fa-home text-indigo-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-2xl font-bold text-gray-900">{{ maison.nom }}</h1>
+                        <p class="text-sm text-gray-600 mt-1">
+                            {{ maison.numero }} • {{ maison.adresse }}
+                        </p>
+                        <div class="flex items-center mt-2 space-x-4">
+                            <span class="inline-flex items-center text-xs text-gray-500">
+                                <i class="fas fa-user mr-1"></i>
+                                {{ maison.gestionnaire.get_full_name|default:maison.gestionnaire.username }}
+                            </span>
+                            {% if maison.telephone %}
+                            <span class="inline-flex items-center text-xs text-gray-500">
+                                <i class="fas fa-phone mr-1"></i>
+                                {{ maison.telephone }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-right">
+                    <div class="text-2xl font-bold text-gray-900">{{ stats.total }}</div>
+                    <div class="text-sm text-gray-500">Meubles</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Bon état -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600">{{ stats.bon_etat }}</div>
+                    <div class="text-sm text-gray-500">Bon État</div>
+                    <div class="text-xs text-gray-400">
+                        {% if stats.total > 0 %}
+                            ({{ stats.bon_etat|floatformat:0|mul:100|div:stats.total|floatformat:1 }}%)
+                        {% else %}
+                            (0%)
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Usage -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-yellow-600">{{ stats.usage }}</div>
+                    <div class="text-sm text-gray-500">État d'Usage</div>
+                    <div class="text-xs text-gray-400">
+                        {% if stats.total > 0 %}
+                            ({{ stats.usage|floatformat:0|mul:100|div:stats.total|floatformat:1 }}%)
+                        {% else %}
+                            (0%)
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Défectueux -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-red-600">{{ stats.defectueux }}</div>
+                    <div class="text-sm text-gray-500">Défectueux</div>
+                    <div class="text-xs text-gray-400">
+                        {% if stats.total > 0 %}
+                            ({{ stats.defectueux|floatformat:0|mul:100|div:stats.total|floatformat:1 }}%)
+                        {% else %}
+                            (0%)
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Hors service -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-gray-600">{{ stats.hors_service }}</div>
+                    <div class="text-sm text-gray-500">Hors Service</div>
+                    <div class="text-xs text-gray-400">
+                        {% if stats.total > 0 %}
+                            ({{ stats.hors_service|floatformat:0|mul:100|div:stats.total|floatformat:1 }}%)
+                        {% else %}
+                            (0%)
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barre de progression -->
+            {% if stats.total > 0 %}
+            <div class="mt-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">État général</span>
+                    <span class="text-sm text-gray-500">
+                        {{ stats.bon_etat|floatformat:0|mul:100|div:stats.total|floatformat:1 }}% en bon état
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500" 
+                         style="width: {{ stats.bon_etat|floatformat:0|mul:100|div:stats.total|floatformat:1 }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <button onclick="genererInventaire()" 
+                class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left group">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <i class="fas fa-clipboard-list text-blue-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Créer un Inventaire</h3>
+                    <p class="text-sm text-gray-600">Documenter l'état actuel</p>
+                </div>
+            </div>
+        </button>
+        
+        <button onclick="exporterMeubles()" 
+                class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left group">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                    <i class="fas fa-download text-green-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Exporter la Liste</h3>
+                    <p class="text-sm text-gray-600">PDF ou Excel</p>
+                </div>
+            </div>
+        </button>
+        
+        <button onclick="voirStatistiques()" 
+                class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left group">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                    <i class="fas fa-chart-bar text-purple-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Voir Statistiques</h3>
+                    <p class="text-sm text-gray-600">Analyses détaillées</p>
+                </div>
+            </div>
+        </button>
+    </div>
+
+    <!-- Meubles par pièce -->
+    {% if meubles_par_piece %}
+        {% for piece, meubles_piece in meubles_par_piece.items %}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-door-open text-indigo-600 mr-2"></i>
+                        {{ piece }} ({{ meubles_piece|length }} meuble{{ meubles_piece|length|pluralize }})
+                    </h3>
+                    
+                    <div class="flex items-center space-x-2">
+                        <!-- Filtres de statut pour cette pièce -->
+                        <select onchange="filtrerPiece('{{ piece|slugify }}', this.value)" 
+                                class="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Tous les états</option>
+                            <option value="bon">Bon état</option>
+                            <option value="usage">État d'usage</option>
+                            <option value="defectueux">Défectueux</option>
+                            <option value="hors_service">Hors service</option>
+                        </select>
+                        
+                        <button onclick="togglePiece('{{ piece|slugify }}')" 
+                                class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="piece-{{ piece|slugify }}" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for meuble in meubles_piece %}
+                    <div class="meuble-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow" 
+                         data-etat="{{ meuble.etat }}" data-piece="{{ piece|slugify }}">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-3">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center mr-3">
+                                        {% if meuble.photos.first %}
+                                            <img src="{{ meuble.photos.first.image.url }}" 
+                                                 alt="{{ meuble.nom }}" 
+                                                 class="h-10 w-10 rounded-lg object-cover">
+                                        {% else %}
+                                            <i class="fas fa-{{ meuble.type_meuble.icone|default:'cube' }} text-gray-600"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">
+                                            <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+                                               class="hover:text-indigo-600 transition-colors">
+                                                {{ meuble.nom }}
+                                            </a>
+                                        </h4>
+                                        <p class="text-sm text-gray-600">{{ meuble.type_meuble.nom }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <div class="text-xs text-gray-500">
+                                        <span class="font-medium">Série:</span> {{ meuble.numero_serie }}
+                                    </div>
+                                    
+                                    {% if meuble.marque %}
+                                    <div class="text-xs text-gray-500">
+                                        <span class="font-medium">Marque:</span> {{ meuble.marque }}
+                                        {% if meuble.modele %} • {{ meuble.modele }}{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if meuble.date_derniere_verification %}
+                                    <div class="text-xs text-gray-500">
+                                        <span class="font-medium">Vérifié:</span> {{ meuble.date_derniere_verification|date:"d/m/Y" }}
+                                    </div>
+                                    {% else %}
+                                    <div class="text-xs text-orange-600">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        Jamais vérifié
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="ml-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium 
+                                    {% if meuble.etat == 'bon' %}bg-green-100 text-green-800
+                                    {% elif meuble.etat == 'usage' %}bg-yellow-100 text-yellow-800
+                                    {% elif meuble.etat == 'defectueux' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ meuble.get_etat_display }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions rapides -->
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+                                   class="text-indigo-600 hover:text-indigo-800 text-xs transition-colors">
+                                    <i class="fas fa-eye mr-1"></i>Détails
+                                </a>
+                                
+                                <a href="{% url 'meubles:meuble_edit' meuble.pk %}" 
+                                   class="text-gray-600 hover:text-gray-800 text-xs transition-colors">
+                                    <i class="fas fa-edit mr-1"></i>Modifier
+                                </a>
+                            </div>
+                            
+                            {% if meuble.necessite_verification %}
+                            <button onclick="marquerVerifie({{ meuble.pk }})" 
+                                    class="text-green-600 hover:text-green-800 text-xs transition-colors">
+                                <i class="fas fa-check mr-1"></i>Vérifié
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- État vide -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-12 text-center">
+                <div class="mx-auto h-24 w-24 text-gray-300 mb-4">
+                    <i class="fas fa-couch text-6xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun meuble</h3>
+                <p class="text-gray-500 mb-6">
+                    Cette maison ne contient aucun meuble pour le moment.
+                </p>
+                <a href="{% url 'meubles:meuble_create' %}" 
+                   class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Ajouter le premier meuble
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Alertes et recommandations -->
+    {% if stats.defectueux > 0 %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Attention requise</h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <p class="mb-2">{{ stats.defectueux }} meuble{{ stats.defectueux|pluralize }} défectueux détecté{{ stats.defectueux|pluralize }} dans cette maison :</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Planifier les réparations nécessaires</li>
+                        <li>Évaluer les coûts de remise en état</li>
+                        <li>Documenter les défauts avec photos</li>
+                        <li>Créer un inventaire de sortie si nécessaire</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filtrer les meubles d'une pièce par état
+function filtrerPiece(pieceId, etat) {
+    const cartes = document.querySelectorAll(`[data-piece="${pieceId}"]`);
+    
+    cartes.forEach(carte => {
+        if (!etat || carte.dataset.etat === etat) {
+            carte.style.display = 'block';
+        } else {
+            carte.style.display = 'none';
+        }
+    });
+}
+
+// Replier/déplier une section de pièce
+function togglePiece(pieceId) {
+    const section = document.getElementById(`piece-${pieceId}`);
+    const icon = event.target.closest('button').querySelector('i');
+    
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+    } else {
+        section.style.display = 'none';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+    }
+}
+
+// Actions rapides
+function genererInventaire() {
+    window.location.href = '{% url "meubles:inventaire_create" %}?maison={{ maison.id }}';
+}
+
+function exporterMeubles() {
+    // Ouvrir le formulaire de rapport avec cette maison pré-sélectionnée
+    window.location.href = '{% url "meubles:generer_rapport" %}?maison={{ maison.id }}&type_rapport=inventaire';
+}
+
+function voirStatistiques() {
+    // Ici vous pourriez ouvrir une modal avec des statistiques détaillées
+    alert('Statistiques détaillées en cours de développement');
+}
+
+// Marquer un meuble comme vérifié
+function marquerVerifie(meubleId) {
+    if (confirm('Marquer ce meuble comme vérifié ?')) {
+        fetch(`/meubles/meubles/${meubleId}/marquer-verifie/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue');
+        });
+    }
+}
+
+// Animation d'entrée des cartes
+document.addEventListener('DOMContentLoaded', function() {
+    const cartes = document.querySelectorAll('.meuble-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    cartes.forEach((carte, index) => {
+        carte.style.opacity = '0';
+        carte.style.transform = 'translateY(20px)';
+        carte.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+        observer.observe(carte);
+    });
+});
+
+// Raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    // N pour nouveau meuble
+    if (e.key === 'n' && e.ctrlKey) {
+        e.preventDefault();
+        window.location.href = '{% url "meubles:meuble_create" %}?maison={{ maison.id }}';
+    }
+    
+    // I pour nouvel inventaire
+    if (e.key === 'i' && e.ctrlKey) {
+        e.preventDefault();
+        genererInventaire();
+    }
+});
+</script>
+{% endblock %}

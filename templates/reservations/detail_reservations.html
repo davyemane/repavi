@@ -1,0 +1,316 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Réservation {{ reservation.numero }} - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <nav class="text-sm text-gray-500 mb-2">
+          <a href="{% url 'reservations:mes_reservations' %}" class="hover:text-blue-600">Mes réservations</a>
+          <span class="mx-2">/</span>
+          <span class="text-gray-900">{{ reservation.numero }}</span>
+        </nav>
+        <h1 class="text-3xl font-bold text-gray-900">Réservation {{ reservation.numero }}</h1>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mt-2
+          {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+          {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+          {% elif reservation.statut == 'terminee' %}bg-blue-100 text-blue-800
+          {% else %}bg-red-100 text-red-800{% endif %}">
+          {{ reservation.get_statut_display }}
+        </span>
+      </div>
+      
+      <!-- Actions -->
+      <div class="flex space-x-2">
+        {% if actions_possibles.peut_modifier %}
+        <a href="{% url 'reservations:modifier' reservation.numero %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+          Modifier
+        </a>
+        {% endif %}
+        {% if actions_possibles.peut_annuler %}
+        <a href="{% url 'reservations:annuler' reservation.numero %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+          Annuler
+        </a>
+        {% endif %}
+        {% if actions_possibles.peut_evaluer %}
+        <a href="{% url 'reservations:evaluer' reservation.numero %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+          Évaluer
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Informations principales -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Détails de la réservation -->
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Détails de la réservation</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-gray-600">Numéro</label>
+              <p class="text-gray-900">{{ reservation.numero }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-600">Date de création</label>
+              <p class="text-gray-900">{{ reservation.date_creation|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-600">Période</label>
+              <p class="text-gray-900">{{ reservation.date_debut|date:"d/m/Y" }} - {{ reservation.date_fin|date:"d/m/Y" }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-600">Durée</label>
+              <p class="text-gray-900">{{ reservation.nombre_nuits }} nuit{{ reservation.nombre_nuits|pluralize }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-600">Nombre de personnes</label>
+              <p class="text-gray-900">{{ reservation.nombre_personnes }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-600">Mode de paiement</label>
+              <p class="text-gray-900">{{ reservation.get_mode_paiement_display }}</p>
+            </div>
+            {% if reservation.heure_arrivee %}
+            <div>
+              <label class="text-sm font-medium text-gray-600">Heure d'arrivée</label>
+              <p class="text-gray-900">{{ reservation.heure_arrivee }}</p>
+            </div>
+            {% endif %}
+            {% if reservation.heure_depart %}
+            <div>
+              <label class="text-sm font-medium text-gray-600">Heure de départ</label>
+              <p class="text-gray-900">{{ reservation.heure_depart }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Maison -->
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Maison réservée</h2>
+          <div class="flex space-x-4">
+            {% if reservation.maison.photo_principale %}
+            <img src="{{ reservation.maison.photo_principale.url }}" alt="{{ reservation.maison.nom }}" class="w-24 h-24 object-cover rounded-lg">
+            {% endif %}
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900">{{ reservation.maison.nom }}</h3>
+              <p class="text-gray-600">{{ reservation.maison.adresse }}</p>
+              <p class="text-gray-600">{{ reservation.maison.ville.nom }}</p>
+              <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                <span>{{ reservation.maison.nombre_chambres }} ch.</span>
+                <span>{{ reservation.maison.nombre_salles_bain }} sdb</span>
+                <span>{{ reservation.maison.capacite_personnes }} pers.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Client (pour gestionnaires) -->
+        {% if user.is_gestionnaire or user.is_super_admin %}
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Informations client</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-gray-600">Nom complet</label>
+              <p class="text-gray-900">{{ reservation.client.get_full_name }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-600">Email</label>
+              <p class="text-gray-900">{{ reservation.client.email }}</p>
+            </div>
+            {% if reservation.contact_urgence_nom %}
+            <div>
+              <label class="text-sm font-medium text-gray-600">Contact d'urgence</label>
+              <p class="text-gray-900">{{ reservation.contact_urgence_nom }}</p>
+            </div>
+            {% endif %}
+            {% if reservation.contact_urgence_telephone %}
+            <div>
+              <label class="text-sm font-medium text-gray-600">Téléphone d'urgence</label>
+              <p class="text-gray-900">{{ reservation.contact_urgence_telephone }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Commentaires -->
+        {% if reservation.commentaire_client or reservation.commentaire_gestionnaire %}
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Commentaires</h2>
+          {% if reservation.commentaire_client %}
+          <div class="mb-4">
+            <label class="text-sm font-medium text-gray-600">Commentaire du client</label>
+            <p class="text-gray-900 mt-1">{{ reservation.commentaire_client }}</p>
+          </div>
+          {% endif %}
+          {% if reservation.commentaire_gestionnaire %}
+          <div>
+            <label class="text-sm font-medium text-gray-600">Notes du gestionnaire</label>
+            <p class="text-gray-900 mt-1">{{ reservation.commentaire_gestionnaire }}</p>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Évaluation -->
+        {% if evaluation %}
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Évaluation client</h2>
+          <div class="flex items-center mb-3">
+            <div class="flex text-yellow-400 mr-2">
+              {% for i in "12345" %}
+                {% if forloop.counter <= evaluation.note_globale %}
+                  <i class="fas fa-star"></i>
+                {% else %}
+                  <i class="far fa-star"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <span class="text-gray-600">{{ evaluation.note_globale }}/5</span>
+          </div>
+          <p class="text-gray-900 mb-4">{{ evaluation.commentaire }}</p>
+          
+          {% if evaluation.reponse_gestionnaire %}
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <label class="text-sm font-medium text-gray-600">Réponse du gestionnaire</label>
+            <p class="text-gray-900 mt-1">{{ evaluation.reponse_gestionnaire }}</p>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Annulation -->
+        {% if reservation.statut == 'annulee' %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h2 class="text-xl font-semibold text-red-900 mb-4">Informations d'annulation</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-red-600">Date d'annulation</label>
+              <p class="text-red-900">{{ reservation.date_annulation|date:"d/m/Y H:i" }}</p>
+            </div>
+            {% if reservation.annulee_par %}
+            <div>
+              <label class="text-sm font-medium text-red-600">Annulée par</label>
+              <p class="text-red-900">{{ reservation.annulee_par.get_full_name }}</p>
+            </div>
+            {% endif %}
+          </div>
+          {% if reservation.raison_annulation %}
+          <div class="mt-4">
+            <label class="text-sm font-medium text-red-600">Raison</label>
+            <p class="text-red-900 mt-1">{{ reservation.raison_annulation }}</p>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        
+        <!-- Résumé financier -->
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Résumé financier</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600">{{ reservation.nombre_nuits }} nuit{{ reservation.nombre_nuits|pluralize }} × {{ reservation.prix_par_nuit|floatformat:0 }} FCFA</span>
+              <span class="font-medium">{{ reservation.sous_total|floatformat:0 }} FCFA</span>
+            </div>
+            {% if reservation.frais_service > 0 %}
+            <div class="flex justify-between">
+              <span class="text-gray-600">Frais de service</span>
+              <span class="font-medium">{{ reservation.frais_service|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
+            {% if reservation.reduction_montant > 0 %}
+            <div class="flex justify-between text-green-600">
+              <span>Réduction</span>
+              <span class="font-medium">-{{ reservation.reduction_montant|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
+            <div class="border-t pt-3">
+              <div class="flex justify-between text-lg font-semibold">
+                <span>Total</span>
+                <span>{{ reservation.prix_total|floatformat:0 }} FCFA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paiements -->
+        {% if paiements %}
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Paiements</h2>
+          <div class="space-y-3">
+            {% for paiement in paiements %}
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="font-medium">{{ paiement.montant|floatformat:0 }} FCFA</p>
+                <p class="text-sm text-gray-600">{{ paiement.type_paiement.nom }}</p>
+              </div>
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                {% if paiement.statut == 'valide' %}bg-green-100 text-green-800
+                {% elif paiement.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                {% else %}bg-red-100 text-red-800{% endif %}">
+                {{ paiement.get_statut_display }}
+              </span>
+            </div>
+            {% endfor %}
+            
+            <div class="border-t pt-3">
+              <div class="flex justify-between">
+                <span class="font-medium">Montant payé</span>
+                <span class="font-semibold text-green-600">{{ montant_paye|floatformat:0 }} FCFA</span>
+              </div>
+              {% if reservation.montant_restant > 0 %}
+              <div class="flex justify-between mt-1">
+                <span class="text-gray-600">Restant à payer</span>
+                <span class="font-medium text-orange-600">{{ reservation.montant_restant|floatformat:0 }} FCFA</span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <a href="{% url 'reservations:paiements' reservation.numero %}" class="block mt-4 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg">
+            Voir tous les paiements
+          </a>
+        </div>
+        {% endif %}
+
+        <!-- Actions rapides -->
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Actions</h2>
+          <div class="space-y-2">
+            {% if actions_possibles.peut_confirmer %}
+            <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg">
+              Confirmer la réservation
+            </button>
+            {% endif %}
+            {% if actions_possibles.peut_terminer %}
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">
+              Marquer comme terminée
+            </button>
+            {% endif %}
+            {% if actions_possibles.peut_payer %}
+            <a href="{% url 'reservations:ajouter_paiement' reservation.numero %}" class="block w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg text-center">
+              Ajouter un paiement
+            </a>
+            {% endif %}
+            <button onclick="window.print()" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg">
+              Imprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

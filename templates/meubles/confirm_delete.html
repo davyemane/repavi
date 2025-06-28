@@ -1,0 +1,340 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}Supprimer {{ type }}{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    Confirmation de suppression
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <a href="javascript:history.back()" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Retour
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- En-tête d'alerte -->
+        <div class="px-6 py-4 bg-red-50 border-b border-red-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-semibold text-red-800">
+                        Attention - Suppression définitive
+                    </h3>
+                    <p class="text-sm text-red-700">
+                        Cette action ne peut pas être annulée
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenu principal -->
+        <div class="p-6">
+            <div class="text-center mb-6">
+                <div class="mx-auto h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                    <i class="fas fa-trash text-red-600 text-2xl"></i>
+                </div>
+                
+                <h2 class="text-xl font-bold text-gray-900 mb-2">
+                    Êtes-vous sûr de vouloir supprimer ce {{ type }} ?
+                </h2>
+                
+                <p class="text-gray-600">
+                    {% if type == 'meuble' %}
+                        Le meuble "{{ objet.nom }}" sera définitivement supprimé de la base de données.
+                    {% elif type == 'type de meuble' %}
+                        Le type "{{ objet.nom }}" sera définitivement supprimé.
+                    {% else %}
+                        Cet élément sera définitivement supprimé de la base de données.
+                    {% endif %}
+                </p>
+            </div>
+            
+            <!-- Informations sur l'objet à supprimer -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                <h4 class="font-medium text-gray-900 mb-3">Informations de l'élément</h4>
+                
+                {% if type == 'meuble' %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium text-gray-700">Nom :</span>
+                            <span class="text-gray-900">{{ objet.nom }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Type :</span>
+                            <span class="text-gray-900">{{ objet.type_meuble.nom }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Numéro de série :</span>
+                            <span class="text-gray-900">{{ objet.numero_serie }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Maison :</span>
+                            <span class="text-gray-900">{{ objet.maison.nom }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">État :</span>
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium 
+                                {% if objet.etat == 'bon' %}bg-green-100 text-green-800
+                                {% elif objet.etat == 'usage' %}bg-yellow-100 text-yellow-800
+                                {% elif objet.etat == 'defectueux' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ objet.get_etat_display }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Pièce :</span>
+                            <span class="text-gray-900">{{ objet.get_piece_display }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Vérifications additionnelles pour meuble -->
+                    {% if objet.photos.count > 0 %}
+                    <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-camera text-yellow-600 mr-2"></i>
+                            <span class="text-sm text-yellow-800">
+                                Ce meuble possède {{ objet.photos.count }} photo{{ objet.photos.count|pluralize }} qui seront également supprimée{{ objet.photos.count|pluralize }}.
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if objet.historique_etats.count > 0 %}
+                    <div class="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-history text-yellow-600 mr-2"></i>
+                            <span class="text-sm text-yellow-800">
+                                L'historique des états ({{ objet.historique_etats.count }} entrée{{ objet.historique_etats.count|pluralize }}) sera également supprimé.
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                {% elif type == 'type de meuble' %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium text-gray-700">Nom :</span>
+                            <span class="text-gray-900">{{ objet.nom }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Catégorie :</span>
+                            <span class="text-gray-900">{{ objet.get_categorie_display }}</span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Icône :</span>
+                            <span class="text-gray-900">
+                                <i class="fas fa-{{ objet.icone|default:'cube' }} mr-1"></i>
+                                {{ objet.icone|default:'cube' }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-700">Meubles associés :</span>
+                            <span class="text-gray-900">{{ objet.nombre_meubles }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if objet.description %}
+                    <div class="mt-3">
+                        <span class="font-medium text-gray-700">Description :</span>
+                        <p class="text-gray-900 mt-1">{{ objet.description }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if objet.nombre_meubles > 0 %}
+                    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-600 mr-2"></i>
+                            <span class="text-sm text-red-800">
+                                <strong>Attention :</strong> Ce type est utilisé par {{ objet.nombre_meubles }} meuble{{ objet.nombre_meubles|pluralize }}. 
+                                La suppression de ce type pourrait affecter ces meubles.
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+            
+            <!-- Conséquences de la suppression -->
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <h4 class="font-medium text-red-800 mb-2">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Conséquences de la suppression
+                </h4>
+                <ul class="text-sm text-red-700 space-y-1">
+                    {% if type == 'meuble' %}
+                        <li>• Le meuble sera retiré de tous les inventaires</li>
+                        <li>• Toutes les photos associées seront supprimées</li>
+                        <li>• L'historique des changements d'état sera perdu</li>
+                        <li>• Les données financières (prix, valeur) seront perdues</li>
+                        <li>• Cette action est irréversible</li>
+                    {% elif type == 'type de meuble' %}
+                        <li>• Le type sera supprimé définitivement</li>
+                        <li>• Les meubles utilisant ce type devront être réassignés</li>
+                        <li>• Les statistiques par type seront affectées</li>
+                        <li>• Cette action est irréversible</li>
+                    {% else %}
+                        <li>• L'élément sera supprimé définitivement</li>
+                        <li>• Toutes les données associées seront perdues</li>
+                        <li>• Cette action est irréversible</li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <!-- Alternative recommandée -->
+            {% if type == 'meuble' and objet.etat != 'hors_service' %}
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h4 class="font-medium text-blue-800 mb-2">
+                    <i class="fas fa-lightbulb mr-2"></i>
+                    Alternative recommandée
+                </h4>
+                <p class="text-sm text-blue-700 mb-3">
+                    Plutôt que de supprimer ce meuble, vous pourriez le marquer comme "Hors service" 
+                    pour conserver l'historique tout en l'excluant des inventaires actifs.
+                </p>
+                <button onclick="marquerHorsService()" 
+                        class="inline-flex items-center px-3 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors">
+                    <i class="fas fa-power-off mr-2"></i>
+                    Marquer comme "Hors service"
+                </button>
+            </div>
+            {% endif %}
+            
+            <!-- Formulaire de confirmation -->
+            <form method="post" id="deleteForm">
+                {% csrf_token %}
+                
+                <!-- Case de confirmation -->
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="confirmDelete" 
+                               class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500" 
+                               required>
+                        <span class="ml-2 text-sm text-gray-700">
+                            Je comprends que cette action est irréversible et je souhaite supprimer définitivement ce {{ type }}.
+                        </span>
+                    </label>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="flex items-center justify-between">
+                    <a href="javascript:history.back()" 
+                       class="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-times mr-2"></i>
+                        Annuler
+                    </a>
+                    
+                    <button type="submit" id="confirmBtn" disabled
+                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                        <i class="fas fa-trash mr-2"></i>
+                        Supprimer définitivement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Activer/désactiver le bouton de confirmation
+document.getElementById('confirmDelete').addEventListener('change', function() {
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.disabled = !this.checked;
+    
+    if (this.checked) {
+        confirmBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        confirmBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+    } else {
+        confirmBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+        confirmBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+    }
+});
+
+// Animation de soumission
+document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    const confirmBtn = document.getElementById('confirmBtn');
+    const originalText = confirmBtn.innerHTML;
+    
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Suppression...';
+    confirmBtn.disabled = true;
+    
+    // Ajouter un délai pour l'UX
+    setTimeout(() => {
+        // Le formulaire sera soumis après ce délai
+    }, 1000);
+});
+
+// Alternative : marquer comme hors service (pour les meubles)
+{% if type == 'meuble' %}
+function marquerHorsService() {
+    if (confirm('Marquer ce meuble comme "Hors service" au lieu de le supprimer ?')) {
+        fetch('{% url "meubles:meuble_changer_etat" objet.pk %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'etat=hors_service&motif=Marqué hors service au lieu de suppression'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Meuble marqué comme "Hors service" avec succès !');
+                window.location.href = '{% url "meubles:meuble_detail" objet.pk %}';
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue');
+        });
+    }
+}
+{% endif %}
+
+// Protection contre la fermeture accidentelle
+let formSubmitted = false;
+
+document.getElementById('deleteForm').addEventListener('submit', function() {
+    formSubmitted = true;
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (!formSubmitted && document.getElementById('confirmDelete').checked) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// Raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    // Échap pour annuler
+    if (e.key === 'Escape') {
+        window.history.back();
+    }
+    
+    // Entrée pour confirmer (si case cochée)
+    if (e.key === 'Enter' && e.ctrlKey && document.getElementById('confirmDelete').checked) {
+        document.getElementById('deleteForm').submit();
+    }
+});
+
+// Focus automatique sur la case de confirmation après 2 secondes
+setTimeout(() => {
+    document.getElementById('confirmDelete').focus();
+}, 2000);
+</script>
+{% endblock %}

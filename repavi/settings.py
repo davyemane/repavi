@@ -83,11 +83,12 @@ INSTALLED_APPS = [
     'users',       # Gestion utilisateurs (Client, Gestionnaire, Super Admin)
     'home',        # Vitrine publique + modèles principaux
     'meubles',      # Gestion des meubles
+    'reservations.apps.ReservationsConfig',   # Gestion des réservations
+
 ]
 
 # Apps optionnelles selon le développement
 OPTIONAL_APPS = [
-    'reservations',   # Gestion des réservations 
     # 'appartements',   # Gestion des appartements
     # 'meubles',        # Gestion des meubles
     # 'avis',           # Système d'avis clients

@@ -1,0 +1,475 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}Inventaire - {{ inventaire.maison.nom }}{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    {{ inventaire.get_type_inventaire_display }} • {{ inventaire.date_inventaire|date:"d/m/Y à H:i" }}
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <button onclick="exporterPDF()" 
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-file-pdf mr-2"></i>
+        Export PDF
+    </button>
+    
+    <button onclick="exporterExcel()" 
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-file-excel mr-2"></i>
+        Export Excel
+    </button>
+    
+    <a href="{% url 'meubles:inventaires_list' %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Retour à la liste
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Résumé de l'inventaire -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r 
+            {% if inventaire.type_inventaire == 'entree' %}from-green-50 to-green-100
+            {% elif inventaire.type_inventaire == 'sortie' %}from-orange-50 to-orange-100
+            {% elif inventaire.type_inventaire == 'periodique' %}from-blue-50 to-blue-100
+            {% else %}from-purple-50 to-purple-100{% endif %}">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12 rounded-lg bg-white shadow-sm flex items-center justify-center">
+                        <i class="fas fa-{% if inventaire.type_inventaire == 'entree' %}sign-in-alt text-green-600
+                            {% elif inventaire.type_inventaire == 'sortie' %}sign-out-alt text-orange-600
+                            {% elif inventaire.type_inventaire == 'periodique' %}calendar-check text-blue-600
+                            {% else %}tools text-purple-600{% endif %} text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-2xl font-bold text-gray-900">{{ inventaire.get_type_inventaire_display }}</h1>
+                        <p class="text-sm 
+                            {% if inventaire.type_inventaire == 'entree' %}text-green-700
+                            {% elif inventaire.type_inventaire == 'sortie' %}text-orange-700
+                            {% elif inventaire.type_inventaire == 'periodique' %}text-blue-700
+                            {% else %}text-purple-700{% endif %}">
+                            {{ inventaire.maison.nom }} • {{ inventaire.maison.numero }}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-right">
+                    <div class="text-sm text-gray-500">Effectué par</div>
+                    <div class="font-medium text-gray-900">
+                        {{ inventaire.effectue_par.get_full_name|default:inventaire.effectue_par.username }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Total des meubles -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-gray-900">{{ inventaire.nombre_meubles_total }}</div>
+                    <div class="text-sm text-gray-500">Meubles Total</div>
+                </div>
+                
+                <!-- Bon état -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600">{{ inventaire.nombre_meubles_bon_etat }}</div>
+                    <div class="text-sm text-gray-500">Bon État</div>
+                    <div class="text-xs text-gray-400">({{ inventaire.pourcentage_bon_etat }}%)</div>
+                </div>
+                
+                <!-- Défectueux -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-red-600">{{ inventaire.nombre_meubles_defectueux }}</div>
+                    <div class="text-sm text-gray-500">Défectueux</div>
+                    <div class="text-xs text-gray-400">
+                        ({{ inventaire.nombre_meubles_defectueux|floatformat:0|mul:100|div:inventaire.nombre_meubles_total|floatformat:1 }}%)
+                    </div>
+                </div>
+                
+                <!-- Autres -->
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-yellow-600">
+                        {{ inventaire.nombre_meubles_total|sub:inventaire.nombre_meubles_bon_etat|sub:inventaire.nombre_meubles_defectueux }}
+                    </div>
+                    <div class="text-sm text-gray-500">Autres États</div>
+                    <div class="text-xs text-gray-400">(Usage, Hors service)</div>
+                </div>
+            </div>
+            
+            <!-- Barre de progression globale -->
+            <div class="mt-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">État général</span>
+                    <span class="text-sm text-gray-500">{{ inventaire.pourcentage_bon_etat }}% en bon état</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500" 
+                         style="width: {{ inventaire.pourcentage_bon_etat }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Observations générales -->
+    {% if inventaire.observations %}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-sticky-note text-indigo-600 mr-2"></i>
+                Observations Générales
+            </h3>
+        </div>
+        
+        <div class="p-6">
+            <div class="prose max-w-none">
+                <p class="text-gray-700 whitespace-pre-line">{{ inventaire.observations }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Graphiques et statistiques -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Répartition par état -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-pie text-indigo-600 mr-2"></i>
+                Répartition par État
+            </h3>
+            <div class="relative h-64">
+                <canvas id="etatChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Répartition par pièce -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-bar text-indigo-600 mr-2"></i>
+                Répartition par Pièce
+            </h3>
+            <div class="relative h-64">
+                <canvas id="pieceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste détaillée des meubles -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-list text-indigo-600 mr-2"></i>
+                Détail des Meubles ({{ meubles.count }})
+            </h3>
+            
+            <div class="flex items-center space-x-3">
+                <!-- Filtres rapides -->
+                <select id="filtreEtat" onchange="filtrerMeubles()" 
+                        class="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">Tous les états</option>
+                    <option value="bon">Bon état</option>
+                    <option value="usage">État d'usage</option>
+                    <option value="defectueux">Défectueux</option>
+                    <option value="hors_service">Hors service</option>
+                </select>
+                
+                <select id="filtrePiece" onchange="filtrerMeubles()" 
+                        class="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="">Toutes les pièces</option>
+                    {% for piece, meubles_piece in meubles_par_piece.items %}
+                    <option value="{{ piece }}">{{ piece }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <!-- Vue par pièce -->
+        <div class="divide-y divide-gray-200">
+            {% for piece, meubles_piece in meubles_par_piece.items %}
+            <div class="piece-section" data-piece="{{ piece }}">
+                <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-medium text-gray-900">
+                            <i class="fas fa-door-open text-gray-600 mr-2"></i>
+                            {{ piece }} ({{ meubles_piece|length }} meubles)
+                        </h4>
+                        
+                        <div class="flex items-center space-x-2">
+                            {% with bon_etat=meubles_piece|where_etat:'bon'|length %}
+                            {% with defectueux=meubles_piece|where_etat:'defectueux'|length %}
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                                {{ bon_etat }} bon état
+                            </span>
+                            {% if defectueux > 0 %}
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
+                                {{ defectueux }} défectueux
+                            </span>
+                            {% endif %}
+                            {% endwith %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+                    {% for meuble in meubles_piece %}
+                    <div class="meuble-card border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow" 
+                         data-etat="{{ meuble.etat }}" data-piece="{{ piece }}">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 rounded bg-gray-100 flex items-center justify-center mr-3">
+                                        <i class="fas fa-{{ meuble.type_meuble.icone|default:'cube' }} text-gray-600 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">{{ meuble.nom }}</h5>
+                                        <p class="text-sm text-gray-500">{{ meuble.type_meuble.nom }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-2 text-xs text-gray-500">
+                                    {{ meuble.numero_serie }}
+                                    {% if meuble.marque %} • {{ meuble.marque }}{% endif %}
+                                </div>
+                                
+                                {% if meuble.notes %}
+                                <div class="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                                    {{ meuble.notes|truncatechars:100 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="ml-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium 
+                                    {% if meuble.etat == 'bon' %}bg-green-100 text-green-800
+                                    {% elif meuble.etat == 'usage' %}bg-yellow-100 text-yellow-800
+                                    {% elif meuble.etat == 'defectueux' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ meuble.get_etat_display }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 flex items-center justify-between">
+                            <div class="text-xs text-gray-500">
+                                {% if meuble.date_derniere_verification %}
+                                    Vérifié le {{ meuble.date_derniere_verification|date:"d/m/Y" }}
+                                {% else %}
+                                    <span class="text-orange-600">Jamais vérifié</span>
+                                {% endif %}
+                            </div>
+                            
+                            <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+                               class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">
+                                Voir détail →
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="px-6 py-12 text-center text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-2"></i>
+                <p>Aucun meuble trouvé dans cette maison</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Actions recommandées -->
+    {% if inventaire.nombre_meubles_defectueux > 0 %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Actions Recommandées</h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <p class="mb-2">{{ inventaire.nombre_meubles_defectueux }} meuble{{ inventaire.nombre_meubles_defectueux|pluralize }} défectueux détecté{{ inventaire.nombre_meubles_defectueux|pluralize }} :</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Planifier les réparations nécessaires</li>
+                        <li>Évaluer les coûts de remise en état</li>
+                        <li>Considérer le remplacement si nécessaire</li>
+                        <li>Documenter les défauts avec photos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Graphique répartition par état
+const etatCtx = document.getElementById('etatChart').getContext('2d');
+new Chart(etatCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [
+            {% for etat in repartition_etats %}
+                '{{ etat.etat|capfirst }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            data: [
+                {% for etat in repartition_etats %}
+                    {{ etat.count }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: [
+                '#10B981', // vert pour bon
+                '#F59E0B', // orange pour usage
+                '#EF4444', // rouge pour défectueux
+                '#6B7280'  // gris pour hors service
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20
+                }
+            }
+        }
+    }
+});
+
+// Graphique répartition par pièce
+const pieceCtx = document.getElementById('pieceChart').getContext('2d');
+new Chart(pieceCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for piece in repartition_pieces %}
+                '{{ piece.piece|capfirst }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Nombre de meubles',
+            data: [
+                {% for piece in repartition_pieces %}
+                    {{ piece.count }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+            borderColor: 'rgba(99, 102, 241, 1)',
+            borderWidth: 1,
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            },
+            x: {
+                ticks: {
+                    maxRotation: 45
+                }
+            }
+        }
+    }
+});
+
+// Filtrage des meubles
+function filtrerMeubles() {
+    const filtreEtat = document.getElementById('filtreEtat').value;
+    const filtrePiece = document.getElementById('filtrePiece').value;
+    
+    const sections = document.querySelectorAll('.piece-section');
+    const cartes = document.querySelectorAll('.meuble-card');
+    
+    sections.forEach(section => {
+        const piece = section.dataset.piece;
+        let sectionVisible = !filtrePiece || piece === filtrePiece;
+        
+        if (sectionVisible) {
+            section.style.display = 'block';
+            
+            const cartesSection = section.querySelectorAll('.meuble-card');
+            let cartesVisibles = 0;
+            
+            cartesSection.forEach(carte => {
+                const etat = carte.dataset.etat;
+                const carteVisible = !filtreEtat || etat === filtreEtat;
+                
+                carte.style.display = carteVisible ? 'block' : 'none';
+                if (carteVisible) cartesVisibles++;
+            });
+            
+            // Masquer la section si aucune carte visible
+            if (cartesVisibles === 0) {
+                section.style.display = 'none';
+            }
+        } else {
+            section.style.display = 'none';
+        }
+    });
+}
+
+// Export PDF
+function exporterPDF() {
+    window.print();
+}
+
+// Export Excel
+function exporterExcel() {
+    alert('Fonctionnalité d\'export Excel en cours de développement');
+}
+
+// Animation d'entrée des cartes
+document.addEventListener('DOMContentLoaded', function() {
+    const cartes = document.querySelectorAll('.meuble-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    cartes.forEach((carte, index) => {
+        carte.style.opacity = '0';
+        carte.style.transform = 'translateY(20px)';
+        carte.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+        observer.observe(carte);
+    });
+});
+</script>
+
+<style>
+@media print {
+    .no-print { display: none !important; }
+    .bg-white { background: white !important; }
+    .shadow-lg { box-shadow: none !important; }
+    .border { border: 1px solid #000 !important; }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,409 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}{{ action }} - {{ meuble.nom }}{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    Documenter l'état du meuble avec des photos
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Retour au meuble
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Informations du meuble -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-chair text-indigo-600 mr-2"></i>
+                Meuble concerné
+            </h3>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 h-16 w-16 rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center">
+                    <i class="fas fa-{{ meuble.type_meuble.icone|default:'cube' }} text-indigo-600 text-2xl"></i>
+                </div>
+                
+                <div class="flex-1">
+                    <h4 class="text-xl font-bold text-gray-900">{{ meuble.nom }}</h4>
+                    <p class="text-sm text-gray-600 mt-1">
+                        {{ meuble.type_meuble.nom }} • {{ meuble.numero_serie }}
+                    </p>
+                    <div class="flex items-center mt-2 space-x-4">
+                        <span class="inline-flex items-center text-xs text-gray-500">
+                            <i class="fas fa-home mr-1"></i>
+                            {{ meuble.maison.nom }}
+                        </span>
+                        <span class="inline-flex items-center text-xs text-gray-500">
+                            <i class="fas fa-door-open mr-1"></i>
+                            {{ meuble.get_piece_display }}
+                        </span>
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium 
+                            {% if meuble.etat == 'bon' %}bg-green-100 text-green-800
+                            {% elif meuble.etat == 'usage' %}bg-yellow-100 text-yellow-800
+                            {% elif meuble.etat == 'defectueux' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ meuble.get_etat_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire d'upload -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-camera text-indigo-600 mr-2"></i>
+                Ajouter une photo
+            </h3>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="p-6" id="photoForm">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Upload de l'image -->
+                <div>
+                    <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.image.label }} <span class="text-red-500">*</span>
+                    </label>
+                    
+                    <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors" 
+                         ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" ondragenter="dragEnterHandler(event);" ondragleave="dragLeaveHandler(event);">
+                        <div class="space-y-1 text-center">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="{{ form.image.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                    <span>Téléchargez une image</span>
+                                    {{ form.image }}
+                                </label>
+                                <p class="pl-1">ou glissez-déposez</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF jusqu'à 10MB</p>
+                        </div>
+                    </div>
+                    
+                    {% if form.image.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.image.errors.0 }}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Aperçu de l'image -->
+                    <div id="imagePreview" class="mt-4 hidden">
+                        <div class="relative inline-block">
+                            <img id="previewImg" src="" alt="Aperçu" class="max-w-full h-48 object-cover rounded-lg shadow-md">
+                            <button type="button" onclick="clearImage()" 
+                                    class="absolute -top-2 -right-2 h-6 w-6 bg-red-600 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-700 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Titre de la photo -->
+                <div>
+                    <label for="{{ form.titre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.titre.label }}
+                    </label>
+                    {{ form.titre }}
+                    {% if form.titre.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.titre.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <div class="mt-1 text-xs text-gray-500">
+                        Titre descriptif pour identifier cette photo
+                    </div>
+                </div>
+                
+                <!-- Type de photo -->
+                <div>
+                    <label for="{{ form.type_photo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.type_photo.label }} <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.type_photo }}
+                    {% if form.type_photo.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {{ form.type_photo.errors.0 }}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Description des types -->
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                            <strong>État général :</strong> Photo d'ensemble du meuble
+                        </div>
+                        <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                            <strong>Détail :</strong> Gros plan sur une partie spécifique
+                        </div>
+                        <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                            <strong>Défaut/problème :</strong> Photo documentant un problème
+                        </div>
+                        <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                            <strong>Après réparation :</strong> Résultat après intervention
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Erreurs générales -->
+            {% if form.non_field_errors %}
+            <div class="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex">
+                    <i class="fas fa-exclamation-circle text-red-400 mr-2 mt-0.5"></i>
+                    <div>
+                        <h3 class="text-sm font-medium text-red-800">Erreurs de validation</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Boutons d'action -->
+            <div class="mt-8 flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Les photos aident à documenter l'état et faciliter les inventaires
+                </div>
+                
+                <div class="flex space-x-3">
+                    <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+                       class="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-times mr-2"></i>
+                        Annuler
+                    </a>
+                    
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-save mr-2"></i>
+                        Ajouter la photo
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Conseils pour de bonnes photos -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mt-8">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-lightbulb text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Conseils pour de bonnes photos</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Assurez-vous d'avoir un bon éclairage (lumière naturelle si possible)</li>
+                        <li>Prenez des photos nettes et bien cadrées</li>
+                        <li>Pour documenter un défaut, prenez une vue d'ensemble puis un gros plan</li>
+                        <li>Évitez les photos floues ou sous-exposées</li>
+                        <li>N'hésitez pas à prendre plusieurs angles pour une meilleure documentation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gestion du drag & drop
+function dragOverHandler(ev) {
+    ev.preventDefault();
+    ev.currentTarget.classList.add('border-indigo-400', 'bg-indigo-50');
+}
+
+function dragEnterHandler(ev) {
+    ev.preventDefault();
+}
+
+function dragLeaveHandler(ev) {
+    ev.currentTarget.classList.remove('border-indigo-400', 'bg-indigo-50');
+}
+
+function dropHandler(ev) {
+    ev.preventDefault();
+    ev.currentTarget.classList.remove('border-indigo-400', 'bg-indigo-50');
+    
+    if (ev.dataTransfer.items) {
+        for (let i = 0; i < ev.dataTransfer.items.length; i++) {
+            if (ev.dataTransfer.items[i].kind === 'file') {
+                const file = ev.dataTransfer.items[i].getAsFile();
+                handleFileSelect(file);
+                break;
+            }
+        }
+    }
+}
+
+// Gestion de la sélection d'image
+document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+function handleFileSelect(file) {
+    // Vérifier le type de fichier
+    if (!file.type.startsWith('image/')) {
+        alert('Seuls les fichiers image sont acceptés');
+        return;
+    }
+    
+    // Vérifier la taille (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+        alert('Le fichier ne doit pas dépasser 10MB');
+        return;
+    }
+    
+    // Afficher l'aperçu
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('imagePreview').classList.remove('hidden');
+        
+        // Auto-générer un titre si vide
+        const titreField = document.getElementById('{{ form.titre.id_for_label }}');
+        if (!titreField.value.trim()) {
+            const typePhoto = document.getElementById('{{ form.type_photo.id_for_label }}').value;
+            const typeText = document.getElementById('{{ form.type_photo.id_for_label }}').options[document.getElementById('{{ form.type_photo.id_for_label }}').selectedIndex].text;
+            
+            if (typePhoto) {
+                titreField.value = `{{ meuble.nom }} - ${typeText}`;
+            }
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearImage() {
+    document.getElementById('{{ form.image.id_for_label }}').value = '';
+    document.getElementById('imagePreview').classList.add('hidden');
+}
+
+// Auto-génération du titre quand le type change
+document.getElementById('{{ form.type_photo.id_for_label }}').addEventListener('change', function() {
+    const titreField = document.getElementById('{{ form.titre.id_for_label }}');
+    const typeText = this.options[this.selectedIndex].text;
+    
+    if (!titreField.value.trim() || titreField.value.includes('{{ meuble.nom }}')) {
+        titreField.value = `{{ meuble.nom }} - ${typeText}`;
+    }
+});
+
+// Validation du formulaire
+function validateForm() {
+    const imageField = document.getElementById('{{ form.image.id_for_label }}');
+    const typeField = document.getElementById('{{ form.type_photo.id_for_label }}');
+    
+    if (!imageField.files[0]) {
+        alert('Veuillez sélectionner une image');
+        return false;
+    }
+    
+    if (!typeField.value) {
+        alert('Veuillez sélectionner un type de photo');
+        return false;
+    }
+    
+    return true;
+}
+
+// Animation de soumission
+document.getElementById('photoForm').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+        e.preventDefault();
+        return;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Upload en cours...';
+    submitBtn.disabled = true;
+    
+    // Créer une barre de progression
+    const progressDiv = document.createElement('div');
+    progressDiv.className = 'mt-4 bg-gray-200 rounded-full h-2';
+    progressDiv.innerHTML = '<div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>';
+    
+    submitBtn.parentNode.parentNode.appendChild(progressDiv);
+    
+    // Simuler la progression d'upload
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress > 90) progress = 90;
+        progressDiv.firstElementChild.style.width = progress + '%';
+    }, 300);
+    
+    // Nettoyer en cas d'erreur
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        if (progressDiv.parentNode) {
+            progressDiv.remove();
+        }
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 15000);
+});
+
+// Compresser l'image avant upload (optionnel)
+function compressImage(file, maxWidth = 1920, quality = 0.8) {
+    return new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = function() {
+            const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+            canvas.width = img.width * ratio;
+            canvas.height = img.height * ratio;
+            
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            canvas.toBlob(resolve, 'image/jpeg', quality);
+        };
+        
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+// Raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    // Ctrl+S pour sauvegarder
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        if (validateForm()) {
+            document.getElementById('photoForm').submit();
+        }
+    }
+    
+    // Échap pour annuler
+    if (e.key === 'Escape') {
+        window.location.href = '{% url "meubles:meuble_detail" meuble.pk %}';
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
