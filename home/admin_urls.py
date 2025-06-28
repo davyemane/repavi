@@ -39,9 +39,4 @@ urlpatterns = [
     path('photos/<int:pk>/modifier/', admin_views.admin_photo_edit, name='photo_edit'),
     path('photos/<int:pk>/supprimer/', admin_views.admin_photo_delete, name='photo_delete'),
     
-    # ======== GESTION DES RÉSERVATIONS ========
-    path('reservations/', admin_views.admin_reservations_list, name='reservations_list'),
-    path('reservations/creer/', admin_views.admin_reservation_create, name='reservation_create'),
-    path('reservations/<int:pk>/modifier/', admin_views.admin_reservation_edit, name='reservation_edit'),
-    path('reservations/<int:pk>/supprimer/', admin_views.admin_reservation_delete, name='reservation_delete'),
 ]

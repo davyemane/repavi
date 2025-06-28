@@ -1,0 +1,318 @@
+INFO 2025-06-28 12:45:16,158 autoreload 12814 136041185140864 Watching for file changes with StatReloader
+INFO 2025-06-28 12:46:10,309 autoreload 12814 136041185140864 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-28 12:46:10,797 autoreload 12914 140333792379008 Watching for file changes with StatReloader
+INFO 2025-06-28 12:46:20,252 autoreload 12914 140333792379008 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-28 12:46:21,064 autoreload 12979 136461522239616 Watching for file changes with StatReloader
+INFO 2025-06-28 12:49:12,594 autoreload 13559 139691264323712 Watching for file changes with StatReloader
+INFO 2025-06-28 12:49:39,374 autoreload 13559 139691264323712 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-28 12:49:40,818 autoreload 13668 138405383540864 Watching for file changes with StatReloader
+INFO 2025-06-28 12:53:57,602 autoreload 14062 138068050182272 Watching for file changes with StatReloader
+INFO 2025-06-28 13:00:22,163 autoreload 16731 135885958815872 Watching for file changes with StatReloader
+INFO 2025-06-28 13:06:18,200 autoreload 17270 130910173888640 Watching for file changes with StatReloader
+INFO 2025-06-28 13:08:54,794 autoreload 17270 130910173888640 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-28 13:08:56,105 autoreload 17500 126293160927360 Watching for file changes with StatReloader
+INFO 2025-06-28 13:09:22,051 autoreload 17500 126293160927360 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-28 13:09:23,788 autoreload 17699 134628565348480 Watching for file changes with StatReloader
+INFO 2025-06-28 13:24:45,108 autoreload 18816 135208511418496 Watching for file changes with StatReloader
+INFO 2025-06-28 13:25:03,485 autoreload 18816 135208511418496 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-28 13:25:04,986 autoreload 18917 123881861668992 Watching for file changes with StatReloader
+INFO 2025-06-28 13:25:37,237 autoreload 18917 123881861668992 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-28 13:25:38,445 autoreload 19049 124872868974720 Watching for file changes with StatReloader
+INFO 2025-06-28 13:27:09,093 autoreload 19049 124872868974720 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-28 13:33:25,271 autoreload 19525 133130904236160 Watching for file changes with StatReloader
+INFO 2025-06-28 13:36:01,441 basehttp 19525 133130813957824 "GET /repavi-admin/ HTTP/1.1" 200 59249
+INFO 2025-06-28 13:36:01,691 basehttp 19525 133130813957824 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 200 623
+INFO 2025-06-28 13:36:01,804 basehttp 19525 133130813957824 "GET /static/django-browser-reload/reload-worker.js HTTP/1.1" 200 2711
+INFO 2025-06-28 14:05:15,637 autoreload 19525 133130904236160 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 14:05:16,091 autoreload 20493 138569531781248 Watching for file changes with StatReloader
+INFO 2025-06-28 15:30:12,978 autoreload 26225 135711533359232 Watching for file changes with StatReloader
+INFO 2025-06-28 15:30:28,896 basehttp 26225 135711369983680 "GET / HTTP/1.1" 200 13465
+INFO 2025-06-28 15:30:28,995 basehttp 26225 135711369983680 "GET /static/css/tailwind.css HTTP/1.1" 200 50715
+INFO 2025-06-28 15:30:29,004 basehttp 26225 135711369983680 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 200 623
+INFO 2025-06-28 15:30:29,638 basehttp 26225 135711369983680 "GET /static/django-browser-reload/reload-worker.js HTTP/1.1" 200 2711
+WARNING 2025-06-28 15:30:30,778 log 26225 135711361590976 Not Found: /favicon.ico
+WARNING 2025-06-28 15:30:30,779 basehttp 26225 135711361590976 "GET /favicon.ico HTTP/1.1" 404 5060
+INFO 2025-06-28 15:31:28,944 basehttp 26225 135711361590976 "GET / HTTP/1.1" 200 13464
+INFO 2025-06-28 15:31:31,004 basehttp 26225 135711369983680 "GET / HTTP/1.1" 200 13463
+INFO 2025-06-28 15:31:33,107 basehttp 26225 135711361590976 "GET / HTTP/1.1" 200 13465
+INFO 2025-06-28 15:31:39,296 basehttp 26225 135711369983680 "GET / HTTP/1.1" 200 13465
+INFO 2025-06-28 15:34:36,877 basehttp 26225 135711361590976 "GET / HTTP/1.1" 200 13466
+INFO 2025-06-28 15:34:37,817 basehttp 26225 135711369983680 "GET / HTTP/1.1" 200 13479
+INFO 2025-06-28 15:37:40,459 basehttp 26225 135711361590976 "GET /users/login/ HTTP/1.1" 200 4468
+INFO 2025-06-28 15:37:50,040 basehttp 26225 135711361590976 "POST /users/login/ HTTP/1.1" 302 0
+ERROR 2025-06-28 15:37:50,274 log 26225 135711361590976 Internal Server Error: /repavi-admin/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/home/admin_views.py", line 151, in admin_dashboard
+    return render(request, 'admin/dashboard.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'reservations_list' not found. 'reservations_list' is not a valid view function or pattern name.
+ERROR 2025-06-28 15:37:50,292 basehttp 26225 135711361590976 "GET /repavi-admin/ HTTP/1.1" 500 184828
+INFO 2025-06-28 15:38:17,627 autoreload 26225 135711533359232 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:38:18,451 autoreload 26840 132105289375872 Watching for file changes with StatReloader
+INFO 2025-06-28 15:38:58,799 autoreload 26840 132105289375872 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:38:59,630 autoreload 26926 138963301318784 Watching for file changes with StatReloader
+INFO 2025-06-28 15:39:04,829 autoreload 26926 138963301318784 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:05,397 autoreload 27039 127186667901056 Watching for file changes with StatReloader
+INFO 2025-06-28 15:39:07,497 autoreload 27039 127186667901056 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:08,108 autoreload 27075 135989114114176 Watching for file changes with StatReloader
+INFO 2025-06-28 15:39:20,578 autoreload 27075 135989114114176 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:21,356 autoreload 27108 135133044539520 Watching for file changes with StatReloader
+INFO 2025-06-28 15:39:24,525 autoreload 27108 135133044539520 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:25,187 autoreload 27155 134882270347392 Watching for file changes with StatReloader
+INFO 2025-06-28 15:39:26,780 autoreload 27155 134882270347392 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:27,317 autoreload 27169 129499577254016 Watching for file changes with StatReloader
+ERROR 2025-06-28 15:39:28,790 log 27169 129499478873792 Internal Server Error: /repavi-admin/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/home/admin_views.py", line 154, in admin_dashboard
+    return render(request, 'admin/dashboard.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'reservations_list' not found. 'reservations_list' is not a valid view function or pattern name.
+ERROR 2025-06-28 15:39:28,819 basehttp 27169 129499478873792 "GET /repavi-admin/ HTTP/1.1" 500 185764
+INFO 2025-06-28 15:39:33,213 autoreload 27169 129499577254016 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:34,041 autoreload 27233 132402505678976 Watching for file changes with StatReloader
+INFO 2025-06-28 15:39:37,168 autoreload 27233 132402505678976 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:38,005 autoreload 27263 132757354741888 Watching for file changes with StatReloader
+INFO 2025-06-28 15:39:39,108 autoreload 27263 132757354741888 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:39,789 autoreload 27292 138676506894464 Watching for file changes with StatReloader
+INFO 2025-06-28 15:39:40,892 autoreload 27292 138676506894464 /home/davy/repavi/home/admin_views.py changed, reloading.
+INFO 2025-06-28 15:39:41,537 autoreload 27303 135531416371328 Watching for file changes with StatReloader
+ERROR 2025-06-28 15:39:43,190 log 27303 135531241400000 Internal Server Error: /repavi-admin/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/home/admin_views.py", line 154, in admin_dashboard
+    return render(request, 'admin/dashboard.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'reservations_list' not found. 'reservations_list' is not a valid view function or pattern name.
+ERROR 2025-06-28 15:39:43,199 basehttp 27303 135531241400000 "GET /repavi-admin/ HTTP/1.1" 500 185764
+ERROR 2025-06-28 15:39:46,269 log 27303 135531249792704 Internal Server Error: /repavi-admin/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/home/admin_views.py", line 154, in admin_dashboard
+    return render(request, 'admin/dashboard.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'reservations_list' not found. 'reservations_list' is not a valid view function or pattern name.
+ERROR 2025-06-28 15:39:46,282 basehttp 27303 135531249792704 "GET /repavi-admin/ HTTP/1.1" 500 185895
+INFO 2025-06-28 15:50:49,411 basehttp 27303 135531241400000 "GET / HTTP/1.1" 200 15403
+INFO 2025-06-28 15:50:56,816 basehttp 27303 135531249792704 "GET /contact/ HTTP/1.1" 200 15696

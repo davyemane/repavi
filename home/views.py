@@ -1,4 +1,4 @@
-# home/views.py - Version adaptée avec nouveaux rôles et services
+# home/views.py - Version nettoyée sans Reservation
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator
@@ -7,13 +7,23 @@ from django.views.generic import ListView, DetailView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from services.maison_service import MaisonService
-from services.reservation_service import ReservationService
-from .models import Maison, CategorieMaison, Ville, PhotoMaison, Reservation
-import json
+from django.contrib.auth import get_user_model
+
+# Import sécurisé des services
+try:
+    from services.maison_service import MaisonService
+    MAISON_SERVICE_AVAILABLE = True
+except ImportError:
+    MAISON_SERVICE_AVAILABLE = False
+    print("⚠️ MaisonService non disponible - utilisation des fallbacks")
+
+from .models import Maison, CategorieMaison, Ville, PhotoMaison
+
+User = get_user_model()
+
 
 def index(request):
-    """Vue principale de la page d'accueil - ADAPTÉE"""
+    """Vue principale de la page d'accueil - NETTOYÉE"""
     
     # Récupérer les maisons featured disponibles pour tous
     maisons_featured = Maison.objects.filter(
@@ -21,11 +31,11 @@ def index(request):
         disponible=True
     ).select_related('ville', 'categorie', 'gestionnaire').prefetch_related('photos')[:6]
     
-    # Statistiques pour la section stats
+    # Statistiques pour la section stats (sans réservations pour l'instant)
     stats = {
         'total_maisons': Maison.objects.filter(disponible=True).count(),
         'total_villes': Ville.objects.count(),
-        'total_reservations': Reservation.objects.filter(statut='confirmee').count(),
+        'total_reservations': 0,  # TODO: À rétablir avec l'app reservations
         'satisfaction_client': 98,  # Peut être calculé dynamiquement plus tard
     }
     
@@ -44,31 +54,33 @@ def index(request):
         'stats': stats,
         'categories': categories,
         'villes_populaires': villes_populaires,
-        'page_title': 'Accueil - RepAvi',
-        'meta_description': 'Trouvez et réservez la maison meublée parfaite pour vos vacances. Plus de 250 maisons vérifiées dans toute la France.',
+        'page_title': 'Accueil - RepAvi Lodges',
+        'meta_description': 'Trouvez et réservez la maison meublée parfaite pour vos séjours. RepAvi Lodges - Douala, Cameroun.',
         'user_authenticated': request.user.is_authenticated,
-        'user_role': request.user.role if request.user.is_authenticated else None,
+        'user_role': getattr(request.user, 'role', None) if request.user.is_authenticated else None,
     }
     
     return render(request, 'home/index.html', context)
 
 
 class MaisonListView(ListView):
-    """Vue liste des maisons avec filtres - ADAPTÉE"""
+    """Vue liste des maisons avec filtres - NETTOYÉE"""
     model = Maison
     template_name = 'home/maisons_list.html'
     context_object_name = 'maisons'
     paginate_by = 12
     
     def get_queryset(self):
-        # Utiliser le service pour récupérer les maisons selon les permissions
+        # Utiliser le service si disponible, sinon fallback
         user = self.request.user if self.request.user.is_authenticated else None
         
-        # Pour les visiteurs non connectés, montrer seulement les maisons disponibles
-        if not user or not user.is_authenticated:
-            queryset = Maison.objects.filter(disponible=True)
+        if MAISON_SERVICE_AVAILABLE and user:
+            try:
+                queryset = MaisonService.get_maisons_for_user(user)
+            except Exception:
+                queryset = self._get_fallback_queryset(user)
         else:
-            queryset = MaisonService.get_maisons_for_user(user)
+            queryset = self._get_fallback_queryset(user)
         
         queryset = queryset.select_related('ville', 'categorie', 'gestionnaire').prefetch_related('photos')
         
@@ -80,21 +92,24 @@ class MaisonListView(ListView):
         prix_min = self.request.GET.get('prix_min')
         prix_max = self.request.GET.get('prix_max')
         
-        # Utiliser le service de recherche si des filtres sont appliqués
-        if any([search, ville_id, categorie_id, capacite, prix_min, prix_max]):
-            filters = {}
-            if ville_id:
-                filters['ville'] = ville_id
-            if categorie_id:
-                filters['categorie'] = categorie_id
-            if capacite:
-                filters['capacite_min'] = capacite
-            if prix_min:
-                filters['prix_min'] = prix_min
-            if prix_max:
-                filters['prix_max'] = prix_max
-            
-            queryset = MaisonService.search_maisons(search or '', user, filters)
+        # Appliquer les filtres manuellement
+        if search:
+            queryset = queryset.filter(
+                Q(nom__icontains=search) |
+                Q(description__icontains=search) |
+                Q(ville__nom__icontains=search)
+            )
+        
+        if ville_id:
+            queryset = queryset.filter(ville_id=ville_id)
+        if categorie_id:
+            queryset = queryset.filter(categorie_id=categorie_id)
+        if capacite:
+            queryset = queryset.filter(capacite_personnes__gte=capacite)
+        if prix_min:
+            queryset = queryset.filter(prix_par_nuit__gte=prix_min)
+        if prix_max:
+            queryset = queryset.filter(prix_par_nuit__lte=prix_max)
         
         # Tri
         sort_by = self.request.GET.get('sort', '-date_creation')
@@ -108,27 +123,50 @@ class MaisonListView(ListView):
         
         return queryset
     
+    def _get_fallback_queryset(self, user):
+        """Fallback pour récupérer les maisons selon les permissions"""
+        if not user or not user.is_authenticated:
+            return Maison.objects.filter(disponible=True)
+        
+        if hasattr(user, 'is_super_admin') and user.is_super_admin():
+            return Maison.objects.all()
+        elif hasattr(user, 'is_gestionnaire') and user.is_gestionnaire():
+            return Maison.objects.filter(gestionnaire=user)
+        else:
+            return Maison.objects.filter(disponible=True)
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['villes'] = Ville.objects.all().order_by('nom')
         context['categories'] = CategorieMaison.objects.all()
         context['current_filters'] = self.request.GET
-        context['user_role'] = self.request.user.role if self.request.user.is_authenticated else None
+        context['user_role'] = getattr(self.request.user, 'role', None) if self.request.user.is_authenticated else None
         return context
 
 
 class MaisonDetailView(DetailView):
-    """Vue détail d'une maison - ADAPTÉE"""
+    """Vue détail d'une maison - NETTOYÉE"""
     model = Maison
     template_name = 'home/maison_detail.html'
     context_object_name = 'maison'
     slug_field = 'slug'
     
     def get_queryset(self):
-        # Utiliser le service pour vérifier les permissions
         user = self.request.user if self.request.user.is_authenticated else None
-        if user:
-            return MaisonService.get_maisons_for_user(user)
+        
+        if MAISON_SERVICE_AVAILABLE and user:
+            try:
+                return MaisonService.get_maisons_for_user(user)
+            except Exception:
+                pass
+        
+        # Fallback
+        if not user or not user.is_authenticated:
+            return Maison.objects.filter(disponible=True)
+        elif hasattr(user, 'is_super_admin') and user.is_super_admin():
+            return Maison.objects.all()
+        elif hasattr(user, 'is_gestionnaire') and user.is_gestionnaire():
+            return Maison.objects.filter(gestionnaire=user)
         else:
             return Maison.objects.filter(disponible=True)
     
@@ -144,22 +182,33 @@ class MaisonDetailView(DetailView):
             disponible=True
         ).exclude(id=self.object.id).select_related('ville', 'categorie')[:3]
         
-        # Données du calendrier pour les disponibilités
-        context['calendar_data'] = ReservationService.get_calendar_data(self.object)
+        # Meubles de la maison (NOUVEAU)
+        try:
+            from meubles.models import Meuble
+            context['meubles'] = self.object.meubles.all().select_related('type_meuble')
+            context['meubles_par_piece'] = {}
+            for meuble in context['meubles']:
+                piece = meuble.get_piece_display()
+                if piece not in context['meubles_par_piece']:
+                    context['meubles_par_piece'][piece] = []
+                context['meubles_par_piece'][piece].append(meuble)
+        except ImportError:
+            context['meubles'] = []
+            context['meubles_par_piece'] = {}
         
         # Permissions pour les boutons d'action
         user = self.request.user
-        context['can_reserve'] = user.is_authenticated and user.is_client()
+        context['can_reserve'] = user.is_authenticated and hasattr(user, 'is_client') and user.is_client()
         context['can_manage'] = user.is_authenticated and self.object.can_be_managed_by(user)
-        context['user_role'] = user.role if user.is_authenticated else None
+        context['user_role'] = getattr(user, 'role', None) if user.is_authenticated else None
         
         # Informations de contact du gestionnaire (pour les clients)
-        if user.is_authenticated and user.is_client():
+        if user.is_authenticated and hasattr(user, 'is_client') and user.is_client():
             gestionnaire = self.object.gestionnaire
             context['gestionnaire_info'] = {
-                'nom': gestionnaire.nom_complet,
-                'telephone': gestionnaire.telephone,
-                'email': gestionnaire.email if gestionnaire.email_verifie else None,
+                'nom': getattr(gestionnaire, 'nom_complet', f"{gestionnaire.first_name} {gestionnaire.last_name}"),
+                'telephone': getattr(gestionnaire, 'telephone', ''),
+                'email': gestionnaire.email if getattr(gestionnaire, 'email_verifie', True) else None,
             }
         
         return context
@@ -167,15 +216,29 @@ class MaisonDetailView(DetailView):
 
 @require_http_methods(["GET"])
 def recherche_ajax(request):
-    """Recherche AJAX pour l'autocomplétion - ADAPTÉE"""
+    """Recherche AJAX pour l'autocomplétion - NETTOYÉE"""
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         query = request.GET.get('q', '')
         
         if len(query) >= 2:
-            user = request.user if request.user.is_authenticated else None
+            user = self.request.user if request.user.is_authenticated else None
             
-            # Utiliser le service de recherche
-            maisons = MaisonService.search_maisons(query, user)[:5]
+            # Recherche dans les maisons
+            if MAISON_SERVICE_AVAILABLE and user:
+                try:
+                    maisons = MaisonService.search_maisons(query, user)[:5]
+                except Exception:
+                    maisons = Maison.objects.filter(
+                        Q(nom__icontains=query) |
+                        Q(description__icontains=query),
+                        disponible=True
+                    )[:5]
+            else:
+                maisons = Maison.objects.filter(
+                    Q(nom__icontains=query) |
+                    Q(description__icontains=query),
+                    disponible=True
+                )[:5]
             
             # Recherche dans les villes
             villes = Ville.objects.filter(nom__icontains=query)[:5]
@@ -188,7 +251,7 @@ def recherche_ajax(request):
                         'ville': str(m.ville),
                         'prix': float(m.prix_par_nuit),
                         'url': m.get_absolute_url(),
-                        'gestionnaire': m.gestionnaire.nom_complet,
+                        'gestionnaire': getattr(m.gestionnaire, 'nom_complet', f"{m.gestionnaire.first_name} {m.gestionnaire.last_name}"),
                         'disponible': m.disponible
                     } for m in maisons
                 ],
@@ -206,70 +269,8 @@ def recherche_ajax(request):
     return JsonResponse({'maisons': [], 'villes': []})
 
 
-@login_required
-@require_http_methods(["POST"])
-def create_reservation_ajax(request):
-    """Créer une réservation via AJAX - NOUVELLE"""
-    if not request.user.is_client():
-        return JsonResponse({
-            'success': False,
-            'error': 'Seuls les clients peuvent faire des réservations.'
-        })
-    
-    try:
-        maison_id = request.POST.get('maison_id')
-        date_debut = request.POST.get('date_debut')
-        date_fin = request.POST.get('date_fin')
-        nombre_personnes = request.POST.get('nombre_personnes')
-        message = request.POST.get('message', '')
-        
-        # Validation basique
-        if not all([maison_id, date_debut, date_fin, nombre_personnes]):
-            return JsonResponse({
-                'success': False,
-                'error': 'Tous les champs sont requis.'
-            })
-        
-        maison = get_object_or_404(Maison, id=maison_id)
-        
-        # Convertir les dates
-        from datetime import datetime
-        date_debut = datetime.strptime(date_debut, '%Y-%m-%d').date()
-        date_fin = datetime.strptime(date_fin, '%Y-%m-%d').date()
-        
-        # Utiliser le service pour créer la réservation
-        reservation_data = {
-            'date_debut': date_debut,
-            'date_fin': date_fin,
-            'nombre_personnes': int(nombre_personnes),
-            'message': message,
-            'telephone': request.user.telephone or ''
-        }
-        
-        reservation = ReservationService.create_reservation(
-            request.user, maison, reservation_data
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'reservation_id': reservation.id,
-            'message': 'Réservation créée avec succès! Le gestionnaire sera notifié.'
-        })
-        
-    except ValidationError as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': 'Erreur lors de la création de la réservation.'
-        })
-
-
 def contact(request):
-    """Page de contact - ADAPTÉE"""
+    """Page de contact - NETTOYÉE"""
     if request.method == 'POST':
         # Traitement du formulaire de contact
         nom = request.POST.get('nom')
@@ -277,26 +278,26 @@ def contact(request):
         sujet = request.POST.get('sujet')
         message = request.POST.get('message')
         
-        # TODO: Intégrer avec le service de notification
+        # TODO: Intégrer avec le service de notification (app notifications)
         # NotificationService.send_contact_message(nom, email, sujet, message)
         
         messages.success(request, 'Votre message a été envoyé avec succès!')
         
     context = {
-        'user_role': request.user.role if request.user.is_authenticated else None,
+        'user_role': getattr(request.user, 'role', None) if request.user.is_authenticated else None,
     }
     
     return render(request, 'home/contact.html', context)
 
 
 def apropos(request):
-    """Page à propos avec statistiques - ADAPTÉE"""
+    """Page à propos avec statistiques - NETTOYÉE"""
     stats = {
         'annee_creation': 2020,
         'maisons_disponibles': Maison.objects.filter(disponible=True).count(),
         'villes_couvertes': Ville.objects.count(),
-        'clients_satisfaits': Reservation.objects.filter(statut='terminee').count() or 10000,
-        'gestionnaires_partenaires': User.objects.filter(role='GESTIONNAIRE').count(),
+        'clients_satisfaits': 10000,  # TODO: calculer depuis l'app reservations
+        'gestionnaires_partenaires': User.objects.filter(role='GESTIONNAIRE').count() if hasattr(User, 'role') else 0,
     }
     
     # Témoignages de clients (à implémenter avec le système d'avis)
@@ -304,44 +305,12 @@ def apropos(request):
     
     context = {
         'stats': stats,
-        'page_title': 'À propos - RepAvi',
-        'meta_description': 'Découvrez l\'histoire et les valeurs de RepAvi, votre partenaire de confiance pour la location de maisons d\'exception.',
-        'user_role': request.user.role if request.user.is_authenticated else None,
+        'page_title': 'À propos - RepAvi Lodges',
+        'meta_description': 'Découvrez l\'histoire et les valeurs de RepAvi Lodges, votre partenaire de confiance pour la location de maisons d\'exception au Cameroun.',
+        'user_role': getattr(request.user, 'role', None) if request.user.is_authenticated else None,
     }
     
     return render(request, 'home/apropos.html', context)
-
-
-# ======== VUES POUR GESTIONNAIRES ========
-
-@login_required
-def gestionnaire_dashboard(request):
-    """Dashboard spécifique pour gestionnaires - NOUVELLE"""
-    if not request.user.is_gestionnaire():
-        messages.error(request, "Accès réservé aux gestionnaires.")
-        return redirect('home:index')
-    
-    # Utiliser le service de statistiques
-    stats = StatisticsService.get_dashboard_stats(request.user)
-    
-    # Réservations récentes
-    reservations_recentes = ReservationService.get_reservations_for_user(request.user)[:5]
-    
-    # Maisons les plus populaires
-    maisons_populaires = Maison.objects.filter(
-        gestionnaire=request.user
-    ).annotate(
-        nb_reservations=Count('reservations')
-    ).order_by('-nb_reservations')[:5]
-    
-    context = {
-        'stats': stats,
-        'reservations_recentes': reservations_recentes,
-        'maisons_populaires': maisons_populaires,
-        'calendar_data': [],  # TODO: Implémenter calendrier global
-    }
-    
-    return render(request, 'home/gestionnaire_dashboard.html', context)
 
 
 # ======== API ENDPOINTS POUR APPLICATIONS FUTURES ========
@@ -356,39 +325,55 @@ def api_maisons_disponibles(request):
         data.append({
             'id': maison.id,
             'nom': maison.nom,
+            'numero': maison.numero,
             'ville': maison.ville.nom,
             'prix_par_nuit': float(maison.prix_par_nuit),
             'capacite': maison.capacite_personnes,
+            'statut_occupation': maison.statut_occupation,
             'photo_principale': maison.photo_principale.url if maison.photo_principale else None,
         })
     
     return JsonResponse({'maisons': data})
 
 
-@require_http_methods(["GET"]) 
-def api_disponibilites(request, maison_id):
-    """API endpoint pour vérifier les disponibilités d'une maison"""
+# ======== VUES POUR L'INVENTAIRE DES MEUBLES ========
+
+@login_required
+def maison_inventaire(request, slug):
+    """Vue pour l'inventaire des meubles d'une maison"""
+    maison = get_object_or_404(Maison, slug=slug)
+    
+    # Vérifier les permissions
+    if not maison.can_be_managed_by(request.user):
+        messages.error(request, "Vous n'avez pas les droits pour voir l'inventaire de cette maison.")
+        return redirect('home:maison_detail', slug=slug)
+    
     try:
-        maison = get_object_or_404(Maison, id=maison_id)
+        from meubles.models import Meuble, InventaireMaison
         
-        # Récupérer les paramètres de date
-        year = int(request.GET.get('year', timezone.now().year))
-        month = int(request.GET.get('month', timezone.now().month))
+        # Meubles de la maison
+        meubles = maison.meubles.all().select_related('type_meuble')
         
-        calendar_data = ReservationService.get_calendar_data(maison, year, month)
+        # Statistiques
+        stats = {
+            'total': meubles.count(),
+            'bon_etat': meubles.filter(etat='bon').count(),
+            'defectueux': meubles.filter(etat='defectueux').count(),
+            'usage': meubles.filter(etat='usage').count(),
+        }
         
-        return JsonResponse({
-            'success': True,
-            'calendar_data': calendar_data,
-            'maison': {
-                'id': maison.id,
-                'nom': maison.nom,
-                'disponible': maison.disponible
-            }
-        })
+        # Dernier inventaire
+        dernier_inventaire = maison.inventaires.first()
         
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        })
+        context = {
+            'maison': maison,
+            'meubles': meubles,
+            'stats': stats,
+            'dernier_inventaire': dernier_inventaire,
+        }
+        
+        return render(request, 'home/maison_inventaire.html', context)
+        
+    except ImportError:
+        messages.error(request, "Le module de gestion des meubles n'est pas disponible.")
+        return redirect('home:maison_detail', slug=slug)

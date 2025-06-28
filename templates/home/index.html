@@ -71,7 +71,7 @@
                     {% else %}
                         <!-- Menu utilisateur non connecté -->
                         <div class="flex items-center space-x-4">
-                            <a href="{% url 'users:login' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                            <a href="{% url 'users:login' %}" class="text-blue-600 hover:text-blue-900 font-medium transition-colors">
                                 Connexion
                             </a>
                             <a href="{% url 'users:register' %}" class="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
@@ -140,7 +140,7 @@
                         {% endif %}
                     </div>
                 {% else %}
-                    <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                    <h1 class="text-5xl text-gray-900 md:text-6xl font-bold mb-6 leading-tight">
                         Trouvez votre
                         <span class="text-yellow-300">refuge parfait</span>
                     </h1>

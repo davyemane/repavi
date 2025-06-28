@@ -2,7 +2,7 @@
 from django.db.models import Count, Sum, Q, Avg
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
-from home.models import Maison, Reservation
+from reservations.models import Maison, Reservation
 
 User = get_user_model()
 

@@ -56,11 +56,13 @@ except ImportError:
     SERVICES_AVAILABLE = False
     print("⚠️ Services non disponibles - utilisation des fallbacks")
 
-from .models import Ville, CategorieMaison, Maison, PhotoMaison, Reservation
+from .models import Ville, CategorieMaison, Maison, PhotoMaison
 from .forms import (
     VilleForm, CategorieMaisonForm, MaisonForm, 
-    PhotoMaisonForm, ReservationForm, MaisonFilterForm
+    PhotoMaisonForm, MaisonFilterForm
 )
+from reservations.models import Reservation
+from reservations.forms import ReservationForm
 
 # ======== DASHBOARD PRINCIPAL ========
 
