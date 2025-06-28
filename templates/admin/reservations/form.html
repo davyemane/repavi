@@ -37,12 +37,12 @@
                         </div>
                         
                         <div>
-                            <label for="{{ form.locataire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                Locataire *
+                            <label for="{{ form.client.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Client *
                             </label>
-                            {{ form.locataire }}
-                            {% if form.locataire.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ form.locataire.errors.0 }}</p>
+                            {{ form.client }}
+                            {% if form.client.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.client.errors.0 }}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -81,6 +81,20 @@
                             {% if form.nombre_personnes.errors %}
                                 <p class="mt-1 text-sm text-red-600">{{ form.nombre_personnes.errors.0 }}</p>
                             {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Résumé du séjour (calculé automatiquement) -->
+                    <div id="sejour-summary" class="mt-4 p-4 bg-white rounded-lg border border-blue-200 hidden">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-sm text-gray-600">Durée du séjour :</span>
+                                <span id="duree-sejour" class="font-medium text-gray-900 ml-2">-</span>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-600">Prix estimé :</span>
+                                <span id="prix-estime" class="font-medium text-green-600 ml-2">-</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -173,7 +187,7 @@
                 
                 <div class="flex items-center space-x-4">
                     {% if objet %}
-                        <a href="mailto:{{ objet.locataire.email }}?subject=Réservation {{ objet.maison.nom }}" 
+                        <a href="mailto:{{ objet.client.email }}?subject=Réservation {{ objet.maison.nom }}" 
                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                             <i class="fas fa-envelope mr-2"></i>
                             Contacter le client
@@ -193,11 +207,13 @@
 
 {% block extra_js %}
 <script>
-    // Calcul automatique du prix total basé sur les dates
+    // Calcul automatique du prix total basé sur les dates et la maison sélectionnée
     function calculateTotal() {
         const dateDebut = document.getElementById('{{ form.date_debut.id_for_label }}').value;
         const dateFin = document.getElementById('{{ form.date_fin.id_for_label }}').value;
         const maisonSelect = document.getElementById('{{ form.maison.id_for_label }}');
+        const prixTotalField = document.getElementById('{{ form.prix_total.id_for_label }}');
+        const summaryDiv = document.getElementById('sejour-summary');
         
         if (dateDebut && dateFin && maisonSelect.value) {
             const debut = new Date(dateDebut);
@@ -205,9 +221,27 @@
             const diffTime = Math.abs(fin - debut);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            // Ici vous pourriez faire un appel AJAX pour récupérer le prix de la maison
-            // ou utiliser une méthode côté client si les prix sont disponibles
-            console.log(`Séjour de ${diffDays} jours`);
+            if (diffDays > 0) {
+                // Récupérer le prix par nuit de la maison sélectionnée via l'option
+                const selectedOption = maisonSelect.options[maisonSelect.selectedIndex];
+                const prixParNuit = selectedOption.dataset.prix || 0;
+                
+                if (prixParNuit > 0) {
+                    const prixTotal = diffDays * parseFloat(prixParNuit);
+                    prixTotalField.value = prixTotal.toFixed(2);
+                    
+                    // Afficher le résumé
+                    document.getElementById('duree-sejour').textContent = diffDays + ' nuit' + (diffDays > 1 ? 's' : '');
+                    document.getElementById('prix-estime').textContent = prixTotal.toFixed(2) + '€';
+                    summaryDiv.classList.remove('hidden');
+                } else {
+                    summaryDiv.classList.add('hidden');
+                }
+            } else {
+                summaryDiv.classList.add('hidden');
+            }
+        } else {
+            summaryDiv.classList.add('hidden');
         }
     }
     
@@ -233,12 +267,27 @@
             }
         }
     });
-</script>
-{% if not objet %}
-<script>
+    
+    // Auto-remplissage du téléphone selon le client sélectionné
+    document.getElementById('{{ form.client.id_for_label }}').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const telephone = selectedOption.dataset.telephone || '';
+        const telephoneField = document.getElementById('{{ form.telephone.id_for_label }}');
+        
+        if (telephone && !telephoneField.value) {
+            telephoneField.value = telephone;
+        }
+    });
+    
+    {% if not objet %}
     // Définir la date minimum à aujourd'hui pour les nouvelles réservations
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('{{ form.date_debut.id_for_label }}').min = today;
+    {% endif %}
+    
+    // Calcul initial si les données sont déjà présentes
+    document.addEventListener('DOMContentLoaded', function() {
+        calculateTotal();
+    });
 </script>
-{% endif %}
 {% endblock %}

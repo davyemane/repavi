@@ -1,0 +1,312 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Modifier une réservation - Administration RepAvi{% endblock %}
+{% block page_title %}Modifier une réservation{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'repavi_admin:reservations_list' %}" class="hover:text-gray-700">Réservations</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Modifier</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-4xl">
+        <!-- Informations de la réservation -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex items-start space-x-6">
+                <!-- Photo de la maison -->
+                <div class="flex-shrink-0">
+                    {% if reservation.maison.photo_principale %}
+                        <img src="{{ reservation.maison.photo_principale.url }}" 
+                             alt="{{ reservation.maison.nom }}" 
+                             class="w-24 h-24 rounded-lg object-cover">
+                    {% else %}
+                        <div class="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-home text-gray-400 text-2xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Détails de la réservation -->
+                <div class="flex-1">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900 mb-2">{{ reservation.maison.nom }}</h2>
+                            <p class="text-gray-600 mb-1">
+                                <i class="fas fa-map-marker-alt mr-2"></i>{{ reservation.maison.ville }}
+                            </p>
+                            <p class="text-gray-600 mb-1">
+                                <i class="fas fa-user mr-2"></i>{{ reservation.client.nom_complet|default:reservation.client.username }}
+                            </p>
+                            <p class="text-gray-600">
+                                <i class="fas fa-envelope mr-2"></i>{{ reservation.client.email }}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Date d'arrivée :</span>
+                                    <span class="font-medium">{{ reservation.date_debut|date:"d/m/Y" }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Date de départ :</span>
+                                    <span class="font-medium">{{ reservation.date_fin|date:"d/m/Y" }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Durée :</span>
+                                    <span class="font-medium">{{ reservation.duree_sejour }} nuit{{ reservation.duree_sejour|pluralize }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Personnes :</span>
+                                    <span class="font-medium">{{ reservation.nombre_personnes }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Prix total :</span>
+                                    <span class="font-bold text-lg text-green-600">{{ reservation.prix_total }}€</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message du client -->
+                    {% if reservation.message %}
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p class="text-sm font-medium text-blue-800 mb-1">Message du client :</p>
+                            <p class="text-blue-700">{{ reservation.message }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Modification du statut -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Modifier le statut de la réservation</h3>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
+                            Statut actuel : 
+                            <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full ml-2
+                                {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                                {% elif reservation.statut == 'annulee' %}bg-red-100 text-red-800
+                                {% elif reservation.statut == 'terminee' %}bg-gray-100 text-gray-800
+                                {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ reservation.get_statut_display }}
+                            </span>
+                        </label>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {% for value, label in statuts %}
+                            <div class="relative border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center">
+                                    <input type="radio" name="statut" value="{{ value }}" id="statut_{{ value }}" 
+                                           {% if reservation.statut == value %}checked{% endif %}
+                                           class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                    <label for="statut_{{ value }}" class="ml-3 flex-1 cursor-pointer">
+                                        <div class="text-sm font-medium text-gray-900">{{ label }}</div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            {% if value == 'en_attente' %}
+                                                En attente de confirmation
+                                            {% elif value == 'confirmee' %}
+                                                Réservation confirmée
+                                            {% elif value == 'annulee' %}
+                                                Réservation annulée
+                                            {% elif value == 'terminee' %}
+                                                Séjour terminé
+                                            {% endif %}
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                                <!-- Icône de statut -->
+                                <div class="absolute top-2 right-2">
+                                    {% if value == 'en_attente' %}
+                                        <i class="fas fa-clock text-yellow-500"></i>
+                                    {% elif value == 'confirmee' %}
+                                        <i class="fas fa-check-circle text-green-500"></i>
+                                    {% elif value == 'annulee' %}
+                                        <i class="fas fa-times-circle text-red-500"></i>
+                                    {% elif value == 'terminee' %}
+                                        <i class="fas fa-flag-checkered text-gray-500"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Avertissements selon le statut -->
+                    <div id="status-warnings" class="mt-4">
+                        <!-- Les avertissements seront affichés dynamiquement via JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between pt-8 border-t border-gray-200 mt-8">
+                    <a href="{% url 'repavi_admin:reservations_list' %}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Retour à la liste
+                    </a>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Contact client -->
+                        <a href="mailto:{{ reservation.client.email }}?subject=Réservation {{ reservation.maison.nom }} - {{ reservation.date_debut|date:'d/m/Y' }}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-envelope mr-2"></i>
+                            Contacter le client
+                        </a>
+                        
+                        <!-- Téléphone si disponible -->
+                        {% if reservation.telephone %}
+                            <a href="tel:{{ reservation.telephone }}" 
+                               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-phone mr-2"></i>
+                                {{ reservation.telephone }}
+                            </a>
+                        {% endif %}
+                        
+                        <!-- Bouton de sauvegarde -->
+                        <button type="submit" 
+                                class="inline-flex items-center px-6 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-save mr-2"></i>
+                            Mettre à jour le statut
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Historique -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations complémentaires</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-sm">
+                    <span class="font-medium text-gray-600">Créée le :</span>
+                    <br>
+                    <span class="text-gray-900">{{ reservation.date_creation|date:"d/m/Y à H:i" }}</span>
+                </div>
+                <div class="text-sm">
+                    <span class="font-medium text-gray-600">Dernière modification :</span>
+                    <br>
+                    <span class="text-gray-900">{{ reservation.date_modification|date:"d/m/Y à H:i" }}</span>
+                </div>
+                <div class="text-sm">
+                    <span class="font-medium text-gray-600">Prix par nuit :</span>
+                    <br>
+                    <span class="text-gray-900">{{ reservation.maison.prix_par_nuit }}€</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Gestion des avertissements selon le statut sélectionné
+    const statusRadios = document.querySelectorAll('input[name="statut"]');
+    const warningsDiv = document.getElementById('status-warnings');
+    
+    const warnings = {
+        'confirmee': {
+            type: 'success',
+            message: 'Le client sera informé que sa réservation est confirmée.'
+        },
+        'annulee': {
+            type: 'error',
+            message: 'Attention : Cette action annulera définitivement la réservation. Le client devra être informé.'
+        },
+        'terminee': {
+            type: 'info',
+            message: 'Le séjour sera marqué comme terminé. Le client pourra laisser un avis.'
+        }
+    };
+    
+    function updateWarnings() {
+        const selectedStatus = document.querySelector('input[name="statut"]:checked').value;
+        const currentStatus = '{{ reservation.statut }}';
+        
+        warningsDiv.innerHTML = '';
+        
+        if (selectedStatus !== currentStatus && warnings[selectedStatus]) {
+            const warning = warnings[selectedStatus];
+            const alertClass = warning.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+                              warning.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+                              'bg-blue-50 border-blue-200 text-blue-800';
+            
+            const iconClass = warning.type === 'error' ? 'fa-exclamation-triangle text-red-400' :
+                             warning.type === 'success' ? 'fa-check-circle text-green-400' :
+                             'fa-info-circle text-blue-400';
+            
+            warningsDiv.innerHTML = `
+                <div class="border rounded-lg p-4 ${alertClass}">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas ${iconClass}"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">${warning.message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // Écouter les changements de statut
+    statusRadios.forEach(radio => {
+        radio.addEventListener('change', updateWarnings);
+        
+        // Mise en évidence visuelle
+        radio.addEventListener('change', function() {
+            // Retirer la classe active de tous
+            document.querySelectorAll('.relative.border').forEach(div => {
+                div.classList.remove('border-blue-500', 'bg-blue-50');
+                div.classList.add('border-gray-200');
+            });
+            
+            // Ajouter la classe active au sélectionné
+            if (this.checked) {
+                const parentDiv = this.closest('.relative.border');
+                parentDiv.classList.remove('border-gray-200');
+                parentDiv.classList.add('border-blue-500', 'bg-blue-50');
+            }
+        });
+    });
+    
+    // Mise en évidence initiale
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkedRadio = document.querySelector('input[name="statut"]:checked');
+        if (checkedRadio) {
+            const parentDiv = checkedRadio.closest('.relative.border');
+            parentDiv.classList.remove('border-gray-200');
+            parentDiv.classList.add('border-blue-500', 'bg-blue-50');
+        }
+        updateWarnings();
+    });
+    
+    // Confirmation avant soumission pour les changements importants
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const selectedStatus = document.querySelector('input[name="statut"]:checked').value;
+        const currentStatus = '{{ reservation.statut }}';
+        
+        if (selectedStatus === 'annulee' && currentStatus !== 'annulee') {
+            if (!confirm('Êtes-vous sûr de vouloir annuler cette réservation ? Cette action est importante et le client doit être informé.')) {
+                e.preventDefault();
+            }
+        }
+    });
+</script>
+{% endblock %}

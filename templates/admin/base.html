@@ -33,161 +33,163 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="h-full overflow-hidden">
-    <div class="flex h-full">
-        <!-- Sidebar -->
-        <div class="w-64 bg-white shadow-lg flex flex-col">
-            <!-- Logo/Header -->
-            <div class="p-6 border-b border-gray-200">
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
-                        <i class="fas fa-cog text-white text-sm"></i>
+                    <a href="{% url 'repavi_admin:dashboard' %}" class="text-xl font-bold text-blue-600">
+                        <i class="fas fa-home mr-2"></i>RepAvi Admin
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600 text-sm"></i>
+                        </div>
+                        <span class="text-gray-700">{{ user.first_name|default:user.username }}</span>
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900">RepAvi Admin</h1>
-                        <p class="text-sm text-gray-500">Panneau d'administration</p>
+                    <div class="border-l border-gray-300 pl-4">
+                        <a href="{% url 'home:index' %}" class="text-gray-500 hover:text-gray-700 text-sm">
+                            <i class="fas fa-external-link-alt mr-1"></i>Voir le site
+                        </a>
                     </div>
                 </div>
             </div>
-            
-            <!-- Navigation -->
-            <nav class="flex-1 p-4 space-y-2">
+        </div>
+    </nav>
+
+    <!-- Layout principal -->
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-sm min-h-screen">
+            <nav class="mt-5 px-2 space-y-1">
                 <a href="{% url 'repavi_admin:dashboard' %}" 
-                   class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                    <i class="fas fa-chart-bar mr-3"></i>
-                    Tableau de bord
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-chart-line mr-3 w-5"></i>
+                    Dashboard
                 </a>
-                
-                <div class="pt-4">
-                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Gestion</p>
-                </div>
-                
                 <a href="{% url 'repavi_admin:maisons_list' %}" 
-                   class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'maisons' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fas fa-home mr-3"></i>
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-home mr-3 w-5"></i>
                     Maisons
                 </a>
-                
+                <a href="{% url 'repavi_admin:villes_list' %}" 
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-map-marker-alt mr-3 w-5"></i>
+                    Villes
+                </a>
+                <a href="{% url 'repavi_admin:categories_list' %}" 
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-tags mr-3 w-5"></i>
+                    Catégories
+                </a>
                 <a href="{% url 'repavi_admin:photos_list' %}" 
-                   class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'photos' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fas fa-images mr-3"></i>
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-camera mr-3 w-5"></i>
                     Photos
                 </a>
-                
                 <a href="{% url 'repavi_admin:reservations_list' %}" 
-                   class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'reservations' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fas fa-calendar-alt mr-3"></i>
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-calendar-check mr-3 w-5"></i>
                     Réservations
                 </a>
                 
-                <div class="pt-4">
-                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Configuration</p>
-                </div>
-                
-                <a href="{% url 'repavi_admin:villes_list' %}" 
-                   class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'villes' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fas fa-map-marker-alt mr-3"></i>
-                    Villes
-                </a>
-                
-                <a href="{% url 'repavi_admin:categories_list' %}" 
-                   class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if 'categories' in request.resolver_match.url_name %}active{% endif %}">
-                    <i class="fas fa-tags mr-3"></i>
-                    Catégories
-                </a>
-            </nav>
-            
-            <!-- User info -->
-            <div class="p-4 border-t border-gray-200">
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
-                        <i class="fas fa-user text-gray-600 text-sm"></i>
-                    </div>custom
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">{{ user.username }}</p>
-                        <p class="text-xs text-gray-500">Administrateur</p>
-                    </div>
-                    <a href="{% url 'home:index' %}" class="text-gray-400 hover:text-gray-600 transition-colors" title="Voir le site">
-                        <i class="fas fa-external-link-alt"></i>
+                <!-- Section Admin (super admin seulement) -->
+                {% if user.is_superuser or user.role == 'SUPER_ADMIN' %}
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                    <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Administration</p>
+                    <a href="{% url 'repavi_admin:admin_users_list' %}" 
+                       class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors mt-2">
+                        <i class="fas fa-users mr-3 w-5"></i>
+                        Utilisateurs
+                    </a>
+                    <a href="/admin/" 
+                       class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                        <i class="fas fa-cogs mr-3 w-5"></i>
+                        Admin Django
                     </a>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
-            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                {% endif %}
+            </nav>
+        </aside>
+
+        <!-- Contenu principal -->
+        <main class="flex-1 min-h-screen">
+            <!-- En-tête de page -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900">{% block page_title %}Administration{% endblock %}</h2>
+                        <h1 class="text-2xl font-bold text-gray-900">
+                            {% block page_title %}RepAvi Admin{% endblock %}
+                        </h1>
                         {% block breadcrumb %}{% endblock %}
                     </div>
-                    
-                    <div class="flex items-center space-x-4">
+                    <div>
                         {% block header_actions %}{% endblock %}
-                        
-                        <div class="flex items-center space-x-2">
-                            <a href="{% url 'home:index' %}" 
-                               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                                <i class="fas fa-globe mr-2"></i>
-                                Voir le site
-                            </a>
-                            <a href="/admin/logout/" 
-                               class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors">
-                                <i class="fas fa-sign-out-alt mr-2"></i>
-                                Déconnexion
-                            </a>
-                        </div>
                     </div>
                 </div>
             </header>
-            
+
             <!-- Messages -->
             {% if messages %}
-                <div class="p-4">
-                    {% for message in messages %}
-                        <div class="mb-2 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800 border border-yellow-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
-                            <div class="flex items-center">
-                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} mr-2"></i>
-                                {{ message }}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
+            <div class="px-6 py-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} mb-3 p-4 border rounded-lg flex items-center
+                        {% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800
+                        {% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800
+                        {% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800
+                        {% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} mr-3"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
             {% endif %}
-            
-            <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto p-6">
-                {% block content %}{% endblock %}
-            </main>
-        </div>
+
+            <!-- Contenu de la page -->
+            <div class="px-6 py-6">
+                {% block content %}
+                <div class="text-center py-12">
+                    <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
+                    <h2 class="text-xl font-medium text-gray-900 mb-2">Bienvenue dans RepAvi Admin</h2>
+                    <p class="text-gray-600">Sélectionnez une section dans le menu pour commencer.</p>
+                </div>
+                {% endblock %}
+            </div>
+        </main>
     </div>
-    
-    <!-- JavaScript -->
+
+    <!-- Scripts globaux -->
     <script>
-        // Auto-hide messages
-        setTimeout(function() {
-            const messages = document.querySelectorAll('[class*="bg-green-50"], [class*="bg-red-50"], [class*="bg-yellow-50"], [class*="bg-blue-50"]');
-            messages.forEach(function(message) {
-                if (message.parentElement && message.parentElement.classList.contains('p-4')) {
-                    message.style.transition = 'opacity 0.5s ease';
-                    message.style.opacity = '0';
-                    setTimeout(function() {
-                        if (message.parentElement) {
-                            message.remove();
-                        }
-                    }, 500);
+        // Gestion du menu actif
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const menuLinks = document.querySelectorAll('aside nav a');
+            
+            menuLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (currentPath.startsWith(href) && href !== '/repavi-admin/') {
+                    link.classList.add('bg-blue-50', 'text-blue-600');
+                    link.classList.remove('text-gray-600');
+                } else if (currentPath === '/repavi-admin/' && href.includes('dashboard')) {
+                    link.classList.add('bg-blue-50', 'text-blue-600');
+                    link.classList.remove('text-gray-600');
                 }
             });
+        });
+
+        // Auto-hide des messages après 5 secondes
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
         }, 5000);
-        
-        // Confirm delete actions
-        function confirmDelete() {
-            return confirm('Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.');
-        }
+
     </script>
-    
-    {% block extra_js %}{% endblock %}
 </body>
 </html>

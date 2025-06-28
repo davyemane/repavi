@@ -1,341 +1,1255 @@
-{% extends 'base.html' %}
-{% load static %}
+<!-- templates/admin/dashboard.html -->
+{% extends 'admin/base.html' %}
 
-{% block title %}Dashboard Admin - RepAvi{% endblock %}
+{% block title %}Dashboard Administration - RepAvi{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li class="text-gray-900 font-medium">Tableau de bord</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block header_actions %}
+    <div class="flex items-center space-x-3">
+        <!-- Actions rapides -->
+        <div class="relative">
+            <button id="quickActionsBtn" type="button" 
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <i class="fas fa-bolt mr-2"></i>
+                Actions rapides
+                <i class="fas fa-chevron-down ml-2 transform transition-transform duration-200" id="quickActionsIcon"></i>
+            </button>
+            
+            <!-- Menu déroulant -->
+            <div id="quickActionsMenu" class="dropdown-menu absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <div class="p-2">
+                    <a href="{% url 'repavi_admin:maison_create' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-home mr-3 text-blue-500"></i>
+                        Nouvelle maison
+                    </a>
+                    <a href="{% url 'repavi_admin:reservation_create' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-calendar-plus mr-3 text-green-500"></i>
+                        Nouvelle réservation
+                    </a>
+                    <a href="{% url 'repavi_admin:photo_create' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-image mr-3 text-purple-500"></i>
+                        Ajouter une photo
+                    </a>
+                    <a href="{% url 'repavi_admin:ville_create' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-map-marker-alt mr-3 text-red-500"></i>
+                        Nouvelle ville
+                    </a>
+                    <a href="{% url 'repavi_admin:categorie_create' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-tags mr-3 text-orange-500"></i>
+                        Nouvelle catégorie
+                    </a>
+                    {% if is_super_admin %}
+                    <div class="border-t border-gray-100 my-1"></div>
+                    <button onclick="openCreateUserModal('GESTIONNAIRE')" 
+                           class="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user-tie mr-3 text-indigo-500"></i>
+                        Créer un gestionnaire
+                    </button>
+                    <button onclick="openCreateUserModal('CLIENT')" 
+                           class="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user mr-3 text-yellow-500"></i>
+                        Créer un client
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Boutons de création principaux -->
+        <a href="{% url 'repavi_admin:maison_create' %}" 
+           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i>
+            Nouvelle maison
+        </a>
+        
+        <a href="{% url 'home:index' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-external-link-alt mr-2"></i>
+            Voir le site
+        </a>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Styles pour les modals */
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+    }
+    
+    .modal-content {
+        transform: scale(0.9);
+        opacity: 0;
+        transition: all 0.3s ease-out;
+    }
+    
+    .modal-content.show {
+        transform: scale(1);
+        opacity: 1;
+    }
+    
+    /* Animation pour les boutons */
+    .btn-hover {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Styles pour le menu déroulant */
+    .dropdown-menu {
+        transform: translateY(-10px);
+        opacity: 0;
+        transition: all 0.2s ease-out;
+        pointer-events: none;
+    }
+    
+    .dropdown-menu.show {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    /* Styles pour les erreurs de champs */
+    .field-error {
+        display: block;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="flex h-screen bg-gray-50">
-    <!-- Sidebar -->
-    <div class="hidden md:flex md:w-64 md:flex-col">
-        <div class="flex flex-col flex-grow pt-5 overflow-y-auto bg-white border-r border-gray-200">
-            <!-- Logo -->
-            <div class="flex items-center flex-shrink-0 px-4">
-                <h1 class="text-2xl font-bold text-indigo-600">RepAvi</h1>
-                <span class="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Admin</span>
+    <!-- Message de bienvenue personnalisé -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 mb-8">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <i class="fas fa-chart-line text-white text-xl"></i>
             </div>
+            <div class="ml-4">
+                <h2 class="text-xl font-semibold text-gray-900">
+                    Bonjour {{ user.first_name|default:user.username }} !
+                </h2>
+                <p class="text-gray-600">
+                    {% if is_super_admin %}
+                        Voici un aperçu global de votre plateforme RepAvi.
+                    {% elif is_gestionnaire %}
+                        Voici un aperçu de vos maisons et réservations.
+                    {% else %}
+                        Bienvenue dans votre espace RepAvi.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="ml-auto text-right">
+                <p class="text-sm text-gray-500">Dernière connexion</p>
+                <p class="text-sm font-medium text-gray-900">{{ user.last_login|date:"d/m/Y H:i"|default:"Aujourd'hui" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boutons de création rapide -->
+    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Actions rapides</h3>
+                <p class="text-gray-600">Créez rapidement du nouveau contenu pour votre plateforme</p>
+            </div>
+            <i class="fas fa-rocket text-3xl text-blue-500"></i>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'repavi_admin:maison_create' %}" 
+               class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all btn-hover">
+                <div class="w-10 h-10 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-home text-blue-600"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-900 group-hover:text-blue-600">Nouvelle maison</div>
+                    <div class="text-sm text-gray-500">Ajouter une propriété</div>
+                </div>
+            </a>
             
-            <!-- Navigation -->
-            <div class="mt-8 flex-grow flex flex-col">
-                <nav class="flex-1 px-2 pb-4 space-y-1">
-                    <!-- Dashboard -->
-                    <a href="{% url 'users:dashboard' %}" class="bg-indigo-50 text-indigo-700 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                        <i class="fas fa-tachometer-alt mr-3 text-indigo-500"></i>
-                        Dashboard
-                    </a>
-                    
-                    <!-- Gestion -->
-                    <div class="mt-6">
-                        <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Gestion
-                        </div>
-                        <a href="{% url 'repavi_admin:maisons_list' %}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                            <i class="fas fa-home mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Maisons
-                        </a>
-                        <a href="{% url 'repavi_admin:reservations_list' %}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                            <i class="fas fa-calendar-check mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Réservations
-                        </a>
-                        <a href="{% url 'repavi_admin:photos_list' %}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                            <i class="fas fa-images mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Photos
-                        </a>
+            <a href="{% url 'repavi_admin:ville_create' %}" 
+               class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-red-300 hover:shadow-md transition-all btn-hover">
+                <div class="w-10 h-10 bg-red-100 group-hover:bg-red-200 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-map-marker-alt text-red-600"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-900 group-hover:text-red-600">Nouvelle ville</div>
+                    <div class="text-sm text-gray-500">Ajouter une localisation</div>
+                </div>
+            </a>
+            
+            <a href="{% url 'repavi_admin:categorie_create' %}" 
+               class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all btn-hover">
+                <div class="w-10 h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-tags text-green-600"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-900 group-hover:text-green-600">Nouvelle catégorie</div>
+                    <div class="text-sm text-gray-500">Organiser les maisons</div>
+                </div>
+            </a>
+            
+            <a href="{% url 'repavi_admin:photo_create' %}" 
+               class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all btn-hover">
+                <div class="w-10 h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-camera text-purple-600"></i>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-900 group-hover:text-purple-600">Ajouter photos</div>
+                    <div class="text-sm text-gray-500">Illustrer les maisons</div>
+                </div>
+            </a>
+        </div>
+        
+        {% if is_super_admin %}
+        <div class="border-t border-blue-200 mt-4 pt-4">
+            <p class="text-sm text-gray-600 mb-3">Actions réservées aux super administrateurs :</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="openCreateUserModal('CLIENT')" 
+                        class="group flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all btn-hover">
+                    <div class="w-8 h-8 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-blue-600 text-sm"></i>
                     </div>
-                    
-                    <!-- Configuration -->
-                    <div class="mt-6">
-                        <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Configuration
-                        </div>
-                        <a href="{% url 'repavi_admin:villes_list' %}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                            <i class="fas fa-map-marker-alt mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Villes
-                        </a>
-                        <a href="{% url 'repavi_admin:categories_list' %}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                            <i class="fas fa-tags mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Catégories
-                        </a>
-                        <a href="{% url 'admin:users_user_changelist' %}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                            <i class="fas fa-users mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Utilisateurs
-                        </a>
+                    <div>
+                        <div class="font-medium text-gray-900 group-hover:text-blue-600">Nouveau client</div>
+                        <div class="text-sm text-gray-500">Créer un compte client</div>
                     </div>
-                    
-                    <!-- Système -->
-                    <div class="mt-6">
-                        <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Système
-                        </div>
-                        <a href="{% url 'admin:index' %}" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                            <i class="fas fa-cogs mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                            Admin Django
-                        </a>
-                    </div>
-                </nav>
+                </button>
                 
-                <!-- User menu -->
-                <div class="flex-shrink-0 p-4 border-t border-gray-200">
-                    <div class="flex items-center">
-                        {% if user.photo_profil %}
-                            <img class="w-8 h-8 rounded-full" src="{{ user.photo_profil.url }}" alt="Avatar">
-                        {% else %}
-                            <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-user text-indigo-600"></i>
-                            </div>
-                        {% endif %}
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-700">{{ user.first_name }} {{ user.last_name }}</p>
-                            <div class="flex space-x-2 mt-1">
-                                <a href="{% url 'users:profile' %}" class="text-xs text-gray-500 hover:text-gray-700">Profil</a>
-                                <span class="text-xs text-gray-300">•</span>
-                                <a href="{% url 'users:logout' %}" class="text-xs text-gray-500 hover:text-gray-700">Déconnexion</a>
-                            </div>
+                <button onclick="openCreateUserModal('GESTIONNAIRE')" 
+                        class="group flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all btn-hover">
+                    <div class="w-8 h-8 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-user-tie text-green-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-900 group-hover:text-green-600">Nouveau gestionnaire</div>
+                        <div class="text-sm text-gray-500">Créer un compte gestionnaire</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Statistiques principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Maisons -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-home text-white text-xl"></i>
                         </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                {% if is_super_admin %}Total maisons{% else %}Mes maisons{% endif %}
+                            </dt>
+                            <dd class="text-3xl font-semibold text-gray-900">{{ stats.total_maisons|default:0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 font-medium">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            {{ stats.maisons_disponibles|default:0 }} disponibles
+                        </span>
+                        {% if stats.maisons_featured %}
+                        <span class="text-yellow-600 font-medium">
+                            <i class="fas fa-star mr-1"></i>
+                            {{ stats.maisons_featured }} featured
+                        </span>
+                        {% endif %}
+                        <a href="{% url 'repavi_admin:maisons_list' %}" class="text-blue-600 hover:text-blue-500">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Réservations -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                {% if is_super_admin %}Total réservations{% else %}Mes réservations{% endif %}
+                            </dt>
+                            <dd class="text-3xl font-semibold text-gray-900">{{ stats.total_reservations|default:0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-orange-600 font-medium">
+                            <i class="fas fa-clock mr-1"></i>
+                            {{ stats.reservations_en_attente|default:0 }} en attente
+                        </span>
+                        <span class="text-green-600 font-medium">
+                            <i class="fas fa-check mr-1"></i>
+                            {{ stats.reservations_confirmees|default:0 }} confirmées
+                        </span>
+                        <a href="{% url 'repavi_admin:reservations_list' %}" class="text-blue-600 hover:text-blue-500">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utilisateurs (Super Admin seulement) -->
+        {% if is_super_admin %}
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Utilisateurs</dt>
+                            <dd class="text-3xl font-semibold text-gray-900">{{ stats.total_users|default:0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-blue-600 font-medium">
+                            <i class="fas fa-user-check mr-1"></i>
+                            {{ stats.users_actifs|default:0 }} actifs
+                        </span>
+                        <a href="{% url 'repavi_admin:admin_users_list' %}" class="text-blue-600 hover:text-blue-500">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Photos pour gestionnaires -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-camera text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Photos</dt>
+                            <dd class="text-3xl font-semibold text-gray-900">{{ stats.total_photos|default:0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-purple-600 font-medium">
+                            <i class="fas fa-star mr-1"></i>
+                            {{ stats.photos_principales|default:0 }} principales
+                        </span>
+                        <a href="{% url 'repavi_admin:photos_list' %}" class="text-blue-600 hover:text-blue-500">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Chiffre d'affaires -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-euro-sign text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">CA ce mois</dt>
+                            <dd class="text-3xl font-semibold text-gray-900">{{ stats.ca_mensuel|default:0|floatformat:0 }}€</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        {% if stats.evolution_ca >= 0 %}
+                        <span class="text-green-600 font-medium">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            +{{ stats.evolution_ca|default:0 }}%
+                        </span>
+                        {% else %}
+                        <span class="text-red-600 font-medium">
+                            <i class="fas fa-arrow-down mr-1"></i>
+                            {{ stats.evolution_ca|default:0 }}%
+                        </span>
+                        {% endif %}
+                        <span class="text-gray-500">vs mois dernier</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main content -->
-    <div class="flex flex-col flex-1 overflow-hidden">
-        <!-- Top header -->
-        <header class="bg-white shadow-sm border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-6">
-                    <div>
-                        <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
-                        <p class="text-sm text-gray-600">Vue d'ensemble de votre plateforme</p>
+    <!-- Contenu principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Section principale (2/3) -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Gestion des utilisateurs - Seulement pour Super Admin -->
+            {% if is_super_admin %}
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-users mr-2 text-purple-500"></i>
+                            Gestion des utilisateurs
+                        </h3>
+                        <a href="{% url 'repavi_admin:admin_users_list' %}" class="text-sm text-blue-600 hover:text-blue-500">
+                            Voir tout <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-                            <i class="fas fa-plus mr-2"></i>Nouveau
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <!-- Stats utilisateurs -->
+                        <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-100">
+                            <div class="text-2xl font-bold text-blue-600">{{ stats.total_clients|default:0 }}</div>
+                            <div class="text-sm text-blue-700">Clients</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded-lg border border-green-100">
+                            <div class="text-2xl font-bold text-green-600">{{ stats.total_gestionnaires|default:0 }}</div>
+                            <div class="text-sm text-green-700">Gestionnaires</div>
+                        </div>
+                        <div class="text-center p-4 bg-purple-50 rounded-lg border border-purple-100">
+                            <div class="text-2xl font-bold text-purple-600">{{ stats.total_admins|default:0 }}</div>
+                            <div class="text-sm text-purple-700">Admins</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions rapides utilisateurs -->
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="openCreateUserModal('CLIENT')" 
+                                class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors btn-hover">
+                            <i class="fas fa-user mr-2"></i>
+                            Nouveau client
+                        </button>
+                        <button onclick="openCreateUserModal('GESTIONNAIRE')" 
+                                class="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors btn-hover">
+                            <i class="fas fa-user-tie mr-2"></i>
+                            Nouveau gestionnaire
+                        </button>
+                        <a href="{% url 'repavi_admin:admin_users_list' %}" 
+                           class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors btn-hover">
+                            <i class="fas fa-list mr-2"></i>
+                            Liste complète
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Dernières maisons -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-home mr-2 text-blue-500"></i>
+                            {% if is_super_admin %}Dernières maisons ajoutées{% else %}Mes dernières maisons{% endif %}
+                        </h3>
+                        <a href="{% url 'repavi_admin:maisons_list' %}" class="text-sm text-blue-600 hover:text-blue-500">
+                            Voir tout <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    {% if dernieres_maisons %}
+                        <div class="space-y-4">
+                            {% for maison in dernieres_maisons %}
+                            <div class="flex items-center space-x-4 p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition group">
+                                {% if maison.photo_principale %}
+                                    <img src="{{ maison.photo_principale.url }}" alt="{{ maison.nom }}" class="w-16 h-16 rounded-lg object-cover">
+                                {% else %}
+                                    <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-home text-gray-400"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600">{{ maison.nom }}</p>
+                                    <p class="text-sm text-gray-500">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                        {{ maison.ville }} • {{ maison.prix_par_nuit }}€/nuit
+                                    </p>
+                                    {% if is_super_admin %}
+                                    <p class="text-xs text-gray-400">
+                                        <i class="fas fa-user mr-1"></i>
+                                        {{ maison.gestionnaire.first_name|default:maison.gestionnaire.username }} {{ maison.gestionnaire.last_name }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    {% if maison.featured %}
+                                        <span class="text-yellow-500" title="Maison featured">
+                                            <i class="fas fa-star"></i>
+                                        </span>
+                                    {% endif %}
+                                    <span class="w-3 h-3 {% if maison.disponible %}bg-green-500{% else %}bg-red-500{% endif %} rounded-full" 
+                                          title="{% if maison.disponible %}Disponible{% else %}Indisponible{% endif %}"></span>
+                                    <a href="{% url 'repavi_admin:maison_edit' maison.pk %}" 
+                                       class="text-blue-600 hover:text-blue-800 p-1 rounded" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ maison.get_absolute_url }}" target="_blank"
+                                       class="text-green-600 hover:text-green-800 p-1 rounded" title="Voir sur le site">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <a href="{% url 'repavi_admin:maison_create' %}" 
+                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors btn-hover">
+                                <i class="fas fa-plus mr-2"></i>
+                                Ajouter une nouvelle maison
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-home text-gray-300 text-4xl mb-4"></i>
+                            <p class="text-gray-500 mb-2">
+                                {% if is_super_admin %}Aucune maison pour le moment{% else %}Vous n'avez pas encore de maisons{% endif %}
+                            </p>
+                            <p class="text-sm text-gray-400 mb-4">
+                                {% if is_super_admin %}La plateforme attend ses premières propriétés{% else %}Commencez par ajouter votre première propriété{% endif %}
+                            </p>
+                            <a href="{% url 'repavi_admin:maison_create' %}" 
+                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors btn-hover">
+                                <i class="fas fa-plus mr-2"></i>
+                                Ajouter la première maison
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Activité récente -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-history mr-2 text-green-500"></i>
+                        Activité récente
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="flow-root">
+                        <ul class="-mb-8">
+                            {% for activite in activites_recentes|slice:":5" %}
+                            <li>
+                                <div class="relative pb-8">
+                                    {% if not forloop.last %}
+                                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
+                                    {% endif %}
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span class="h-8 w-8 rounded-full bg-{{ activite.couleur }}-500 flex items-center justify-center ring-8 ring-white">
+                                                <i class="fas fa-{{ activite.icone }} text-white text-sm"></i>
+                                            </span>
+                                        </div>
+                                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                            <div>
+                                                <p class="text-sm text-gray-500">{{ activite.description|safe }}</p>
+                                            </div>
+                                            <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                <time datetime="{{ activite.date|date:'c' }}">{{ activite.date|timesince }}</time>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li class="text-center py-8">
+                                <i class="fas fa-calendar-times text-gray-300 text-3xl mb-2"></i>
+                                <p class="text-gray-500">Aucune activité récente</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar (1/3) -->
+        <div class="space-y-8">
+            <!-- Réservations récentes -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-calendar-check mr-2 text-green-500"></i>
+                            Réservations
+                        </h3>
+                        <a href="{% url 'repavi_admin:reservations_list' %}" class="text-sm text-blue-600 hover:text-blue-500">
+                            Voir tout <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6">
+                    {% if dernieres_reservations %}
+                        <div class="space-y-4">
+                            {% for reservation in dernieres_reservations %}
+                            <div class="border-l-4 {% if reservation.statut == 'confirmee' %}border-green-400 bg-green-50{% elif reservation.statut == 'en_attente' %}border-yellow-400 bg-yellow-50{% else %}border-red-400 bg-red-50{% endif %} pl-4 pr-2 py-3 rounded-r-lg">
+                                <p class="text-sm font-medium text-gray-900">{{ reservation.maison.nom }}</p>
+                                <p class="text-xs text-gray-500">
+                                    <i class="fas fa-user mr-1"></i>
+                                    {{ reservation.client.first_name|default:reservation.client.username }} {{ reservation.client.last_name }}
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    <i class="fas fa-calendar mr-1"></i>
+                                    {{ reservation.date_debut|date:"d/m" }} - {{ reservation.date_fin|date:"d/m" }}
+                                </p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800{% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ reservation.get_statut_display }}
+                                    </span>
+                                    <span class="text-sm font-medium text-gray-900">{{ reservation.prix_total }}€</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <a href="{% url 'repavi_admin:reservation_create' %}" 
+                               class="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm btn-hover">
+                                <i class="fas fa-plus mr-2"></i>
+                                Nouvelle réservation
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-calendar-times text-gray-300 text-3xl mb-2"></i>
+                            <p class="text-gray-500 text-sm mb-3">Aucune réservation</p>
+                            <a href="{% url 'repavi_admin:reservation_create' %}" 
+                               class="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm btn-hover">
+                                <i class="fas fa-plus mr-2"></i>
+                                Première réservation
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-rocket mr-2 text-purple-500"></i>
+                        Actions rapides
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        {% if can_create %}
+                        <a href="{% url 'repavi_admin:maison_create' %}" 
+                           class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-blue-50 border border-gray-200 hover:border-blue-200 transition-colors group btn-hover">
+                            <i class="fas fa-home mr-3 text-blue-500 group-hover:text-blue-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-blue-600">Ajouter une maison</div>
+                                <div class="text-gray-500 text-xs">Créer une nouvelle propriété</div>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'repavi_admin:photo_create' %}" 
+                           class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-purple-50 border border-gray-200 hover:border-purple-200 transition-colors group btn-hover">
+                            <i class="fas fa-camera mr-3 text-purple-500 group-hover:text-purple-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-purple-600">Ajouter des photos</div>
+                                <div class="text-gray-500 text-xs">Illustrer vos maisons</div>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'repavi_admin:ville_create' %}" 
+                           class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-red-50 border border-gray-200 hover:border-red-200 transition-colors group btn-hover">
+                            <i class="fas fa-map-marker-alt mr-3 text-red-500 group-hover:text-red-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-red-600">Nouvelle ville</div>
+                                <div class="text-gray-500 text-xs">Étendre votre couverture</div>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'repavi_admin:categorie_create' %}" 
+                           class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-green-50 border border-gray-200 hover:border-green-200 transition-colors group btn-hover">
+                            <i class="fas fa-tags mr-3 text-green-500 group-hover:text-green-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-green-600">Nouvelle catégorie</div>
+                                <div class="text-gray-500 text-xs">Organiser vos propriétés</div>
+                            </div>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Raccourcis système -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-cogs mr-2 text-gray-500"></i>
+                        Configuration
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        {% if is_super_admin %}
+                        <a href="/admin/" 
+                           class="flex items-center p-2 text-sm text-gray-700 rounded hover:bg-gray-50">
+                            <i class="fas fa-cogs mr-3 text-gray-500"></i>
+                            Admin Django
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'repavi_admin:villes_list' %}" 
+                           class="flex items-center p-2 text-sm text-gray-700 rounded hover:bg-gray-50">
+                            <i class="fas fa-map-marker-alt mr-3 text-gray-500"></i>
+                            Gestion des villes
+                        </a>
+                        <a href="{% url 'repavi_admin:categories_list' %}" 
+                           class="flex items-center p-2 text-sm text-gray-700 rounded hover:bg-gray-50">
+                            <i class="fas fa-tags mr-3 text-gray-500"></i>
+                            Catégories
+                        </a>
+                        <a href="{% url 'repavi_admin:photos_list' %}" 
+                           class="flex items-center p-2 text-sm text-gray-700 rounded hover:bg-gray-50">
+                            <i class="fas fa-images mr-3 text-gray-500"></i>
+                            Galerie photos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de création d'utilisateur - Seulement pour Super Admin -->
+    {% if is_super_admin %}
+    <div id="createUserModal" class="fixed inset-0 modal-backdrop z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Overlay -->
+            <div class="fixed inset-0 transition-opacity" onclick="closeCreateUserModal()"></div>
+            
+            <!-- Modal -->
+            <div class="modal-content inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Créer un utilisateur</h3>
+                        <button onclick="closeCreateUserModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>
+                    
+                    <form id="createUserForm" method="post" action="">
+                        {% csrf_token %}
+                        <input type="hidden" id="userRole" name="role" value="">
+                        
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                                    <input type="text" name="first_name" required 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                                    <input type="text" name="last_name" required 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" name="email" required 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur</label>
+                                <input type="text" name="username" required 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                                <input type="tel" name="telephone" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe temporaire</label>
+                                <input type="password" name="password" required 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="button" onclick="closeCreateUserModal()" 
+                                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                                Annuler
+                            </button>
+                            <button type="submit" id="submitBtn"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                Créer
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </header>
-
-        <!-- Page content -->
-        <main class="flex-1 overflow-y-auto">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <!-- Stats cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-home text-white text-xl"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Maisons</dt>
-                                        <dd class="text-3xl font-semibold text-gray-900">{{ stats.total_maisons|default:0 }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <span class="text-green-600 font-medium">{{ stats.maisons_disponibles|default:0 }}</span>
-                                    <span class="ml-1">disponibles</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-calendar-check text-white text-xl"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Réservations</dt>
-                                        <dd class="text-3xl font-semibold text-gray-900">{{ stats.total_reservations|default:0 }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <span class="text-orange-600 font-medium">{{ stats.reservations_en_attente|default:0 }}</span>
-                                    <span class="ml-1">en attente</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-users text-white text-xl"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Utilisateurs</dt>
-                                        <dd class="text-3xl font-semibold text-gray-900">{{ stats.total_users|default:0 }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <span class="text-blue-600 font-medium">{{ stats.users_actifs|default:0 }}</span>
-                                    <span class="ml-1">actifs</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200">
-                        <div class="p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-star text-white text-xl"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4 flex-1">
-                                    <dl>
-                                        <dt class="text-sm font-medium text-gray-500 truncate">Featured</dt>
-                                        <dd class="text-3xl font-semibold text-gray-900">{{ stats.maisons_featured|default:0 }}</dd>
-                                    </dl>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <span class="text-yellow-600 font-medium">En avant</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Content grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Recent houses -->
-                    <div class="lg:col-span-2">
-                        <div class="bg-white shadow-sm rounded-xl border border-gray-200">
-                            <div class="px-6 py-4 border-b border-gray-200">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-medium text-gray-900">Dernières maisons</h3>
-                                    <a href="{% url 'repavi_admin:maisons_list' %}" class="text-sm text-indigo-600 hover:text-indigo-500">Voir tout</a>
-                                </div>
-                            </div>
-                            <div class="p-6">
-                                {% if dernieres_maisons %}
-                                    <div class="space-y-4">
-                                        {% for maison in dernieres_maisons %}
-                                        <div class="flex items-center space-x-4 p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition">
-                                            {% if maison.photo_principale %}
-                                                <img src="{{ maison.photo_principale.url }}" alt="{{ maison.nom }}" class="w-16 h-16 rounded-lg object-cover">
-                                            {% else %}
-                                                <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-home text-gray-400"></i>
-                                                </div>
-                                            {% endif %}
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900 truncate">{{ maison.nom }}</p>
-                                                <p class="text-sm text-gray-500">{{ maison.ville }} • {{ maison.prix_par_nuit }}€/nuit</p>
-                                                <p class="text-xs text-gray-400">{{ maison.proprietaire.nom_complet|default:maison.proprietaire.username }}</p>
-                                            </div>
-                                            <div class="flex items-center space-x-2">
-                                                {% if maison.featured %}
-                                                    <span class="text-yellow-500"><i class="fas fa-star"></i></span>
-                                                {% endif %}
-                                                <span class="w-3 h-3 {% if maison.disponible %}bg-green-500{% else %}bg-red-500{% endif %} rounded-full"></span>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="text-center py-12">
-                                        <i class="fas fa-home text-gray-300 text-4xl mb-4"></i>
-                                        <p class="text-gray-500">Aucune maison</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent reservations -->
-                    <div class="lg:col-span-1">
-                        <div class="bg-white shadow-sm rounded-xl border border-gray-200">
-                            <div class="px-6 py-4 border-b border-gray-200">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-medium text-gray-900">Réservations</h3>
-                                    <a href="{% url 'repavi_admin:reservations_list' %}" class="text-sm text-indigo-600 hover:text-indigo-500">Voir tout</a>
-                                </div>
-                            </div>
-                            <div class="p-6">
-                                {% if dernieres_reservations %}
-                                    <div class="space-y-4">
-                                        {% for reservation in dernieres_reservations %}
-                                        <div class="border-l-4 {% if reservation.statut == 'confirmee' %}border-green-400{% elif reservation.statut == 'en_attente' %}border-yellow-400{% else %}border-red-400{% endif %} pl-4">
-                                            <p class="text-sm font-medium text-gray-900">{{ reservation.maison.nom }}</p>
-                                            <p class="text-xs text-gray-500">{{ reservation.locataire.nom_complet|default:reservation.locataire.username }}</p>
-                                            <div class="flex justify-between items-center mt-2">
-                                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800{% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
-                                                    {{ reservation.get_statut_display }}
-                                                </span>
-                                                <span class="text-sm font-medium text-gray-900">{{ reservation.prix_total }}€</span>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="text-center py-8">
-                                        <i class="fas fa-calendar-times text-gray-300 text-3xl mb-2"></i>
-                                        <p class="text-gray-500 text-sm">Aucune réservation</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Users grid -->
-                {% if nouveaux_users %}
-                <div class="mt-8">
-                    <div class="bg-white shadow-sm rounded-xl border border-gray-200">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">Nouveaux utilisateurs</h3>
-                        </div>
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {% for user in nouveaux_users %}
-                                <div class="flex items-center p-4 border border-gray-100 rounded-lg">
-                                    {% if user.photo_profil %}
-                                        <img src="{{ user.photo_profil.url }}" alt="{{ user.nom_complet }}" class="w-10 h-10 rounded-full object-cover">
-                                    {% else %}
-                                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-user text-gray-400"></i>
-                                        </div>
-                                    {% endif %}
-                                    <div class="ml-3 flex-1">
-                                        <p class="text-sm font-medium text-gray-900">{{ user.nom_complet|default:user.username }}</p>
-                                        <p class="text-xs text-gray-500">{{ user.get_type_utilisateur_display }}</p>
-                                    </div>
-                                    {% if user.email_verifie %}
-                                        <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
-                                    {% else %}
-                                        <span class="text-orange-500"><i class="fas fa-clock"></i></span>
-                                    {% endif %}
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </main>
+        </div>
     </div>
-</div>
+    {% endif %}
+    
+    <!-- Toast notification -->
+    <div id="toast" class="fixed top-4 right-4 transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="toastMessage">Action réussie !</span>
+        </div>
+    </div>
+
+<script>
+    // Variables globales
+    let currentUserRole = '';
+
+    // Gestion du menu déroulant
+    function initDropdownMenu() {
+        const btn = document.getElementById('quickActionsBtn');
+        const menu = document.getElementById('quickActionsMenu');
+        const icon = document.getElementById('quickActionsIcon');
+        
+        if (!btn || !menu || !icon) {
+            console.error('Éléments du menu déroulant non trouvés');
+            return;
+        }
+        
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleDropdown();
+        });
+        
+        // Fermer le menu si on clique ailleurs
+        document.addEventListener('click', function(e) {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+        
+        // Fermer avec Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDropdown();
+                closeCreateUserModal();
+            }
+        });
+    }
+    
+    function toggleDropdown() {
+        const menu = document.getElementById('quickActionsMenu');
+        const icon = document.getElementById('quickActionsIcon');
+        
+        if (menu.classList.contains('show')) {
+            closeDropdown();
+        } else {
+            menu.classList.add('show');
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }
+    
+    function closeDropdown() {
+        const menu = document.getElementById('quickActionsMenu');
+        const icon = document.getElementById('quickActionsIcon');
+        
+        menu.classList.remove('show');
+        icon.style.transform = 'rotate(0deg)';
+    }
+
+    // Gestion des modals
+    function openCreateUserModal(role) {
+        console.log('Ouverture de la modal pour le rôle:', role);
+        
+        const modal = document.getElementById('createUserModal');
+        const title = document.getElementById('modalTitle');
+        const roleInput = document.getElementById('userRole');
+        const form = document.getElementById('createUserForm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (!modal || !title || !roleInput || !submitBtn) {
+            console.error('Éléments de la modal non trouvés');
+            return;
+        }
+        
+        currentUserRole = role;
+        
+        // Configurer selon le rôle
+        if (role === 'CLIENT') {
+            title.textContent = 'Créer un nouveau client';
+            form.action = '{% url "repavi_admin:admin_create_client" %}';
+            submitBtn.innerHTML = '<i class="fas fa-user mr-2"></i>Créer le client';
+            submitBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors';
+        } else if (role === 'GESTIONNAIRE') {
+            title.textContent = 'Créer un nouveau gestionnaire';
+            form.action = '{% url "repavi_admin:admin_create_gestionnaire" %}';
+            submitBtn.innerHTML = '<i class="fas fa-user-tie mr-2"></i>Créer le gestionnaire';
+            submitBtn.className = 'px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors';
+        }
+        
+        roleInput.value = role;
+        
+        // Afficher la modal avec animation
+        modal.classList.remove('hidden');
+        
+        // Force un reflow avant d'ajouter la classe show
+        modal.offsetHeight;
+        
+        setTimeout(() => {
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.classList.add('show');
+            }
+        }, 10);
+        
+        // Fermer le dropdown
+        closeDropdown();
+        
+        // Focus sur le premier champ
+        setTimeout(() => {
+            const firstInput = document.querySelector('input[name="first_name"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 300);
+    }
+
+    function closeCreateUserModal() {
+        const modal = document.getElementById('createUserModal');
+        const modalContent = modal.querySelector('.modal-content');
+        
+        if (modalContent) {
+            modalContent.classList.remove('show');
+        }
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            
+            // Reset form
+            const form = document.getElementById('createUserForm');
+            if (form) {
+                form.reset();
+            }
+            
+            currentUserRole = '';
+            clearFormData();
+        }, 300);
+    }
+
+    // Gestion du formulaire
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        const form = event.target;
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        const actionUrl = form.action;
+        
+        // Validation basique
+        const requiredFields = ['first_name', 'last_name', 'email', 'username', 'password'];
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            const input = form.querySelector(`[name="${field}"]`);
+            if (!input || !input.value.trim()) {
+                isValid = false;
+                if (input) {
+                    input.classList.add('border-red-500');
+                    setTimeout(() => {
+                        input.classList.remove('border-red-500');
+                    }, 3000);
+                }
+            }
+        });
+        
+        if (!isValid) {
+            showToast('Veuillez remplir tous les champs obligatoires', 'error');
+            return;
+        }
+        
+        // Loader
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Création...';
+        submitBtn.disabled = true;
+        
+        fetch(actionUrl, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeCreateUserModal();
+                showToast(data.message || `${currentUserRole === 'CLIENT' ? 'Client' : 'Gestionnaire'} créé avec succès !`, 'success');
+                
+                // Recharger la page après 2 secondes
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                showToast('Erreur: ' + (data.error || 'Une erreur est survenue'), 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Une erreur est survenue lors de la création de l\'utilisateur', 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    }
+
+    // Auto-génération du nom d'utilisateur
+    function initUsernameGeneration() {
+        const firstNameInput = document.querySelector('input[name="first_name"]');
+        const lastNameInput = document.querySelector('input[name="last_name"]');
+        
+        if (firstNameInput && lastNameInput) {
+            [firstNameInput, lastNameInput].forEach(input => {
+                input.addEventListener('input', generateUsername);
+            });
+        }
+    }
+
+    function generateUsername() {
+        const firstName = document.querySelector('input[name="first_name"]').value.toLowerCase().trim();
+        const lastName = document.querySelector('input[name="last_name"]').value.toLowerCase().trim();
+        const usernameField = document.querySelector('input[name="username"]');
+        
+        if (firstName && lastName && !usernameField.value) {
+            // Nettoyer les caractères spéciaux
+            const cleanFirstName = firstName.replace(/[^a-z]/g, '');
+            const cleanLastName = lastName.replace(/[^a-z]/g, '');
+            usernameField.value = cleanFirstName + '.' + cleanLastName;
+        }
+    }
+
+    // Génération de mot de passe temporaire
+    function initPasswordGeneration() {
+        const passwordInput = document.querySelector('input[name="password"]');
+        if (passwordInput) {
+            passwordInput.addEventListener('focus', function() {
+                if (!this.value) {
+                    const randomNumber = Math.floor(Math.random() * 1000);
+                    this.value = 'RepAvi' + randomNumber;
+                }
+            });
+        }
+    }
+
+    // Toast notifications
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        
+        if (!toast || !toastMessage) {
+            console.error('Éléments de toast non trouvés');
+            return;
+        }
+        
+        // Configurer le style selon le type
+        const toastContent = toast.querySelector('div');
+        toastMessage.textContent = message;
+        
+        if (type === 'success') {
+            toastContent.className = 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg flex items-center';
+            toastContent.querySelector('i').className = 'fas fa-check-circle mr-2';
+        } else if (type === 'error') {
+            toastContent.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg flex items-center';
+            toastContent.querySelector('i').className = 'fas fa-exclamation-circle mr-2';
+        } else if (type === 'warning') {
+            toastContent.className = 'bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg shadow-lg flex items-center';
+            toastContent.querySelector('i').className = 'fas fa-exclamation-triangle mr-2';
+        }
+        
+        // Afficher le toast
+        toast.style.transform = 'translateX(0)';
+        
+        // Masquer après 4 secondes
+        setTimeout(() => {
+            toast.style.transform = 'translateX(100%)';
+        }, 4000);
+    }
+
+    // Animation des cartes au survol
+    function initCardAnimations() {
+        const cards = document.querySelectorAll('.btn-hover');
+        
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    }
+
+    // Sauvegarde automatique des données du formulaire
+    function initFormAutoSave() {
+        const form = document.getElementById('createUserForm');
+        if (!form) return;
+        
+        const inputs = form.querySelectorAll('input');
+        
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const formData = {};
+                inputs.forEach(inp => {
+                    if (inp.name && inp.name !== 'password') { // Ne pas sauvegarder le mot de passe
+                        formData[inp.name] = inp.value;
+                    }
+                });
+                
+                try {
+                    sessionStorage.setItem('createUserFormData', JSON.stringify(formData));
+                } catch(e) {
+                    console.warn('Impossible de sauvegarder les données du formulaire');
+                }
+            });
+        });
+    }
+
+    function restoreFormData() {
+        try {
+            const savedData = sessionStorage.getItem('createUserFormData');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                const form = document.getElementById('createUserForm');
+                
+                if (form) {
+                    Object.keys(formData).forEach(key => {
+                        const input = form.querySelector(`[name="${key}"]`);
+                        if (input && formData[key]) {
+                            input.value = formData[key];
+                        }
+                    });
+                }
+            }
+        } catch(e) {
+            console.warn('Impossible de restaurer les données du formulaire');
+        }
+    }
+
+    function clearFormData() {
+        try {
+            sessionStorage.removeItem('createUserFormData');
+        } catch(e) {
+            console.warn('Impossible de supprimer les données du formulaire');
+        }
+    }
+
+    // Mise à jour automatique des heures relatives
+    function updateTimeAgo() {
+        document.querySelectorAll('time[datetime]').forEach(timeElement => {
+            const date = new Date(timeElement.getAttribute('datetime'));
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                timeElement.textContent = 'à l\'instant';
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                timeElement.textContent = `il y a ${minutes} min`;
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                timeElement.textContent = `il y a ${hours}h`;
+            } else {
+                const days = Math.floor(diffInSeconds / 86400);
+                timeElement.textContent = `il y a ${days}j`;
+            }
+        });
+    }
+
+    // Initialisation principale
+    function init() {
+        console.log('🚀 Initialisation du dashboard...');
+        
+        try {
+            // Initialiser tous les composants
+            initDropdownMenu();
+            initUsernameGeneration();
+            initPasswordGeneration();
+            initCardAnimations();
+            initFormAutoSave();
+            
+            // Restaurer les données du formulaire si nécessaire
+            restoreFormData();
+            
+            // Attacher l'événement au formulaire
+            const form = document.getElementById('createUserForm');
+            if (form) {
+                form.addEventListener('submit', handleFormSubmit);
+            }
+            
+            // Mettre à jour les timestamps
+            updateTimeAgo();
+            setInterval(updateTimeAgo, 60000);
+            
+            console.log('✅ Dashboard initialisé avec succès!');
+            
+        } catch (error) {
+            console.error('❌ Erreur lors de l\'initialisation:', error);
+            showToast('Erreur lors du chargement', 'error');
+        }
+    }
+
+    // Démarrer l'application quand le DOM est prêt
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // Exposer certaines fonctions globalement
+    window.openCreateUserModal = openCreateUserModal;
+    window.closeCreateUserModal = closeCreateUserModal;
+    window.showToast = showToast;
+</script>
 {% endblock %}

@@ -1,10 +1,13 @@
-# home/forms.py - Version adaptée avec nouveaux rôles
+# home/forms.py - Version adaptée avec nouveaux rôles et corrections
+
 from django import forms
 from django.contrib.auth import get_user_model
+from django.utils.text import slugify
 from .models import Ville, CategorieMaison, Maison, PhotoMaison, Reservation
 
 User = get_user_model()
 
+# ======== FORMULAIRES DE BASE ========
 
 class VilleForm(forms.ModelForm):
     class Meta:
@@ -66,8 +69,8 @@ class CategorieMaisonForm(forms.ModelForm):
 
 
 class MaisonForm(forms.ModelForm):
-    """Formulaire pour les maisons - ADAPTÉ avec gestionnaire"""
-    
+    """Formulaire pour les maisons - adapté avec gestionnaire automatique"""
+
     class Meta:
         model = Maison
         fields = [
@@ -78,107 +81,59 @@ class MaisonForm(forms.ModelForm):
             'gestionnaire', 'slug'
         ]
         widgets = {
-            'nom': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'placeholder': 'Nom de la maison'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'rows': 4,
-                'placeholder': 'Description détaillée de la maison...'
-            }),
-            'adresse': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'placeholder': '123 Rue de la République'
-            }),
-            'ville': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
-            }),
-            'capacite_personnes': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'min': 1,
-                'max': 20
-            }),
-            'nombre_chambres': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'min': 1,
-                'max': 10
-            }),
-            'nombre_salles_bain': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'min': 1,
-                'max': 10
-            }),
-            'superficie': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'min': 20,
-                'placeholder': 'Superficie en m²'
-            }),
-            'prix_par_nuit': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'min': 10,
-                'step': '0.01',
-                'placeholder': 'Prix en euros'
-            }),
-            'categorie': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
-            }),
-            'gestionnaire': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
-            }),
-            'slug': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'placeholder': 'URL slug (auto-généré)'
-            }),
-            # Checkboxes pour les équipements
-            'disponible': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
-            'featured': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
-            'wifi': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
-            'parking': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
-            'piscine': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
-            'jardin': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
-            'climatisation': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
-            'lave_vaisselle': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
-            'machine_laver': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
-            }),
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la maison'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'ville': forms.Select(attrs={'class': 'form-control'}),
+            'capacite_personnes': forms.NumberInput(attrs={'class': 'form-control'}),
+            'nombre_chambres': forms.NumberInput(attrs={'class': 'form-control'}),
+            'nombre_salles_bain': forms.NumberInput(attrs={'class': 'form-control'}),
+            'superficie': forms.NumberInput(attrs={'class': 'form-control'}),
+            'prix_par_nuit': forms.NumberInput(attrs={'class': 'form-control'}),
+            'categorie': forms.Select(attrs={'class': 'form-control'}),
+            'gestionnaire': forms.Select(attrs={'class': 'form-control'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control'}),
+            'disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'wifi': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'parking': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'piscine': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'jardin': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'climatisation': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'lave_vaisselle': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'machine_laver': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-    
+
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        
-        # Filtrer les gestionnaires disponibles selon les permissions
-        if user:
-            if user.is_super_admin():
-                # Super admin peut assigner n'importe quel gestionnaire
-                self.fields['gestionnaire'].queryset = User.objects.filter(
-                    role__in=['GESTIONNAIRE', 'SUPER_ADMIN']
-                )
-            elif user.is_gestionnaire():
-                # Gestionnaire ne peut s'assigner que lui-même
-                self.fields['gestionnaire'].queryset = User.objects.filter(id=user.id)
-                self.fields['gestionnaire'].initial = user
+
+        # Gestion du champ "gestionnaire"
+        if self.user:
+            if hasattr(self.user, 'is_super_admin') and self.user.is_super_admin():
+                self.fields['gestionnaire'].queryset = User.objects.filter(role__in=['GESTIONNAIRE', 'SUPER_ADMIN'])
+            elif hasattr(self.user, 'is_gestionnaire') and self.user.is_gestionnaire():
+                self.fields['gestionnaire'].initial = self.user
+                self.fields['gestionnaire'].queryset = User.objects.filter(id=self.user.id)
+                self.fields['gestionnaire'].widget = forms.HiddenInput()
             else:
-                # Autres utilisateurs ne peuvent pas créer de maisons
                 self.fields['gestionnaire'].queryset = User.objects.none()
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get('gestionnaire') and self.user:
+            if hasattr(self.user, 'is_gestionnaire') and self.user.is_gestionnaire():
+                cleaned_data['gestionnaire'] = self.user
+                self.instance.gestionnaire = self.user
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if not instance.slug:
+            instance.slug = slugify(instance.nom)
+        if commit:
+            instance.save()
+        return instance
 
 class PhotoMaisonForm(forms.ModelForm):
     class Meta:
@@ -211,7 +166,7 @@ class PhotoMaisonForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         # Filtrer les maisons selon les permissions
-        if user and not user.is_super_admin():
+        if user and not (hasattr(user, 'is_super_admin') and user.is_super_admin()):
             self.fields['maison'].queryset = Maison.objects.filter(gestionnaire=user)
 
 
@@ -245,8 +200,7 @@ class ReservationForm(forms.ModelForm):
             }),
             'prix_total': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'step': '0.01',
-                'readonly': True
+                'step': '0.01'
             }),
             'statut': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
@@ -268,15 +222,22 @@ class ReservationForm(forms.ModelForm):
         
         # Filtrer selon les permissions utilisateur
         if user:
-            if user.is_super_admin():
+            if hasattr(user, 'is_super_admin') and user.is_super_admin():
                 # Super admin voit tout
-                self.fields['client'].queryset = User.objects.filter(role='CLIENT')
+                try:
+                    self.fields['client'].queryset = User.objects.filter(role='CLIENT')
+                except:
+                    # Fallback si pas de role
+                    self.fields['client'].queryset = User.objects.filter(is_staff=False)
                 self.fields['maison'].queryset = Maison.objects.all()
-            elif user.is_gestionnaire():
+            elif hasattr(user, 'is_gestionnaire') and user.is_gestionnaire():
                 # Gestionnaire voit ses maisons et tous les clients
-                self.fields['client'].queryset = User.objects.filter(role='CLIENT')
+                try:
+                    self.fields['client'].queryset = User.objects.filter(role='CLIENT')
+                except:
+                    self.fields['client'].queryset = User.objects.filter(is_staff=False)
                 self.fields['maison'].queryset = Maison.objects.filter(gestionnaire=user)
-            elif user.is_client():
+            elif hasattr(user, 'is_client') and user.is_client():
                 # Client ne peut réserver que pour lui-même
                 self.fields['client'].queryset = User.objects.filter(id=user.id)
                 self.fields['client'].initial = user
@@ -284,7 +245,6 @@ class ReservationForm(forms.ModelForm):
                 self.fields['maison'].queryset = Maison.objects.filter(disponible=True)
                 # Masquer certains champs pour les clients
                 self.fields['statut'].widget = forms.HiddenInput()
-                self.fields['prix_total'].widget = forms.HiddenInput()
 
 
 # Formulaire de recherche/filtre - ADAPTÉ

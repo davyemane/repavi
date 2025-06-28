@@ -1,8 +1,8 @@
-# home/models.py
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from PIL import Image
+from django.db.models import Q, Count
 
 class Ville(models.Model):
     nom = models.CharField(max_length=100)
@@ -20,7 +20,7 @@ class Ville(models.Model):
 class CategorieMaison(models.Model):
     nom = models.CharField(max_length=50)
     description = models.TextField(blank=True)
-    couleur = models.CharField(max_length=20, default='blue')  # Pour les badges
+    couleur = models.CharField(max_length=20, default='blue')
     
     def __str__(self):
         return self.nom
@@ -30,8 +30,10 @@ class CategorieMaison(models.Model):
         verbose_name_plural = 'Catégories de maisons'
 
 
-# Manager personnalisé pour les maisons
-class MaisonManager(models.Manager):
+# CORRECTION PRINCIPALE - QuerySet et Manager personnalisés
+class MaisonQuerySet(models.QuerySet):
+    """QuerySet personnalisé avec les méthodes d'optimisation"""
+    
     def with_photos_and_reservations(self):
         """Optimisation des requêtes avec relations"""
         return self.select_related('ville', 'categorie', 'gestionnaire').prefetch_related(
@@ -44,17 +46,38 @@ class MaisonManager(models.Manager):
         if user.is_anonymous:
             return self.filter(disponible=True)
         
-        if user.is_super_admin() or user.is_superuser:
-            return self.get_queryset()
-        elif user.is_gestionnaire():
+        if hasattr(user, 'is_super_admin') and user.is_super_admin():
+            return self
+        elif hasattr(user, 'is_gestionnaire') and user.is_gestionnaire():
             return self.filter(gestionnaire=user)
-        elif user.is_client():
+        elif hasattr(user, 'is_client') and user.is_client():
             return self.filter(disponible=True)
-        return self.none()
+        elif user.is_superuser:
+            return self
+        return self.filter(disponible=True)
     
     def available_for_clients(self):
         """Maisons disponibles pour les clients"""
         return self.filter(disponible=True)
+
+
+class MaisonManager(models.Manager):
+    """Manager personnalisé pour les maisons"""
+    
+    def get_queryset(self):
+        return MaisonQuerySet(self.model, using=self._db)
+    
+    def with_photos_and_reservations(self):
+        """Optimisation des requêtes avec relations"""
+        return self.get_queryset().with_photos_and_reservations()
+    
+    def accessible_to_user(self, user):
+        """Filtre les maisons selon les permissions utilisateur"""
+        return self.get_queryset().accessible_to_user(user)
+    
+    def available_for_clients(self):
+        """Maisons disponibles pour les clients"""
+        return self.get_queryset().available_for_clients()
 
 
 class Maison(models.Model):
@@ -78,7 +101,7 @@ class Maison(models.Model):
     # Catégorie
     categorie = models.ForeignKey(CategorieMaison, on_delete=models.SET_NULL, null=True, blank=True)
     
-    # Équipements (gardés identiques)
+    # Équipements
     wifi = models.BooleanField(default=True)
     parking = models.BooleanField(default=False)
     piscine = models.BooleanField(default=False)
@@ -87,7 +110,7 @@ class Maison(models.Model):
     lave_vaisselle = models.BooleanField(default=False)
     machine_laver = models.BooleanField(default=False)
     
-    # CHANGEMENT PRINCIPAL : proprietaire → gestionnaire
+    # Gestionnaire
     gestionnaire = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
@@ -119,7 +142,6 @@ class Maison(models.Model):
     
     @property
     def note_moyenne(self):
-        # TODO : Future implémentation du système d'avis
         return 0
     
     # COMPATIBILITÉ avec l'ancien code
@@ -132,12 +154,9 @@ class Maison(models.Model):
         # Auto-génération du slug si absent
         if not self.slug:
             from django.utils.text import slugify
-            import random
-            import string
             base_slug = slugify(self.nom)
             self.slug = base_slug
             
-            # Si le slug existe déjà, ajouter un suffixe aléatoire
             counter = 1
             while Maison.objects.filter(slug=self.slug).exists():
                 self.slug = f"{base_slug}-{counter}"
@@ -145,14 +164,32 @@ class Maison(models.Model):
                 
         super().save(*args, **kwargs)
     
+    # Ajoutez aussi cette méthode à votre classe Maison si elle n'existe pas :
     def can_be_managed_by(self, user):
         """Vérifie si un utilisateur peut gérer cette maison"""
         if user.is_anonymous:
             return False
-        if user.is_super_admin() or user.is_superuser:
+        if hasattr(user, 'is_super_admin') and user.is_super_admin():
+            return True
+        if hasattr(user, 'is_superuser') and user.is_superuser:
             return True
         return self.gestionnaire == user
-    
+
+    # Ajoutez cette méthode à votre classe Reservation si elle n'existe pas :
+    def can_be_managed_by(self, user):
+        """Vérifie si un utilisateur peut gérer cette réservation"""
+        if user.is_anonymous:
+            return False
+        if hasattr(user, 'is_super_admin') and user.is_super_admin():
+            return True
+        if hasattr(user, 'is_superuser') and user.is_superuser:
+            return True
+        elif hasattr(user, 'is_gestionnaire') and user.is_gestionnaire():
+            return self.maison.gestionnaire == user
+        elif hasattr(user, 'is_client') and user.is_client():
+            return self.client == user
+        return False
+
     class Meta:
         verbose_name = 'Maison'
         verbose_name_plural = 'Maisons'
@@ -203,14 +240,11 @@ class Reservation(models.Model):
     ]
     
     maison = models.ForeignKey(Maison, on_delete=models.CASCADE, related_name='reservations')
-    
-    # CHANGEMENT : locataire → client
     client = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
         limit_choices_to={'role': 'CLIENT'},
         verbose_name="Client",
-        help_text="Client qui fait la réservation",
         related_name='reservations'
     )
     
@@ -245,11 +279,13 @@ class Reservation(models.Model):
         """Vérifie si un utilisateur peut gérer cette réservation"""
         if user.is_anonymous:
             return False
-        if user.is_super_admin() or user.is_superuser:
+        if hasattr(user, 'is_super_admin') and user.is_super_admin():
             return True
-        elif user.is_gestionnaire():
+        if user.is_superuser:
+            return True
+        elif hasattr(user, 'is_gestionnaire') and user.is_gestionnaire():
             return self.maison.gestionnaire == user
-        elif user.is_client():
+        elif hasattr(user, 'is_client') and user.is_client():
             return self.client == user
         return False
     
@@ -257,11 +293,9 @@ class Reservation(models.Model):
         from django.core.exceptions import ValidationError
         from django.utils import timezone
         
-        # Vérifier que la date de début est antérieure à la date de fin
         if self.date_debut >= self.date_fin:
             raise ValidationError("La date de début doit être antérieure à la date de fin.")
         
-        # Vérifier que la date de début n'est pas dans le passé
         if self.date_debut < timezone.now().date():
             raise ValidationError("La date de début ne peut pas être dans le passé.")
         

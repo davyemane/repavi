@@ -1,18 +1,19 @@
 import os
 from pathlib import Path
+from decouple import config, Csv
 
 # === BASE DIR ===
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # === SECRET KEY ===
-SECRET_KEY = 'django-insecure-082n3q0&(q!4p((fti#g^prqwqnueq)zxl82g!69ob88mm9ui5'
+SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # === DEBUG & ENV DETECTION ===
-DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'  # mettre à '0' en production
+DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 IS_PRODUCTION = not DEBUG
 
 # === ALLOWED HOSTS ===
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'repavilodges.com', 'www.repavilodges.com']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 # === MODÈLE UTILISATEUR PERSONNALISÉ ===
 AUTH_USER_MODEL = 'users.User'
@@ -23,9 +24,9 @@ LOGIN_REDIRECT_URL = '/users/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # === SECURITÉ CONDITIONNELLE ===
-SECURE_SSL_REDIRECT = IS_PRODUCTION
-SESSION_COOKIE_SECURE = IS_PRODUCTION
-CSRF_COOKIE_SECURE = IS_PRODUCTION
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=IS_PRODUCTION, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=IS_PRODUCTION, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=IS_PRODUCTION, cast=bool)
 SECURE_BROWSER_XSS_FILTER = IS_PRODUCTION
 SECURE_CONTENT_TYPE_NOSNIFF = IS_PRODUCTION
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -85,12 +86,12 @@ TEMPLATES = [
 # === BASE DE DONNÉES ===
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'repavi',
-        'USER': 'repaviuser',
-        'PASSWORD': 'Felicien@2002',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': config('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
 
@@ -132,32 +133,24 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # === EMAIL CONFIGURATION ===
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='RepAvi <noreply@repavilodges.com>')
 
-# Pour la production (décommenter et configurer) :
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'votre-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'votre-mot-de-passe-app'
-
-DEFAULT_FROM_EMAIL = 'RepAvi <noreply@repavilodges.com>'
-SITE_URL = 'http://127.0.0.1:8000' if DEBUG else 'https://repavilodges.com'
+# === SITE URL ===
+if DEBUG:
+    SITE_URL = config('SITE_URL_DEV', default='http://127.0.0.1:8000')
+else:
+    SITE_URL = config('SITE_URL_PROD', default='https://repavilodges.com')
 
 # === SESSION ===
-SESSION_COOKIE_AGE = 1209600  # 2 semaines
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', default=1209600, cast=int)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = config('SESSION_EXPIRE_AT_BROWSER_CLOSE', default=False, cast=bool)
+SESSION_SAVE_EVERY_REQUEST = config('SESSION_SAVE_EVERY_REQUEST', default=True, cast=bool)
 
 # === AUTO FIELD PAR DÉFAUT ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Email settings (exemple avec Gmail)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-password'
-DEFAULT_FROM_EMAIL = 'RepAvi <noreply@repavi.com>'
