@@ -24,9 +24,18 @@ except ImportError:
     MAISON_SERVICE_AVAILABLE = False
     print("⚠️ MaisonService non disponible - utilisation des fallbacks")
 
+# Import sécurisé du module reservations
+try:
+    from reservations.models import Reservation
+    RESERVATIONS_AVAILABLE = True
+except ImportError:
+    RESERVATIONS_AVAILABLE = False
+    print("⚠️ Module réservations non disponible")
+
 from .models import Maison, CategorieMaison, Ville, PhotoMaison
 
 User = get_user_model()
+
 
 
 # ======== MIXINS POUR LES PERMISSIONS ========
@@ -54,29 +63,53 @@ class MaisonOwnerMixin(UserPassesTestMixin):
 def index(request):
     """Vue principale de la page d'accueil"""
     
-    # Récupérer les maisons featured disponibles pour tous
-    maisons_featured = Maison.objects.filter(
-        featured=True, 
-        disponible=True
-    ).with_photos_and_details()[:6]
-    
-    # Statistiques pour la section stats
-    stats = {
-        'total_maisons': Maison.objects.filter(disponible=True).count(),
-        'total_villes': Ville.objects.count(),
-        'total_reservations': 0,  # TODO: À rétablir avec l'app reservations
-        'satisfaction_client': 98,  # Peut être calculé dynamiquement plus tard
-    }
-    
-    # Catégories populaires
-    categories = CategorieMaison.objects.annotate(
-        nombre_maisons=Count('maison', filter=Q(maison__disponible=True))
-    ).filter(nombre_maisons__gt=0)[:4]
-    
-    # Villes populaires
-    villes_populaires = Ville.objects.annotate(
-        nombre_maisons=Count('maison', filter=Q(maison__disponible=True))
-    ).filter(nombre_maisons__gt=0).order_by('-nombre_maisons')[:6]
+    try:
+        # Récupérer les maisons featured disponibles pour tous
+        maisons_featured = Maison.objects.filter(
+            featured=True, 
+            disponible=True
+        ).select_related('ville', 'categorie').prefetch_related('photos')[:6]
+        
+        # Statistiques pour la section stats
+        stats = {
+            'total_maisons': Maison.objects.filter(disponible=True).count(),
+            'total_villes': Ville.objects.count(),
+            'total_reservations': 0,
+            'satisfaction_client': 98,
+        }
+        
+        # Calculer les statistiques de réservations si disponible
+        if RESERVATIONS_AVAILABLE:
+            try:
+                from reservations.models import Reservation
+                stats['total_reservations'] = Reservation.objects.filter(
+                    statut__in=['confirmee', 'terminee']
+                ).count()
+            except ImportError:
+                stats['total_reservations'] = 0
+        
+        # Catégories populaires
+        categories = CategorieMaison.objects.annotate(
+            nombre_maisons=Count('maison', filter=Q(maison__disponible=True))
+        ).filter(nombre_maisons__gt=0)[:4]
+        
+        # Villes populaires
+        villes_populaires = Ville.objects.annotate(
+            nombre_maisons=Count('maison', filter=Q(maison__disponible=True))
+        ).filter(nombre_maisons__gt=0).order_by('-nombre_maisons')[:6]
+        
+    except Exception as e:
+        # En cas d'erreur (tables vides, etc.), utiliser des valeurs par défaut
+        print(f"Erreur dans index: {e}")
+        maisons_featured = []
+        stats = {
+            'total_maisons': 0,
+            'total_villes': 0,
+            'total_reservations': 0,
+            'satisfaction_client': 98,
+        }
+        categories = []
+        villes_populaires = []
     
     context = {
         'maisons_featured': maisons_featured,
@@ -87,10 +120,10 @@ def index(request):
         'meta_description': 'Trouvez et réservez la maison meublée parfaite pour vos séjours. RepAvi Lodges - Douala, Cameroun.',
         'user_authenticated': request.user.is_authenticated,
         'user_role': getattr(request.user, 'role', None) if request.user.is_authenticated else None,
+        'reservations_available': RESERVATIONS_AVAILABLE,
     }
     
     return render(request, 'home/index.html', context)
-
 
 def contact(request):
     """Page de contact"""
@@ -108,31 +141,38 @@ def contact(request):
         
     context = {
         'user_role': getattr(request.user, 'role', None) if request.user.is_authenticated else None,
+        'reservations_available': RESERVATIONS_AVAILABLE,
     }
     
     return render(request, 'home/contact.html', context)
-
-
 def apropos(request):
     """Page à propos avec statistiques"""
     stats = {
         'annee_creation': 2020,
         'maisons_disponibles': Maison.objects.filter(disponible=True).count(),
         'villes_couvertes': Ville.objects.count(),
-        'clients_satisfaits': 10000,  # TODO: calculer depuis l'app reservations
+        'clients_satisfaits': 10000,
         'gestionnaires_partenaires': User.objects.filter(role='GESTIONNAIRE').count() if hasattr(User, 'role') else 0,
     }
+    
+    # Calculer les vraies statistiques si les réservations sont disponibles
+    if RESERVATIONS_AVAILABLE:
+        try:
+            stats['clients_satisfaits'] = Reservation.objects.filter(
+                statut='terminee'
+            ).values('client').distinct().count()
+        except:
+            pass
     
     context = {
         'stats': stats,
         'page_title': 'À propos - RepAvi Lodges',
         'meta_description': 'Découvrez l\'histoire et les valeurs de RepAvi Lodges, votre partenaire de confiance pour la location de maisons d\'exception au Cameroun.',
         'user_role': getattr(request.user, 'role', None) if request.user.is_authenticated else None,
+        'reservations_available': RESERVATIONS_AVAILABLE,
     }
     
     return render(request, 'home/apropos.html', context)
-
-
 # ======== MAISONS - CONSULTATION ========
 
 class MaisonListView(ListView):
@@ -163,6 +203,7 @@ class MaisonListView(ListView):
         capacite = self.request.GET.get('capacite')
         prix_min = self.request.GET.get('prix_min')
         prix_max = self.request.GET.get('prix_max')
+        disponible_reservation = self.request.GET.get('disponible_reservation')
         
         # Appliquer les filtres
         if search:
@@ -182,6 +223,10 @@ class MaisonListView(ListView):
             queryset = queryset.filter(prix_par_nuit__gte=prix_min)
         if prix_max:
             queryset = queryset.filter(prix_par_nuit__lte=prix_max)
+        
+        # Filtre pour les maisons disponibles à la réservation
+        if disponible_reservation == '1':
+            queryset = queryset.filter(disponible=True, statut_occupation='libre')
         
         # Tri
         sort_by = self.request.GET.get('sort', '-date_creation')
@@ -213,7 +258,85 @@ class MaisonListView(ListView):
         context['categories'] = CategorieMaison.objects.all()
         context['current_filters'] = self.request.GET
         context['user_role'] = getattr(self.request.user, 'role', None) if self.request.user.is_authenticated else None
+        context['reservations_available'] = RESERVATIONS_AVAILABLE
         return context
+
+
+def maisons_disponibles_reservation(request):
+    """Vue pour afficher les maisons disponibles à la réservation"""
+    
+    # Filtrer uniquement les maisons disponibles pour réservation
+    maisons = Maison.objects.filter(
+        disponible=True,
+        statut_occupation='libre'
+    ).with_photos_and_details()
+    
+    # Filtres de recherche
+    search = request.GET.get('search')
+    ville_id = request.GET.get('ville')
+    categorie_id = request.GET.get('categorie')
+    capacite = request.GET.get('capacite')
+    prix_min = request.GET.get('prix_min')
+    prix_max = request.GET.get('prix_max')
+    date_debut = request.GET.get('date_debut')
+    date_fin = request.GET.get('date_fin')
+    
+    # Appliquer les filtres
+    if search:
+        maisons = maisons.filter(
+            Q(nom__icontains=search) |
+            Q(description__icontains=search) |
+            Q(ville__nom__icontains=search)
+        )
+    
+    if ville_id:
+        maisons = maisons.filter(ville_id=ville_id)
+    if categorie_id:
+        maisons = maisons.filter(categorie_id=categorie_id)
+    if capacite:
+        maisons = maisons.filter(capacite_personnes__gte=capacite)
+    if prix_min:
+        maisons = maisons.filter(prix_par_nuit__gte=prix_min)
+    if prix_max:
+        maisons = maisons.filter(prix_par_nuit__lte=prix_max)
+    
+    # Vérifier la disponibilité par dates si spécifiées
+    if date_debut and date_fin and RESERVATIONS_AVAILABLE:
+        try:
+            from datetime import datetime
+            debut = datetime.strptime(date_debut, '%Y-%m-%d').date()
+            fin = datetime.strptime(date_fin, '%Y-%m-%d').date()
+            
+            # Filtrer les maisons qui n'ont pas de réservations conflictuelles
+            maisons_ids = []
+            for maison in maisons:
+                if Reservation.objects.verifier_disponibilite(maison, debut, fin):
+                    maisons_ids.append(maison.id)
+            
+            maisons = maisons.filter(id__in=maisons_ids)
+        except ValueError:
+            pass  # Dates invalides, ignorer le filtre
+    
+    # Pagination
+    paginator = Paginator(maisons, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'maisons': page_obj.object_list,
+        'villes': Ville.objects.all().order_by('nom'),
+        'categories': CategorieMaison.objects.all(),
+        'current_filters': request.GET,
+        'date_debut': date_debut,
+        'date_fin': date_fin,
+        'total_maisons': maisons.count(),
+        'reservations_available': RESERVATIONS_AVAILABLE,
+        'page_title': 'Maisons Disponibles à la Réservation',
+    }
+    
+    return render(request, 'home/maisons_reservation.html', context)
+
 
 
 class MaisonDetailView(DetailView):
@@ -267,6 +390,36 @@ class MaisonDetailView(DetailView):
         context['can_manage'] = user.is_authenticated and self.object.can_be_managed_by(user)
         context['user_role'] = getattr(user, 'role', None) if user.is_authenticated else None
         
+        # Vérification de disponibilité pour réservation
+        context['disponible_reservation'] = (
+            self.object.disponible and 
+            self.object.statut_occupation == 'libre' and
+            RESERVATIONS_AVAILABLE
+        )
+        
+        # Informations de réservation
+        if RESERVATIONS_AVAILABLE and context['disponible_reservation']:
+            try:
+                from datetime import date
+                today = date.today()
+                
+                # Réservations actuelles ou futures
+                reservations_actives = Reservation.objects.filter(
+                    maison=self.object,
+                    statut__in=['confirmee', 'en_attente'],
+                    date_fin__gte=today
+                ).order_by('date_debut')
+                
+                context['prochaines_reservations'] = reservations_actives[:3]
+                context['maison_libre_maintenant'] = not reservations_actives.filter(
+                    date_debut__lte=today,
+                    date_fin__gte=today
+                ).exists()
+                
+            except Exception:
+                context['prochaines_reservations'] = []
+                context['maison_libre_maintenant'] = True
+        
         # Informations de contact du gestionnaire (pour les clients)
         if user.is_authenticated and hasattr(user, 'is_client') and user.is_client():
             gestionnaire = self.object.gestionnaire
@@ -276,8 +429,9 @@ class MaisonDetailView(DetailView):
                 'email': gestionnaire.email if getattr(gestionnaire, 'email_verifie', True) else None,
             }
         
+        context['reservations_available'] = RESERVATIONS_AVAILABLE
+        
         return context
-
 
 # ======== MAISONS - GESTION ========
 
@@ -339,8 +493,8 @@ class MaisonUpdateView(LoginRequiredMixin, MaisonOwnerMixin, UpdateView):
         context['button_text'] = 'Sauvegarder les modifications'
         context['villes'] = Ville.objects.all().order_by('nom')
         context['categories'] = CategorieMaison.objects.all().order_by('nom')
+        context['reservations_available'] = RESERVATIONS_AVAILABLE
         return context
-
 
 class MaisonDeleteView(LoginRequiredMixin, MaisonOwnerMixin, DeleteView):
     """Vue pour supprimer une maison"""
@@ -359,7 +513,6 @@ class MaisonDeleteView(LoginRequiredMixin, MaisonOwnerMixin, DeleteView):
         result = super().delete(request, *args, **kwargs)
         messages.success(request, f'La maison "{nom_maison}" a été supprimée avec succès!')
         return result
-
 
 @login_required
 def statistiques_generales(request):
@@ -561,37 +714,6 @@ def definir_photo_principale(request, photo_id):
 
 # ======== DASHBOARD GESTIONNAIRE ========
 
-class GestionnaireDashboardView(LoginRequiredMixin, GestionnaireRequiredMixin, ListView):
-    """Dashboard principal du gestionnaire"""
-    model = Maison
-    template_name = 'home/gestionnaire_dashboard.html'
-    context_object_name = 'maisons'
-    paginate_by = 5
-    
-    def get_queryset(self):
-        return Maison.objects.accessible_to_user(self.request.user).order_by('-date_creation')
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-        
-        maisons = self.get_queryset()
-        context['stats'] = {
-            'total_maisons': maisons.count(),
-            'maisons_disponibles': maisons.filter(disponible=True).count(),
-            'maisons_occupees': maisons.filter(statut_occupation='occupe').count(),
-            'maisons_maintenance': maisons.filter(statut_occupation='maintenance').count(),
-            'revenus_potentiels': sum(m.prix_par_nuit for m in maisons.filter(disponible=True)),
-        }
-        
-        # Maisons nécessitant une attention
-        context['maisons_attention'] = maisons.filter(
-            Q(statut_occupation='maintenance') | 
-            Q(meubles__etat='defectueux')
-        ).distinct()[:5]
-        
-        return context
-
 
 class GestionnaireMaisonsView(LoginRequiredMixin, GestionnaireRequiredMixin, ListView):
     """Liste des maisons du gestionnaire"""
@@ -621,6 +743,44 @@ class GestionnaireMaisonsView(LoginRequiredMixin, GestionnaireRequiredMixin, Lis
         context['current_filters'] = self.request.GET
         context['statuts'] = Maison.STATUT_OCCUPATION_CHOICES
         return context
+
+
+@login_required
+def initier_reservation(request, maison_slug):
+    """Initier une réservation pour une maison"""
+    
+    if not RESERVATIONS_AVAILABLE:
+        messages.error(request, "Le système de réservation n'est pas disponible.")
+        return redirect('home:maison_detail', slug=maison_slug)
+    
+    # Vérifier que l'utilisateur peut faire des réservations
+    if not (hasattr(request.user, 'is_client') and request.user.is_client()):
+        messages.error(request, "Seuls les clients peuvent effectuer des réservations.")
+        return redirect('home:maison_detail', slug=maison_slug)
+    
+    maison = get_object_or_404(Maison, slug=maison_slug, disponible=True)
+    
+    # Récupérer les paramètres de la requête
+    date_debut = request.GET.get('date_debut')
+    date_fin = request.GET.get('date_fin')
+    nombre_personnes = request.GET.get('nombre_personnes', 1)
+    
+    # Construire l'URL vers le système de réservation
+    reservation_url = f"/reservations/reserver/{maison_slug}/"
+    
+    # Ajouter les paramètres s'ils existent
+    params = []
+    if date_debut:
+        params.append(f"date_debut={date_debut}")
+    if date_fin:
+        params.append(f"date_fin={date_fin}")
+    if nombre_personnes:
+        params.append(f"nombre_personnes={nombre_personnes}")
+    
+    if params:
+        reservation_url += "?" + "&".join(params)
+    
+    return redirect(reservation_url)
 
 
 # ======== INVENTAIRE DES MEUBLES ========
@@ -667,6 +827,47 @@ def maison_inventaire(request, slug):
 
 
 # ======== AJAX ET API ========
+
+@require_http_methods(["GET"])
+def verifier_disponibilite_maison(request, maison_slug):
+    """Vérifier la disponibilité d'une maison pour des dates données"""
+    
+    if not RESERVATIONS_AVAILABLE:
+        return JsonResponse({'error': 'Service de réservation indisponible'}, status=503)
+    
+    maison = get_object_or_404(Maison, slug=maison_slug)
+    
+    date_debut = request.GET.get('date_debut')
+    date_fin = request.GET.get('date_fin')
+    
+    if not date_debut or not date_fin:
+        return JsonResponse({'error': 'Dates manquantes'}, status=400)
+    
+    try:
+        from datetime import datetime
+        debut = datetime.strptime(date_debut, '%Y-%m-%d').date()
+        fin = datetime.strptime(date_fin, '%Y-%m-%d').date()
+        
+        disponible = Reservation.objects.verifier_disponibilite(maison, debut, fin)
+        
+        # Calculer le prix total
+        nombre_nuits = (fin - debut).days
+        prix_total = maison.prix_par_nuit * nombre_nuits
+        
+        return JsonResponse({
+            'disponible': disponible,
+            'nombre_nuits': nombre_nuits,
+            'prix_par_nuit': float(maison.prix_par_nuit),
+            'prix_total': float(prix_total),
+            'maison_nom': maison.nom,
+            'maison_ville': str(maison.ville)
+        })
+        
+    except ValueError:
+        return JsonResponse({'error': 'Format de date invalide'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 
 @require_http_methods(["GET"])
 def recherche_ajax(request):
@@ -719,6 +920,7 @@ def recherche_ajax(request):
     return JsonResponse({'maisons': [], 'villes': []})
 
 
+
 @require_http_methods(["GET"])
 def api_maisons_disponibles(request):
     """API endpoint pour récupérer les maisons disponibles"""
@@ -738,6 +940,55 @@ def api_maisons_disponibles(request):
         })
     
     return JsonResponse({'maisons': data})
+
+
+@require_http_methods(["GET"])
+def api_maison_disponibilite(request, maison_id):
+    """API pour vérifier la disponibilité d'une maison"""
+    
+    if not RESERVATIONS_AVAILABLE:
+        return JsonResponse({'error': 'Service indisponible'}, status=503)
+    
+    try:
+        maison = get_object_or_404(Maison, id=maison_id)
+        
+        # Vérifier si la maison est globalement disponible
+        disponible_base = maison.disponible and maison.statut_occupation == 'libre'
+        
+        context = {
+            'maison_id': maison.id,
+            'nom': maison.nom,
+            'disponible_base': disponible_base,
+            'prix_par_nuit': float(maison.prix_par_nuit),
+            'capacite_personnes': maison.capacite_personnes,
+        }
+        
+        # Si des dates sont fournies, vérifier la disponibilité pour ces dates
+        date_debut = request.GET.get('date_debut')
+        date_fin = request.GET.get('date_fin')
+        
+        if date_debut and date_fin:
+            try:
+                from datetime import datetime
+                debut = datetime.strptime(date_debut, '%Y-%m-%d').date()
+                fin = datetime.strptime(date_fin, '%Y-%m-%d').date()
+                
+                disponible_dates = Reservation.objects.verifier_disponibilite(maison, debut, fin)
+                
+                context.update({
+                    'disponible_dates': disponible_dates,
+                    'date_debut': date_debut,
+                    'date_fin': date_fin,
+                    'nombre_nuits': (fin - debut).days,
+                    'prix_total': float(maison.prix_par_nuit * (fin - debut).days)
+                })
+            except ValueError:
+                context['error_dates'] = 'Format de dates invalide'
+        
+        return JsonResponse(context)
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @require_http_methods(["GET"])
@@ -1174,6 +1425,75 @@ def export_photos(request):
 
 
 # ======== MAINTENANCE ET STATISTIQUES ========
+@login_required
+def statistiques_generales(request):
+    """Vue des statistiques générales pour les gestionnaires et admins"""
+    user = request.user
+    
+    # Vérifier les permissions
+    if not ((hasattr(user, 'is_gestionnaire') and user.is_gestionnaire()) or 
+            (hasattr(user, 'is_super_admin') and user.is_super_admin()) or
+            user.is_superuser):
+        messages.error(request, "Accès non autorisé.")
+        return redirect('home:index')
+    
+    # Récupérer les maisons selon les permissions
+    maisons = Maison.objects.accessible_to_user(user)
+    
+    # Statistiques de base
+    stats = {
+        'total_maisons': maisons.count(),
+        'maisons_disponibles': maisons.filter(disponible=True).count(),
+        'maisons_occupees': maisons.filter(statut_occupation='occupe').count(),
+        'maisons_maintenance': maisons.filter(statut_occupation='maintenance').count(),
+        'maisons_featured': maisons.filter(featured=True).count(),
+        'total_photos': PhotoMaison.objects.filter(maison__in=maisons).count(),
+        'prix_moyen': maisons.aggregate(Avg('prix_par_nuit'))['prix_par_nuit__avg'] or 0,
+        'capacite_totale': maisons.aggregate(Sum('capacite_personnes'))['capacite_personnes__sum'] or 0,
+    }
+    
+    # Évolution mensuelle (simulée pour l'instant)
+    import datetime
+    from datetime import timedelta
+    
+    mois_actuels = []
+    for i in range(6):
+        date = datetime.date.today() - timedelta(days=30*i)
+        mois_actuels.append({
+            'mois': date.strftime('%B %Y'),
+            'nouvelles_maisons': maisons.filter(
+                date_creation__year=date.year,
+                date_creation__month=date.month
+            ).count()
+        })
+    
+    # Répartition par statut
+    repartition_statuts = []
+    for statut_code, statut_label in Maison.STATUT_OCCUPATION_CHOICES:
+        count = maisons.filter(statut_occupation=statut_code).count()
+        if count > 0:
+            repartition_statuts.append({
+                'statut': statut_label,
+                'count': count,
+                'pourcentage': round((count / stats['total_maisons']) * 100, 1) if stats['total_maisons'] > 0 else 0
+            })
+    
+    # Top villes
+    top_villes = maisons.values('ville__nom').annotate(
+        count=Count('id'),
+        revenus_potentiels=Sum('prix_par_nuit')
+    ).order_by('-count')[:5]
+    
+    context = {
+        'stats': stats,
+        'mois_actuels': reversed(mois_actuels),
+        'repartition_statuts': repartition_statuts,
+        'top_villes': top_villes,
+        'user_role': getattr(user, 'role', None),
+        'reservations_available': RESERVATIONS_AVAILABLE,
+    }
+    
+    return render(request, 'home/statistiques_generales.html', context)
 
 @login_required
 def statistiques_maison(request, slug):
@@ -1204,3 +1524,69 @@ def statistiques_maison(request, slug):
     }
     
     return render(request, 'home/maison_statistiques.html', context)
+
+
+class GestionnaireDashboardView(LoginRequiredMixin, GestionnaireRequiredMixin, ListView):
+    model = Maison
+    template_name = 'home/gestionnaire_dashboard.html'
+    context_object_name = 'maisons'
+    paginate_by = 5
+    
+    def get_queryset(self):
+        return Maison.objects.accessible_to_user(self.request.user).order_by('-date_creation')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        maisons = self.get_queryset()
+        context['stats'] = {
+            'total_maisons': maisons.count(),
+            'maisons_disponibles': maisons.filter(disponible=True).count(),
+            'maisons_occupees': maisons.filter(statut_occupation='occupe').count(),
+            'maisons_maintenance': maisons.filter(statut_occupation='maintenance').count(),
+            'revenus_potentiels': sum(m.prix_par_nuit for m in maisons.filter(disponible=True)),
+        }
+        
+        # Maisons nécessitant une attention
+        context['maisons_attention'] = maisons.filter(
+            Q(statut_occupation='maintenance') | 
+            Q(meubles__etat='defectueux')
+        ).distinct()[:5]
+        
+        context['reservations_available'] = RESERVATIONS_AVAILABLE
+        
+        return context
+
+
+# ======== AUTRES VUES AVEC CONTEXT RESERVATIONS ========
+
+class GestionnaireMaisonsView(LoginRequiredMixin, GestionnaireRequiredMixin, ListView):
+    """Liste des maisons du gestionnaire"""
+    model = Maison
+    template_name = 'home/gestionnaire_maisons.html'
+    context_object_name = 'maisons'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        queryset = Maison.objects.accessible_to_user(self.request.user)
+        
+        # Filtres optionnels
+        statut = self.request.GET.get('statut')
+        if statut:
+            queryset = queryset.filter(statut_occupation=statut)
+        
+        disponible = self.request.GET.get('disponible')
+        if disponible == '1':
+            queryset = queryset.filter(disponible=True)
+        elif disponible == '0':
+            queryset = queryset.filter(disponible=False)
+        
+        return queryset.order_by('-date_creation')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_filters'] = self.request.GET
+        context['statuts'] = Maison.STATUT_OCCUPATION_CHOICES
+        context['reservations_available'] = RESERVATIONS_AVAILABLE
+        return context

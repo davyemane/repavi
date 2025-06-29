@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, Sum, Avg
+from django.db.models import Q, Count, Sum, Avg, Case, When, IntegerField, DecimalField
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -142,6 +142,242 @@ def recherche_disponibilite(request):
     return render(request, 'reservations/recherche_disponibilite.html', context)
 
 
+
+@login_required
+def reservations_dashboard(request):
+    """Dashboard principal des réservations"""
+    try:
+        # Déterminer les réservations accessibles à l'utilisateur
+        if request.user.is_client():
+            reservations_base = Reservation.objects.filter(client=request.user)
+        elif request.user.is_gestionnaire():
+            reservations_base = Reservation.objects.filter(maison__gestionnaire=request.user)
+        elif request.user.is_super_admin():
+            reservations_base = Reservation.objects.all()
+        else:
+            messages.error(request, "Accès non autorisé.")
+            return redirect('home:index')
+        
+        # Calcul des statistiques principales
+        stats = reservations_base.aggregate(
+            total=Count('id'),
+            confirmees=Count(Case(When(statut='confirmee', then=1), output_field=IntegerField())),
+            en_attente=Count(Case(When(statut='en_attente', then=1), output_field=IntegerField())),
+            terminees=Count(Case(When(statut='terminee', then=1), output_field=IntegerField())),
+            annulees=Count(Case(When(statut='annulee', then=1), output_field=IntegerField())),
+            ca_total=Sum(Case(
+                When(statut__in=['confirmee', 'terminee'], then='prix_total'),
+                default=0,
+                output_field=DecimalField()
+            ))
+        )
+        
+        # Calculer les pourcentages
+        total = stats['total'] or 1
+        stats['pourcentage_confirmees'] = round((stats['confirmees'] / total) * 100, 1)
+        stats['pourcentage_en_attente'] = round((stats['en_attente'] / total) * 100, 1)
+        
+        # S'assurer que ca_total n'est pas None
+        stats['ca_total'] = stats['ca_total'] or 0
+        
+        # Répartition par statut pour le graphique
+        repartition_statuts = reservations_base.values('statut').annotate(
+            count=Count('id')
+        ).order_by('-count')
+        
+        # Évolution mensuelle (6 derniers mois)
+        evolution_mensuelle = []
+        for i in range(6):
+            date_mois = timezone.now().replace(day=1) - timedelta(days=30*i)
+            debut_mois = date_mois.replace(day=1)
+            fin_mois = (debut_mois + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+            
+            count = reservations_base.filter(
+                date_creation__gte=debut_mois,
+                date_creation__lte=fin_mois
+            ).count()
+            
+            evolution_mensuelle.append({
+                'mois': debut_mois.strftime('%m/%Y'),
+                'count': count
+            })
+        
+        evolution_mensuelle.reverse()
+        
+        # Réservations récentes
+        reservations_recentes = reservations_base.select_related(
+            'maison', 'client'
+        ).order_by('-date_creation')[:8]
+        
+        # Actions requises
+        actions_requises = []
+        today = timezone.now().date()
+        
+        # Réservations en attente de confirmation
+        en_attente = reservations_base.filter(statut='en_attente').order_by('date_creation')[:5]
+        for reservation in en_attente:
+            jours_depuis_creation = (today - reservation.date_creation.date()).days
+            actions_requises.append({
+                'numero': reservation.numero,
+                'type_action': 'confirmer',
+                'action_description': f'Réservation en attente de confirmation',
+                'urgence_jours': jours_depuis_creation,
+                'reservation': reservation
+            })
+        
+        # Arrivées prochaines (dans les 7 jours)
+        arrivees_prochaines = reservations_base.filter(
+            statut='confirmee',
+            date_debut__gte=today,
+            date_debut__lte=today + timedelta(days=7)
+        ).order_by('date_debut')[:3]
+        
+        for reservation in arrivees_prochaines:
+            jours_jusqu_arrivee = (reservation.date_debut - today).days
+            actions_requises.append({
+                'numero': reservation.numero,
+                'type_action': 'arrivee',
+                'action_description': f'Arrivée prévue le {reservation.date_debut.strftime("%d/%m")}',
+                'urgence_jours': jours_jusqu_arrivee,
+                'reservation': reservation
+            })
+        
+        # Trier les actions par urgence
+        actions_requises.sort(key=lambda x: x['urgence_jours'])
+        actions_requises = actions_requises[:8]  # Limiter à 8 éléments
+        
+        # Métriques de performance (pour gestionnaires)
+        metriques = {}
+        if request.user.is_gestionnaire() or request.user.is_super_admin():
+            # Taux d'occupation ce mois
+            debut_mois = today.replace(day=1)
+            fin_mois = (debut_mois + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+            jours_mois = (fin_mois - debut_mois).days + 1
+            
+            # Calculer les nuits occupées ce mois
+            reservations_mois = reservations_base.filter(
+                statut__in=['confirmee', 'terminee'],
+                date_debut__lte=fin_mois,
+                date_fin__gte=debut_mois
+            )
+            
+            nuits_occupees = 0
+            for reservation in reservations_mois:
+                debut_periode = max(reservation.date_debut, debut_mois)
+                fin_periode = min(reservation.date_fin, fin_mois)
+                if debut_periode <= fin_periode:
+                    nuits_occupees += (fin_periode - debut_periode).days
+            
+            # Nombre total de maisons gérées
+            if request.user.is_gestionnaire():
+                nb_maisons = Maison.objects.filter(gestionnaire=request.user).count()
+            else:
+                nb_maisons = Maison.objects.count()
+            
+            # Calcul du taux d'occupation
+            nuits_possibles = nb_maisons * jours_mois
+            taux_occupation = round((nuits_occupees / nuits_possibles) * 100, 1) if nuits_possibles > 0 else 0
+            
+            # Durée moyenne de séjour (6 derniers mois)
+            six_mois_ago = today - timedelta(days=180)
+            reservations_recentes_stats = reservations_base.filter(
+                statut__in=['confirmee', 'terminee'],
+                date_creation__gte=six_mois_ago
+            )
+            
+            duree_moyenne = reservations_recentes_stats.aggregate(
+                moyenne=Avg('nombre_nuits')
+            )['moyenne'] or 0
+            
+            # Panier moyen
+            panier_moyen = reservations_recentes_stats.aggregate(
+                moyenne=Avg('prix_total')
+            )['moyenne'] or 0
+            
+            # Taux d'annulation
+            total_reservations_periode = reservations_base.filter(date_creation__gte=six_mois_ago).count()
+            annulations_periode = reservations_base.filter(
+                statut='annulee',
+                date_creation__gte=six_mois_ago
+            ).count()
+            
+            taux_annulation = round((annulations_periode / total_reservations_periode) * 100, 1) if total_reservations_periode > 0 else 0
+            
+            metriques = {
+                'taux_occupation': taux_occupation,
+                'duree_moyenne_sejour': duree_moyenne,
+                'panier_moyen': panier_moyen,
+                'taux_annulation': taux_annulation
+            }
+        
+        # Prochaines échéances
+        prochaines_echeances = []
+        
+        # Arrivées dans les 3 prochains jours
+        arrivees = reservations_base.filter(
+            statut='confirmee',
+            date_debut__gte=today,
+            date_debut__lte=today + timedelta(days=3)
+        ).order_by('date_debut')[:3]
+        
+        for reservation in arrivees:
+            prochaines_echeances.append({
+                'type': 'arrivee',
+                'date': reservation.date_debut,
+                'reservation': reservation
+            })
+        
+        # Départs dans les 3 prochains jours
+        departs = reservations_base.filter(
+            statut='confirmee',
+            date_fin__gte=today,
+            date_fin__lte=today + timedelta(days=3)
+        ).order_by('date_fin')[:3]
+        
+        for reservation in departs:
+            prochaines_echeances.append({
+                'type': 'depart',
+                'date': reservation.date_fin,
+                'reservation': reservation
+            })
+        
+        # Trier par date
+        prochaines_echeances.sort(key=lambda x: x['date'])
+        prochaines_echeances = prochaines_echeances[:6]  # Limiter à 6
+        
+        context = {
+            'stats': stats,
+            'repartition_statuts': repartition_statuts,
+            'evolution_mensuelle': evolution_mensuelle,
+            'reservations_recentes': reservations_recentes,
+            'actions_requises': actions_requises,
+            'metriques': metriques,
+            'prochaines_echeances': prochaines_echeances,
+            'user_type': 'client' if request.user.is_client() else 'gestionnaire'
+        }
+        
+        return render(request, 'reservations/dashboard.html', context)
+        
+    except Exception as e:
+        # En cas d'erreur, afficher un dashboard minimal
+        messages.error(request, f"Erreur lors du chargement du dashboard: {str(e)}")
+        
+        context = {
+            'stats': {
+                'total': 0, 'confirmees': 0, 'en_attente': 0, 'terminees': 0, 'annulees': 0,
+                'ca_total': 0, 'pourcentage_confirmees': 0, 'pourcentage_en_attente': 0
+            },
+            'repartition_statuts': [],
+            'evolution_mensuelle': [],
+            'reservations_recentes': [],
+            'actions_requises': [],
+            'metriques': {},
+            'prochaines_echeances': [],
+            'user_type': 'client' if request.user.is_client() else 'gestionnaire'
+        }
+        
+        return render(request, 'reservations/dashboard.html', context)
+
 @login_required
 @client_required
 def reserver_maison(request, maison_slug):
@@ -174,6 +410,7 @@ def reserver_maison(request, maison_slug):
         if form.is_valid():
             try:
                 with transaction.atomic():
+                    # Le formulaire gère maintenant la sauvegarde complète
                     reservation = form.save()
                     
                     messages.success(
@@ -186,10 +423,15 @@ def reserver_maison(request, maison_slug):
                     # TODO: Créer notification
                     
                     return redirect('reservations:detail', numero=reservation.numero)
+            except forms.ValidationError as e:
+                messages.error(request, str(e))
             except Exception as e:
                 messages.error(request, f'Erreur lors de la création de la réservation: {str(e)}')
+                import traceback
+                print(f"Erreur complète: {traceback.format_exc()}")
         else:
             messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
+            print(f"Erreurs du formulaire: {form.errors}")
     else:
         form = ReservationForm(initial=initial_data, user=request.user, maison=maison)
     
@@ -211,15 +453,20 @@ def reserver_maison(request, maison_slug):
         except ValueError:
             pass
     
+    # Import sécurisé pour les types de paiement
+    try:
+        types_paiement = TypePaiement.objects.filter(actif=True)
+    except:
+        types_paiement = []
+    
     context = {
         'maison': maison,
         'form': form,
         'prix_estime': prix_estime,
-        'types_paiement': TypePaiement.objects.filter(actif=True)
+        'types_paiement': types_paiement
     }
     
     return render(request, 'reservations/reserver_maison.html', context)
-
 
 @login_required
 def mes_reservations(request):

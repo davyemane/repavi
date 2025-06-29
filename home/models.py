@@ -48,7 +48,7 @@ class MaisonQuerySet(models.QuerySet):
     
     def accessible_to_user(self, user):
         """Filtre les maisons selon les permissions utilisateur"""
-        if user.is_anonymous:
+        if user is None or user.is_anonymous:
             return self.filter(disponible=True)
         
         if hasattr(user, 'is_super_admin') and user.is_super_admin():
@@ -199,9 +199,16 @@ class Maison(models.Model):
     @property
     def photo_principale(self):
         """Récupère la photo principale de la maison"""
-        photo = self.photos.filter(principale=True).first()
-        return photo.image if photo else None
-    
+        try:
+            photo = self.photos.filter(principale=True).first()
+            if photo and photo.image:
+                return photo.image
+            # Si pas de photo principale, prendre la première photo
+            elif self.photos.exists():
+                return self.photos.first().image
+            return None
+        except:
+            return None    
     @property
     def photos_additionnelles(self):
         """Récupère toutes les photos sauf la principale"""

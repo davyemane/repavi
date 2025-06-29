@@ -34,7 +34,7 @@
                 </div>
                 
                 <div class="p-6 space-y-6">
-                    <!-- Nom et slug -->
+                    <!-- Nom et numéro -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
@@ -54,21 +54,39 @@
                         </div>
                         
                         <div>
-                            <label for="{{ form.slug.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                URL slug
+                            <label for="{{ form.numero.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                Numéro de la maison <span class="text-red-500">*</span>
                             </label>
-                            {{ form.slug }}
-                            {% if form.slug.errors %}
+                            {{ form.numero }}
+                            {% if form.numero.errors %}
                                 <div class="mt-1 text-sm text-red-600">
-                                    {% for error in form.slug.errors %}
+                                    {% for error in form.numero.errors %}
                                         <p>{{ error }}</p>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                             <p class="mt-1 text-sm text-gray-500">
-                                URL de la maison (auto-généré si vide)
+                                Numéro d'identification unique (ex: M001)
                             </p>
                         </div>
+                    </div>
+
+                    <!-- Slug -->
+                    <div>
+                        <label for="{{ form.slug.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            URL slug
+                        </label>
+                        {{ form.slug }}
+                        {% if form.slug.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.slug.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">
+                            URL de la maison (auto-généré si vide)
+                        </p>
                     </div>
 
                     <!-- Description -->
@@ -120,7 +138,7 @@
                         </div>
                     </div>
 
-                    <!-- Catégorie et gestionnaire -->
+                    <!-- Catégorie et statut -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="{{ form.categorie.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
@@ -136,22 +154,40 @@
                             {% endif %}
                         </div>
                         
-                        {% if is_super_admin %}
                         <div>
-                            <label for="{{ form.gestionnaire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                                Gestionnaire <span class="text-red-500">*</span>
+                            <label for="{{ form.statut_occupation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                Statut d'occupation <span class="text-red-500">*</span>
                             </label>
-                            {{ form.gestionnaire }}
-                            {% if form.gestionnaire.errors %}
+                            {{ form.statut_occupation }}
+                            {% if form.statut_occupation.errors %}
                                 <div class="mt-1 text-sm text-red-600">
-                                    {% for error in form.gestionnaire.errors %}
+                                    {% for error in form.statut_occupation.errors %}
                                         <p>{{ error }}</p>
                                     {% endfor %}
                                 </div>
                             {% endif %}
+                            <p class="mt-1 text-sm text-gray-500">
+                                État actuel de la maison
+                            </p>
                         </div>
+                    </div>
+
+                    <!-- Gestionnaire (seulement pour super admin) -->
+                    {% if is_super_admin %}
+                    <div>
+                        <label for="{{ form.gestionnaire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Gestionnaire <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.gestionnaire }}
+                        {% if form.gestionnaire.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.gestionnaire.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
                         {% endif %}
                     </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -238,7 +274,7 @@
                             <div class="relative">
                                 {{ form.prix_par_nuit }}
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">€</span>
+                                    <span class="text-gray-500 sm:text-sm">FCFA</span>
                                 </div>
                             </div>
                             {% if form.prix_par_nuit.errors %}
@@ -350,6 +386,30 @@
                                 </div>
                             </label>
                         </div>
+
+                        <!-- Balcon -->
+                        <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                            {{ form.balcon }}
+                            <label for="{{ form.balcon.id_for_label }}" class="ml-3 flex items-center cursor-pointer">
+                                <i class="fas fa-building text-orange-500 mr-2"></i>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">Balcon</div>
+                                    <div class="text-xs text-gray-500">Espace extérieur couvert</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Terrasse -->
+                        <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                            {{ form.terrasse }}
+                            <label for="{{ form.terrasse.id_for_label }}" class="ml-3 flex items-center cursor-pointer">
+                                <i class="fas fa-home text-green-600 mr-2"></i>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">Terrasse</div>
+                                    <div class="text-xs text-gray-500">Espace extérieur ouvert</div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -436,6 +496,7 @@
         </form>
 
         <!-- Informations supplémentaires pour modification -->
+<!-- Informations supplémentaires pour modification -->
         {% if action == "Modifier" and objet %}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 mt-8">
             <div class="px-6 py-4 border-b border-gray-200">
@@ -446,18 +507,37 @@
                     <div>
                         <p class="text-sm text-gray-500">Photos</p>
                         <p class="text-lg font-medium text-gray-900">{{ objet.photos.count }}</p>
-                        <a href="{% url 'repavi_admin:photos_list' %}?maison={{ objet.pk }}" 
-                           class="text-sm text-blue-600 hover:text-blue-800">
-                            Gérer les photos <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
+                        {% url 'repavi_admin:photos_list' as photos_url %}
+                        {% if photos_url %}
+                            <a href="{{ photos_url }}?maison={{ objet.pk }}" 
+                               class="text-sm text-blue-600 hover:text-blue-800">
+                                Gérer les photos <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        {% else %}
+                            <span class="text-sm text-gray-500">Gestion des photos</span>
+                        {% endif %}
                     </div>
                     <div>
                         <p class="text-sm text-gray-500">Réservations</p>
-                        <p class="text-lg font-medium text-gray-900">{{ objet.reservations.count }}</p>
-                        <a href="{% url 'repavi_admin:reservations_list' %}?maison={{ objet.pk }}" 
-                           class="text-sm text-blue-600 hover:text-blue-800">
-                            Voir les réservations <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
+                        {% if objet.reservations.count %}
+                            <p class="text-lg font-medium text-gray-900">{{ objet.reservations.count }}</p>
+                        {% else %}
+                            <p class="text-lg font-medium text-gray-900">0</p>
+                        {% endif %}
+                        
+                        {% if reservations_available %}
+                            {% url 'reservations:mes_reservations' as reservations_url %}
+                            {% if reservations_url %}
+                                <a href="{{ reservations_url }}?maison={{ objet.pk }}" 
+                                   class="text-sm text-blue-600 hover:text-blue-800">
+                                    Voir les réservations <i class="fas fa-arrow-right ml-1"></i>
+                                </a>
+                            {% else %}
+                                <span class="text-sm text-gray-500">Voir les réservations</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-sm text-gray-500">Module réservations indisponible</span>
+                        {% endif %}
                     </div>
                     <div>
                         <p class="text-sm text-gray-500">Page publique</p>
@@ -470,7 +550,7 @@
             </div>
         </div>
         {% endif %}
-    </div>
+        </div>
 {% endblock %}
 
 {% block extra_css %}
@@ -546,6 +626,20 @@
                 .replace(/-+/g, '-')
                 .replace(/^-|-$/g, '');
             slugField.value = slug;
+        }
+    });
+
+    // Auto-génération du numéro à partir du nom (optionnel)
+    document.querySelector('input[name*="nom"]').addEventListener('input', function() {
+        const numeroField = document.querySelector('input[name*="numero"]');
+        if (numeroField && !numeroField.value) {
+            // Générer un numéro simple basé sur les premières lettres + timestamp
+            const nom = this.value.trim();
+            if (nom.length >= 2) {
+                const prefix = nom.substring(0, 2).toUpperCase();
+                const timestamp = Date.now().toString().slice(-3);
+                numeroField.value = `${prefix}${timestamp}`;
+            }
         }
     });
 
@@ -625,6 +719,22 @@
 
         if (capaciteField) capaciteField.addEventListener('input', validateCapacite);
         if (chambresField) chambresField.addEventListener('input', validateCapacite);
+
+        // Validation du numéro de maison (format)
+        const numeroField = document.querySelector('input[name*="numero"]');
+        if (numeroField) {
+            numeroField.addEventListener('input', function() {
+                const value = this.value.trim();
+                // Permettre lettres, chiffres et tirets
+                const validFormat = /^[A-Za-z0-9-]+$/.test(value);
+                
+                if (value && !validFormat) {
+                    this.setCustomValidity('Le numéro ne peut contenir que des lettres, chiffres et tirets');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        }
     });
 
     // Animation des sections

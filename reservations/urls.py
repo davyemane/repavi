@@ -6,6 +6,10 @@ from . import views
 app_name = 'reservations'
 
 urlpatterns = [
+
+    path('', views.reservations_dashboard, name='dashboard'),
+    path('dashboard/', views.reservations_dashboard, name='dashboard_alt'),
+
     # ======== URLS PUBLIQUES ========
     path('recherche/', views.recherche_disponibilite, name='recherche_disponibilite'),
     path('reserver/<slug:maison_slug>/', views.reserver_maison, name='reserver_maison'),

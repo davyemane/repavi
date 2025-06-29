@@ -6,8 +6,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils import timezone
 from decimal import Decimal, ROUND_HALF_UP
-from datetime import datetime, timedelta
-import uuid
+from datetime import timedelta
 import string
 import random
 
@@ -408,49 +407,50 @@ class Reservation(models.Model):
         super().save(*args, **kwargs)
     
     def clean(self):
-        """Validation personnalisée"""
-        errors = {}
-        
-        # Vérifier les dates
-        if self.date_debut and self.date_fin:
-            if self.date_debut >= self.date_fin:
-                errors['date_fin'] = "La date de fin doit être après la date de début."
+            """Validation personnalisée"""
+            errors = {}
             
-            if self.date_debut < timezone.now().date():
-                errors['date_debut'] = "La date de début ne peut pas être dans le passé."
+            # Vérifier les dates
+            if self.date_debut and self.date_fin:
+                if self.date_debut >= self.date_fin:
+                    errors['date_fin'] = "La date de fin doit être après la date de début."
+                
+                if self.date_debut < timezone.now().date():
+                    errors['date_debut'] = "La date de début ne peut pas être dans le passé."
+                
+                # Durée minimum et maximum
+                duree = (self.date_fin - self.date_debut).days
+                if duree < 1:
+                    errors['date_fin'] = "La réservation doit durer au moins 1 nuit."
+                elif duree > 365:
+                    errors['date_fin'] = "La réservation ne peut pas dépasser 1 an."
             
-            # Durée minimum et maximum
-            duree = (self.date_fin - self.date_debut).days
-            if duree < 1:
-                errors['date_fin'] = "La réservation doit durer au moins 1 nuit."
-            elif duree > 365:
-                errors['date_fin'] = "La réservation ne peut pas dépasser 1 an."
-        
-        # Vérifier la capacité
-        if self.maison and self.nombre_personnes:
-            if self.nombre_personnes > self.maison.capacite_personnes:
-                errors['nombre_personnes'] = f"Le nombre de personnes ne peut pas dépasser la capacité de la maison ({self.maison.capacite_personnes})."
-        
-        # Vérifier la disponibilité
-        if self.maison and self.date_debut and self.date_fin:
-            if not Reservation.objects.verifier_disponibilite(
-                self.maison, 
-                self.date_debut, 
-                self.date_fin, 
-                exclude_id=self.pk
-            ):
-                errors['__all__'] = "Cette maison n'est pas disponible pour ces dates."
-        
-        # Vérifier que la maison est disponible à la location
-        if self.maison and not self.maison.disponible:
-            errors['maison'] = "Cette maison n'est pas disponible à la location."
-        
-        # Vérifier le mode de paiement et l'acompte
-        if self.mode_paiement == 'acompte' and not self.montant_acompte:
-            errors['montant_acompte'] = "Le montant de l'acompte est requis pour ce mode de paiement."
-        
-        if errors:
-            raise ValidationError(errors)
+            # Vérifier la capacité SEULEMENT si maison est définie
+            if hasattr(self, 'maison') and self.maison and self.nombre_personnes:
+                if self.nombre_personnes > self.maison.capacite_personnes:
+                    errors['nombre_personnes'] = f"Le nombre de personnes ne peut pas dépasser la capacité de la maison ({self.maison.capacite_personnes})."
+            
+            # Vérifier la disponibilité SEULEMENT si maison est définie
+            if hasattr(self, 'maison') and self.maison and self.date_debut and self.date_fin:
+                if not Reservation.objects.verifier_disponibilite(
+                    self.maison, 
+                    self.date_debut, 
+                    self.date_fin, 
+                    exclude_id=self.pk
+                ):
+                    errors['__all__'] = "Cette maison n'est pas disponible pour ces dates."
+            
+            # Vérifier que la maison est disponible à la location SEULEMENT si maison est définie
+            if hasattr(self, 'maison') and self.maison and not self.maison.disponible:
+                errors['maison'] = "Cette maison n'est pas disponible à la location."
+            
+            # Vérifier le mode de paiement et l'acompte
+            if self.mode_paiement == 'acompte' and not self.montant_acompte:
+                errors['montant_acompte'] = "Le montant de l'acompte est requis pour ce mode de paiement."
+            
+            if errors:
+                raise ValidationError(errors)
+
     
     def _calculer_totaux(self):
         """Calcule les totaux de la réservation"""

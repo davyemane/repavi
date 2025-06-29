@@ -18,6 +18,20 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="{% url 'home:index' %}" class="text-gray-700 hover:text-gray-900 font-medium transition-colors">Accueil</a>
                     <a href="{% url 'home:maisons_list' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
+                    
+                    <!-- Nouveau lien vers les réservations -->
+                    {% if reservations_available %}
+                        <a href="{% url 'home:maisons_reservation' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                            <i class="fas fa-calendar-check mr-1"></i>Réserver
+                        </a>
+                        
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'reservations:mes_reservations' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                                <i class="fas fa-list mr-1"></i>Mes Réservations
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                    
                     <a href="{% url 'home:apropos' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">À propos</a>
                     <a href="{% url 'home:contact' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Contact</a>
                     
@@ -60,6 +74,11 @@
                                         <a href="{% url 'users:dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                                             <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
                                         </a>
+                                        {% if reservations_available %}
+                                            <a href="{% url 'reservations:dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                                <i class="fas fa-calendar mr-2"></i>Réservations
+                                            </a>
+                                        {% endif %}
                                         <hr class="my-1">
                                         <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                                             <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
@@ -129,14 +148,26 @@
                                 Gérer les maisons
                             </a>
                         {% else %}
-                            <a href="{% url 'home:maisons_list' %}" 
-                               class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
-                                Parcourir les maisons
-                            </a>
-                            <a href="{% url 'users:dashboard_locataire' %}" 
-                               class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
-                                Mes réservations
-                            </a>
+                            <!-- Boutons pour les clients -->
+                            {% if reservations_available %}
+                                <a href="{% url 'home:maisons_reservation' %}" 
+                                   class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                    <i class="fas fa-calendar-check mr-2"></i>Réserver maintenant
+                                </a>
+                                <a href="{% url 'reservations:mes_reservations' %}" 
+                                   class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
+                                    Mes réservations
+                                </a>
+                            {% else %}
+                                <a href="{% url 'home:maisons_list' %}" 
+                                   class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                    Parcourir les maisons
+                                </a>
+                                <a href="{% url 'users:dashboard_locataire' %}" 
+                                   class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
+                                    Mon espace
+                                </a>
+                            {% endif %}
                         {% endif %}
                     </div>
                 {% else %}
@@ -148,10 +179,17 @@
                         Des maisons d'exception soigneusement sélectionnées pour vos séjours inoubliables
                     </p>
                     <div class="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
-                        <a href="{% url 'home:maisons_list' %}" 
-                           class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
-                            Découvrir nos maisons
-                        </a>
+                        {% if reservations_available %}
+                            <a href="{% url 'home:maisons_reservation' %}" 
+                               class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                <i class="fas fa-search mr-2"></i>Réserver une maison
+                            </a>
+                        {% else %}
+                            <a href="{% url 'home:maisons_list' %}" 
+                               class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                Découvrir nos maisons
+                            </a>
+                        {% endif %}
                         <a href="{% url 'users:register' %}" 
                            class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
                             Créer un compte
@@ -159,6 +197,47 @@
                     </div>
                 {% endif %}
             </div>
+            
+            <!-- Formulaire de recherche rapide pour les réservations -->
+            {% if reservations_available and not user.est_proprietaire and not user.est_admin %}
+            <div class="max-w-4xl mx-auto mt-16">
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                    <h3 class="text-white text-lg font-semibold mb-4 text-center">Recherche rapide</h3>
+                    <form action="{% url 'home:maisons_reservation' %}" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-white/80 text-sm mb-2">Arrivée</label>
+                            <input type="date" name="date_debut" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-900 border-0 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                                   min="{% now 'Y-m-d' %}">
+                        </div>
+                        <div>
+                            <label class="block text-white/80 text-sm mb-2">Départ</label>
+                            <input type="date" name="date_fin" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-900 border-0 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                                   min="{% now 'Y-m-d' %}">
+                        </div>
+                        <div>
+                            <label class="block text-white/80 text-sm mb-2">Voyageurs</label>
+                            <select name="capacite" 
+                                    class="w-full px-4 py-3 rounded-lg bg-white/90 text-gray-900 border-0 focus:outline-none focus:ring-2 focus:ring-yellow-300">
+                                <option value="">Nombre de personnes</option>
+                                <option value="1">1 personne</option>
+                                <option value="2">2 personnes</option>
+                                <option value="3">3 personnes</option>
+                                <option value="4">4 personnes</option>
+                                <option value="5">5+ personnes</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" 
+                                    class="w-full bg-yellow-400 text-gray-900 py-3 px-6 rounded-lg font-semibold hover:bg-yellow-300 transition-colors">
+                                <i class="fas fa-search mr-2"></i>Rechercher
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </section>
 
@@ -180,9 +259,11 @@
                 </div>
                 <div class="text-center group">
                     <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
-                        {{ stats.satisfaction_client }}%
+                        {% if reservations_available %}{{ stats.total_reservations }}+{% else %}{{ stats.satisfaction_client }}%{% endif %}
                     </div>
-                    <div class="text-gray-600 font-medium">Satisfaction</div>
+                    <div class="text-gray-600 font-medium">
+                        {% if reservations_available %}Réservations{% else %}Satisfaction{% endif %}
+                    </div>
                 </div>
                 <div class="text-center group">
                     <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
@@ -208,7 +289,8 @@
                 {% for maison in maisons_featured %}
                 <div class="bg-white rounded-2xl overflow-hidden soft-shadow hover-lift">
                     <div class="relative">
-                        {% if maison.photo_principale %}
+
+                        {% if maison.photo_principale and maison.photo_principale.url %}
                             <img src="{{ maison.photo_principale.url }}" 
                                  alt="{{ maison.nom }}" 
                                  class="w-full h-64 object-cover">
@@ -217,7 +299,7 @@
                                 <i class="fas fa-home text-3xl text-gray-400"></i>
                             </div>
                         {% endif %}
-                        
+                                                
                         {% if maison.categorie %}
                         <div class="absolute top-4 left-4">
                             <span class="bg-white/90 text-gray-700 px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
@@ -226,11 +308,26 @@
                         </div>
                         {% endif %}
                         
-                        <div class="absolute top-4 right-4">
-                            <button class="bg-white/90 p-2 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
-                                <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
-                            </button>
-                        </div>
+                        <!-- Indicateur de disponibilité pour réservation -->
+                        {% if reservations_available %}
+                            <div class="absolute top-4 right-4">
+                                {% if maison.disponible and maison.statut_occupation == 'libre' %}
+                                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-check mr-1"></i>Disponible
+                                    </span>
+                                {% else %}
+                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-times mr-1"></i>Occupée
+                                    </span>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="absolute top-4 right-4">
+                                <button class="bg-white/90 p-2 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
+                                    <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
+                                </button>
+                            </div>
+                        {% endif %}
                     </div>
                     
                     <div class="p-6">
@@ -253,10 +350,31 @@
                                 {{ maison.prix_par_nuit }}€
                                 <span class="text-sm font-normal text-gray-500">/nuit</span>
                             </div>
-                            <a href="{% url 'home:maison_detail' maison.slug %}" 
-                               class="bg-gray-900 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
-                                Voir détails
-                            </a>
+                            
+                            <div class="flex space-x-2">
+                                <a href="{% url 'home:maison_detail' maison.slug %}" 
+                                   class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-300 transition-colors">
+                                    Détails
+                                </a>
+                                
+                                {% if reservations_available and maison.disponible and maison.statut_occupation == 'libre' %}
+                                    {% if user.is_authenticated and user.is_client %}
+                                        <a href="{% url 'home:initier_reservation' maison.slug %}" 
+                                           class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-calendar-plus mr-1"></i>Réserver
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'users:login' %}?next={% url 'home:initier_reservation' maison.slug %}" 
+                                           class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-calendar-plus mr-1"></i>Réserver
+                                        </a>
+                                    {% endif %}
+                                {% elif reservations_available %}
+                                    <span class="bg-gray-400 text-white px-4 py-2 rounded-full text-sm font-medium cursor-not-allowed">
+                                        Non disponible
+                                    </span>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -269,11 +387,26 @@
             </div>
 
             <div class="text-center mt-12">
-                <a href="{% url 'home:maisons_list' %}" 
-                   class="inline-flex items-center bg-gray-900 text-white px-8 py-4 rounded-full font-semibold hover:bg-gray-800 transition-colors">
-                    Voir toutes nos maisons
-                    <i class="fas fa-arrow-right ml-2"></i>
-                </a>
+                {% if reservations_available %}
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="{% url 'home:maisons_list' %}" 
+                           class="inline-flex items-center bg-gray-200 text-gray-800 px-8 py-4 rounded-full font-semibold hover:bg-gray-300 transition-colors">
+                            Voir toutes nos maisons
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                        <a href="{% url 'home:maisons_reservation' %}" 
+                           class="inline-flex items-center bg-blue-600 text-white px-8 py-4 rounded-full font-semibold hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-calendar-check mr-2"></i>
+                            Réserver maintenant
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{% url 'home:maisons_list' %}" 
+                       class="inline-flex items-center bg-gray-900 text-white px-8 py-4 rounded-full font-semibold hover:bg-gray-800 transition-colors">
+                        Voir toutes nos maisons
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                {% endif %}
             </div>
         </div>
     </section>
@@ -291,12 +424,24 @@
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {% for ville in villes_populaires %}
-                <a href="{% url 'home:maisons_list' %}?ville={{ ville.id }}" 
-                   class="bg-gray-50 hover:bg-gray-100 p-6 rounded-xl text-center transition-colors group subtle-border">
-                    <i class="fas fa-map-marker-alt text-2xl text-gray-400 mb-3 group-hover:text-indigo-600 transition-colors"></i>
-                    <div class="font-semibold text-gray-900 mb-1">{{ ville.nom }}</div>
-                    <div class="text-sm text-gray-500">{{ ville.nombre_maisons }} maison{{ ville.nombre_maisons|pluralize }}</div>
-                </a>
+                {% if reservations_available %}
+                    <a href="{% url 'home:maisons_reservation' %}?ville={{ ville.id }}" 
+                       class="bg-gray-50 hover:bg-blue-50 p-6 rounded-xl text-center transition-colors group subtle-border">
+                        <i class="fas fa-map-marker-alt text-2xl text-gray-400 mb-3 group-hover:text-blue-600 transition-colors"></i>
+                        <div class="font-semibold text-gray-900 mb-1">{{ ville.nom }}</div>
+                        <div class="text-sm text-gray-500">{{ ville.nombre_maisons }} maison{{ ville.nombre_maisons|pluralize }}</div>
+                        <div class="text-xs text-blue-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fas fa-calendar-check mr-1"></i>Réserver
+                        </div>
+                    </a>
+                {% else %}
+                    <a href="{% url 'home:maisons_list' %}?ville={{ ville.id }}" 
+                       class="bg-gray-50 hover:bg-gray-100 p-6 rounded-xl text-center transition-colors group subtle-border">
+                        <i class="fas fa-map-marker-alt text-2xl text-gray-400 mb-3 group-hover:text-indigo-600 transition-colors"></i>
+                        <div class="font-semibold text-gray-900 mb-1">{{ ville.nom }}</div>
+                        <div class="text-sm text-gray-500">{{ ville.nombre_maisons }} maison{{ ville.nombre_maisons|pluralize }}</div>
+                    </a>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>
@@ -319,15 +464,33 @@
                         <i class="fas fa-shield-alt text-2xl text-indigo-600"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Sécurisé & Fiable</h3>
-                    <p class="text-gray-600 leading-relaxed">Toutes nos maisons sont vérifiées et nos paiements sont 100% sécurisés</p>
+                    <p class="text-gray-600 leading-relaxed">
+                        {% if reservations_available %}
+                            Toutes nos maisons sont vérifiées et nos paiements sont 100% sécurisés
+                        {% else %}
+                            Toutes nos maisons sont vérifiées et nos processus sont 100% sécurisés
+                        {% endif %}
+                    </p>
                 </div>
 
                 <div class="text-center group">
                     <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-200 transition-colors">
-                        <i class="fas fa-clock text-2xl text-green-600"></i>
+                        {% if reservations_available %}
+                            <i class="fas fa-calendar-check text-2xl text-green-600"></i>
+                        {% else %}
+                            <i class="fas fa-clock text-2xl text-green-600"></i>
+                        {% endif %}
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Check-in Instantané</h3>
-                    <p class="text-gray-600 leading-relaxed">Accès immédiat à votre logement grâce à notre système innovant</p>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                        {% if reservations_available %}Réservation Instantanée{% else %}Check-in Instantané{% endif %}
+                    </h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        {% if reservations_available %}
+                            Réservez en quelques clics et recevez une confirmation immédiate
+                        {% else %}
+                            Accès immédiat à votre logement grâce à notre système innovant
+                        {% endif %}
+                    </p>
                 </div>
 
                 <div class="text-center group">
@@ -348,7 +511,11 @@
                 <div class="md:col-span-2">
                     <h3 class="text-2xl font-bold mb-4">RepAvi</h3>
                     <p class="text-gray-300 mb-6 max-w-md">
-                        La plateforme de référence pour la location de maisons d'exception.
+                        {% if reservations_available %}
+                            La plateforme de référence pour la location et réservation de maisons d'exception.
+                        {% else %}
+                            La plateforme de référence pour la location de maisons d'exception.
+                        {% endif %}
                     </p>
                     <div class="flex space-x-4">
                         <a href="#" class="text-gray-400 hover:text-white transition-colors">
@@ -367,6 +534,9 @@
                     <h4 class="text-lg font-semibold mb-4">Navigation</h4>
                     <ul class="space-y-3">
                         <li><a href="{% url 'home:maisons_list' %}" class="text-gray-300 hover:text-white transition-colors">Nos maisons</a></li>
+                        {% if reservations_available %}
+                            <li><a href="{% url 'home:maisons_reservation' %}" class="text-gray-300 hover:text-white transition-colors">Réserver</a></li>
+                        {% endif %}
                         <li><a href="{% url 'home:apropos' %}" class="text-gray-300 hover:text-white transition-colors">À propos</a></li>
                         <li><a href="{% url 'home:contact' %}" class="text-gray-300 hover:text-white transition-colors">Contact</a></li>
                     </ul>
@@ -379,6 +549,9 @@
                         <li><a href="{% url 'home:contact' %}" class="text-gray-300 hover:text-white transition-colors">Nous contacter</a></li>
                         {% if not user.is_authenticated %}
                             <li><a href="{% url 'users:register' %}" class="text-gray-300 hover:text-white transition-colors">Devenir hôte</a></li>
+                        {% endif %}
+                        {% if reservations_available and user.is_authenticated %}
+                            <li><a href="{% url 'reservations:mes_reservations' %}" class="text-gray-300 hover:text-white transition-colors">Mes réservations</a></li>
                         {% endif %}
                     </ul>
                 </div>

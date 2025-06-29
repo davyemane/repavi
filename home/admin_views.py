@@ -60,7 +60,7 @@ except ImportError:
 # Imports des modèles
 from .models import Ville, CategorieMaison, Maison, PhotoMaison
 from .forms import (
-    VilleForm, CategorieMaisonForm, MaisonForm, 
+    SuperAdminMaisonForm, VilleForm, CategorieMaisonForm, MaisonForm, 
     PhotoMaisonForm, MaisonFilterForm
 )
 
@@ -1077,27 +1077,84 @@ def admin_maisons_list(request):
     
     return render(request, 'admin/maisons/list.html', context)
 
+
 @login_required
-@gestionnaire_required
+@gestionnaire_required  
 def admin_maison_create(request):
-    """Créer une nouvelle maison"""
+    """Créer une nouvelle maison - adaptée selon le type d'utilisateur"""
+    
+    # Choisir le bon formulaire selon le type d'utilisateur
+    if hasattr(request.user, 'is_super_admin') and request.user.is_super_admin():
+        FormClass = SuperAdminMaisonForm
+        is_super_admin = True
+    else:
+        FormClass = MaisonForm
+        is_super_admin = False
+    
     if request.method == 'POST':
-        form = MaisonForm(request.POST, user=request.user)
+        form = FormClass(request.POST, user=request.user)
         if form.is_valid():
             try:
-                maison = form.save()
-                messages.success(request, f'La maison "{maison.nom}" a été créée avec succès.')
-                return redirect('home:admin_maisons_list')
+                # Sauvegarder sans commit pour pouvoir assigner le gestionnaire
+                maison = form.save(commit=False)
+                
+                # Pour les gestionnaires normaux, assigner automatiquement l'utilisateur connecté
+                if not is_super_admin:
+                    maison.gestionnaire = request.user
+                
+                # Pour les super admins, vérifier que le gestionnaire est défini
+                elif not hasattr(maison, 'gestionnaire') or not maison.gestionnaire:
+                    messages.error(request, 'Veuillez sélectionner un gestionnaire.')
+                    context = {
+                        'form': form,
+                        'action': 'Créer',
+                        'title': 'Créer une nouvelle maison',
+                        'is_super_admin': is_super_admin
+                    }
+                    return render(request, 'admin/maisons/form.html', context)
+                
+                # Auto-générer le numéro si nécessaire
+                if not maison.numero:
+                    # Générer un numéro unique
+                    import time
+                    base_numero = f"M{int(time.time()) % 10000:04d}"
+                    numero = base_numero
+                    counter = 1
+                    while Maison.objects.filter(numero=numero).exists():
+                        numero = f"{base_numero}-{counter}"
+                        counter += 1
+                    maison.numero = numero
+                
+                # Générer le slug si nécessaire
+                if not maison.slug:
+                    base_slug = slugify(maison.nom)
+                    slug = base_slug
+                    counter = 1
+                    while Maison.objects.filter(slug=slug).exists():
+                        slug = f"{base_slug}-{counter}"
+                        counter += 1
+                    maison.slug = slug
+                
+                # Sauvegarder définitivement
+                maison.save()
+                
+                messages.success(request, f'La maison "{maison.nom}" (N° {maison.numero}) a été créée avec succès.')
+                return redirect('repavi_admin:maisons_list')
+                
             except Exception as e:
                 messages.error(request, f'Erreur lors de la création : {str(e)}')
+                print(f"Erreur détaillée : {e}")
         else:
             print("Erreurs du formulaire :", form.errors)
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
     else:
-        form = MaisonForm(user=request.user)
+        form = FormClass(user=request.user)
 
     context = {
         'form': form,
-        'action': 'Créer'
+        'action': 'Créer',
+        'title': 'Créer une nouvelle maison',
+        'is_super_admin': is_super_admin
     }
     return render(request, 'admin/maisons/form.html', context)
 
@@ -1110,19 +1167,46 @@ def admin_maison_edit(request, pk):
     # Vérifier les permissions
     if not maison.can_be_managed_by(request.user):
         messages.error(request, "Vous n'avez pas les droits pour modifier cette maison.")
-        return redirect('home:admin_maisons_list')
+        return redirect('repavi_admin:maisons_list')  # Correction de l'URL de redirection
+    
+    # Import sécurisé du module reservations
+    try:
+        from reservations.models import Reservation
+        RESERVATIONS_AVAILABLE = True
+    except ImportError:
+        RESERVATIONS_AVAILABLE = False
     
     if request.method == 'POST':
         form = MaisonForm(request.POST, instance=maison, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, f'La maison "{maison.nom}" a été modifiée avec succès.')
-            return redirect('home:admin_maisons_list')
+            return redirect('repavi_admin:maisons_list')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
     else:
         form = MaisonForm(instance=maison, user=request.user)
     
-    context = {'form': form, 'action': 'Modifier', 'objet': maison}
+    # Compter les réservations si le module est disponible
+    try:
+        if RESERVATIONS_AVAILABLE:
+            # Ajouter dynamiquement le compte de réservations
+            maison.reservations_count = Reservation.objects.filter(maison=maison).count()
+        else:
+            maison.reservations_count = 0
+    except:
+        maison.reservations_count = 0
+    
+    context = {
+        'form': form, 
+        'action': 'Modifier', 
+        'objet': maison,
+        'reservations_available': RESERVATIONS_AVAILABLE,
+        'is_super_admin': hasattr(request.user, 'is_super_admin') and request.user.is_super_admin()
+    }
+    
     return render(request, 'admin/maisons/form.html', context)
+
 
 @login_required
 @gestionnaire_required
