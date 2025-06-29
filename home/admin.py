@@ -1,6 +1,6 @@
 # home/admin.py
 from django.contrib import admin
-from .models import Ville, CategorieMaison, Maison, PhotoMaison, Reservation
+from .models import Ville, CategorieMaison, Maison, PhotoMaison
 
 # Configuration générale de l'admin Django
 admin.site.site_header = "RepAvi - Administration Django"
@@ -65,9 +65,3 @@ class PhotoMaisonAdmin(admin.ModelAdmin):
     list_filter = ['principale', 'maison']
     list_editable = ['principale', 'ordre']
 
-@admin.register(Reservation)
-class ReservationAdmin(admin.ModelAdmin):
-    list_display = ['maison', 'locataire', 'date_debut', 'date_fin', 'statut', 'prix_total']
-    list_filter = ['statut', 'date_creation']
-    search_fields = ['maison__nom', 'locataire__username']
-    date_hierarchy = 'date_debut'

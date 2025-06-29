@@ -18,18 +18,30 @@
 .nav-link.active::before {
     width: 100%;
 }
-</style>
 
+.glass-effect {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+#main-nav {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+</style>
 
 <nav class="glass-effect border-b border-white/20 fixed w-full z-50" id="main-nav">
     <div class="max-w-6xl mx-auto px-4">
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex items-center">
-                <!-- Logo image placeholder -->
                 <a href="{% url 'home:index' %}" class="flex items-center space-x-2">
-                    <!-- Replace src with your logo path -->
-                    <img src="{% static 'images/repavi_lodge_dark.png' %}" alt="re" class="h-8 w-8 object-contain" />
+                    <img src="{% static 'images/repavi_lodge_dark.png' %}" alt="RepAvi" class="h-8 w-8 object-contain" />
                     <span class="text-xl font-bold text-gray-800 hover:text-indigo-600 transition-colors">
                         RepAvi
                     </span>
@@ -47,32 +59,47 @@
                 <a href="{% url 'home:index' %}" 
                     class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
                     {% if request.resolver_match.url_name == 'index' %}text-gray-900 font-semibold active{% endif %}">
-                        Accueil
+                    Accueil
                 </a>
 
                 <!-- Maisons -->
                 <a href="{% url 'home:maisons_list' %}"
-                class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
-                        {% if 'maisons' in request.resolver_match.url_name %}text-gray-900 font-semibold active{% endif %}">
+                   class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
+                   {% if request.resolver_match.url_name == 'maisons_list' %}text-gray-900 font-semibold active{% endif %}">
                     Maisons
                 </a>
 
+                <!-- Réservations (si disponible) -->
+                {% if reservations_available and not user.est_proprietaire and not user.est_admin %}
+                    <a href="{% url 'home:maisons_reservation' %}"
+                       class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
+                       {% if request.resolver_match.url_name == 'maisons_reservation' %}text-gray-900 font-semibold active{% endif %}">
+                        <i class="fas fa-calendar-check mr-1"></i>Réserver
+                    </a>
+                    
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'reservations:mes_reservations' %}"
+                           class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                            <i class="fas fa-list mr-1"></i>Mes Réservations
+                        </a>
+                    {% endif %}
+                {% endif %}
+
                 <!-- À propos -->
                 <a href="{% url 'home:apropos' %}"
-                class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
-                        {% if request.resolver_match.url_name == 'apropos' %}text-gray-900 font-semibold active{% endif %}">
+                   class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
+                   {% if request.resolver_match.url_name == 'apropos' %}text-gray-900 font-semibold active{% endif %}">
                     À propos
                 </a>
 
                 <!-- Contact -->
                 <a href="{% url 'home:contact' %}"
-                class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
-                        {% if request.resolver_match.url_name == 'contact' %}text-gray-900 font-semibold active{% endif %}">
+                   class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
+                   {% if request.resolver_match.url_name == 'contact' %}text-gray-900 font-semibold active{% endif %}">
                     Contact
                 </a>
             </div>
 
-            
             <!-- Menu utilisateur -->
             <div class="hidden md:flex items-center space-x-4">
                 {% if user.is_authenticated %}
@@ -183,6 +210,12 @@
                                             Mes biens
                                         </a>
                                     {% endif %}
+                                    {% if reservations_available %}
+                                        <a href="{% url 'reservations:dashboard' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                            <i class="fas fa-calendar mr-3 text-gray-400"></i>
+                                            Réservations
+                                        </a>
+                                    {% endif %}
                                 </div>
                                 
                                 <div class="border-t border-gray-200 py-2">
@@ -197,13 +230,12 @@
                 {% else %}
                     <!-- Utilisateur non connecté -->
                     <div class="flex items-center space-x-4">
-                       
-                        <a href="{% url 'users:register' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
-                            <!-- <i class="fas fa-user-plus mr-1"> -->
-
-                            </i>S'inscrire
+                        <a href="{% url 'users:login' %}" class="text-sm font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+                            Connexion<span aria-hidden="true">&nbsp;→</span>
                         </a>
-                         <a href="{% url 'users:login' %}" class="text-sm font-semibold text-gray-900">Connexion<span aria-hidden="true">&nbsp →</span></a>
+                        <a href="{% url 'users:register' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-user-plus mr-1"></i>S'inscrire
+                        </a>
                     </div>
                 {% endif %}
             </div>
@@ -219,10 +251,21 @@
     
     <!-- Menu mobile -->
     <div class="md:hidden bg-white border-t border-gray-200" id="mobile-menu" style="display: none;">
-
         <div class="px-4 py-3 space-y-3">
             <a href="{% url 'home:index' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
             <a href="{% url 'home:maisons_list' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
+            
+            {% if reservations_available and not user.est_proprietaire and not user.est_admin %}
+                <a href="{% url 'home:maisons_reservation' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                    <i class="fas fa-calendar-check mr-2"></i>Réserver
+                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'reservations:mes_reservations' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                        <i class="fas fa-list mr-2"></i>Mes Réservations
+                    </a>
+                {% endif %}
+            {% endif %}
+            
             <a href="{% url 'home:apropos' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">À propos</a>
             <a href="{% url 'home:contact' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Contact</a>
             
@@ -261,14 +304,18 @@
                 <a href="{% url 'users:profile' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
                     <i class="fas fa-user mr-2"></i>Profil
                 </a>
+                {% if reservations_available %}
+                    <a href="{% url 'reservations:dashboard' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                        <i class="fas fa-calendar mr-2"></i>Réservations
+                    </a>
+                {% endif %}
                 <a href="{% url 'users:logout' %}" class="block text-red-600 hover:text-red-700 font-medium transition-colors">
                     <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
                 </a>
             {% else %}
                 <hr class="border-gray-200">
-         
                 <a href="{% url 'users:login' %}" class="block text-gray-900 hover:text-gray-900 font-semibold transition-colors text-center border border-blue-200 rounded-lg px-4 py-2">
-                   Connexion <span aria-hidden="true">&nbsp →</span>
+                   Connexion <span aria-hidden="true">&nbsp;→</span>
                 </a>
                 <a href="{% url 'users:register' %}" class="block bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-center">
                     <i class="fas fa-user-plus mr-2"></i>S'inscrire
@@ -294,22 +341,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Close mobile menu when clicking outside
     document.addEventListener('click', function(event) {
-    if (
-        mobileMenu &&
-        !mobileMenu.contains(event.target) &&
-        !mobileMenuBtn.contains(event.target)
-    ) {
-        mobileMenu.style.display = 'none';
-    }
+        if (mobileMenu && !mobileMenu.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+            mobileMenu.style.display = 'none';
+        }
     });
+    
+    // Close mobile menu on window resize
     window.addEventListener('resize', function () {
         if (window.innerWidth >= 768) {
             mobileMenu.style.display = 'none';
         }
-        });
+    });
 
-    
     // Notifications dropdown
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationsDropdown = document.getElementById('notifications-dropdown');
@@ -321,44 +366,24 @@ document.addEventListener('DOMContentLoaded', function() {
             notificationsDropdown.classList.toggle('invisible');
         });
         
-        // Fermer en cliquant ailleurs
+        // Close notifications when clicking elsewhere
         document.addEventListener('click', function() {
             notificationsDropdown.classList.add('opacity-0');
             notificationsDropdown.classList.add('invisible');
         });
     }
     
-    // Navigation transparente au scroll
+    // Navigation background effect on scroll
     const nav = document.getElementById('main-nav');
-    let lastScrollY = window.scrollY;
     
     window.addEventListener('scroll', function() {
         if (window.scrollY > 100) {
             nav.classList.add('bg-white/90');
             nav.classList.remove('glass-effect');
         } else {
-            nav.classList.remove('bg-white/95');
+            nav.classList.remove('bg-white/90');
             nav.classList.add('glass-effect');
         }
-        
-      
     });
 });
 </script>
-
-<style>
-.glass-effect {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-#main-nav {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
-}
-</style>

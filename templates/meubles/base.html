@@ -1,0 +1,19 @@
+{# templates/meubles/meubles_base.html #}
+{% extends "admin/base.html" %}
+
+{% block title %}Gestion des Meubles | RepAvi Admin{% endblock %}
+
+{% block page_title %}Gestion des Meubles{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm text-gray-500">
+        <a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-blue-600">Accueil</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-700">Meubles</span>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    {# Ici, les vues meubles inséreront leur contenu #}
+    {{ block.super }}
+{% endblock %}

@@ -1,0 +1,482 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}Génération de Rapports{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    Générez des rapports détaillés sur vos meubles et inventaires
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <a href="{% url 'meubles:dashboard' %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Retour au dashboard
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- Types de rapports disponibles -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Inventaire complet -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer rapport-card" 
+             onclick="selectRapport('inventaire')">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-clipboard-list text-blue-600 text-xl"></i>
+                    </div>
+                    <input type="radio" name="rapport_type" value="inventaire" class="text-indigo-600">
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Inventaire Complet</h3>
+                <p class="text-sm text-gray-600">
+                    Liste détaillée de tous les meubles avec leur état, localisation et caractéristiques.
+                </p>
+                <div class="mt-4 text-xs text-gray-500">
+                    <i class="fas fa-chart-bar mr-1"></i>
+                    Statistiques incluses
+                </div>
+            </div>
+        </div>
+
+        <!-- Meubles défectueux -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer rapport-card" 
+             onclick="selectRapport('defectueux')">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <input type="radio" name="rapport_type" value="defectueux" class="text-indigo-600">
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Meubles Défectueux</h3>
+                <p class="text-sm text-gray-600">
+                    Rapport sur les meubles nécessitant des réparations ou remplacements.
+                </p>
+                <div class="mt-4 text-xs text-gray-500">
+                    <i class="fas fa-tools mr-1"></i>
+                    Actions recommandées
+                </div>
+            </div>
+        </div>
+
+        <!-- Vérifications requises -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer rapport-card" 
+             onclick="selectRapport('verification')">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                        <i class="fas fa-clock text-orange-600 text-xl"></i>
+                    </div>
+                    <input type="radio" name="rapport_type" value="verification" class="text-indigo-600">
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Vérifications Requises</h3>
+                <p class="text-sm text-gray-600">
+                    Meubles nécessitant une vérification périodique ou n'ayant jamais été vérifiés.
+                </p>
+                <div class="mt-4 text-xs text-gray-500">
+                    <i class="fas fa-calendar-check mr-1"></i>
+                    Planning de maintenance
+                </div>
+            </div>
+        </div>
+
+        <!-- Évaluation financière -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer rapport-card" 
+             onclick="selectRapport('valeur')">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                    </div>
+                    <input type="radio" name="rapport_type" value="valeur" class="text-indigo-600">
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Évaluation Financière</h3>
+                <p class="text-sm text-gray-600">
+                    Analyse de la valeur du patrimoine mobilier avec calculs de dépréciation.
+                </p>
+                <div class="mt-4 text-xs text-gray-500">
+                    <i class="fas fa-chart-line mr-1"></i>
+                    Évolution des valeurs
+                </div>
+            </div>
+        </div>
+
+        <!-- Historique des états -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer rapport-card" 
+             onclick="selectRapport('historique')">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-history text-purple-600 text-xl"></i>
+                    </div>
+                    <input type="radio" name="rapport_type" value="historique" class="text-indigo-600">
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Historique des États</h3>
+                <p class="text-sm text-gray-600">
+                    Évolution des états des meubles et historique des interventions.
+                </p>
+                <div class="mt-4 text-xs text-gray-500">
+                    <i class="fas fa-timeline mr-1"></i>
+                    Chronologie détaillée
+                </div>
+            </div>
+        </div>
+
+        <!-- Rapport personnalisé -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer rapport-card" 
+             onclick="selectRapport('personnalise')">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="h-12 w-12 rounded-lg bg-indigo-100 flex items-center justify-center">
+                        <i class="fas fa-cogs text-indigo-600 text-xl"></i>
+                    </div>
+                    <input type="radio" name="rapport_type" value="personnalise" class="text-indigo-600">
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Rapport Personnalisé</h3>
+                <p class="text-sm text-gray-600">
+                    Créez un rapport sur mesure avec vos propres critères et filtres.
+                </p>
+                <div class="mt-4 text-xs text-gray-500">
+                    <i class="fas fa-sliders-h mr-1"></i>
+                    Options avancées
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire de configuration -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden" id="configForm" style="display: none;">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-cog text-indigo-600 mr-2"></i>
+                Configuration du rapport
+            </h3>
+        </div>
+        
+        <form method="post" class="p-6" id="rapportForm">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Type de rapport (caché, sera défini par JS) -->
+                <input type="hidden" id="selectedRapportType" name="type_rapport" value="">
+                
+                <!-- Filtres communs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Maison -->
+                    <div>
+                        <label for="{{ form.maison.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.maison.label }}
+                        </label>
+                        {{ form.maison }}
+                        <div class="mt-1 text-xs text-gray-500">
+                            Laisser vide pour inclure toutes les maisons
+                        </div>
+                    </div>
+                    
+                    <!-- Format d'export -->
+                    <div>
+                        <label for="{{ form.format_export.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.format_export.label }}
+                        </label>
+                        {{ form.format_export }}
+                    </div>
+                </div>
+                
+                <!-- Dates (pour certains rapports) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="dateFilters" style="display: none;">
+                    <div>
+                        <label for="{{ form.date_debut.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.date_debut.label }}
+                        </label>
+                        {{ form.date_debut }}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.date_fin.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.date_fin.label }}
+                        </label>
+                        {{ form.date_fin }}
+                    </div>
+                </div>
+                
+                <!-- Options spécifiques -->
+                <div id="specificOptions">
+                    <!-- Sera rempli dynamiquement selon le type de rapport -->
+                </div>
+                
+                <!-- Aperçu du contenu -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-blue-800 mb-2">Aperçu du contenu</h4>
+                    <div id="rapportPreview" class="text-sm text-blue-700">
+                        Sélectionnez un type de rapport pour voir l'aperçu...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Boutons d'action -->
+            <div class="mt-8 flex items-center justify-between">
+                <button type="button" onclick="resetForm()" 
+                        class="text-sm text-gray-600 hover:text-gray-800 transition-colors">
+                    <i class="fas fa-undo mr-1"></i>
+                    Recommencer
+                </button>
+                
+                <div class="flex space-x-3">
+                    <button type="button" onclick="previewRapport()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>
+                        Aperçu
+                    </button>
+                    
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-download mr-2"></i>
+                        Générer le rapport
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Guide d'utilisation -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Comment utiliser les rapports</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li>Sélectionnez le type de rapport qui vous intéresse</li>
+                        <li>Configurez les filtres selon vos besoins</li>
+                        <li>Choisissez le format d'export (HTML pour aperçu, PDF/Excel pour téléchargement)</li>
+                        <li>Générez le rapport et analysez les données</li>
+                        <li>Utilisez les rapports pour optimiser la gestion de vos meubles</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const rapportConfigs = {
+    inventaire: {
+        title: 'Inventaire Complet',
+        preview: 'Liste complète de tous les meubles avec statistiques par état, pièce et type. Inclut les photos et observations.',
+        dateRequired: false,
+        options: []
+    },
+    defectueux: {
+        title: 'Meubles Défectueux',
+        preview: 'Rapport détaillé sur tous les meubles défectueux ou hors service. Inclut les coûts de réparation estimés.',
+        dateRequired: true,
+        options: [
+            {label: 'Inclure les coûts estimés', name: 'inclure_couts', type: 'checkbox'},
+            {label: 'Inclure les photos des défauts', name: 'inclure_photos', type: 'checkbox'}
+        ]
+    },
+    verification: {
+        title: 'Vérifications Requises',
+        preview: 'Liste des meubles nécessitant une vérification avec planning de maintenance recommandé.',
+        dateRequired: false,
+        options: [
+            {label: 'Seuil de vérification (jours)', name: 'seuil_jours', type: 'number', value: 180},
+            {label: 'Générer planning', name: 'generer_planning', type: 'checkbox'}
+        ]
+    },
+    valeur: {
+        title: 'Évaluation Financière',
+        preview: 'Analyse financière complète avec valeurs d\'achat, actuelles, dépréciation et évolution du patrimoine.',
+        dateRequired: true,
+        options: [
+            {label: 'Inclure graphiques d\'évolution', name: 'inclure_graphiques', type: 'checkbox'},
+            {label: 'Détail par catégorie', name: 'detail_categorie', type: 'checkbox'}
+        ]
+    },
+    historique: {
+        title: 'Historique des États',
+        preview: 'Chronologie des changements d\'état avec coûts associés et analyses de tendances.',
+        dateRequired: true,
+        options: [
+            {label: 'Inclure les motifs', name: 'inclure_motifs', type: 'checkbox'},
+            {label: 'Analyse de tendance', name: 'analyse_tendance', type: 'checkbox'}
+        ]
+    },
+    personnalise: {
+        title: 'Rapport Personnalisé',
+        preview: 'Rapport configurable selon vos critères spécifiques.',
+        dateRequired: true,
+        options: [
+            {label: 'Inclure photos', name: 'inclure_photos', type: 'checkbox'},
+            {label: 'Inclure historique', name: 'inclure_historique', type: 'checkbox'},
+            {label: 'Inclure valeurs', name: 'inclure_valeurs', type: 'checkbox'},
+            {label: 'Grouper par pièce', name: 'grouper_piece', type: 'checkbox'}
+        ]
+    }
+};
+
+function selectRapport(type) {
+    // Mettre à jour les radio buttons
+    document.querySelectorAll('input[name="rapport_type"]').forEach(radio => {
+        radio.checked = radio.value === type;
+    });
+    
+    // Mettre à jour le style des cartes
+    document.querySelectorAll('.rapport-card').forEach(card => {
+        card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+    });
+    
+    event.currentTarget.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+    
+    // Configurer le formulaire
+    configureForm(type);
+    
+    // Afficher le formulaire de configuration
+    document.getElementById('configForm').style.display = 'block';
+    document.getElementById('configForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function configureForm(type) {
+    const config = rapportConfigs[type];
+    if (!config) return;
+    
+    // Définir le type de rapport
+    document.getElementById('selectedRapportType').value = type;
+    
+    // Afficher/masquer les filtres de date
+    const dateFilters = document.getElementById('dateFilters');
+    dateFilters.style.display = config.dateRequired ? 'grid' : 'none';
+    
+    // Configurer les options spécifiques
+    const optionsContainer = document.getElementById('specificOptions');
+    optionsContainer.innerHTML = '';
+    
+    if (config.options.length > 0) {
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'bg-gray-50 border border-gray-200 rounded-lg p-4';
+        optionsDiv.innerHTML = '<h4 class="text-sm font-medium text-gray-900 mb-3">Options spécifiques</h4>';
+        
+        const optionsGrid = document.createElement('div');
+        optionsGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+        
+        config.options.forEach(option => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'flex items-center';
+            
+            if (option.type === 'checkbox') {
+                optionDiv.innerHTML = `
+                    <input type="checkbox" id="${option.name}" name="${option.name}" 
+                           class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                    <label for="${option.name}" class="ml-2 text-sm text-gray-700">${option.label}</label>
+                `;
+            } else if (option.type === 'number') {
+                optionDiv.innerHTML = `
+                    <label for="${option.name}" class="text-sm text-gray-700 mr-2">${option.label}:</label>
+                    <input type="number" id="${option.name}" name="${option.name}" value="${option.value || ''}"
+                           class="w-20 px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                `;
+            }
+            
+            optionsGrid.appendChild(optionDiv);
+        });
+        
+        optionsDiv.appendChild(optionsGrid);
+        optionsContainer.appendChild(optionsDiv);
+    }
+    
+    // Mettre à jour l'aperçu
+    updatePreview(type);
+}
+
+function updatePreview(type) {
+    const config = rapportConfigs[type];
+    const previewDiv = document.getElementById('rapportPreview');
+    
+    if (config) {
+        previewDiv.innerHTML = `
+            <div class="font-medium mb-1">${config.title}</div>
+            <div>${config.preview}</div>
+        `;
+    }
+}
+
+function resetForm() {
+    // Désélectionner toutes les cartes
+    document.querySelectorAll('.rapport-card').forEach(card => {
+        card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+    });
+    
+    document.querySelectorAll('input[name="rapport_type"]').forEach(radio => {
+        radio.checked = false;
+    });
+    
+    // Masquer le formulaire
+    document.getElementById('configForm').style.display = 'none';
+    
+    // Réinitialiser les champs
+    document.getElementById('rapportForm').reset();
+}
+
+function previewRapport() {
+    const type = document.getElementById('selectedRapportType').value;
+    if (!type) {
+        alert('Veuillez sélectionner un type de rapport');
+        return;
+    }
+    
+    // Ouvrir l'aperçu dans une nouvelle fenêtre
+    const formData = new FormData(document.getElementById('rapportForm'));
+    formData.set('format_export', 'html');
+    
+    // Simulation d'aperçu
+    alert('Aperçu du rapport en cours de développement. Le rapport sera généré directement.');
+}
+
+// Animation de soumission
+document.getElementById('rapportForm').addEventListener('submit', function(e) {
+    const type = document.getElementById('selectedRapportType').value;
+    if (!type) {
+        e.preventDefault();
+        alert('Veuillez sélectionner un type de rapport');
+        return;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Génération en cours...';
+    submitBtn.disabled = true;
+    
+    // Restaurer en cas d'erreur
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 10000);
+});
+
+// Validation des dates
+document.addEventListener('DOMContentLoaded', function() {
+    const dateDebut = document.querySelector('input[name="date_debut"]');
+    const dateFin = document.querySelector('input[name="date_fin"]');
+    
+    if (dateDebut && dateFin) {
+        dateDebut.addEventListener('change', function() {
+            dateFin.min = this.value;
+        });
+        
+        dateFin.addEventListener('change', function() {
+            dateDebut.max = this.value;
+        });
+    }
+});
+</script>
+{% endblock %}

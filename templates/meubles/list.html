@@ -1,0 +1,452 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}Meubles{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    Gérez tous vos meubles
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <a href="{% url 'meubles:meuble_import' %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+        <i class="fas fa-upload mr-2"></i>
+        Importer CSV
+    </a>
+    
+    <a href="{% url 'meubles:meuble_create' %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+        <i class="fas fa-plus mr-2"></i>
+        Nouveau Meuble
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Filtres -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-filter text-indigo-600 mr-2"></i>
+                Filtres
+            </h3>
+        </div>
+        
+        <form method="get" class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                <!-- Recherche -->
+                <div class="lg:col-span-2">
+                    {{ form.search.label_tag }}
+                    {{ form.search }}
+                </div>
+                
+                <!-- Maison -->
+                <div>
+                    {{ form.maison.label_tag }}
+                    {{ form.maison }}
+                </div>
+                
+                <!-- Type -->
+                <div>
+                    {{ form.type_meuble.label_tag }}
+                    {{ form.type_meuble }}
+                </div>
+                
+                <!-- État -->
+                <div>
+                    {{ form.etat.label_tag }}
+                    {{ form.etat }}
+                </div>
+                
+                <!-- Pièce -->
+                <div>
+                    {{ form.piece.label_tag }}
+                    {{ form.piece }}
+                </div>
+            </div>
+            
+            <div class="mt-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    {{ form.verification_requise }}
+                    <label for="{{ form.verification_requise.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                        {{ form.verification_requise.label }}
+                    </label>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <a href="{% url 'meubles:meubles_list' %}" 
+                       class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-times mr-1"></i>
+                        Réinitialiser
+                    </a>
+                    
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-search mr-2"></i>
+                        Filtrer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tri et compteurs -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-700">
+                <strong>{{ page_obj.paginator.count }}</strong> meuble{{ page_obj.paginator.count|pluralize }}
+            </span>
+            
+            <div class="hidden md:flex items-center space-x-2">
+                <span class="text-sm text-gray-500">Trier par:</span>
+                <select onchange="window.location.href='?sort=' + this.value + '&{{ request.GET.urlencode|slice:'5:' }}'" 
+                        class="text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="recent" {% if request.GET.sort == 'recent' or not request.GET.sort %}selected{% endif %}>Plus récent</option>
+                    <option value="nom" {% if request.GET.sort == 'nom' %}selected{% endif %}>Nom A-Z</option>
+                    <option value="maison" {% if request.GET.sort == 'maison' %}selected{% endif %}>Maison</option>
+                    <option value="type" {% if request.GET.sort == 'type' %}selected{% endif %}>Type</option>
+                    <option value="etat" {% if request.GET.sort == 'etat' %}selected{% endif %}>État</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+            <!-- Vue grille/liste -->
+            <button onclick="toggleView('grid')" id="gridBtn" 
+                    class="p-2 rounded-md text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="fas fa-th-large"></i>
+            </button>
+            <button onclick="toggleView('list')" id="listBtn" 
+                    class="p-2 rounded-md text-gray-600 transition-colors">
+                <i class="fas fa-list"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Liste des meubles -->
+    <div id="meublesContainer">
+        <!-- Vue liste (par défaut) -->
+        <div id="listView" class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Meuble
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Maison & Pièce
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                État
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Dernière vérification
+                            </th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for meuble in page_obj %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        {% if meuble.photos.first %}
+                                            <img class="h-10 w-10 rounded-lg object-cover" 
+                                                 src="{{ meuble.photos.first.image.url }}" 
+                                                 alt="{{ meuble.nom }}">
+                                        {% else %}
+                                            <div class="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                                                <i class="fas fa-{% if meuble.type_meuble.icone %}{{ meuble.type_meuble.icone }}{% else %}cube{% endif %} text-gray-400"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+                                               class="hover:text-indigo-600 transition-colors">
+                                                {{ meuble.nom }}
+                                            </a>
+                                        </div>
+                                        <div class="text-sm text-gray-500">
+                                            {{ meuble.type_meuble.nom }} • {{ meuble.numero_serie }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ meuble.maison.nom }}</div>
+                                <div class="text-sm text-gray-500">{{ meuble.get_piece_display }}</div>
+                            </td>
+                            
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    {% if meuble.etat == 'bon' %}bg-green-100 text-green-800
+                                    {% elif meuble.etat == 'usage' %}bg-yellow-100 text-yellow-800
+                                    {% elif meuble.etat == 'defectueux' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ meuble.get_etat_display }}
+                                </span>
+                                
+                                {% if meuble.necessite_verification %}
+                                    <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            À vérifier
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {% if meuble.date_derniere_verification %}
+                                    {{ meuble.date_derniere_verification|date:"d/m/Y" }}
+                                {% else %}
+                                    <span class="text-orange-600">Jamais</span>
+                                {% endif %}
+                            </td>
+                            
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end space-x-2">
+                                    <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+                                       class="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                       title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                    <a href="{% url 'meubles:meuble_edit' meuble.pk %}" 
+                                       class="text-gray-600 hover:text-gray-900 transition-colors"
+                                       title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    
+                                    {% if meuble.necessite_verification %}
+                                    <button onclick="marquerVerifie({{ meuble.pk }})" 
+                                            class="text-green-600 hover:text-green-900 transition-colors"
+                                            title="Marquer comme vérifié">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="text-gray-500">
+                                    <i class="fas fa-inbox text-4xl mb-4"></i>
+                                    <p class="text-lg">Aucun meuble trouvé</p>
+                                    <p class="text-sm">Essayez de modifier vos critères de recherche</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Vue grille (masquée par défaut) -->
+        <div id="gridView" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for meuble in page_obj %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                <div class="aspect-w-16 aspect-h-9 bg-gray-200">
+                    {% if meuble.photos.first %}
+                        <img src="{{ meuble.photos.first.image.url }}" 
+                             alt="{{ meuble.nom }}" 
+                             class="w-full h-32 object-cover">
+                    {% else %}
+                        <div class="w-full h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <i class="fas fa-{% if meuble.type_meuble.icone %}{{ meuble.type_meuble.icone }}{% else %}cube{% endif %} text-4xl text-gray-400"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900 truncate">
+                            <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+                               class="hover:text-indigo-600 transition-colors">
+                                {{ meuble.nom }}
+                            </a>
+                        </h3>
+                        
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                            {% if meuble.etat == 'bon' %}bg-green-100 text-green-800
+                            {% elif meuble.etat == 'usage' %}bg-yellow-100 text-yellow-800
+                            {% elif meuble.etat == 'defectueux' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ meuble.get_etat_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 mb-2">
+                        <div class="flex items-center">
+                            <i class="fas fa-home mr-1"></i>
+                            {{ meuble.maison.nom }}
+                        </div>
+                        <div class="flex items-center mt-1">
+                            <i class="fas fa-door-open mr-1"></i>
+                            {{ meuble.get_piece_display }}
+                        </div>
+                    </div>
+                    
+                    <div class="text-xs text-gray-500 mb-3">
+                        {{ meuble.type_meuble.nom }} • {{ meuble.numero_serie }}
+                    </div>
+                    
+                    {% if meuble.necessite_verification %}
+                    <div class="mb-3">
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                            <i class="fas fa-clock mr-1"></i>
+                            À vérifier
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'meubles:meuble_detail' meuble.pk %}" 
+                               class="text-indigo-600 hover:text-indigo-800 transition-colors"
+                               title="Détails">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'meubles:meuble_edit' meuble.pk %}" 
+                               class="text-gray-600 hover:text-gray-800 transition-colors"
+                               title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                        
+                        {% if meuble.necessite_verification %}
+                        <button onclick="marquerVerifie({{ meuble.pk }})" 
+                                class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 transition-colors">
+                            Vérifié
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 rounded-lg shadow">
+        <div class="flex-1 flex justify-between items-center">
+            <div class="hidden md:block">
+                <p class="text-sm text-gray-700">
+                    Affichage de 
+                    <span class="font-medium">{{ page_obj.start_index }}</span>
+                    à 
+                    <span class="font-medium">{{ page_obj.end_index }}</span>
+                    sur 
+                    <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                    résultats
+                </p>
+            </div>
+            
+            <div class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}" 
+                       class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-indigo-600 bg-indigo-600 text-sm font-medium text-white">
+                            {{ num }}
+                        </span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}" 
+                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                            {{ num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}" 
+                       class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle entre vue grille et liste
+function toggleView(view) {
+    const listView = document.getElementById('listView');
+    const gridView = document.getElementById('gridView');
+    const listBtn = document.getElementById('listBtn');
+    const gridBtn = document.getElementById('gridBtn');
+    
+    if (view === 'grid') {
+        listView.classList.add('hidden');
+        gridView.classList.remove('hidden');
+        listBtn.classList.remove('text-gray-600');
+        listBtn.classList.add('text-gray-400');
+        gridBtn.classList.remove('text-gray-400');
+        gridBtn.classList.add('text-gray-600');
+        localStorage.setItem('meublesView', 'grid');
+    } else {
+        listView.classList.remove('hidden');
+        gridView.classList.add('hidden');
+        listBtn.classList.remove('text-gray-400');
+        listBtn.classList.add('text-gray-600');
+        gridBtn.classList.remove('text-gray-600');
+        gridBtn.classList.add('text-gray-400');
+        localStorage.setItem('meublesView', 'list');
+    }
+}
+
+// Restaurer la vue préférée
+document.addEventListener('DOMContentLoaded', function() {
+    const savedView = localStorage.getItem('meublesView');
+    if (savedView === 'grid') {
+        toggleView('grid');
+    }
+});
+
+// Marquer un meuble comme vérifié
+function marquerVerifie(meubleId) {
+    if (confirm('Marquer ce meuble comme vérifié ?')) {
+        fetch(`/meubles/meubles/${meubleId}/marquer-verifie/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -14,7 +14,10 @@ urlpatterns = [
     path('users/create-client/', admin_views.admin_create_client, name='admin_create_client'),
     path('users/create-gestionnaire/', admin_views.admin_create_gestionnaire, name='admin_create_gestionnaire'),
     path('users/<int:user_id>/change-role/', admin_views.change_user_role_view, name='change_user_role_view'),
-    
+    # Ajoutez ces URLs manquantes
+    path('statistiques/', admin_views.admin_statistiques, name='stats'),
+    path('api/stats/', admin_views.api_dashboard_stats, name='stats_api'),   
+     
     # ======== GESTION DES VILLES ========
     path('villes/', admin_views.admin_villes_list, name='villes_list'),
     path('villes/creer/', admin_views.admin_ville_create, name='ville_create'),
@@ -39,9 +42,4 @@ urlpatterns = [
     path('photos/<int:pk>/modifier/', admin_views.admin_photo_edit, name='photo_edit'),
     path('photos/<int:pk>/supprimer/', admin_views.admin_photo_delete, name='photo_delete'),
     
-    # ======== GESTION DES RÉSERVATIONS ========
-    path('reservations/', admin_views.admin_reservations_list, name='reservations_list'),
-    path('reservations/creer/', admin_views.admin_reservation_create, name='reservation_create'),
-    path('reservations/<int:pk>/modifier/', admin_views.admin_reservation_edit, name='reservation_edit'),
-    path('reservations/<int:pk>/supprimer/', admin_views.admin_reservation_delete, name='reservation_delete'),
 ]

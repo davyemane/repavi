@@ -1,0 +1,433 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Dashboard Réservations | RepAvi Admin{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-calendar-check text-blue-600 mr-2"></i>
+    Dashboard Réservations
+{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm text-gray-500">
+        <a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-blue-600">Accueil</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'reservations:dashboard' %}" class="hover:text-blue-600">Réservations</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-700">Dashboard</span>
+    </nav>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-3">
+    <a href="{% url 'reservations:export' %}" 
+       class="inline-flex items-center px-3 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-colors">
+        <i class="fas fa-download mr-2"></i>
+        Export
+    </a>
+    
+    <a href="{% url 'reservations:calendrier' %}" 
+       class="inline-flex items-center px-3 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-colors">
+        <i class="fas fa-calendar-alt mr-2"></i>
+        Calendrier
+    </a>
+    
+    {% if user.is_client %}
+    <a href="{% url 'reservations:recherche_disponibilite' %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+        <i class="fas fa-plus mr-2"></i>
+        Nouvelle Réservation
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+
+<div class="space-y-8">
+    <!-- Statistiques principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total des réservations -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-calendar-check text-3xl opacity-80"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold">{{ stats.total }}</div>
+                    <div class="text-sm opacity-90">Réservations Total</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Réservations confirmées -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-3xl opacity-80"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold">{{ stats.confirmees }}</div>
+                    <div class="text-sm opacity-90">Confirmées ({{ stats.pourcentage_confirmees }}%)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- En attente -->
+        <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-clock text-3xl opacity-80"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold">{{ stats.en_attente }}</div>
+                    <div class="text-sm opacity-90">En Attente</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chiffre d'affaires -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-coins text-3xl opacity-80"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold">{{ stats.ca_total|floatformat:0 }}</div>
+                    <div class="text-sm opacity-90">CA Total (FCFA)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation rapide des réservations -->
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+        <h3 class="text-lg font-semibold mb-4">
+            <i class="fas fa-compass mr-2"></i>
+            Navigation Réservations
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% if user.is_client %}
+            <a href="{% url 'reservations:recherche_disponibilite' %}" 
+               class="flex items-center p-4 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all group">
+                <i class="fas fa-search mr-3 text-xl group-hover:scale-110 transition-transform"></i>
+                <div>
+                    <span class="text-sm font-medium block">Rechercher</span>
+                    <span class="text-xs opacity-75">Nouvelle réservation</span>
+                </div>
+            </a>
+            {% endif %}
+            
+            <a href="{% url 'reservations:mes_reservations' %}" 
+               class="flex items-center p-4 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all group">
+                <i class="fas fa-list mr-3 text-xl group-hover:scale-110 transition-transform"></i>
+                <div>
+                    <span class="text-sm font-medium block">Mes Réservations</span>
+                    <span class="text-xs opacity-75">Liste complète</span>
+                </div>
+            </a>
+            
+            <a href="{% url 'reservations:calendrier' %}" 
+               class="flex items-center p-4 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all group">
+                <i class="fas fa-calendar-alt mr-3 text-xl group-hover:scale-110 transition-transform"></i>
+                <div>
+                    <span class="text-sm font-medium block">Calendrier</span>
+                    <span class="text-xs opacity-75">Vue planning</span>
+                </div>
+            </a>
+            
+            <a href="{% url 'reservations:export' %}" 
+               class="flex items-center p-4 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all group">
+                <i class="fas fa-download mr-3 text-xl group-hover:scale-110 transition-transform"></i>
+                <div>
+                    <span class="text-sm font-medium block">Export</span>
+                    <span class="text-xs opacity-75">Rapports</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Graphiques et données -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Répartition par statut -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-pie text-blue-600 mr-2"></i>
+                Répartition par Statut
+            </h3>
+            <div class="relative h-64">
+                <canvas id="statutChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Évolution mensuelle -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-line text-blue-600 mr-2"></i>
+                Évolution (6 derniers mois)
+            </h3>
+            <div class="relative h-64">
+                <canvas id="evolutionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableaux de données -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Réservations récentes -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-100">
+                <h3 class="text-lg font-semibold text-blue-900">
+                    <i class="fas fa-clock text-blue-600 mr-2"></i>
+                    Réservations Récentes
+                </h3>
+            </div>
+            <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                {% for reservation in reservations_recentes %}
+                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <span class="inline-flex items-center justify-center h-10 w-10 rounded-full 
+                                    {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                    {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                                    {% elif reservation.statut == 'terminee' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    <i class="fas fa-{% if reservation.statut == 'confirmee' %}check{% elif reservation.statut == 'en_attente' %}clock{% elif reservation.statut == 'terminee' %}flag-checkered{% else %}times{% endif %}"></i>
+                                </span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    <a href="{% url 'reservations:detail' reservation.numero %}" class="hover:text-blue-600 transition-colors">
+                                        {{ reservation.numero }}
+                                    </a>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {% if user.is_gestionnaire %}
+                                        {{ reservation.client.get_full_name }}
+                                    {% else %}
+                                        {{ reservation.maison.nom }}
+                                    {% endif %}
+                                    • {{ reservation.date_debut|date:"d/m" }} - {{ reservation.date_fin|date:"d/m" }}
+                                </div>
+                                <div class="text-xs text-gray-400">
+                                    {{ reservation.nombre_nuits }} nuit{{ reservation.nombre_nuits|pluralize }} • {{ reservation.nombre_personnes }} pers.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">{{ reservation.prix_total|floatformat:0 }} FCFA</div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                                {% elif reservation.statut == 'terminee' %}bg-blue-100 text-blue-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ reservation.get_statut_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="px-6 py-8 text-center text-gray-500">
+                    <i class="fas fa-inbox text-4xl mb-2"></i>
+                    <p>Aucune réservation récente</p>
+                    {% if user.is_client %}
+                    <a href="{% url 'reservations:recherche_disponibilite' %}" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        Créer votre première réservation →
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Actions requises -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
+                <h3 class="text-lg font-semibold text-orange-900">
+                    <i class="fas fa-exclamation-triangle text-orange-600 mr-2"></i>
+                    Actions Requises
+                </h3>
+            </div>
+            <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                {% for reservation in actions_requises %}
+                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-orange-100 text-orange-800">
+                                    <i class="fas fa-{% if reservation.type_action == 'confirmer' %}check{% elif reservation.type_action == 'paiement' %}credit-card{% else %}bell{% endif %}"></i>
+                                </span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    <a href="{% url 'reservations:detail' reservation.numero %}" class="hover:text-orange-600 transition-colors">
+                                        {{ reservation.numero }}
+                                    </a>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ reservation.action_description }}
+                                </div>
+                                <div class="text-xs text-gray-400">
+                                    {% if reservation.urgence_jours <= 2 %}
+                                        <span class="text-red-600 font-medium">Urgent - {{ reservation.urgence_jours }} jour{{ reservation.urgence_jours|pluralize }}</span>
+                                    {% else %}
+                                        Dans {{ reservation.urgence_jours }} jours
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            {% if reservation.type_action == 'confirmer' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    À confirmer
+                                </span>
+                            {% elif reservation.type_action == 'paiement' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                    <i class="fas fa-credit-card mr-1"></i>
+                                    Paiement en attente
+                                </span>
+                            {% elif reservation.type_action == 'arrivee' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-sign-in-alt mr-1"></i>
+                                    Arrivée prochaine
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="px-6 py-8 text-center text-gray-500">
+                    <i class="fas fa-check-circle text-4xl mb-2 text-green-300"></i>
+                    <p class="text-green-600 font-medium">Tout est à jour !</p>
+                    <p class="text-sm">Aucune action requise pour le moment</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Métriques de performance -->
+    {% if user.is_gestionnaire or user.is_super_admin %}
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+            <i class="fas fa-chart-bar text-blue-600 mr-2"></i>
+            Métriques de Performance
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ metriques.taux_occupation }}%</div>
+                <div class="text-sm text-gray-600">Taux d'occupation</div>
+                <div class="text-xs text-gray-500 mt-1">Ce mois</div>
+            </div>
+            
+            <div class="text-center p-4 bg-green-50 rounded-lg">
+                <div class="text-2xl font-bold text-green-600">{{ metriques.duree_moyenne_sejour|floatformat:1 }}</div>
+                <div class="text-sm text-gray-600">Durée moyenne (nuits)</div>
+                <div class="text-xs text-gray-500 mt-1">6 derniers mois</div>
+            </div>
+            
+            <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <div class="text-2xl font-bold text-purple-600">{{ metriques.panier_moyen|floatformat:0 }}</div>
+                <div class="text-sm text-gray-600">Panier moyen (FCFA)</div>
+                <div class="text-xs text-gray-500 mt-1">Par réservation</div>
+            </div>
+            
+            <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                <div class="text-2xl font-bold text-yellow-600">{{ metriques.taux_annulation }}%</div>
+                <div class="text-sm text-gray-600">Taux d'annulation</div>
+                <div class="text-xs text-gray-500 mt-1">6 derniers mois</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+// Graphiques avec données Django
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique répartition par statut
+    const statutCtx = document.getElementById('statutChart').getContext('2d');
+    new Chart(statutCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [
+                {% for statut in repartition_statuts %}
+                    '{{ statut.statut|capfirst }}'{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            datasets: [{
+                data: [
+                    {% for statut in repartition_statuts %}
+                        {{ statut.count }}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    '#10B981', // vert pour confirmée
+                    '#F59E0B', // orange pour en_attente
+                    '#3B82F6', // bleu pour terminée
+                    '#EF4444'  // rouge pour annulée
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { family: 'Inter' }
+                    }
+                }
+            }
+        }
+    });
+
+    // Graphique évolution temporelle
+    const evolutionCtx = document.getElementById('evolutionChart').getContext('2d');
+    new Chart(evolutionCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for mois in evolution_mensuelle %}
+                    '{{ mois.mois }}'{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Réservations',
+                data: [
+                    {% for mois in evolution_mensuelle %}
+                        {{ mois.count }}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                borderColor: 'rgba(59, 130, 246, 1)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

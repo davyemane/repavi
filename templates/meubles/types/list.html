@@ -1,0 +1,249 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}Types de Meubles{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    Gérez les différents types de meubles
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <a href="{% url 'meubles:type_create' %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+        <i class="fas fa-plus mr-2"></i>
+        Nouveau Type
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-tags text-2xl text-indigo-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">{{ types.count }}</div>
+                    <div class="text-sm text-gray-500">Types Total</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-home text-2xl text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">
+                        {{ types|dictsort:"categorie"|regroup:"categorie"|length }}
+                    </div>
+                    <div class="text-sm text-gray-500">Catégories</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-chair text-2xl text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">
+                        {% for type in types %}{{ type.nombre_meubles|add:0 }}{% if not forloop.last %}+{% endif %}{% endfor %}
+                    </div>
+                    <div class="text-sm text-gray-500">Meubles Associés</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-star text-2xl text-yellow-600"></i>
+                </div>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">
+                        {% for type in types %}{% if type.nombre_meubles > 0 %}1{% endif %}{% endfor|join:""|length %}
+                    </div>
+                    <div class="text-sm text-gray-500">Types Utilisés</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des types par catégorie -->
+    {% regroup types by categorie as types_by_category %}
+    
+    {% for category in types_by_category %}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-{% if category.grouper == 'chambre' %}bed{% elif category.grouper == 'salon' %}couch{% elif category.grouper == 'cuisine' %}utensils{% elif category.grouper == 'salle_bain' %}bath{% elif category.grouper == 'exterieur' %}tree{% else %}cube{% endif %} text-indigo-600 mr-2"></i>
+                    {{ category.grouper|capfirst }}
+                </h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                    {{ category.list|length }} type{{ category.list|length|pluralize }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% for type in category.list %}
+            <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center">
+                                <i class="fas fa-{{ type.icone|default:'cube' }} text-indigo-600 text-lg"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-lg font-medium text-gray-900">{{ type.nom }}</h4>
+                            <p class="text-sm text-gray-500 mt-1">
+                                {% if type.description %}
+                                    {{ type.description|truncatechars:100 }}
+                                {% else %}
+                                    Aucune description disponible
+                                {% endif %}
+                            </p>
+                            
+                            <div class="flex items-center mt-2 space-x-4">
+                                <span class="inline-flex items-center text-xs text-gray-500">
+                                    <i class="fas fa-chair mr-1"></i>
+                                    {{ type.nombre_meubles }} meuble{{ type.nombre_meubles|pluralize }}
+                                </span>
+                                
+                                <span class="inline-flex items-center text-xs text-gray-500">
+                                    <i class="fas fa-tag mr-1"></i>
+                                    {{ type.get_categorie_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <!-- Indicateur d'utilisation -->
+                        {% if type.nombre_meubles > 0 %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-check mr-1"></i>
+                                Utilisé
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                <i class="fas fa-clock mr-1"></i>
+                                Inutilisé
+                            </span>
+                        {% endif %}
+                        
+                        <!-- Actions -->
+                        <div class="flex items-center space-x-1">
+                            <a href="{% url 'meubles:type_edit' type.pk %}" 
+                               class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                               title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            {% if type.nombre_meubles == 0 and user.is_superuser %}
+                                <a href="{% url 'meubles:type_delete' type.pk %}" 
+                                   class="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                                   title="Supprimer"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="px-6 py-8 text-center text-gray-500">
+                <i class="fas fa-inbox text-4xl mb-2"></i>
+                <p>Aucun type dans cette catégorie</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <!-- État vide -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-12 text-center">
+            <div class="mx-auto h-24 w-24 text-gray-300 mb-4">
+                <i class="fas fa-tags text-6xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun type de meuble</h3>
+            <p class="text-gray-500 mb-6">
+                Commencez par créer des types de meubles pour organiser votre inventaire.
+            </p>
+            <a href="{% url 'meubles:type_create' %}" 
+               class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>
+                Créer le premier type
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Guide d'utilisation -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i class="fas fa-lightbulb text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Guide d'utilisation</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Créez des types pour chaque catégorie de meuble (lit, armoire, table, etc.)</li>
+                        <li>Associez une icône pour faciliter l'identification visuelle</li>
+                        <li>Organisez par catégories (chambre, salon, cuisine, etc.)</li>
+                        <li>Les types inutilisés peuvent être supprimés par les administrateurs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Confirmation de suppression
+function confirmerSuppression(url, nom) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le type "${nom}" ? Cette action est irréversible.`)) {
+        window.location.href = url;
+    }
+}
+
+// Animation des cartes au scroll
+function animateOnScroll() {
+    const cards = document.querySelectorAll('.bg-white');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+}
+
+// Initialiser les animations
+document.addEventListener('DOMContentLoaded', animateOnScroll);
+</script>
+{% endblock %}

@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
-from .models import Ville, CategorieMaison, Maison, PhotoMaison, Reservation
+from .models import Ville, CategorieMaison, Maison, PhotoMaison
 
 User = get_user_model()
 
@@ -67,32 +67,27 @@ class CategorieMaisonForm(forms.ModelForm):
             }),
         }
 
-
 class MaisonForm(forms.ModelForm):
-    """Formulaire pour les maisons - adapté avec gestionnaire automatique"""
+    """Formulaire pour les maisons - version simplifiée pour gestionnaires"""
 
     class Meta:
         model = Maison
-        fields = [
-            'nom', 'description', 'adresse', 'ville', 'capacite_personnes',
-            'nombre_chambres', 'nombre_salles_bain', 'superficie', 'prix_par_nuit',
-            'disponible', 'featured', 'categorie', 'wifi', 'parking', 'piscine',
-            'jardin', 'climatisation', 'lave_vaisselle', 'machine_laver',
-            'gestionnaire', 'slug'
-        ]
+        # Exclure complètement le gestionnaire, locataire_actuel et date_fin_location du formulaire
+        exclude = ['gestionnaire', 'date_creation', 'date_modification', 'locataire_actuel', 'date_fin_location']
         widgets = {
             'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la maison'}),
-            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'numero': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: M001'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'adresse': forms.TextInput(attrs={'class': 'form-control'}),
             'ville': forms.Select(attrs={'class': 'form-control'}),
-            'capacite_personnes': forms.NumberInput(attrs={'class': 'form-control'}),
-            'nombre_chambres': forms.NumberInput(attrs={'class': 'form-control'}),
-            'nombre_salles_bain': forms.NumberInput(attrs={'class': 'form-control'}),
-            'superficie': forms.NumberInput(attrs={'class': 'form-control'}),
-            'prix_par_nuit': forms.NumberInput(attrs={'class': 'form-control'}),
+            'capacite_personnes': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'nombre_chambres': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'nombre_salles_bain': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'superficie': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'prix_par_nuit': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': '0.01'}),
             'categorie': forms.Select(attrs={'class': 'form-control'}),
-            'gestionnaire': forms.Select(attrs={'class': 'form-control'}),
-            'slug': forms.TextInput(attrs={'class': 'form-control'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Généré automatiquement si vide'}),
+            'statut_occupation': forms.Select(attrs={'class': 'form-control'}),
             'disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'wifi': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -102,39 +97,165 @@ class MaisonForm(forms.ModelForm):
             'climatisation': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'lave_vaisselle': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'machine_laver': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'balcon': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'terrasse': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        
+        # Rendre le slug optionnel
+        self.fields['slug'].required = False
+        self.fields['slug'].help_text = "Laissez vide pour génération automatique"
+        
+        # Définir la valeur par défaut pour statut_occupation
+        if not self.instance.pk:  # Nouvelle instance
+            self.fields['statut_occupation'].initial = 'libre'
 
-        # Gestion du champ "gestionnaire"
-        if self.user:
-            if hasattr(self.user, 'is_super_admin') and self.user.is_super_admin():
-                self.fields['gestionnaire'].queryset = User.objects.filter(role__in=['GESTIONNAIRE', 'SUPER_ADMIN'])
-            elif hasattr(self.user, 'is_gestionnaire') and self.user.is_gestionnaire():
-                self.fields['gestionnaire'].initial = self.user
-                self.fields['gestionnaire'].queryset = User.objects.filter(id=self.user.id)
-                self.fields['gestionnaire'].widget = forms.HiddenInput()
-            else:
-                self.fields['gestionnaire'].queryset = User.objects.none()
+    def clean_numero(self):
+        numero = self.cleaned_data.get('numero')
+        if numero:
+            # Vérifier l'unicité du numéro
+            qs = Maison.objects.filter(numero=numero)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError("Ce numéro de maison existe déjà.")
+        return numero
+
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug')
+        nom = self.cleaned_data.get('nom')
+        
+        # Générer automatiquement si vide
+        if not slug and nom:
+            slug = slugify(nom)
+        
+        # Vérifier l'unicité
+        if slug:
+            qs = Maison.objects.filter(slug=slug)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                base_slug = slug
+                counter = 1
+                while Maison.objects.filter(slug=slug).exists():
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+        
+        return slug
 
     def clean(self):
         cleaned_data = super().clean()
-        if not cleaned_data.get('gestionnaire') and self.user:
-            if hasattr(self.user, 'is_gestionnaire') and self.user.is_gestionnaire():
-                cleaned_data['gestionnaire'] = self.user
-                self.instance.gestionnaire = self.user
+        capacite = cleaned_data.get('capacite_personnes')
+        chambres = cleaned_data.get('nombre_chambres')
+        
+        # Validation : la capacité ne peut pas être inférieure au nombre de chambres
+        if capacite and chambres and capacite < chambres:
+            raise forms.ValidationError(
+                "La capacité en personnes ne peut pas être inférieure au nombre de chambres."
+            )
+        
         return cleaned_data
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        if not instance.slug:
-            instance.slug = slugify(instance.nom)
-        if commit:
-            instance.save()
-        return instance
 
+class SuperAdminMaisonForm(forms.ModelForm):
+    """Formulaire pour super admins avec sélection de gestionnaire"""
+    
+    class Meta:
+        model = Maison
+        exclude = ['date_creation', 'date_modification', 'locataire_actuel', 'date_fin_location']
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'numero': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: M001'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'ville': forms.Select(attrs={'class': 'form-control'}),
+            'gestionnaire': forms.Select(attrs={'class': 'form-control'}),
+            'capacite_personnes': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'nombre_chambres': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'nombre_salles_bain': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'superficie': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'prix_par_nuit': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': '0.01'}),
+            'categorie': forms.Select(attrs={'class': 'form-control'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control'}),
+            'statut_occupation': forms.Select(attrs={'class': 'form-control'}),
+            'disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'wifi': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'parking': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'piscine': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'jardin': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'climatisation': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'lave_vaisselle': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'machine_laver': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'balcon': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'terrasse': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filtrer les gestionnaires
+        if 'gestionnaire' in self.fields:
+            self.fields['gestionnaire'].queryset = User.objects.filter(role__in=['GESTIONNAIRE', 'SUPER_ADMIN'])
+        
+        # Rendre le slug optionnel
+        self.fields['slug'].required = False
+        self.fields['slug'].help_text = "Généré automatiquement si vide"
+        
+        # Définir la valeur par défaut pour statut_occupation
+        if not self.instance.pk:  # Nouvelle instance
+            self.fields['statut_occupation'].initial = 'libre'
+
+    def clean_numero(self):
+        numero = self.cleaned_data.get('numero')
+        if numero:
+            # Vérifier l'unicité du numéro
+            qs = Maison.objects.filter(numero=numero)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError("Ce numéro de maison existe déjà.")
+        return numero
+
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug')
+        nom = self.cleaned_data.get('nom')
+        
+        # Générer automatiquement si vide
+        if not slug and nom:
+            slug = slugify(nom)
+        
+        # Vérifier l'unicité
+        if slug:
+            qs = Maison.objects.filter(slug=slug)
+            if self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                base_slug = slug
+                counter = 1
+                while Maison.objects.filter(slug=slug).exists():
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+        
+        return slug
+
+    def clean(self):
+        cleaned_data = super().clean()
+        capacite = cleaned_data.get('capacite_personnes')
+        chambres = cleaned_data.get('nombre_chambres')
+        
+        # Validation : la capacité ne peut pas être inférieure au nombre de chambres
+        if capacite and chambres and capacite < chambres:
+            raise forms.ValidationError(
+                "La capacité en personnes ne peut pas être inférieure au nombre de chambres."
+            )
+        
+        return cleaned_data
+    
 class PhotoMaisonForm(forms.ModelForm):
     class Meta:
         model = PhotoMaison
@@ -169,82 +290,6 @@ class PhotoMaisonForm(forms.ModelForm):
         if user and not (hasattr(user, 'is_super_admin') and user.is_super_admin()):
             self.fields['maison'].queryset = Maison.objects.filter(gestionnaire=user)
 
-
-class ReservationForm(forms.ModelForm):
-    """Formulaire pour les réservations - ADAPTÉ avec client"""
-    
-    class Meta:
-        model = Reservation
-        fields = [
-            'maison', 'client', 'date_debut', 'date_fin', 'nombre_personnes',
-            'prix_total', 'statut', 'telephone', 'message'
-        ]
-        widgets = {
-            'maison': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
-            }),
-            'client': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
-            }),
-            'date_debut': forms.DateInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'type': 'date'
-            }),
-            'date_fin': forms.DateInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'type': 'date'
-            }),
-            'nombre_personnes': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'min': 1
-            }),
-            'prix_total': forms.NumberInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'step': '0.01'
-            }),
-            'statut': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500'
-            }),
-            'telephone': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'placeholder': '+33 1 23 45 67 89'
-            }),
-            'message': forms.Textarea(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                'rows': 3,
-                'placeholder': 'Message du client...'
-            }),
-        }
-    
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        
-        # Filtrer selon les permissions utilisateur
-        if user:
-            if hasattr(user, 'is_super_admin') and user.is_super_admin():
-                # Super admin voit tout
-                try:
-                    self.fields['client'].queryset = User.objects.filter(role='CLIENT')
-                except:
-                    # Fallback si pas de role
-                    self.fields['client'].queryset = User.objects.filter(is_staff=False)
-                self.fields['maison'].queryset = Maison.objects.all()
-            elif hasattr(user, 'is_gestionnaire') and user.is_gestionnaire():
-                # Gestionnaire voit ses maisons et tous les clients
-                try:
-                    self.fields['client'].queryset = User.objects.filter(role='CLIENT')
-                except:
-                    self.fields['client'].queryset = User.objects.filter(is_staff=False)
-                self.fields['maison'].queryset = Maison.objects.filter(gestionnaire=user)
-            elif hasattr(user, 'is_client') and user.is_client():
-                # Client ne peut réserver que pour lui-même
-                self.fields['client'].queryset = User.objects.filter(id=user.id)
-                self.fields['client'].initial = user
-                self.fields['client'].widget = forms.HiddenInput()
-                self.fields['maison'].queryset = Maison.objects.filter(disponible=True)
-                # Masquer certains champs pour les clients
-                self.fields['statut'].widget = forms.HiddenInput()
 
 
 # Formulaire de recherche/filtre - ADAPTÉ
@@ -310,72 +355,6 @@ class MaisonFilterForm(forms.Form):
 
 
 # NOUVEAU : Formulaire de réservation pour clients
-class ClientReservationForm(forms.Form):
-    """Formulaire simplifié pour les clients sur la page publique"""
-    
-    date_debut = forms.DateField(
-        widget=forms.DateInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-            'type': 'date',
-            'id': 'date_debut'
-        }),
-        label='Date d\'arrivée'
-    )
-    
-    date_fin = forms.DateField(
-        widget=forms.DateInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-            'type': 'date',
-            'id': 'date_fin'
-        }),
-        label='Date de départ'
-    )
-    
-    nombre_personnes = forms.IntegerField(
-        min_value=1,
-        max_value=20,
-        widget=forms.NumberInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-            'id': 'nombre_personnes'
-        }),
-        label='Nombre de personnes'
-    )
-    
-    message = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-            'rows': 3,
-            'placeholder': 'Message pour le gestionnaire (optionnel)...'
-        }),
-        label='Message'
-    )
-    
-    telephone = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-            'placeholder': 'Votre numéro de téléphone'
-        }),
-        label='Téléphone'
-    )
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        date_debut = cleaned_data.get('date_debut')
-        date_fin = cleaned_data.get('date_fin')
-        
-        if date_debut and date_fin:
-            if date_debut >= date_fin:
-                raise forms.ValidationError("La date de départ doit être postérieure à la date d'arrivée.")
-            
-            # Vérifier que la date de début n'est pas dans le passé
-            from django.utils import timezone
-            if date_debut < timezone.now().date():
-                raise forms.ValidationError("La date d'arrivée ne peut pas être dans le passé.")
-        
-        return cleaned_data
-
 
 # NOUVEAU : Formulaire de contact
 class ContactForm(forms.Form):

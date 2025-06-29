@@ -1,0 +1,190 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Réserver {{ maison.nom }} - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <nav class="text-sm text-gray-500 mb-4">
+        <a href="{% url 'reservations:recherche_disponibilite' %}" class="hover:text-blue-600">Recherche</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-900">{{ maison.nom }}</span>
+      </nav>
+      <h1 class="text-3xl font-bold text-gray-900">Réserver {{ maison.nom }}</h1>
+      <p class="text-gray-600 mt-2">{{ maison.ville.nom }} • {{ maison.capacite_personnes }} personnes</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Informations maison -->
+      <div class="lg:col-span-2">
+        <!-- Photo principale -->
+        {% if maison.photo_principale %}
+        <img src="{{ maison.photo_principale.url }}" alt="{{ maison.nom }}" class="w-full h-64 object-cover rounded-lg mb-6">
+        {% endif %}
+
+        <!-- Détails -->
+        <div class="bg-white rounded-lg border p-6 mb-6">
+          <h2 class="text-xl font-semibold mb-4">Détails de la maison</h2>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>Chambres : {{ maison.nombre_chambres }}</div>
+            <div>Salles de bain : {{ maison.nombre_salles_bain }}</div>
+            <div>Superficie : {{ maison.superficie }} m²</div>
+            <div>Capacité : {{ maison.capacite_personnes }} personnes</div>
+          </div>
+          <p class="mt-4 text-gray-600">{{ maison.description }}</p>
+        </div>
+
+        <!-- Équipements -->
+        <div class="bg-white rounded-lg border p-6">
+          <h2 class="text-xl font-semibold mb-4">Équipements</h2>
+          <div class="grid grid-cols-2 gap-2">
+            {% if maison.wifi %}<div class="flex items-center"><i class="fas fa-wifi text-green-500 mr-2"></i>WiFi</div>{% endif %}
+            {% if maison.parking %}<div class="flex items-center"><i class="fas fa-car text-green-500 mr-2"></i>Parking</div>{% endif %}
+            {% if maison.piscine %}<div class="flex items-center"><i class="fas fa-swimming-pool text-green-500 mr-2"></i>Piscine</div>{% endif %}
+            {% if maison.climatisation %}<div class="flex items-center"><i class="fas fa-snowflake text-green-500 mr-2"></i>Climatisation</div>{% endif %}
+            {% if maison.lave_vaisselle %}<div class="flex items-center"><i class="fas fa-utensils text-green-500 mr-2"></i>Lave-vaisselle</div>{% endif %}
+            {% if maison.machine_laver %}<div class="flex items-center"><i class="fas fa-tshirt text-green-500 mr-2"></i>Machine à laver</div>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire de réservation -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg border p-6 sticky top-4">
+          <h2 class="text-xl font-semibold mb-4">Réservation</h2>
+          
+          <!-- Prix estimé -->
+          {% if prix_estime %}
+          <div class="bg-blue-50 p-4 rounded-lg mb-4">
+            <div class="text-sm text-gray-600">Prix estimé pour {{ prix_estime.nombre_nuits }} nuit{{ prix_estime.nombre_nuits|pluralize }}</div>
+            <div class="text-2xl font-bold text-gray-900">{{ prix_estime.total|floatformat:0 }} FCFA</div>
+            <div class="text-sm text-gray-600">{{ prix_estime.prix_par_nuit|floatformat:0 }} FCFA/nuit</div>
+          </div>
+          {% endif %}
+
+          <form method="post" class="space-y-4">
+            {% csrf_token %}
+            
+            <!-- Dates -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">Arrivée</label>
+                {{ form.date_debut }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Départ</label>
+                {{ form.date_fin }}
+              </div>
+            </div>
+
+            <!-- Personnes -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Nombre de personnes</label>
+              {{ form.nombre_personnes }}
+            </div>
+
+            <!-- Heures -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">Heure d'arrivée</label>
+                {{ form.heure_arrivee }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Heure de départ</label>
+                {{ form.heure_depart }}
+              </div>
+            </div>
+
+            <!-- Mode de paiement -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Mode de paiement</label>
+              {{ form.mode_paiement }}
+            </div>
+
+            <!-- Contact d'urgence -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Contact d'urgence - Nom</label>
+              {{ form.contact_urgence_nom }}
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Contact d'urgence - Téléphone</label>
+              {{ form.contact_urgence_telephone }}
+            </div>
+
+            <!-- Commentaires -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Commentaires</label>
+              {{ form.commentaire_client }}
+            </div>
+
+            <!-- Erreurs -->
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 rounded p-3">
+              {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                  <p class="text-red-600 text-sm">{{ error }}</p>
+                {% endfor %}
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Bouton -->
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg">
+              Confirmer la réservation
+            </button>
+          </form>
+
+          <!-- Types de paiement -->
+          {% if types_paiement %}
+          <div class="mt-6 pt-6 border-t">
+            <h3 class="text-sm font-medium mb-3">Modes de paiement acceptés</h3>
+            <div class="space-y-2">
+              {% for type in types_paiement %}
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-{{ type.icone }} mr-2"></i>
+                {{ type.nom }}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const dateDebut = document.querySelector('input[name="date_debut"]');
+  const dateFin = document.querySelector('input[name="date_fin"]');
+  
+  function calculatePrice() {
+    if (dateDebut.value && dateFin.value) {
+      fetch('{% url "reservations:calculer_prix_ajax" %}', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `maison_id={{ maison.id }}&date_debut=${dateDebut.value}&date_fin=${dateFin.value}&nombre_personnes=2`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.error) {
+          // Mettre à jour l'affichage des prix
+          console.log('Prix calculé:', data);
+        }
+      });
+    }
+  }
+  
+  dateDebut.addEventListener('change', calculatePrice);
+  dateFin.addEventListener('change', calculatePrice);
+});
+</script>
+{% endblock %}

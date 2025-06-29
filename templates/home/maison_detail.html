@@ -15,6 +15,9 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="{% url 'home:index' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
                     <a href="{% url 'home:maisons_list' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
+                    {% if reservations_available %}
+                        <a href="{% url 'home:maisons_reservation' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Réserver</a>
+                    {% endif %}
                     <a href="{% url 'home:apropos' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">À propos</a>
                     <a href="{% url 'home:contact' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Contact</a>
                 </div>
@@ -30,8 +33,13 @@
                 <ol class="flex items-center space-x-2 text-sm text-gray-500">
                     <li><a href="{% url 'home:index' %}" class="hover:text-gray-700 transition-colors">Accueil</a></li>
                     <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li><a href="{% url 'home:maisons_list' %}" class="hover:text-gray-700 transition-colors">Maisons</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    {% if reservations_available %}
+                        <li><a href="{% url 'home:maisons_reservation' %}" class="hover:text-gray-700 transition-colors">Réserver</a></li>
+                        <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    {% else %}
+                        <li><a href="{% url 'home:maisons_list' %}" class="hover:text-gray-700 transition-colors">Maisons</a></li>
+                        <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    {% endif %}
                     <li class="text-gray-900 font-medium">{{ maison.nom }}</li>
                 </ol>
             </nav>
@@ -56,10 +64,21 @@
                                 </div>
                                 {% endif %}
                                 
+                                <!-- Statut de disponibilité -->
                                 <div class="absolute top-6 right-6">
-                                    <button class="bg-white/90 p-3 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
-                                        <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
-                                    </button>
+                                    {% if disponible_reservation %}
+                                        <span class="bg-green-500 text-white px-4 py-2 rounded-full font-medium backdrop-blur-sm">
+                                            <i class="fas fa-check mr-2"></i>Disponible
+                                        </span>
+                                    {% elif reservations_available %}
+                                        <span class="bg-red-500 text-white px-4 py-2 rounded-full font-medium backdrop-blur-sm">
+                                            <i class="fas fa-times mr-2"></i>Occupée
+                                        </span>
+                                    {% else %}
+                                        <button class="bg-white/90 p-3 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
+                                            <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
+                                        </button>
+                                    {% endif %}
                                 </div>
                             </div>
                             
@@ -182,6 +201,38 @@
                             {% endif %}
                         </div>
                     </div>
+
+                    <!-- Disponibilité et réservations (pour gestionnaires) -->
+                    {% if reservations_available and can_manage and prochaines_reservations %}
+                    <div class="bg-white rounded-2xl p-8 soft-shadow">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Prochaines réservations</h2>
+                        <div class="space-y-4">
+                            {% for reservation in prochaines_reservations %}
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <div class="font-semibold text-gray-900">{{ reservation.client.get_full_name }}</div>
+                                    <div class="text-sm text-gray-600">
+                                        {{ reservation.date_debut }} → {{ reservation.date_fin }}
+                                        ({{ reservation.nombre_nuits }} nuit{{ reservation.nombre_nuits|pluralize }})
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium
+                                        {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                        {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                                        {% endif %}">
+                                        {{ reservation.get_statut_display }}
+                                    </span>
+                                    <a href="{% url 'reservations:detail' reservation.numero %}" 
+                                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                        Gérer →
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Sidebar réservation -->
@@ -192,34 +243,112 @@
                             <div class="text-gray-600">par nuit</div>
                         </div>
 
-                        <!-- Formulaire de réservation -->
-                        <form class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Date d'arrivée</label>
-                                <input type="date" 
-                                       class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Date de départ</label>
-                                <input type="date" 
-                                       class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Voyageurs</label>
-                                <select class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    {% for i in "123456789"|make_list %}
-                                        {% if i|add:0 <= maison.capacite_personnes %}
-                                        <option value="{{ i }}">{{ i }} voyageur{{ i|pluralize }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
+                        {% if reservations_available and disponible_reservation %}
+                            <!-- Formulaire de réservation -->
+                            <form id="reservation-form" method="get" action="{% url 'home:initier_reservation' maison.slug %}" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date d'arrivée</label>
+                                    <input type="date" name="date_debut" id="date_debut"
+                                           class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                           min="{% now 'Y-m-d' %}" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date de départ</label>
+                                    <input type="date" name="date_fin" id="date_fin"
+                                           class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                           min="{% now 'Y-m-d' %}" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Voyageurs</label>
+                                    <select name="nombre_personnes" id="nombre_personnes" 
+                                            class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        {% for i in "123456789"|make_list %}
+                                            {% if i|add:0 <= maison.capacite_personnes %}
+                                            <option value="{{ i }}">{{ i }} voyageur{{ i|pluralize }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <!-- Calcul du prix en temps réel -->
+                                <div id="price-calculation" class="hidden p-4 bg-blue-50 rounded-lg">
+                                    <div class="flex justify-between text-sm mb-2">
+                                        <span>Prix par nuit:</span>
+                                        <span>{{ maison.prix_par_nuit }}€</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm mb-2">
+                                        <span id="nights-text">Nombre de nuits:</span>
+                                        <span id="nights-count">0</span>
+                                    </div>
+                                    <div class="border-t pt-2">
+                                        <div class="flex justify-between font-semibold">
+                                            <span>Total estimé:</span>
+                                            <span id="total-price" class="text-blue-600">0€</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if user.is_authenticated and can_reserve %}
+                                    <button type="submit" 
+                                            class="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+                                        <i class="fas fa-calendar-plus mr-2"></i>Réserver maintenant
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'users:login' %}?next={% url 'home:maison_detail' maison.slug %}" 
+                                       class="block w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-center">
+                                        <i class="fas fa-user mr-2"></i>Connectez-vous pour réserver
+                                    </a>
+                                {% endif %}
+                            </form>
                             
-                            <button type="submit" 
-                                    class="w-full bg-gray-900 text-white py-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors">
-                                Réserver maintenant
-                            </button>
-                        </form>
+                            <!-- Vérification de disponibilité -->
+                            <div id="availability-check" class="hidden mt-4 p-3 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="loading mr-3"></div>
+                                    <span class="text-sm text-gray-600">Vérification de la disponibilité...</span>
+                                </div>
+                            </div>
+
+                        {% elif reservations_available %}
+                            <!-- Maison non disponible -->
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-times text-2xl text-red-600"></i>
+                                </div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Non disponible</h3>
+                                <p class="text-gray-600 text-sm mb-4">Cette maison est actuellement occupée</p>
+                                
+                                {% if prochaines_reservations %}
+                                <div class="text-left">
+                                    <h4 class="font-medium text-gray-700 mb-2">Prochaine disponibilité:</h4>
+                                    {% for reservation in prochaines_reservations|slice:":1" %}
+                                        <p class="text-sm text-gray-600">
+                                            À partir du {{ reservation.date_fin|date:"d/m/Y" }}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                <a href="{% url 'home:maisons_reservation' %}" 
+                                   class="block w-full bg-gray-600 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-colors mt-4">
+                                    Voir d'autres maisons
+                                </a>
+                            </div>
+                        {% else %}
+                            <!-- Système de réservation non disponible -->
+                            <div class="text-center">
+                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-phone text-2xl text-gray-600"></i>
+                                </div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Contactez-nous</h3>
+                                <p class="text-gray-600 text-sm mb-4">Pour réserver cette maison, contactez directement notre équipe</p>
+                                
+                                <a href="{% url 'home:contact' %}" 
+                                   class="block w-full bg-gray-900 text-white py-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors">
+                                    Nous contacter
+                                </a>
+                            </div>
+                        {% endif %}
 
                         <div class="mt-6 pt-6 border-t border-gray-100">
                             <div class="flex items-center justify-center text-gray-600">
@@ -229,15 +358,29 @@
                         </div>
                     </div>
 
-                    <!-- Contact -->
+                    <!-- Contact gestionnaire (pour clients) -->
+                    {% if gestionnaire_info %}
                     <div class="bg-gray-900 rounded-2xl p-6 mt-6 text-white">
-                        <h3 class="font-bold text-lg mb-3">Une question ?</h3>
-                        <p class="text-gray-300 text-sm mb-4">Notre équipe est là pour vous accompagner dans votre réservation</p>
+                        <h3 class="font-bold text-lg mb-3">Contacter le gestionnaire</h3>
+                        <div class="space-y-2 mb-4">
+                            <p class="text-gray-300 text-sm">{{ gestionnaire_info.nom }}</p>
+                            {% if gestionnaire_info.telephone %}
+                                <p class="text-gray-300 text-sm">
+                                    <i class="fas fa-phone mr-2"></i>{{ gestionnaire_info.telephone }}
+                                </p>
+                            {% endif %}
+                            {% if gestionnaire_info.email %}
+                                <p class="text-gray-300 text-sm">
+                                    <i class="fas fa-envelope mr-2"></i>{{ gestionnaire_info.email }}
+                                </p>
+                            {% endif %}
+                        </div>
                         <a href="{% url 'home:contact' %}" 
                            class="block w-full bg-white text-gray-900 py-3 rounded-xl text-center font-semibold hover:bg-gray-100 transition-colors">
-                            Nous contacter
+                            Envoyer un message
                         </a>
                     </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -262,10 +405,18 @@
                             <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ maison_sim.description|truncatewords:8 }}</p>
                             <div class="flex items-center justify-between">
                                 <span class="text-lg font-bold text-gray-900">{{ maison_sim.prix_par_nuit }}€<span class="text-sm font-normal text-gray-500">/nuit</span></span>
-                                <a href="{% url 'home:maison_detail' maison_sim.slug %}" 
-                                   class="text-gray-900 hover:text-gray-600 text-sm font-medium">
-                                    Voir détails →
-                                </a>
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'home:maison_detail' maison_sim.slug %}" 
+                                       class="text-gray-600 hover:text-gray-800 text-sm font-medium">
+                                        Détails
+                                    </a>
+                                    {% if reservations_available and maison_sim.disponible and maison_sim.statut_occupation == 'libre' %}
+                                        <a href="{% url 'home:initier_reservation' maison_sim.slug %}" 
+                                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            Réserver →
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -280,5 +431,81 @@
         function changeMainPhoto(photoUrl) {
             document.getElementById('main-photo').src = photoUrl;
         }
+
+        {% if reservations_available and disponible_reservation %}
+        // Calcul automatique du prix
+        function calculatePrice() {
+            const dateDebut = document.getElementById('date_debut').value;
+            const dateFin = document.getElementById('date_fin').value;
+            const prixParNuit = {{ maison.prix_par_nuit }};
+            
+            if (dateDebut && dateFin) {
+                const debut = new Date(dateDebut);
+                const fin = new Date(dateFin);
+                const diffTime = Math.abs(fin - debut);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays > 0) {
+                    const total = prixParNuit * diffDays;
+                    document.getElementById('nights-count').textContent = diffDays;
+                    document.getElementById('total-price').textContent = total + '€';
+                    document.getElementById('price-calculation').classList.remove('hidden');
+                    
+                    // Vérifier la disponibilité
+                    checkAvailability(dateDebut, dateFin);
+                } else {
+                    document.getElementById('price-calculation').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('price-calculation').classList.add('hidden');
+            }
+        }
+
+        // Vérification de disponibilité via AJAX
+        function checkAvailability(dateDebut, dateFin) {
+            const availabilityDiv = document.getElementById('availability-check');
+            availabilityDiv.classList.remove('hidden');
+            availabilityDiv.innerHTML = `
+                <div class="flex items-center">
+                    <div class="loading mr-3"></div>
+                    <span class="text-sm text-gray-600">Vérification de la disponibilité...</span>
+                </div>
+            `;
+            
+            fetch(`{% url 'home:verifier_disponibilite' maison.slug %}?date_debut=${dateDebut}&date_fin=${dateFin}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.disponible) {
+                        availabilityDiv.innerHTML = `
+                            <div class="flex items-center text-green-600">
+                                <i class="fas fa-check mr-2"></i>
+                                <span class="text-sm font-medium">Disponible pour ces dates</span>
+                            </div>
+                        `;
+                        availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-green-50';
+                    } else {
+                        availabilityDiv.innerHTML = `
+                            <div class="flex items-center text-red-600">
+                                <i class="fas fa-times mr-2"></i>
+                                <span class="text-sm font-medium">Non disponible pour ces dates</span>
+                            </div>
+                        `;
+                        availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-red-50';
+                    }
+                })
+                .catch(error => {
+                    availabilityDiv.classList.add('hidden');
+                });
+        }
+
+        // Event listeners
+        document.getElementById('date_debut').addEventListener('change', calculatePrice);
+        document.getElementById('date_fin').addEventListener('change', calculatePrice);
+        
+        // Validation des dates
+        document.getElementById('date_debut').addEventListener('change', function() {
+            document.getElementById('date_fin').min = this.value;
+        });
+        {% endif %}
     </script>
 {% endblock %}

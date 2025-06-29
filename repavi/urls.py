@@ -15,7 +15,13 @@ urlpatterns = [
     path('', include('home.urls')),
 
     path('users/', include('users.urls')),  # ← Ajouter cette ligne
-    path("__reload__/", include("django_browser_reload.urls"))
+    path("__reload__/", include("django_browser_reload.urls")),
+
+     # App réservations
+    path('reservations/', include('reservations.urls')),
+
+    # # meubles
+    path('meubles/', include('meubles.urls')),
 
 ]
 

@@ -1,0 +1,418 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}{{ action }} un Inventaire{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    Créer un nouvel inventaire pour documenter l'état des meubles
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <a href="{% url 'meubles:inventaires_list' %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Retour à la liste
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <form method="post" class="space-y-8" id="inventaireForm">
+        {% csrf_token %}
+        
+        <!-- Section informations de base -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-info-circle text-indigo-600 mr-2"></i>
+                    Informations de l'inventaire
+                </h3>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Maison -->
+                    <div>
+                        <label for="{{ form.maison.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.maison.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.maison }}
+                        {% if form.maison.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.maison.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="mt-1 text-xs text-gray-500">
+                            Sélectionnez la maison à inventorier
+                        </div>
+                    </div>
+                    
+                    <!-- Type d'inventaire -->
+                    <div>
+                        <label for="{{ form.type_inventaire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.type_inventaire.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.type_inventaire }}
+                        {% if form.type_inventaire.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.type_inventaire.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="mt-1 text-xs text-gray-500">
+                            Type d'inventaire à effectuer
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description des types -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="border border-green-200 rounded-lg p-3 bg-green-50">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-sign-in-alt text-green-600 mr-2"></i>
+                            <span class="text-sm font-medium text-green-800">État d'entrée</span>
+                        </div>
+                        <p class="text-xs text-green-700">Inventaire réalisé à l'arrivée d'un locataire</p>
+                    </div>
+                    
+                    <div class="border border-orange-200 rounded-lg p-3 bg-orange-50">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-sign-out-alt text-orange-600 mr-2"></i>
+                            <span class="text-sm font-medium text-orange-800">État de sortie</span>
+                        </div>
+                        <p class="text-xs text-orange-700">Inventaire réalisé au départ d'un locataire</p>
+                    </div>
+                    
+                    <div class="border border-blue-200 rounded-lg p-3 bg-blue-50">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-calendar-check text-blue-600 mr-2"></i>
+                            <span class="text-sm font-medium text-blue-800">Périodique</span>
+                        </div>
+                        <p class="text-xs text-blue-700">Inventaire de contrôle régulier</p>
+                    </div>
+                    
+                    <div class="border border-purple-200 rounded-lg p-3 bg-purple-50">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-tools text-purple-600 mr-2"></i>
+                            <span class="text-sm font-medium text-purple-800">Maintenance</span>
+                        </div>
+                        <p class="text-xs text-purple-700">Inventaire suite à des travaux</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section observations -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-sticky-note text-indigo-600 mr-2"></i>
+                    Observations générales
+                </h3>
+            </div>
+            
+            <div class="p-6">
+                <label for="{{ form.observations.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.observations.label }}
+                </label>
+                {{ form.observations }}
+                {% if form.observations.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {{ form.observations.errors.0 }}
+                    </div>
+                {% endif %}
+                <div class="mt-1 text-xs text-gray-500">
+                    Remarques générales sur l'état de la maison et des meubles
+                </div>
+            </div>
+        </div>
+
+        <!-- Aperçu des meubles de la maison sélectionnée -->
+        <div id="meublePreview" class="bg-white rounded-xl shadow-lg overflow-hidden" style="display: none;">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-eye text-indigo-600 mr-2"></i>
+                    Aperçu des meubles
+                </h3>
+                <p class="text-sm text-gray-500 mt-1">Meubles qui seront inclus dans cet inventaire</p>
+            </div>
+            
+            <div id="meublesList" class="p-6">
+                <!-- Contenu chargé via AJAX -->
+            </div>
+        </div>
+
+        <!-- Guide d'utilisation -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-lightbulb text-blue-600 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">Guide de création d'inventaire</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Sélectionnez la maison à inventorier</li>
+                            <li>Choisissez le type d'inventaire approprié</li>
+                            <li>Ajoutez vos observations générales</li>
+                            <li>L'inventaire capturera automatiquement l'état actuel de tous les meubles</li>
+                            <li>Vous pourrez ensuite modifier individuellement l'état de chaque meuble si nécessaire</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Erreurs générales -->
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex">
+                <i class="fas fa-exclamation-circle text-red-400 mr-2 mt-0.5"></i>
+                <div>
+                    <h3 class="text-sm font-medium text-red-800">Erreurs de validation</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Boutons d'action -->
+        <div class="flex items-center justify-between bg-gray-50 px-6 py-4 rounded-xl">
+            <div class="text-sm text-gray-600">
+                <i class="fas fa-info-circle mr-1"></i>
+                L'inventaire capturera l'état actuel de tous les meubles de la maison
+            </div>
+            
+            <div class="flex space-x-3">
+                <a href="{% url 'meubles:inventaires_list' %}" 
+                   class="inline-flex items-center px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-times mr-2"></i>
+                    Annuler
+                </a>
+                
+                <button type="submit" 
+                        class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-save mr-2"></i>
+                    {{ action }}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chargement de l'aperçu des meubles lorsqu'une maison est sélectionnée
+document.getElementById('{{ form.maison.id_for_label }}').addEventListener('change', function() {
+    const maisonId = this.value;
+    const previewDiv = document.getElementById('meublePreview');
+    const meublesListDiv = document.getElementById('meublesList');
+    
+    if (maisonId) {
+        // Afficher le conteneur de prévisualisation
+        previewDiv.style.display = 'block';
+        
+        // Charger les meubles via AJAX
+        fetch(`/meubles/api/meubles/maison/${maisonId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.meubles && data.meubles.length > 0) {
+                    // Grouper les meubles par pièce
+                    const meublesByPiece = {};
+                    data.meubles.forEach(meuble => {
+                        if (!meublesByPiece[meuble.piece]) {
+                            meublesByPiece[meuble.piece] = [];
+                        }
+                        meublesByPiece[meuble.piece].push(meuble);
+                    });
+                    
+                    // Construire l'HTML
+                    let html = `
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="md:col-span-3 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                        <span class="text-sm font-medium text-blue-800">
+                                            ${data.meubles.length} meuble(s) trouvé(s) dans cette maison
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-blue-700">
+                                        État actuel sera capturé automatiquement
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 space-y-6">
+                    `;
+                    
+                    // Ajouter chaque pièce
+                    Object.keys(meublesByPiece).forEach(piece => {
+                        const meubles = meublesByPiece[piece];
+                        
+                        html += `
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                    <h4 class="font-medium text-gray-900">
+                                        <i class="fas fa-door-open text-gray-600 mr-2"></i>
+                                        ${piece} (${meubles.length} meubles)
+                                    </h4>
+                                </div>
+                                
+                                <div class="p-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        `;
+                        
+                        meubles.forEach(meuble => {
+                            const etatClass = getEtatClass(meuble.etat);
+                            
+                            html += `
+                                <div class="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <h5 class="font-medium text-gray-900 text-sm">${meuble.nom}</h5>
+                                            <p class="text-xs text-gray-500">${meuble.type} • ${meuble.numero_serie}</p>
+                                        </div>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${etatClass}">
+                                            ${meuble.etat_display}
+                                        </span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += `
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    
+                    meublesListDiv.innerHTML = html;
+                } else {
+                    meublesListDiv.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-2"></i>
+                            <p>Aucun meuble trouvé dans cette maison</p>
+                            <p class="text-sm">L'inventaire sera créé mais restera vide</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                meublesListDiv.innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
+                        <p>Erreur lors du chargement des meubles</p>
+                    </div>
+                `;
+            });
+    } else {
+        previewDiv.style.display = 'none';
+    }
+});
+
+// Fonction utilitaire pour les classes CSS des états
+function getEtatClass(etat) {
+    switch(etat) {
+        case 'bon':
+            return 'bg-green-100 text-green-800';
+        case 'usage':
+            return 'bg-yellow-100 text-yellow-800';
+        case 'defectueux':
+            return 'bg-red-100 text-red-800';
+        case 'hors_service':
+            return 'bg-gray-100 text-gray-800';
+        default:
+            return 'bg-gray-100 text-gray-800';
+    }
+}
+
+// Mise à jour du style basé sur le type d'inventaire sélectionné
+document.getElementById('{{ form.type_inventaire.id_for_label }}').addEventListener('change', function() {
+    const typeValue = this.value;
+    const descriptions = document.querySelectorAll('[class*="border-"][class*="rounded-lg p-3"]');
+    
+    descriptions.forEach(desc => {
+        desc.style.opacity = '0.5';
+        desc.style.transform = 'scale(0.95)';
+    });
+    
+    // Mettre en évidence le type sélectionné
+    setTimeout(() => {
+        descriptions.forEach(desc => {
+            desc.style.opacity = '1';
+            desc.style.transform = 'scale(1)';
+            desc.style.transition = 'all 0.3s ease';
+        });
+        
+        // Ajouter un effet spécial au type sélectionné
+        if (typeValue) {
+            const typeMap = {
+                'entree': 0,
+                'sortie': 1,
+                'periodique': 2,
+                'maintenance': 3
+            };
+            
+            const selectedIndex = typeMap[typeValue];
+            if (selectedIndex !== undefined && descriptions[selectedIndex]) {
+                descriptions[selectedIndex].style.boxShadow = '0 0 0 2px rgba(99, 102, 241, 0.5)';
+                descriptions[selectedIndex].style.transform = 'scale(1.02)';
+            }
+        }
+    }, 100);
+});
+
+// Animation de soumission du formulaire
+document.getElementById('inventaireForm').addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Création en cours...';
+    submitBtn.disabled = true;
+    
+    // Restaurer le bouton en cas d'erreur (le navigateur ne rechargera pas)
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 5000);
+});
+
+// Validation côté client
+function validateForm() {
+    const maison = document.getElementById('{{ form.maison.id_for_label }}').value;
+    const typeInventaire = document.getElementById('{{ form.type_inventaire.id_for_label }}').value;
+    
+    if (!maison) {
+        alert('Veuillez sélectionner une maison');
+        return false;
+    }
+    
+    if (!typeInventaire) {
+        alert('Veuillez sélectionner un type d\'inventaire');
+        return false;
+    }
+    
+    return true;
+}
+
+// Ajouter la validation au formulaire
+document.getElementById('inventaireForm').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}
