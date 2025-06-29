@@ -42,7 +42,7 @@
             <div class="flex items-center">
                 <a href="{% url 'home:index' %}" class="flex items-center space-x-2">
                     <img src="{% static 'images/repavi_lodge_dark.png' %}" alt="RepAvi" class="h-8 w-8 object-contain" />
-                    <span class="text-xl font-bold text-gray-800 hover:text-indigo-600 transition-colors">
+                    <span class=" font-lato text-xl font-bold text-gray-800 hover:text-gray-900 transition-colors">
                         RepAvi
                     </span>
                 </a>
@@ -54,7 +54,7 @@
             </div>
             
             <!-- Menu desktop -->
-            <div class="hidden md:flex items-center space-x-8">
+            <div class="hidden md:flex items-center space-x-8 font-lato">
                 <!-- Accueil -->
                 <a href="{% url 'home:index' %}" 
                     class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
@@ -74,7 +74,9 @@
                     <a href="{% url 'home:maisons_reservation' %}"
                        class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
                        {% if request.resolver_match.url_name == 'maisons_reservation' %}text-gray-900 font-semibold active{% endif %}">
-                        <i class="fas fa-calendar-check mr-1"></i>Réserver
+                       
+
+                        Réserver
                     </a>
                     
                     {% if user.is_authenticated %}
@@ -101,7 +103,7 @@
             </div>
 
             <!-- Menu utilisateur -->
-            <div class="hidden md:flex items-center space-x-4">
+            <div class="hidden md:flex items-center space-x-4 font-lato" >
                 {% if user.is_authenticated %}
                     <!-- Utilisateur connecté -->
                     <div class="flex items-center space-x-4">
@@ -230,11 +232,11 @@
                 {% else %}
                     <!-- Utilisateur non connecté -->
                     <div class="flex items-center space-x-4">
-                        <a href="{% url 'users:login' %}" class="text-sm font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
-                            Connexion<span aria-hidden="true">&nbsp;→</span>
+                        <a href="{% url 'users:register' %}" class="bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-900 transition-colors">
+                         S'inscrire
                         </a>
-                        <a href="{% url 'users:register' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-user-plus mr-1"></i>S'inscrire
+                        <a href="{% url 'users:login' %}" class="text-sm font-semibold text-gray-900 hover:text-blue-900 transition-colors">
+                            Connexion<span aria-hidden="true">&nbsp;→</span>
                         </a>
                     </div>
                 {% endif %}
@@ -250,18 +252,18 @@
     </div>
     
     <!-- Menu mobile -->
-    <div class="md:hidden bg-white border-t border-gray-200" id="mobile-menu" style="display: none;">
+    <div class="md:hidden bg-white border-t border-gray-200 font-lato text-md" id="mobile-menu" style="display: none;">
         <div class="px-4 py-3 space-y-3">
             <a href="{% url 'home:index' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
             <a href="{% url 'home:maisons_list' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
             
             {% if reservations_available and not user.est_proprietaire and not user.est_admin %}
                 <a href="{% url 'home:maisons_reservation' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                    <i class="fas fa-calendar-check mr-2"></i>Réserver
+                    Réserver
                 </a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'reservations:mes_reservations' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                        <i class="fas fa-list mr-2"></i>Mes Réservations
+                       </i>Mes Réservations
                     </a>
                 {% endif %}
             {% endif %}
@@ -314,11 +316,11 @@
                 </a>
             {% else %}
                 <hr class="border-gray-200">
-                <a href="{% url 'users:login' %}" class="block text-gray-900 hover:text-gray-900 font-semibold transition-colors text-center border border-blue-200 rounded-lg px-4 py-2">
+                <a href="{% url 'users:login' %}" class="block text-sm text-gray-900 hover:text-gray-900 font-semibold transition-colors text-center border border-blue-200 rounded-lg px-4 py-2">
                    Connexion <span aria-hidden="true">&nbsp;→</span>
                 </a>
-                <a href="{% url 'users:register' %}" class="block bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-center">
-                    <i class="fas fa-user-plus mr-2"></i>S'inscrire
+                <a href="{% url 'users:register' %}" class="block bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm text-center">
+                    S'inscrire
                 </a>
             {% endif %}
         </div>
