@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+    <!-- Navigation -->
+    <nav class="glass-effect border-b border-white/20 fixed w-full z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'home:index' %}" class="text-2xl font-bold text-gray-800">
+                        RepAvi
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home:index' %}" class="text-gray-700 hover:text-gray-900 font-medium transition-colors">Accueil</a>
+                    <a href="{% url 'home:maisons_list' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
+                    <a href="{% url 'home:apropos' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">À propos</a>
+                    <a href="{% url 'home:contact' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Contact</a>
+                    
+                    {% if user.is_authenticated %}
+                        <!-- Menu utilisateur connecté -->
+                        <div class="flex items-center space-x-4">
+                            {% if user.est_admin %}
+                                <a href="{% url 'users:dashboard' %}" class="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-cogs mr-1"></i>Admin
+                                </a>
+                            {% elif user.est_proprietaire %}
+                                <a href="{% url 'users:dashboard_proprietaire' %}" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-home mr-1"></i>Mes biens
+                                </a>
+                            {% else %}
+                                <a href="{% url 'users:dashboard_locataire' %}" class="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-user mr-1"></i>Mon espace
+                                </a>
+                            {% endif %}
+                            
+                            <div class="relative group">
+                                <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                                    {% if user.photo_profil %}
+                                        <img src="{{ user.photo_profil.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                                    {% else %}
+                                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-gray-500"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="text-sm font-medium">{{ user.first_name|default:user.username }}</span>
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </button>
+                                
+                                <!-- Dropdown menu -->
+                                <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                    <div class="py-2">
+                                        <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <i class="fas fa-user mr-2"></i>Mon profil
+                                        </a>
+                                        <a href="{% url 'users:dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                                        </a>
+                                        <hr class="my-1">
+                                        <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                            <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Menu utilisateur non connecté -->
+                        <div class="flex items-center space-x-4">
+                            <a href="{% url 'users:login' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                                Connexion
+                            </a>
+                            <a href="{% url 'users:register' %}" class="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+                                S'inscrire
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-16 pb-20 gradient-background">
+        <div class="max-w-6xl mx-auto px-4 pt-16">
+            <div class="text-center text-white">
+                {% if user.is_authenticated %}
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                        Bon retour,
+                        <span class="text-yellow-300">{{ user.first_name|default:user.username }}</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-10 text-white/90 max-w-3xl mx-auto font-light">
+                        {% if user.est_proprietaire %}
+                            Gérez vos biens et maximisez vos revenus locatifs
+                        {% elif user.est_locataire %}
+                            Découvrez votre prochain séjour d'exception
+                        {% else %}
+                            Administrez la plateforme RepAvi
+                        {% endif %}
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
+                        {% if user.est_proprietaire %}
+                            <a href="{% url 'repavi_admin:maison_create' %}" 
+                               class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                <i class="fas fa-plus mr-2"></i>Ajouter une maison
+                            </a>
+                            <a href="{% url 'users:dashboard_proprietaire' %}" 
+                               class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
+                                Mon dashboard
+                            </a>
+                        {% elif user.est_admin %}
+                            <a href="{% url 'users:dashboard' %}" 
+                               class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard admin
+                            </a>
+                            <a href="{% url 'repavi_admin:maisons_list' %}" 
+                               class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
+                                Gérer les maisons
+                            </a>
+                        {% else %}
+                            <a href="{% url 'home:maisons_list' %}" 
+                               class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                Parcourir les maisons
+                            </a>
+                            <a href="{% url 'users:dashboard_locataire' %}" 
+                               class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
+                                Mes réservations
+                            </a>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                        Trouvez votre
+                        <span class="text-yellow-300">refuge parfait</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-10 text-white/90 max-w-3xl mx-auto font-light">
+                        Des maisons d'exception soigneusement sélectionnées pour vos séjours inoubliables
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
+                        <a href="{% url 'home:maisons_list' %}" 
+                           class="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                            Découvrir nos maisons
+                        </a>
+                        <a href="{% url 'users:register' %}" 
+                           class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-all duration-300">
+                            Créer un compte
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistiques -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center group">
+                    <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        {{ stats.total_maisons }}+
+                    </div>
+                    <div class="text-gray-600 font-medium">Maisons disponibles</div>
+                </div>
+                <div class="text-center group">
+                    <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        {{ stats.total_villes }}
+                    </div>
+                    <div class="text-gray-600 font-medium">Destinations</div>
+                </div>
+                <div class="text-center group">
+                    <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        {{ stats.satisfaction_client }}%
+                    </div>
+                    <div class="text-gray-600 font-medium">Satisfaction</div>
+                </div>
+                <div class="text-center group">
+                    <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        24/7
+                    </div>
+                    <div class="text-gray-600 font-medium">Support</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Maisons Featured -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Nos coups de cœur</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto font-light">
+                    Une sélection de maisons d'exception pour des séjours mémorables
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for maison in maisons_featured %}
+                <div class="bg-white rounded-2xl overflow-hidden soft-shadow hover-lift">
+                    <div class="relative">
+                        {% if maison.photo_principale %}
+                            <img src="{{ maison.photo_principale.url }}" 
+                                 alt="{{ maison.nom }}" 
+                                 class="w-full h-64 object-cover">
+                        {% else %}
+                            <div class="w-full h-64 bg-gray-100 flex items-center justify-center">
+                                <i class="fas fa-home text-3xl text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                        
+                        {% if maison.categorie %}
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-white/90 text-gray-700 px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                                {{ maison.categorie.nom }}
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="absolute top-4 right-4">
+                            <button class="bg-white/90 p-2 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
+                                <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ maison.nom }}</h3>
+                        <p class="text-gray-600 mb-4 line-clamp-2">{{ maison.description|truncatewords:15 }}</p>
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <span>{{ maison.ville }}</span>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span><i class="fas fa-users mr-1"></i>{{ maison.capacite_personnes }}</span>
+                                <span><i class="fas fa-bed mr-1"></i>{{ maison.nombre_chambres }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="text-2xl font-bold text-gray-900">
+                                {{ maison.prix_par_nuit }}€
+                                <span class="text-sm font-normal text-gray-500">/nuit</span>
+                            </div>
+                            <a href="{% url 'home:maison_detail' maison.slug %}" 
+                               class="bg-gray-900 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+                                Voir détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-16">
+                    <i class="fas fa-home text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 text-lg">Aucune maison disponible pour le moment</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="{% url 'home:maisons_list' %}" 
+                   class="inline-flex items-center bg-gray-900 text-white px-8 py-4 rounded-full font-semibold hover:bg-gray-800 transition-colors">
+                    Voir toutes nos maisons
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Villes Populaires -->
+    {% if villes_populaires %}
+    <section class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Destinations populaires</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto font-light">
+                    Explorez nos destinations les plus prisées
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {% for ville in villes_populaires %}
+                <a href="{% url 'home:maisons_list' %}?ville={{ ville.id }}" 
+                   class="bg-gray-50 hover:bg-gray-100 p-6 rounded-xl text-center transition-colors group subtle-border">
+                    <i class="fas fa-map-marker-alt text-2xl text-gray-400 mb-3 group-hover:text-indigo-600 transition-colors"></i>
+                    <div class="font-semibold text-gray-900 mb-1">{{ ville.nom }}</div>
+                    <div class="text-sm text-gray-500">{{ ville.nombre_maisons }} maison{{ ville.nombre_maisons|pluralize }}</div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Services -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Pourquoi choisir RepAvi ?</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto font-light">
+                    Une expérience de location sans égal
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-indigo-200 transition-colors">
+                        <i class="fas fa-shield-alt text-2xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Sécurisé & Fiable</h3>
+                    <p class="text-gray-600 leading-relaxed">Toutes nos maisons sont vérifiées et nos paiements sont 100% sécurisés</p>
+                </div>
+
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-200 transition-colors">
+                        <i class="fas fa-clock text-2xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Check-in Instantané</h3>
+                    <p class="text-gray-600 leading-relaxed">Accès immédiat à votre logement grâce à notre système innovant</p>
+                </div>
+
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-purple-200 transition-colors">
+                        <i class="fas fa-headset text-2xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Support 24/7</h3>
+                    <p class="text-gray-600 leading-relaxed">Notre équipe dédiée est toujours là pour vous accompagner</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

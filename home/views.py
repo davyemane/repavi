@@ -1,5 +1,7 @@
 # home/views.py - Version adaptée avec nouveaux rôles et services
-from django.shortcuts import render, get_object_or_404
+from datetime import timezone
+from django.forms import ValidationError
+from django.shortcuts import redirect, render, get_object_or_404
 from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -7,8 +9,10 @@ from django.views.generic import ListView, DetailView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from home.forms import User
 from services.maison_service import MaisonService
 from services.reservation_service import ReservationService
+from services.statistics_service import StatisticsService
 from .models import Maison, CategorieMaison, Ville, PhotoMaison, Reservation
 import json
 

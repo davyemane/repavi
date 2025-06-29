@@ -1,13 +1,38 @@
 <!-- components/navigation.html -->
 <!-- Navigation principale avec menu responsive -->
+{% load static %}
+
+<style>
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background-color: #2563eb;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::before,
+.nav-link.active::before {
+    width: 100%;
+}
+</style>
+
 
 <nav class="glass-effect border-b border-white/20 fixed w-full z-50" id="main-nav">
     <div class="max-w-6xl mx-auto px-4">
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex items-center">
-                <a href="{% url 'home:index' %}" class="text-2xl font-bold text-gray-800 hover:text-indigo-600 transition-colors">
-                    RepAvi
+                <!-- Logo image placeholder -->
+                <a href="{% url 'home:index' %}" class="flex items-center space-x-2">
+                    <!-- Replace src with your logo path -->
+                    <img src="{% static 'images/repavi_lodge_dark.png' %}" alt="re" class="h-8 w-8 object-contain" />
+                    <span class="text-xl font-bold text-gray-800 hover:text-indigo-600 transition-colors">
+                        RepAvi
+                    </span>
                 </a>
                 {% if request.resolver_match.url_name == 'dashboard' or 'admin' in request.resolver_match.url_name %}
                     <span class="ml-3 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full font-medium">
@@ -18,23 +43,35 @@
             
             <!-- Menu desktop -->
             <div class="hidden md:flex items-center space-x-8">
+                <!-- Accueil -->
                 <a href="{% url 'home:index' %}" 
-                   class="nav-link text-gray-600 hover:text-gray-900 font-medium transition-colors {% if request.resolver_match.url_name == 'index' %}text-gray-900 font-semibold{% endif %}">
-                    Accueil
+                    class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
+                    {% if request.resolver_match.url_name == 'index' %}text-gray-900 font-semibold active{% endif %}">
+                        Accueil
                 </a>
-                <a href="{% url 'home:maisons_list' %}" 
-                   class="nav-link text-gray-600 hover:text-gray-900 font-medium transition-colors {% if 'maisons' in request.resolver_match.url_name %}text-gray-900 font-semibold{% endif %}">
+
+                <!-- Maisons -->
+                <a href="{% url 'home:maisons_list' %}"
+                class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
+                        {% if 'maisons' in request.resolver_match.url_name %}text-gray-900 font-semibold active{% endif %}">
                     Maisons
                 </a>
-                <a href="{% url 'home:apropos' %}" 
-                   class="nav-link text-gray-600 hover:text-gray-900 font-medium transition-colors {% if request.resolver_match.url_name == 'apropos' %}text-gray-900 font-semibold{% endif %}">
+
+                <!-- À propos -->
+                <a href="{% url 'home:apropos' %}"
+                class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
+                        {% if request.resolver_match.url_name == 'apropos' %}text-gray-900 font-semibold active{% endif %}">
                     À propos
                 </a>
-                <a href="{% url 'home:contact' %}" 
-                   class="nav-link text-gray-600 hover:text-gray-900 font-medium transition-colors {% if request.resolver_match.url_name == 'contact' %}text-gray-900 font-semibold{% endif %}">
+
+                <!-- Contact -->
+                <a href="{% url 'home:contact' %}"
+                class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
+                        {% if request.resolver_match.url_name == 'contact' %}text-gray-900 font-semibold active{% endif %}">
                     Contact
                 </a>
             </div>
+
             
             <!-- Menu utilisateur -->
             <div class="hidden md:flex items-center space-x-4">
@@ -83,19 +120,19 @@
                         
                         <!-- Raccourcis selon le type d'utilisateur -->
                         {% if user.est_admin %}
-                            <a href="{% url 'repavi_admin:dashboard' %}" 
+                            <a href="{% url 'users:dashboard' %}" 
                                class="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-purple-700 transition-colors">
                                 <i class="fas fa-cogs mr-1"></i>Admin
                             </a>
                         {% elif user.est_proprietaire %}
-                            <a href="{% url 'repavi_admin:maison_create' %}" 
+                            <a href="{% url 'users:dashboard_proprietaire' %}" 
                                class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-plus mr-1"></i>Ajouter
+                                <i class="fas fa-plus mr-1"></i>Mes biens
                             </a>
                         {% else %}
-                            <a href="{% url 'home:maisons_list' %}" 
+                            <a href="{% url 'users:dashboard_locataire' %}" 
                                class="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-700 transition-colors">
-                                <i class="fas fa-search mr-1"></i>Chercher
+                                <i class="fas fa-search mr-1"></i>Mon espace
                             </a>
                         {% endif %}
                         
@@ -125,7 +162,7 @@
                                             </div>
                                         {% endif %}
                                         <div>
-                                            <p class="font-medium text-gray-900">{{ user.nom_complet|default:user.username }}</p>
+                                            <p class="font-medium text-gray-900">{{ user.first_name|default:user.username }}</p>
                                             <p class="text-sm text-gray-500">{{ user.email }}</p>
                                         </div>
                                     </div>
@@ -141,15 +178,11 @@
                                         Mon profil
                                     </a>
                                     {% if user.est_proprietaire %}
-                                        <a href="{% url 'repavi_admin:maisons_list' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <a href="{% url 'users:dashboard_proprietaire' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                             <i class="fas fa-home mr-3 text-gray-400"></i>
                                             Mes biens
                                         </a>
                                     {% endif %}
-                                    <a href="{% url 'users:account_settings' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                                        <i class="fas fa-cog mr-3 text-gray-400"></i>
-                                        Paramètres
-                                    </a>
                                 </div>
                                 
                                 <div class="border-t border-gray-200 py-2">
@@ -164,12 +197,13 @@
                 {% else %}
                     <!-- Utilisateur non connecté -->
                     <div class="flex items-center space-x-4">
-                        <a href="{% url 'users:login' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                            <i class="fas fa-sign-in-alt mr-1"></i>Connexion
+                       
+                        <a href="{% url 'users:register' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                            <!-- <i class="fas fa-user-plus mr-1"> -->
+
+                            </i>S'inscrire
                         </a>
-                        <a href="{% url 'users:register' %}" class="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
-                            <i class="fas fa-user-plus mr-1"></i>S'inscrire
-                        </a>
+                         <a href="{% url 'users:login' %}" class="text-sm font-semibold text-gray-900">Connexion<span aria-hidden="true">&nbsp →</span></a>
                     </div>
                 {% endif %}
             </div>
@@ -184,7 +218,8 @@
     </div>
     
     <!-- Menu mobile -->
-    <div class="md:hidden bg-white border-t border-gray-200 hidden" id="mobile-menu">
+    <div class="md:hidden bg-white border-t border-gray-200" id="mobile-menu" style="display: none;">
+
         <div class="px-4 py-3 space-y-3">
             <a href="{% url 'home:index' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
             <a href="{% url 'home:maisons_list' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
@@ -193,9 +228,36 @@
             
             {% if user.is_authenticated %}
                 <hr class="border-gray-200">
-                <a href="{% url 'users:dashboard' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
-                </a>
+                <!-- User info in mobile -->
+                <div class="flex items-center space-x-3 py-2">
+                    {% if user.photo_profil %}
+                        <img src="{{ user.photo_profil.url }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                    {% else %}
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-gray-500"></i>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <p class="font-medium text-gray-900">{{ user.first_name|default:user.username }}</p>
+                        <p class="text-sm text-gray-500">{{ user.email }}</p>
+                    </div>
+                </div>
+                
+                <!-- Dashboard link based on user type -->
+                {% if user.est_admin %}
+                    <a href="{% url 'users:dashboard' %}" class="block text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                        <i class="fas fa-cogs mr-2"></i>Admin Dashboard
+                    </a>
+                {% elif user.est_proprietaire %}
+                    <a href="{% url 'users:dashboard_proprietaire' %}" class="block text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                        <i class="fas fa-home mr-2"></i>Mes biens
+                    </a>
+                {% else %}
+                    <a href="{% url 'users:dashboard_locataire' %}" class="block text-green-600 hover:text-green-700 font-medium transition-colors">
+                        <i class="fas fa-user mr-2"></i>Mon espace
+                    </a>
+                {% endif %}
+                
                 <a href="{% url 'users:profile' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
                     <i class="fas fa-user mr-2"></i>Profil
                 </a>
@@ -204,10 +266,11 @@
                 </a>
             {% else %}
                 <hr class="border-gray-200">
-                <a href="{% url 'users:login' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                    <i class="fas fa-sign-in-alt mr-2"></i>Connexion
+         
+                <a href="{% url 'users:login' %}" class="block text-gray-900 hover:text-gray-900 font-semibold transition-colors text-center border border-blue-200 rounded-lg px-4 py-2">
+                   Connexion <span aria-hidden="true">&nbsp →</span>
                 </a>
-                <a href="{% url 'users:register' %}" class="block bg-gray-900 text-white px-4 py-2 rounded-lg font-medium text-center">
+                <a href="{% url 'users:register' %}" class="block bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-center">
                     <i class="fas fa-user-plus mr-2"></i>S'inscrire
                 </a>
             {% endif %}
@@ -215,7 +278,6 @@
     </div>
 </nav>
 
-<!-- Script pour la navigation -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Menu mobile toggle
@@ -224,9 +286,29 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (mobileMenuBtn && mobileMenu) {
         mobileMenuBtn.addEventListener('click', function() {
-            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.style.display === 'none' || mobileMenu.style.display === '') {
+                mobileMenu.style.display = 'block';
+            } else {
+                mobileMenu.style.display = 'none';
+            }
         });
     }
+
+    document.addEventListener('click', function(event) {
+    if (
+        mobileMenu &&
+        !mobileMenu.contains(event.target) &&
+        !mobileMenuBtn.contains(event.target)
+    ) {
+        mobileMenu.style.display = 'none';
+    }
+    });
+    window.addEventListener('resize', function () {
+        if (window.innerWidth >= 768) {
+            mobileMenu.style.display = 'none';
+        }
+        });
+
     
     // Notifications dropdown
     const notificationsBtn = document.getElementById('notifications-btn');
@@ -252,20 +334,31 @@ document.addEventListener('DOMContentLoaded', function() {
     
     window.addEventListener('scroll', function() {
         if (window.scrollY > 100) {
-            nav.classList.add('bg-white/95');
+            nav.classList.add('bg-white/90');
             nav.classList.remove('glass-effect');
         } else {
             nav.classList.remove('bg-white/95');
             nav.classList.add('glass-effect');
         }
         
-        // Masquer/afficher la nav au scroll
-        if (window.scrollY > lastScrollY && window.scrollY > 200) {
-            nav.style.transform = 'translateY(-100%)';
-        } else {
-            nav.style.transform = 'translateY(0)';
-        }
-        lastScrollY = window.scrollY;
+      
     });
 });
 </script>
+
+<style>
+.glass-effect {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+#main-nav {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+</style>

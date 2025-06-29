@@ -1,4 +1,5 @@
 {% load static %}
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="fr" class="h-full bg-gray-50">
 <head>
@@ -7,7 +8,8 @@
     <title>{% block title %}Administration RepAvi{% endblock %}</title>
     
     <!-- Tailwind CSS (build local, pas CDN) -->
-    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <!-- <link href="{% static 'css/tailwind.css' %}" rel="stylesheet"> -->
+      {% tailwind_css %}
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -188,7 +190,7 @@
                 alert.style.opacity = '0';
                 setTimeout(() => alert.remove(), 500);
             });
-        }, 5000);
+        }, 2000);
 
     </script>
 </body>

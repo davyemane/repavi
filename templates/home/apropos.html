@@ -5,6 +5,7 @@
 
 {% block content %}
     <!-- Navigation -->
+     {% comment %}
     <nav class="glass-effect border-b border-white/20 fixed w-full z-50">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
@@ -21,9 +22,10 @@
             </div>
         </div>
     </nav>
+    {% endcomment %}
 
     <!-- Header -->
-    <section class="pt-16 pb-12 gradient-background">
+   <section class="bg-white min-h-screen flex items-center justify-center relative pt-0">
         <div class="max-w-6xl mx-auto px-4 pt-8">
             <div class="text-center text-white">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4">À propos de RepAvi</h1>
@@ -211,7 +213,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-16">
+    <!-- <footer class="bg-gray-900 text-white py-16">
         <div class="max-w-6xl mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div class="md:col-span-2">
@@ -244,5 +246,5 @@
                 <p class="text-gray-400">&copy; 2025 RepAvi. Tous droits réservés.</p>
             </div>
         </div>
-    </footer>
+    </footer> -->
 {% endblock %}

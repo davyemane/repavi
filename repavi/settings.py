@@ -25,14 +25,13 @@ LOGOUT_REDIRECT_URL = '/'
 
 # === SÉCURITÉ RENFORCÉE ===
 # Protection CSRF
-CSRF_COOKIE_SECURE = IS_PRODUCTION
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=IS_PRODUCTION, cast=bool)
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Strict'
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv(), default=[])
-CSRF_FAILURE_VIEW = 'utils.views.csrf_failure'
 
 # Protection des sessions
-SESSION_COOKIE_SECURE = IS_PRODUCTION
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=IS_PRODUCTION, cast=bool)
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Strict'
 SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', default=1209600, cast=int)  # 2 semaines
@@ -44,11 +43,13 @@ SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=IS_PRODUCTION, cast=
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Sécurité HTTPS en production
 if IS_PRODUCTION:
     SECURE_HSTS_SECONDS = 31536000  # 1 an
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Protection des uploads
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
@@ -56,12 +57,13 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 FILE_UPLOAD_PERMISSIONS = 0o644
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
 
-# Extensions autorisées
-ALLOWED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp']
-ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf', '.doc', '.docx']
-
 # Protection contre le clickjacking
 X_FRAME_OPTIONS = 'DENY'
+
+# === TAILWIND ===
+TAILWIND_APP_NAME = 'theme'
+INTERNAL_IPS = ['127.0.0.1', '::1'] 
+NPM_BIN_PATH = config('NPM_BIN_PATH', default='npm')
 
 # === APPLICATIONS ===
 INSTALLED_APPS = [
@@ -73,55 +75,52 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',  # Pour formater les nombres, dates
     
-    # Outils de développement
-    'django_extensions',  # Commandes utiles comme shell_plus
-    
     # Tailwind et UI
     'tailwind',
     'theme',
     'django_browser_reload',
     
-    # Génération PDF selon cahier des charges
-    'weasyprint',
-    
-    # Rate limiting pour sécurité
-    'django_ratelimit',
-    
-    # Apps principales selon cahier des charges
+    # Apps du projet selon cahier des charges
     'users',       # Gestion utilisateurs (Client, Gestionnaire, Super Admin)
     'home',        # Vitrine publique + modèles principaux
-    'reservations', # Gestion des réservations 
-    'appartements', # Gestion des appartements
-    'meubles',     # Gestion des meubles
-    'avis',        # Système d'avis clients
-    'statistics',  # Statistiques et rapports
-    'notifications', # Système de notifications (WhatsApp futur)
+    # 'meubles',      # Gestion des meubles
 ]
 
-# === MIDDLEWARE AVEC SÉCURITÉ ===
+# Apps optionnelles selon le développement
+OPTIONAL_APPS = [
+    # 'reservations',   # Gestion des réservations 
+    # 'appartements',   # Gestion des appartements
+    # 'meubles',        # Gestion des meubles
+    # 'avis',           # Système d'avis clients
+    # 'statistics',     # Statistiques et rapports
+    # 'notifications',  # Système de notifications (WhatsApp futur)
+]
+
+# Ajouter les apps optionnelles qui existent
+for app in OPTIONAL_APPS:
+    app_path = BASE_DIR / app
+    if app_path.exists() and (app_path / '__init__.py').exists():
+        INSTALLED_APPS.append(app)
+
+# === MIDDLEWARE ===
 MIDDLEWARE = [
-    # Sécurité en premier
     'django.middleware.security.SecurityMiddleware',
-    
-    # Monitoring des performances
-    'utils.middleware.PerformanceMonitoringMiddleware',
-    
-    # Rate limiting pour protection
-    'django_ratelimit.middleware.RatelimitMiddleware',
-    
-    # Middlewares Django standard
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
-    # Middleware personnalisé pour logging sécurisé
-    'utils.middleware.SecurityLoggingMiddleware',
-    
-    # Reload en développement seulement
-] + (['django_browser_reload.middleware.BrowserReloadMiddleware'] if DEBUG else [])
+    'django_browser_reload.middleware.BrowserReloadMiddleware'
+]
+
+# Middleware conditionnel
+if DEBUG:
+    MIDDLEWARE.append('django_browser_reload.middleware.BrowserReloadMiddleware')
+
+if IS_PRODUCTION:
+    # Compression en production
+    MIDDLEWARE.insert(1, 'django.middleware.gzip.GZipMiddleware')
 
 # === URLS & WSGI ===
 ROOT_URLCONF = 'repavi.urls'
@@ -139,12 +138,19 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Context processor personnalisé pour variables globales
-                'utils.context_processors.global_settings',
             ],
         },
     },
 ]
+
+# Cache des templates en production
+if IS_PRODUCTION:
+    TEMPLATES[0]['OPTIONS']['loaders'] = [
+        ('django.template.loaders.cached.Loader', [
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        ]),
+    ]
 
 # === BASE DE DONNÉES ===
 DATABASES = {
@@ -163,7 +169,7 @@ DATABASES = {
     }
 }
 
-# === CACHE SELON ENVIRONNEMENT ===
+# === CACHE ===
 if IS_PRODUCTION:
     # Redis pour production
     CACHES = {
@@ -176,11 +182,10 @@ if IS_PRODUCTION:
         }
     }
 else:
-    # Cache local pour développement
+    # Cache simple pour développement
     CACHES = {
         'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'repavi-cache',
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
 
@@ -200,10 +205,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-    # Validateur personnalisé pour plus de sécurité
-    {
-        'NAME': 'utils.validators.CustomPasswordValidator',
     },
 ]
 
@@ -246,28 +247,25 @@ MEDIA_SUBDIRS = {
 
 # === EMAIL CONFIGURATION ===
 EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-
-if IS_PRODUCTION:
-    # Configuration SMTP pour production
-    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-    
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='RepAvi Lodges <noreply@repavilodges.com>')
-ADMINS = [('Admin', config('ADMIN_EMAIL', default='admin@repavilodges.com'))]
-MANAGERS = ADMINS
+
+# Configuration email pour production
+if IS_PRODUCTION:
+    ADMINS = [('Admin', config('ADMIN_EMAIL', default='admin@repavilodges.com'))]
+    MANAGERS = ADMINS
 
 # === SITE URL ===
-SITE_URL = config('SITE_URL_PROD' if IS_PRODUCTION else 'SITE_URL_DEV', 
-                 default='https://repavilodges.com' if IS_PRODUCTION else 'http://127.0.0.1:8000')
+if DEBUG:
+    SITE_URL = config('SITE_URL_DEV', default='http://127.0.0.1:8000')
+else:
+    SITE_URL = config('SITE_URL_PROD', default='https://repavilodges.com')
 
-# === TAILWIND ===
-TAILWIND_APP_NAME = 'theme'
-NPM_BIN_PATH = config('NPM_BIN_PATH', default='npm')
-
-# === LOGGING SÉCURISÉ ===
+# === LOGGING ===
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
 
@@ -281,10 +279,6 @@ LOGGING = {
         },
         'simple': {
             'format': '{levelname} {message}',
-            'style': '{',
-        },
-        'security': {
-            'format': 'SECURITY {asctime} {levelname} {module} {funcName} {message} - IP: {extra[ip]} - User: {extra[user]}',
             'style': '{',
         },
     },
@@ -311,14 +305,6 @@ LOGGING = {
             'backupCount': 10,
             'formatter': 'verbose',
         },
-        'security': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR / 'security.log',
-            'maxBytes': 1024*1024*5,  # 5MB
-            'backupCount': 5,
-            'formatter': 'security',
-        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -327,7 +313,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file'] + (['mail_admins'] if IS_PRODUCTION else []),
             'level': 'INFO',
         },
         'repavi': {
@@ -335,54 +321,18 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-        'repavi.security': {
-            'handlers': ['security', 'mail_admins'],
-            'level': 'WARNING',
-            'propagate': False,
-        },
-        'django.security': {
-            'handlers': ['security'],
-            'level': 'WARNING',
-            'propagate': False,
-        },
     },
 }
 
-# === GÉNÉRATION DE PDF (selon cahier des charges) ===
-# Configuration WeasyPrint
-WEASYPRINT_BASEURL = SITE_URL
-WEASYPRINT_CSS = [
-    BASE_DIR / 'static' / 'css' / 'pdf_styles.css'
-]
-
-# === NOTIFICATIONS WHATSAPP (futur) ===
-# Configuration pour intégration future Twilio WhatsApp
-TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', default='')
-TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', default='')
-TWILIO_WHATSAPP_NUMBER = config('TWILIO_WHATSAPP_NUMBER', default='')
-
-# === RATE LIMITING ===
-RATELIMIT_ENABLE = True
-RATELIMIT_VIEW = 'utils.views.ratelimited'
-
-# Limites par défaut
-DEFAULT_RATE_LIMITS = {
-    'login': '5/5m',        # 5 tentatives par 5 minutes
-    'register': '3/h',       # 3 inscriptions par heure par IP
-    'contact': '10/h',       # 10 messages de contact par heure
-    'reservation': '20/h',   # 20 réservations par heure
-    'pdf_generation': '50/h', # 50 PDFs par heure
-}
-
-# === PARAMÈTRES MÉTIER SELON CAHIER DES CHARGES ===
-# Configuration spécifique à RepAvi Lodges
+# === PARAMÈTRES MÉTIER REPAVI LODGES ===
+# Configuration spécifique selon cahier des charges
 REPAVI_SETTINGS = {
     'COMPANY_NAME': 'RepAvi Lodges',
     'COMPANY_ADDRESS': config('COMPANY_ADDRESS', default='Douala, Cameroun'),
     'COMPANY_PHONE': config('COMPANY_PHONE', default='+237 XXX XXX XXX'),
     'COMPANY_EMAIL': config('COMPANY_EMAIL', default='contact@repavilodges.com'),
     
-    # WhatsApp pour réservations directes
+    # WhatsApp pour réservations directes selon cahier des charges
     'WHATSAPP_NUMBER': config('WHATSAPP_NUMBER', default='+237XXXXXXXXX'),
     'WHATSAPP_MESSAGE_TEMPLATE': "Bonjour RepAvi Lodges, je souhaite faire une réservation pour l'appartement {appartement_numero}",
     
@@ -400,11 +350,16 @@ REPAVI_SETTINGS = {
     'NOTIFICATION_OVERDUE_PAYMENT': 48,
 }
 
-# === VARIABLES D'ENVIRONNEMENT SPÉCIFIQUES ===
+# === INTÉGRATIONS FUTURES ===
 # Google Maps pour localisation des appartements
 GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY', default='')
 
-# Réseaux sociaux (pour vitrine)
+# Notifications WhatsApp (futur avec Twilio)
+TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', default='')
+TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', default='')
+TWILIO_WHATSAPP_NUMBER = config('TWILIO_WHATSAPP_NUMBER', default='')
+
+# Réseaux sociaux pour vitrine
 SOCIAL_MEDIA = {
     'FACEBOOK_URL': config('FACEBOOK_URL', default=''),
     'INSTAGRAM_URL': config('INSTAGRAM_URL', default=''),
@@ -412,58 +367,13 @@ SOCIAL_MEDIA = {
     'YOUTUBE_URL': config('YOUTUBE_URL', default=''),
 }
 
-# === PERFORMANCE & OPTIMISATION ===
-# Cache des templates en production
-if IS_PRODUCTION:
-    TEMPLATES[0]['OPTIONS']['loaders'] = [
-        ('django.template.loaders.cached.Loader', [
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader',
-        ]),
-    ]
-
-# Compression des réponses en production
-if IS_PRODUCTION:
-    MIDDLEWARE.insert(1, 'django.middleware.gzip.GZipMiddleware')
-
-# === BACKUP ET MAINTENANCE ===
-# Configuration pour sauvegardes automatiques
-BACKUP_SETTINGS = {
-    'DB_BACKUP_DIR': BASE_DIR / 'backups' / 'db',
-    'MEDIA_BACKUP_DIR': BASE_DIR / 'backups' / 'media',
-    'RETENTION_DAYS': 30,
-    'BACKUP_SCHEDULE': 'daily',  # daily, weekly, monthly
-}
-
-# === MONITORING ===
-# Seuils d'alerte
-MONITORING_THRESHOLDS = {
-    'SLOW_REQUEST_THRESHOLD': 2.0,  # secondes
-    'HIGH_MEMORY_THRESHOLD': 80,    # pourcentage
-    'ERROR_RATE_THRESHOLD': 5,      # pourcentage
-}
+# === EXTENSIONS AUTORISÉES ===
+# Pour validation des uploads selon sécurité
+ALLOWED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp']
+ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf', '.doc', '.docx']
 
 # === AUTO FIELD PAR DÉFAUT ===
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# === SÉCURITÉ ADDITIONNELLE EN PRODUCTION ===
-if IS_PRODUCTION:
-    # Protection supplémentaire
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_BROWSER_XSS_FILTER = True
-    
-    # Désactiver le debug en production
-    DEBUG = False
-    TEMPLATE_DEBUG = False
-    
-    # Logs d'erreurs par email
-    LOGGING['handlers']['mail_admins']['level'] = 'ERROR'
-    
-    # Masquer les informations sensibles dans les logs
-    import django.utils.log
-    django.utils.log.DEFAULT_LOGGING['loggers']['django.security.DisallowedHost'] = {
-        'handlers': ['null'],
-    }
 
 # === MESSAGES FRAMEWORK ===
 from django.contrib.messages import constants as messages
@@ -475,14 +385,14 @@ MESSAGE_TAGS = {
     messages.ERROR: 'error',
 }
 
-# === ADMIN CUSTOMIZATION ===
+# === ADMINISTRATION PERSONNALISÉE ===
 ADMIN_SITE_HEADER = 'RepAvi Lodges - Administration'
 ADMIN_SITE_TITLE = 'RepAvi Admin'
 ADMIN_INDEX_TITLE = 'Tableau de bord administrateur'
 
 # === DÉVELOPPEMENT SEULEMENT ===
 if DEBUG:
-    # Debug toolbar
+    # Debug toolbar (optionnel)
     try:
         import debug_toolbar
         INSTALLED_APPS.append('debug_toolbar')
@@ -494,5 +404,36 @@ if DEBUG:
     except ImportError:
         pass
     
-    # Emails en console en développement
+    # Emails en console pour développement
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# === FONCTIONNALITÉS AVANCÉES (À ACTIVER PROGRESSIVEMENT) ===
+# Décommentez au fur et à mesure du développement
+
+# # Génération PDF (WeasyPrint)
+# try:
+#     import weasyprint
+#     INSTALLED_APPS.append('weasyprint')
+#     WEASYPRINT_BASEURL = SITE_URL
+#     WEASYPRINT_CSS = [BASE_DIR / 'static' / 'css' / 'pdf_styles.css']
+# except ImportError:
+#     pass
+
+# # Rate limiting (pour production)
+# if IS_PRODUCTION:
+#     try:
+#         import django_ratelimit
+#         INSTALLED_APPS.append('django_ratelimit')
+#         MIDDLEWARE.insert(2, 'django_ratelimit.middleware.RatelimitMiddleware')
+#         RATELIMIT_ENABLE = True
+#         RATELIMIT_VIEW = 'utils.views.ratelimited'
+#     except ImportError:
+#         pass
+
+# # Django extensions (utilitaires de développement)
+# if DEBUG:
+#     try:
+#         import django_extensions
+#         INSTALLED_APPS.append('django_extensions')
+#     except ImportError:
+#         pass

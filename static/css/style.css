@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 *,
 ::before,
 ::after {
@@ -538,3 +539,4 @@ video {
   --tw-backdrop-saturate:  ;
   --tw-backdrop-sepia:  ;
 }
+

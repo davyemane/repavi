@@ -1,18 +1,29 @@
 {% load static %}
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
 <head>
+  {% tailwind_css %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}">
     <title>{% block title %}RepAvi - Location de maisons{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}Trouvez et réservez la maison parfaite pour vos vacances{% endblock %}">
 
     <!-- Tailwind CSS via CDN -->
+
+     <!-- Local Fonts First -->
+    <link href="{% static 'css/fonts.css' %}" rel="stylesheet">
+
+
     <!-- Tailwind CSS (build local, pas CDN) -->
-    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+    <!-- <link href="{% static 'css/tailwind.css' %}" rel="stylesheet"> -->
+    <!-- <link href="{% static 'css/styles.css' %}" rel="stylesheet"> -->
+   
+
 
     <!-- Optionnel : config Tailwind inline -->
-    <script>
+    <!-- <script>
       tailwind.config = {
         theme: {
           extend: {
@@ -26,18 +37,18 @@
           }
         }
       }
-    </script>
+    </script> -->
 
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"> -->
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Styles additionnels -->
-    <style>
+    <!-- <style>
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -67,12 +78,18 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
         }
-    </style>
+    </style> -->
 
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
+ 
+
     {% block content %}{% endblock %}
     {% block extra_js %}{% endblock %}
+   
 </body>
+<footer>
+ {% include 'components/footer.html' %}
+</footer>
 </html>
