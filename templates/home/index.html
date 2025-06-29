@@ -188,60 +188,60 @@
     </section>
 
     <!-- Statistiques -->
-     <section class="py-20 bg-gray-50">
+       <section class="py-16 md:py-20 bg-gray-50">
         <div class="max-w-6xl mx-auto px-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <div class="text-center group">
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-home text-indigo-600 text-xl"></i>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <div class="text-center">
+                    <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4">
+                            <i class="fas fa-home text-indigo-600 text-lg md:text-xl"></i>
                         </div>
-                        <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                        <div class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 md:mb-2">
                             {{ stats.total_maisons }}+
                         </div>
-                        <div class="text-gray-600 font-medium">Maisons disponibles</div>
+                        <div class="text-gray-600 font-medium text-sm md:text-base">Maisons disponibles</div>
                     </div>
                 </div>
                 
-                <div class="text-center group">
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-map-marker-alt text-green-600 text-xl"></i>
+                <div class="text-center">
+                    <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4">
+                            <i class="fas fa-map-marker-alt text-green-600 text-lg md:text-xl"></i>
                         </div>
-                        <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                        <div class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 md:mb-2">
                             {{ stats.total_villes }}
                         </div>
-                        <div class="text-gray-600 font-medium">Destinations</div>
+                        <div class="text-gray-600 font-medium text-sm md:text-base">Destinations</div>
                     </div>
                 </div>
                 
-                <div class="text-center group">
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <div class="text-center">
+                    <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4">
                             {% if reservations_available %}
-                                <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
+                                <i class="fas fa-calendar-check text-blue-600 text-lg md:text-xl"></i>
                             {% else %}
-                                <i class="fas fa-star text-blue-600 text-xl"></i>
+                                <i class="fas fa-star text-blue-600 text-lg md:text-xl"></i>
                             {% endif %}
                         </div>
-                        <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                        <div class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 md:mb-2">
                             {% if reservations_available %}{{ stats.total_reservations }}+{% else %}{{ stats.satisfaction_client }}%{% endif %}
                         </div>
-                        <div class="text-gray-600 font-medium">
+                        <div class="text-gray-600 font-medium text-sm md:text-base">
                             {% if reservations_available %}Réservations{% else %}Satisfaction{% endif %}
                         </div>
                     </div>
                 </div>
                 
-                <div class="text-center group">
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-headset text-purple-600 text-xl"></i>
+                <div class="text-center">
+                    <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4">
+                            <i class="fas fa-headset text-purple-600 text-lg md:text-xl"></i>
                         </div>
-                        <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                        <div class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 md:mb-2">
                             24/7
                         </div>
-                        <div class="text-gray-600 font-medium">Support</div>
+                        <div class="text-gray-600 font-medium text-sm md:text-base">Support</div>
                     </div>
                 </div>
             </div>
