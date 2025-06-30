@@ -19802,3 +19802,33 @@ WARNING 2025-06-30 13:55:26,452 log 25933 124424514688704 Not Found: /node_modul
 WARNING 2025-06-30 13:55:26,453 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
 WARNING 2025-06-30 13:55:26,535 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
 WARNING 2025-06-30 13:55:26,536 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
+INFO 2025-06-30 13:57:09,402 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55700
+INFO 2025-06-30 13:57:09,474 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751288229 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:57:09,766 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:57:09,768 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:57:09,847 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:57:09,848 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
+INFO 2025-06-30 13:57:12,136 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55700
+INFO 2025-06-30 13:57:12,189 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751288232 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:57:12,313 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:57:12,315 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:57:12,371 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:57:12,372 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
+INFO 2025-06-30 13:57:16,650 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55691
+INFO 2025-06-30 13:57:16,715 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751288236 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:57:16,851 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:57:16,853 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:57:16,932 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:57:16,933 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
+INFO 2025-06-30 13:57:37,085 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55690
+INFO 2025-06-30 13:57:37,175 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751288257 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:57:37,381 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:57:37,383 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:57:37,463 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:57:37,464 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
+INFO 2025-06-30 13:57:58,509 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55699
+INFO 2025-06-30 13:57:58,630 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751288278 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:57:58,825 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:57:58,825 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:57:58,889 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:57:58,890 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
