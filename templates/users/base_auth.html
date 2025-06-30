@@ -12,17 +12,20 @@
     <title>{% block title %}RepAvi - Authentification{% endblock %}</title>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    
     <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        
         <div class="sm:mx-auto sm:w-full sm:max-w-md">
+            
             <div class="text-center">
                 <a href="#" class="inline-block">
-                    <h1 class="text-4xl font-bold text-indigo-600">RepAvi</h1>
+                    <h1 class="text-4xl font-bold text-blue-800">RepAvi</h1>
                     <p class="text-gray-600 mt-2">Location de maisons meublées</p>
                 </a>
             </div>
         </div>
 
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="mt-8 sm:mx-auto sm:w-screen sm:max-w-3xl ">
             <div class="bg-white py-8 px-4 shadow-xl rounded-2xl sm:px-10">
                 {% if messages %}
                     {% for message in messages %}

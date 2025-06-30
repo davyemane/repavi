@@ -3,90 +3,108 @@
 
 {% block title %}{{ page_title }} | RepAvi{% endblock %}
 
+{% block extra_css %}
+<style>
+.soft-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.hover-lift {
+    transition: all 0.3s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-{% comment %}
     <!-- Navigation -->
-    <nav class="glass-effect border-b border-white/20 fixed w-full z-50">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="{% url 'home:index' %}" class="text-2xl font-bold text-gray-800">RepAvi</a>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{% url 'home:index' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
-                    <a href="{% url 'home:maisons_list' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
-                    <a href="{% url 'home:maisons_reservation' %}" class="text-blue-600 hover:text-blue-800 font-medium transition-colors">Réserver</a>
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'reservations:mes_reservations' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Mes Réservations</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </nav>
-{% endcomment %}
- <!-- Navigation -->
     {% include 'components/navigation.html' %}
 
-    <div class="pt-16 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 py-8">
-            <!-- En-tête -->
-            <div class="mb-8">
-                <nav class="mb-4">
-                    <ol class="flex items-center space-x-2 text-sm text-gray-500">
-                        <li><a href="{% url 'home:index' %}" class="hover:text-gray-700 transition-colors">Accueil</a></li>
-                        <li><i class="fas fa-chevron-right text-xs"></i></li>
-                        <li class="text-blue-600 font-medium">Réserver une maison</li>
-                    </ol>
-                </nav>
-                
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900 mb-2">Maisons disponibles à la réservation</h1>
-                        <p class="text-gray-600">
-                            {% if total_maisons %}
-                                {{ total_maisons }} maison{{ total_maisons|pluralize }} disponible{{ total_maisons|pluralize }} pour vos dates
-                            {% else %}
-                                Trouvez la maison parfaite pour votre séjour
-                            {% endif %}
-                        </p>
-                    </div>
-                    
-                    {% if user.is_authenticated and user.is_client %}
-                        <div class="mt-4 md:mt-0">
-                            <a href="{% url 'reservations:mes_reservations' %}" 
-                               class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-list mr-2"></i>
-                                Mes réservations
-                            </a>
-                        </div>
-                    {% endif %}
+    <!-- Header -->
+    <section class="pt-16 pb-20 bg-white min-h-[70vh] flex items-center justify-center relative isolate">
+        <!-- Background Blobs -->
+        <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+            <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#667eea] to-[#764ba2] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" 
+                 style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+        </div>
+        
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <!-- Breadcrumb -->
+            <nav class="mb-6">
+                <ol class="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                    <li><a href="{% url 'home:index' %}" class="hover:text-indigo-600 transition-colors">Accueil</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li class="text-indigo-600 font-medium">Réserver une maison</li>
+                </ol>
+            </nav>
+            
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900">Réserver votre <span class="text-indigo-600">maison</span></h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto font-light">
+                {% if total_maisons %}
+                    {{ total_maisons }} maison{{ total_maisons|pluralize }} disponible{{ total_maisons|pluralize }} pour vos dates
+                {% else %}
+                    Trouvez la maison parfaite pour votre séjour d'exception
+                {% endif %}
+            </p>
+            
+            {% if user.is_authenticated and user.is_client %}
+                <div class="mt-8">
+                    <a href="{% url 'reservations:mes_reservations' %}" 
+                       class="inline-flex items-center bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-list mr-2"></i>
+                        Mes réservations
+                    </a>
                 </div>
-            </div>
+            {% endif %}
+        </div>
+    </section>
 
-            <!-- Formulaire de recherche -->
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-                <form method="get" class="space-y-4">
+    <!-- Formulaire de recherche -->
+    <section class="py-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="bg-white rounded-2xl p-6 md:p-8 soft-shadow">
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-semibold text-gray-900 mb-2">Rechercher votre séjour idéal</h2>
+                    <p class="text-gray-600 text-sm mb-12">Sélectionnez vos dates et préférences pour trouver la maison parfaite</p>
+                </div>
+                
+                <form method="get" class="space-y-6">
+                    <!-- Filtres principaux avec icons -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <!-- Dates -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Date d'arrivée</label>
+                            <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt text-indigo-500 mr-2"></i>
+                                Date d'arrivée
+                            </label>
                             <input type="date" name="date_debut" value="{{ date_debut }}"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                                    min="{% now 'Y-m-d' %}">
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Date de départ</label>
+                            <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-check text-indigo-500 mr-2"></i>
+                                Date de départ
+                            </label>
                             <input type="date" name="date_fin" value="{{ date_fin }}"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                                    min="{% now 'Y-m-d' %}">
                         </div>
                         
-                        <!-- Capacité -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Voyageurs</label>
-                            <select name="capacite" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-users text-indigo-500 mr-2"></i>
+                                Voyageurs
+                            </label>
+                            <select name="capacite" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                 <option value="">Nombre de personnes</option>
                                 <option value="1" {% if current_filters.capacite == "1" %}selected{% endif %}>1 personne</option>
                                 <option value="2" {% if current_filters.capacite == "2" %}selected{% endif %}>2 personnes</option>
@@ -96,10 +114,12 @@
                             </select>
                         </div>
                         
-                        <!-- Ville -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Destination</label>
-                            <select name="ville" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt text-indigo-500 mr-2"></i>
+                                Destination
+                            </label>
+                            <select name="ville" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                 <option value="">Toutes les villes</option>
                                 {% for ville in villes %}
                                     <option value="{{ ville.id }}" {% if current_filters.ville == ville.id|stringformat:"s" %}selected{% endif %}>
@@ -109,22 +129,23 @@
                             </select>
                         </div>
                         
-                        <!-- Bouton recherche -->
                         <div class="flex items-end">
                             <button type="submit" 
-                                    class="w-full bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">
+                                    class="w-full bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
                                 <i class="fas fa-search mr-2"></i>Rechercher
                             </button>
                         </div>
                     </div>
                     
                     <!-- Filtres avancés -->
-                    <div class="border-t pt-4">
+                    <div class="border-t pt-6">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <!-- Prix -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Prix max/nuit</label>
-                                <select name="prix_max" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-euro-sign text-indigo-500 mr-2"></i>
+                                    Prix max/nuit
+                                </label>
+                                <select name="prix_max" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                     <option value="">Sans limite</option>
                                     <option value="50" {% if current_filters.prix_max == "50" %}selected{% endif %}>50€ max</option>
                                     <option value="100" {% if current_filters.prix_max == "100" %}selected{% endif %}>100€ max</option>
@@ -133,10 +154,12 @@
                                 </select>
                             </div>
                             
-                            <!-- Catégorie -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Type de logement</label>
-                                <select name="categorie" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-home text-indigo-500 mr-2"></i>
+                                    Type de logement
+                                </label>
+                                <select name="categorie" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                     <option value="">Tous types</option>
                                     {% for categorie in categories %}
                                         <option value="{{ categorie.id }}" {% if current_filters.categorie == categorie.id|stringformat:"s" %}selected{% endif %}>
@@ -146,31 +169,36 @@
                                 </select>
                             </div>
                             
-                            <!-- Recherche textuelle -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Mot-clé</label>
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-search text-indigo-500 mr-2"></i>
+                                    Mot-clé
+                                </label>
                                 <input type="text" name="search" value="{{ current_filters.search }}" 
                                        placeholder="Nom, description..."
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                             </div>
                             
-                            <!-- Reset -->
                             <div class="flex items-end">
                                 <a href="{% url 'home:maisons_reservation' %}" 
-                                   class="w-full text-center bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
-                                    Réinitialiser
+                                   class="w-full text-center bg-gray-200 text-gray-700 py-3 px-4 rounded-xl hover:bg-gray-300 transition-colors text-sm font-medium">
+                                    <i class="fas fa-undo mr-1"></i>Réinitialiser
                                 </a>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
+        </div>
+    </section>
 
-            <!-- Résultats -->
+    <!-- Résultats -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-4">
             {% if maisons %}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
                     {% for maison in maisons %}
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover-lift">
                         <!-- Image -->
                         <div class="relative h-48">
                             {% if maison.photo_principale %}
@@ -222,7 +250,7 @@
                             
                             <!-- Prix et actions -->
                             <div class="border-t pt-4">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between mb-4">
                                     <div>
                                         <div class="text-2xl font-bold text-gray-900">{{ maison.prix_par_nuit }}€</div>
                                         <div class="text-sm text-gray-500">par nuit</div>
@@ -230,18 +258,18 @@
                                     
                                     <div class="flex space-x-2">
                                         <a href="{% url 'home:maison_detail' maison.slug %}" 
-                                           class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors">
+                                           class="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-300 transition-colors">
                                             Détails
                                         </a>
                                         
                                         {% if user.is_authenticated and user.is_client %}
                                             <a href="{% url 'home:initier_reservation' maison.slug %}{% if date_debut and date_fin %}?date_debut={{ date_debut }}&date_fin={{ date_fin }}{% if current_filters.capacite %}&nombre_personnes={{ current_filters.capacite }}{% endif %}{% endif %}" 
-                                               class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                               class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
                                                 <i class="fas fa-calendar-plus mr-1"></i>Réserver
                                             </a>
                                         {% else %}
                                             <a href="{% url 'users:login' %}?next={% url 'home:initier_reservation' maison.slug %}" 
-                                               class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                               class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
                                                 <i class="fas fa-calendar-plus mr-1"></i>Réserver
                                             </a>
                                         {% endif %}
@@ -250,20 +278,18 @@
                                 
                                 <!-- Calcul rapide du prix pour les dates -->
                                 {% if date_debut and date_fin %}
-                                    <div class="mt-3 pt-3 border-t border-gray-100">
+                                    <div class="bg-gray-50 rounded-xl p-3">
                                         <div class="flex justify-between text-sm">
                                             <span class="text-gray-600">{{ date_debut }} → {{ date_fin }}</span>
-                                            <span class="font-medium text-gray-900">
+                                            <span class="font-semibold text-indigo-600">
                                                 Total estimé: 
-                                                <span class="text-blue-600 font-bold">
-                                                    {% with jours_diff=date_fin|timesince:date_debut %}
-                                                        {% if "day" in jours_diff %}
-                                                            {% widthratio maison.prix_par_nuit 1 jours_diff|slice:":1"|add:"0" %}€
-                                                        {% else %}
-                                                            {{ maison.prix_par_nuit }}€
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                </span>
+                                                {% with jours_diff=date_fin|timesince:date_debut %}
+                                                    {% if "day" in jours_diff %}
+                                                        {% widthratio maison.prix_par_nuit 1 jours_diff|slice:":1"|add:"0" %}€
+                                                    {% else %}
+                                                        {{ maison.prix_par_nuit }}€
+                                                    {% endif %}
+                                                {% endwith %}
                                             </span>
                                         </div>
                                     </div>
@@ -280,17 +306,17 @@
                     <nav class="flex items-center space-x-2">
                         {% if page_obj.has_previous %}
                             <a href="?{% for key, value in current_filters.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" 
-                               class="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50">
-                                Précédent
+                               class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-chevron-left mr-1"></i>Précédent
                             </a>
                         {% endif %}
                         
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
-                                <span class="bg-blue-600 text-white px-3 py-2 rounded-lg">{{ num }}</span>
+                                <span class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold">{{ num }}</span>
                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                                 <a href="?{% for key, value in current_filters.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" 
-                                   class="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50">
+                                   class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors">
                                     {{ num }}
                                 </a>
                             {% endif %}
@@ -298,8 +324,8 @@
                         
                         {% if page_obj.has_next %}
                             <a href="?{% for key, value in current_filters.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" 
-                               class="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-50">
-                                Suivant
+                               class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+                                Suivant<i class="fas fa-chevron-right ml-1"></i>
                             </a>
                         {% endif %}
                     </nav>
@@ -308,32 +334,34 @@
 
             {% else %}
                 <!-- Aucun résultat -->
-                <div class="bg-white rounded-lg shadow-sm p-12 text-center">
-                    <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Aucune maison disponible</h3>
+                <div class="bg-gray-50 rounded-2xl p-12 text-center">
+                    <div class="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-search text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-4">Aucune maison disponible</h3>
                     
                     {% if current_filters %}
-                        <p class="text-gray-600 mb-6">
+                        <p class="text-gray-600 mb-8 max-w-md mx-auto">
                             Aucune maison ne correspond à vos critères de recherche.
                             Essayez de modifier vos filtres ou vos dates.
                         </p>
-                        <div class="flex justify-center space-x-4">
+                        <div class="flex flex-col sm:flex-row justify-center gap-4">
                             <a href="{% url 'home:maisons_reservation' %}" 
-                               class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                               class="bg-indigo-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
                                 Voir toutes les maisons
                             </a>
                             <a href="{% url 'home:maisons_list' %}" 
-                               class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors">
+                               class="bg-gray-200 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-300 transition-colors">
                                 Parcourir le catalogue
                             </a>
                         </div>
                     {% else %}
-                        <p class="text-gray-600 mb-6">
+                        <p class="text-gray-600 mb-8 max-w-md mx-auto">
                             Il n'y a actuellement aucune maison disponible à la réservation.
                             Vérifiez plus tard ou consultez notre catalogue complet.
                         </p>
                         <a href="{% url 'home:maisons_list' %}" 
-                           class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                           class="inline-flex items-center bg-indigo-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
                             <i class="fas fa-home mr-2"></i>
                             Voir toutes nos maisons
                         </a>
@@ -341,27 +369,29 @@
                 </div>
             {% endif %}
         </div>
-    </div>
+    </section>
 
     <!-- Aide à la réservation -->
-    <div class="bg-blue-50 py-16">
-        <div class="max-w-6xl mx-auto px-4 text-center">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Besoin d'aide pour réserver ?</h2>
-            <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
-                Notre équipe est là pour vous accompagner dans votre réservation et répondre à toutes vos questions.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="{% url 'home:contact' %}" 
-                   class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-phone mr-2"></i>
-                    Nous contacter
-                </a>
-                <a href="{% url 'home:apropos' %}" 
-                   class="inline-flex items-center bg-white text-blue-600 border border-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    En savoir plus
-                </a>
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="bg-indigo-600 rounded-3xl p-8 md:p-12 text-white">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Besoin d'aide pour réserver ?</h2>
+                <p class="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+                    Notre équipe est là pour vous accompagner dans votre réservation et répondre à toutes vos questions
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="{% url 'home:contact' %}" 
+                       class="bg-white text-indigo-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-phone mr-2"></i>
+                        Nous contacter
+                    </a>
+                    <a href="{% url 'home:apropos' %}" 
+                       class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        En savoir plus
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 {% endblock %}

@@ -4,6 +4,12 @@
 
 {% block content %}
 <div>
+      <div class="mb-6">
+        <button onclick="window.history.back()" class="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-gray-700 font-medium transition-all duration-200 hover:shadow-sm group">
+            <i class="fas fa-arrow-left mr-2 text-gray-500 group-hover:text-gray-700 transition-colors"></i>
+            <span>Retour</span>
+        </button>
+    </div>
     <h2 class="text-center text-3xl font-bold text-gray-900 mb-8">
         Connexion à votre compte
     </h2>
@@ -27,13 +33,35 @@
             <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                 {{ form.password.label }}
             </label>
-            {{ form.password }}
+            <div class="relative">
+                {{ form.password }}
+                <button type="button" onclick="togglePasswordVisibility()" tabindex="-1"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none"
+                    aria-label="Afficher/Masquer le mot de passe">
+                    <i id="password-eye" class="fas fa-eye"></i>
+                </button>
+            </div>
             {% if form.password.errors %}
                 <div class="mt-1 text-sm text-red-600">
                     {{ form.password.errors.0 }}
                 </div>
             {% endif %}
         </div>
+        <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("{{ form.password.id_for_label }}");
+            const eyeIcon = document.getElementById("password-eye");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+        </script>
 
         <div class="flex items-center justify-between">
             <div class="flex items-center">
@@ -44,14 +72,14 @@
             </div>
 
             <div class="text-sm">
-                <a href="{% url 'users:password_reset_request' %}" class="text-indigo-600 hover:text-indigo-500">
+                <a href="{% url 'users:password_reset_request' %}" class="text-blue-800 hover:text-blue-900">
                     Mot de passe oublié ?
                 </a>
             </div>
         </div>
 
         <div>
-            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                 <i class="fas fa-sign-in-alt mr-2"></i>
                 Se connecter
             </button>
@@ -75,7 +103,7 @@
         </div>
 
         <div class="mt-6">
-            <a href="{% url 'users:register' %}" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+            <a href="{% url 'users:register' %}" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                 <i class="fas fa-user-plus mr-2"></i>
                 Créer un compte
             </a>
