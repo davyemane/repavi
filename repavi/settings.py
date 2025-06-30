@@ -62,9 +62,28 @@ X_FRAME_OPTIONS = 'DENY'
 
 # === TAILWIND ===
 TAILWIND_APP_NAME = 'theme'
-INTERNAL_IPS = ['127.0.0.1', '::1'] 
-NPM_BIN_PATH = config('NPM_BIN_PATH', default='npm')
+# Configuration spécifique pour la production
+if IS_PRODUCTION:
+    # Chemin vers Node.js en production
+    NPM_BIN_PATH = '/usr/bin/npm'  # ou le chemin correct sur votre VPS
+    
+    # Configuration pour la compilation en production
+    TAILWIND_CSS_DEV_MODE = False
+    
+    # Assurez-vous que les fichiers CSS sont bien générés
+    STATICFILES_DIRS = [
+        BASE_DIR / "theme/static",
+        BASE_DIR / "theme/static_src/dist",  # Ajoutez ce chemin
+    ]
+else:
+    INTERNAL_IPS = ['127.0.0.1', '::1']
+    NPM_BIN_PATH = config('NPM_BIN_PATH', default='npm')
 
+# Modifiez cette partie dans votre STATICFILES_DIRS
+STATICFILES_DIRS = [
+    BASE_DIR / "theme/static",
+    BASE_DIR / "theme/static_src/dist",  # Ajoutez cette ligne
+]
 # === APPLICATIONS ===
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -224,11 +243,11 @@ LANGUAGES = [
 ]
 
 # === FICHIERS STATIQUES ===
-STATIC_URL = '/static/'
+STATIC_URL = 'theme/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / "theme/static"
 ]
 
 # Optimisation des fichiers statiques en production
