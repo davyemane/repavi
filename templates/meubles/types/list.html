@@ -41,7 +41,7 @@
                 </div>
                 <div class="ml-4">
                     <div class="text-2xl font-bold text-gray-900">
-                        {{ types|dictsort:"categorie"|regroup:"categorie"|length }}
+                        {{ categories_count }}
                     </div>
                     <div class="text-sm text-gray-500">Catégories</div>
                 </div>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="ml-4">
                     <div class="text-2xl font-bold text-gray-900">
-                        {% for type in types %}{{ type.nombre_meubles|add:0 }}{% if not forloop.last %}+{% endif %}{% endfor %}
+                        {{ total_meubles }}
                     </div>
                     <div class="text-sm text-gray-500">Meubles Associés</div>
                 </div>
@@ -69,7 +69,7 @@
                 </div>
                 <div class="ml-4">
                     <div class="text-2xl font-bold text-gray-900">
-                        {% for type in types %}{% if type.nombre_meubles > 0 %}1{% endif %}{% endfor|join:""|length %}
+                        {{ types_utilises_count|default:0 }}
                     </div>
                     <div class="text-sm text-gray-500">Types Utilisés</div>
                 </div>
@@ -118,7 +118,7 @@
                             <div class="flex items-center mt-2 space-x-4">
                                 <span class="inline-flex items-center text-xs text-gray-500">
                                     <i class="fas fa-chair mr-1"></i>
-                                    {{ type.nombre_meubles }} meuble{{ type.nombre_meubles|pluralize }}
+                                    {{ type.nb_meubles }} meuble{{ type.nb_meubles|pluralize }}
                                 </span>
                                 
                                 <span class="inline-flex items-center text-xs text-gray-500">
@@ -131,7 +131,7 @@
                     
                     <div class="flex items-center space-x-2">
                         <!-- Indicateur d'utilisation -->
-                        {% if type.nombre_meubles > 0 %}
+                        {% if type.nb_meubles > 0 %}
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 <i class="fas fa-check mr-1"></i>
                                 Utilisé
@@ -151,7 +151,7 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                             
-                            {% if type.nombre_meubles == 0 and user.is_superuser %}
+                            {% if type.nb_meubles == 0 and user.is_superuser %}
                                 <a href="{% url 'meubles:type_delete' type.pk %}" 
                                    class="p-2 text-gray-400 hover:text-red-600 transition-colors"
                                    title="Supprimer"
