@@ -165,14 +165,6 @@ TEMPLATES = [
     },
 ]
 
-# Cache des templates en production
-if IS_PRODUCTION:
-    TEMPLATES[0]['OPTIONS']['loaders'] = [
-        ('django.template.loaders.cached.Loader', [
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader',
-        ]),
-    ]
 
 # === BASE DE DONNÉES ===
 DATABASES = {
