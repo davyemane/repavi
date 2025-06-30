@@ -286,11 +286,24 @@ def meubles_dashboard(request):
 def types_meubles_list(request):
     """Liste optimisée des types de meubles"""
     types = TypeMeuble.objects.annotate(
-        nombre_meubles=Count('meuble')
+        nb_meubles=Count('meuble')  # Changé de nombre_meubles à nb_meubles
     ).order_by('categorie', 'nom')
     
-    return render(request, 'meubles/types/list.html', {'types': types})
-
+    # Calculer les statistiques
+    types_utilises_count = types.filter(nb_meubles__gt=0).count()
+    total_meubles = sum(type_obj.nb_meubles for type_obj in types)
+    
+    # Compter les catégories uniques
+    categories_count = types.values('categorie').distinct().count()
+    
+    context = {
+        'types': types,
+        'types_utilises_count': types_utilises_count,
+        'total_meubles': total_meubles,
+        'categories_count': categories_count,
+    }
+    
+    return render(request, 'meubles/types/list.html', context)
 
 @login_required
 @gestionnaire_required

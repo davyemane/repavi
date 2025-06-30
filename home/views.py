@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.decorators.http import require_http_methods
-import slugify
+from slugify import slugify
 from services.maison_service import MaisonService
 from services.reservation_service import ReservationService
 from .models import Maison, CategorieMaison, Ville, PhotoMaison

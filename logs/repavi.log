@@ -17486,6 +17486,7 @@ INFO 2025-06-29 20:48:08,186 basehttp 2017429 136429320525504 "GET / HTTP/1.1" 2
 WARNING 2025-06-29 20:48:08,236 basehttp 2017429 136429320525504 "GET /static/css/dist/styles.css?v=1751226488 HTTP/1.1" 404 1997
 INFO 2025-06-29 20:48:12,274 basehttp 2017429 136429320525504 "GET / HTTP/1.1" 200 25391
 INFO 2025-06-29 20:48:12,337 basehttp 2017429 136429320525504 "GET /static/css/dist/styles.css?v=1751226492 HTTP/1.1" 200 69099
+<<<<<<< HEAD
 INFO 2025-06-29 20:58:25,670 basehttp 2017429 136429320525504 "GET / HTTP/1.1" 200 25391
 INFO 2025-06-29 20:58:25,715 basehttp 2017429 136429320525504 "GET /static/css/dist/styles.css?v=1751227105 HTTP/1.1" 200 69099
 INFO 2025-06-29 20:58:25,723 basehttp 2017429 136429320525504 "GET /static/css/fonts.css HTTP/1.1" 304 0
@@ -17864,3 +17865,1280 @@ INFO 2025-06-29 22:18:00,805 basehttp 2017429 136429099284160 "GET /maisons/ HTT
 INFO 2025-06-29 22:18:00,890 basehttp 2017429 136429099284160 "GET /static/css/dist/styles.css?v=1751231880 HTTP/1.1" 200 102661
 INFO 2025-06-29 22:18:03,390 basehttp 2017429 136429099284160 "GET /apropos/ HTTP/1.1" 200 25871
 INFO 2025-06-29 22:18:03,477 basehttp 2017429 136429099284160 "GET /static/css/dist/styles.css?v=1751231883 HTTP/1.1" 200 102661
+=======
+INFO 2025-06-29 22:07:22,104 autoreload 22944 134892335865984 Watching for file changes with StatReloader
+INFO 2025-06-29 22:07:34,914 basehttp 22944 134892172080832 "GET / HTTP/1.1" 200 30131
+WARNING 2025-06-29 22:07:35,191 basehttp 22944 134892163688128 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-29 22:07:35,191 basehttp 22944 134892172080832 "GET /static/css/dist/styles.css?v=1751231254 HTTP/1.1" 404 1997
+WARNING 2025-06-29 22:07:35,213 basehttp 22944 134892172080832 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 22:07:35,215 basehttp 22944 134892154246848 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 200 623
+INFO 2025-06-29 22:07:35,216 basehttp 22944 134892163688128 "GET /media/maisons/photos/duplex2_053w0QH.jpg HTTP/1.1" 200 54754
+INFO 2025-06-29 22:07:36,199 basehttp 22944 134892163688128 "GET /static/django-browser-reload/reload-worker.js HTTP/1.1" 200 2711
+WARNING 2025-06-29 22:07:37,014 basehttp 22944 134892154246848 "GET /static/favicon.ico HTTP/1.1" 404 1960
+INFO 2025-06-29 22:07:43,696 basehttp 22944 134892154246848 "GET / HTTP/1.1" 200 30131
+WARNING 2025-06-29 22:07:43,818 basehttp 22944 134892154246848 "GET /static/css/dist/styles.css?v=1751231263 HTTP/1.1" 404 1997
+WARNING 2025-06-29 22:07:43,834 basehttp 22944 134892172080832 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-29 22:07:43,841 basehttp 22944 134892144805568 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 22:37:53,797 autoreload 29907 126118801735808 Watching for file changes with StatReloader
+INFO 2025-06-29 22:38:01,037 basehttp 29907 126118706276032 "GET / HTTP/1.1" 200 30131
+WARNING 2025-06-29 22:38:01,154 basehttp 29907 126118619244224 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-29 22:38:01,155 basehttp 29907 126118627636928 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-29 22:38:01,158 basehttp 29907 126118706276032 "GET /static/css/dist/styles.css?v=1751233080 HTTP/1.1" 200 94373
+INFO 2025-06-29 22:38:18,044 basehttp 29907 126118627636928 "GET /users/login/ HTTP/1.1" 200 4658
+INFO 2025-06-29 22:38:18,092 basehttp 29907 126118627636928 "GET /static/css/tailwind.css HTTP/1.1" 200 17779
+WARNING 2025-06-29 22:38:18,263 log 29907 126118627636928 Not Found: /favicon.ico
+WARNING 2025-06-29 22:38:18,265 basehttp 29907 126118627636928 "GET /favicon.ico HTTP/1.1" 404 13995
+INFO 2025-06-29 22:38:22,184 basehttp 29907 126118627636928 "GET / HTTP/1.1" 200 30131
+INFO 2025-06-29 22:38:22,221 basehttp 29907 126118627636928 "GET /static/css/dist/styles.css?v=1751233102 HTTP/1.1" 200 94373
+WARNING 2025-06-29 22:38:22,248 basehttp 29907 126118706276032 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-29 22:38:25,233 basehttp 29907 126118619244224 "GET /maisons/ HTTP/1.1" 200 21608
+WARNING 2025-06-29 22:38:25,341 basehttp 29907 126118706276032 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-29 22:38:25,342 basehttp 29907 126118610851520 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 22:38:25,346 basehttp 29907 126118619244224 "GET /static/css/dist/styles.css?v=1751233105 HTTP/1.1" 200 94373
+INFO 2025-06-29 22:38:30,199 basehttp 29907 126118627636928 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 22:38:52,115 basehttp 29907 126118627636928 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 22:49:08,420 autoreload 29907 126118801735808 /home/davy/repavi/repavi/urls.py changed, reloading.
+INFO 2025-06-29 22:49:09,176 autoreload 31347 131314325151872 Watching for file changes with StatReloader
+INFO 2025-06-29 22:49:09,624 basehttp 31347 131314222094016 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 22:49:10,929 autoreload 31347 131314325151872 /home/davy/repavi/repavi/urls.py changed, reloading.
+INFO 2025-06-29 22:49:11,441 autoreload 31380 132416834642048 Watching for file changes with StatReloader
+INFO 2025-06-29 22:49:12,011 basehttp 31380 132416660305600 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 22:49:15,489 autoreload 31380 132416834642048 /home/davy/repavi/repavi/urls.py changed, reloading.
+INFO 2025-06-29 22:49:16,204 autoreload 31405 132682685415552 Watching for file changes with StatReloader
+INFO 2025-06-29 22:49:16,807 basehttp 31405 132682582316736 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 22:53:54,650 autoreload 31405 132682685415552 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-29 22:53:55,654 autoreload 32120 126319575507072 Watching for file changes with StatReloader
+INFO 2025-06-29 22:53:55,882 basehttp 32120 126319472924352 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 22:53:55,895 basehttp 32120 126319472924352 "GET /static/css/tailwind.css HTTP/1.1" 304 0
+INFO 2025-06-29 22:55:53,098 autoreload 32120 126319575507072 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-29 22:55:53,937 autoreload 32295 124267922714752 Watching for file changes with StatReloader
+INFO 2025-06-29 22:55:54,348 basehttp 32295 124267819685568 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 22:56:05,111 autoreload 32295 124267922714752 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-29 22:56:05,871 autoreload 32354 139811340607616 Watching for file changes with StatReloader
+INFO 2025-06-29 22:56:06,481 basehttp 32354 139811238172352 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 22:56:12,995 autoreload 32354 139811340607616 /home/davy/repavi/repavi/settings.py changed, reloading.
+INFO 2025-06-29 23:31:15,291 autoreload 39354 135219280945280 Watching for file changes with StatReloader
+INFO 2025-06-29 23:31:35,874 basehttp 39354 135219185182400 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 23:31:35,914 basehttp 39354 135219185182400 "GET /static/css/tailwind.css HTTP/1.1" 304 0
+INFO 2025-06-29 23:31:37,557 basehttp 39354 135219176789696 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 23:31:58,018 basehttp 39354 135219185182400 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 23:31:59,043 basehttp 39354 135219176789696 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 23:35:37,347 basehttp 39354 135219185182400 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 23:35:38,406 basehttp 39354 135219176789696 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 23:35:46,190 basehttp 39354 135219185182400 "GET /users/register/ HTTP/1.1" 200 7482
+INFO 2025-06-29 23:35:55,370 basehttp 39354 135219176789696 "GET / HTTP/1.1" 200 30131
+WARNING 2025-06-29 23:35:55,442 basehttp 39354 135219167348416 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-29 23:35:55,458 basehttp 39354 135219149514432 "GET /media/maisons/photos/duplex2_053w0QH.jpg HTTP/1.1" 304 0
+WARNING 2025-06-29 23:35:55,459 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 23:35:55,461 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751236555 HTTP/1.1" 200 70636
+INFO 2025-06-29 23:36:01,494 basehttp 39354 135219149514432 "GET /maisons/ HTTP/1.1" 200 21608
+INFO 2025-06-29 23:36:01,538 basehttp 39354 135219149514432 "GET /static/css/dist/styles.css?v=1751236561 HTTP/1.1" 200 70636
+WARNING 2025-06-29 23:36:01,576 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-29 23:36:01,577 basehttp 39354 135219185182400 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-29 23:36:02,845 basehttp 39354 135219176789696 "GET /maisons/reservation/ HTTP/1.1" 200 26440
+INFO 2025-06-29 23:36:02,878 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751236562 HTTP/1.1" 200 70636
+WARNING 2025-06-29 23:36:02,913 basehttp 39354 135219185182400 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-29 23:36:02,914 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 23:36:05,351 basehttp 39354 135219149514432 "GET /apropos/ HTTP/1.1" 200 26233
+WARNING 2025-06-29 23:36:05,411 basehttp 39354 135219158955712 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-29 23:36:05,413 basehttp 39354 135219149514432 "GET /static/css/dist/styles.css?v=1751236565 HTTP/1.1" 200 70636
+WARNING 2025-06-29 23:36:05,413 basehttp 39354 135219185182400 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 23:36:07,350 basehttp 39354 135219176789696 "GET /contact/ HTTP/1.1" 200 25294
+INFO 2025-06-29 23:36:07,387 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751236567 HTTP/1.1" 200 70636
+WARNING 2025-06-29 23:36:07,426 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-29 23:36:07,427 basehttp 39354 135219185182400 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-29 23:36:11,116 basehttp 39354 135219149514432 "GET / HTTP/1.1" 200 30131
+INFO 2025-06-29 23:36:11,149 basehttp 39354 135219149514432 "GET /static/css/dist/styles.css?v=1751236571 HTTP/1.1" 200 70636
+WARNING 2025-06-29 23:36:11,181 basehttp 39354 135219158955712 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-29 23:36:11,182 basehttp 39354 135219185182400 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 23:37:39,245 basehttp 39354 135219176789696 "GET /users/login/ HTTP/1.1" 200 4658
+INFO 2025-06-29 23:44:53,045 basehttp 39354 135219176789696 "GET /users/login/ HTTP/1.1" 200 4660
+INFO 2025-06-29 23:44:55,125 basehttp 39354 135219149514432 "GET /users/login/ HTTP/1.1" 200 4662
+INFO 2025-06-29 23:45:00,337 basehttp 39354 135219176789696 "GET /users/login/ HTTP/1.1" 200 4657
+INFO 2025-06-29 23:45:08,633 basehttp 39354 135219149514432 "GET /users/login/ HTTP/1.1" 200 4548
+INFO 2025-06-29 23:45:13,833 basehttp 39354 135219176789696 "GET /users/login/ HTTP/1.1" 200 4488
+INFO 2025-06-29 23:45:43,968 basehttp 39354 135219149514432 "GET /users/login/ HTTP/1.1" 200 4488
+INFO 2025-06-29 23:46:05,780 basehttp 39354 135219176789696 "GET /users/login/ HTTP/1.1" 200 4593
+INFO 2025-06-29 23:46:05,820 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751237165 HTTP/1.1" 200 70636
+INFO 2025-06-29 23:46:16,673 basehttp 39354 135219149514432 "GET /users/register/ HTTP/1.1" 200 7417
+INFO 2025-06-29 23:46:16,720 basehttp 39354 135219149514432 "GET /static/css/dist/styles.css?v=1751237176 HTTP/1.1" 200 70636
+INFO 2025-06-29 23:46:32,517 basehttp 39354 135219176789696 "GET / HTTP/1.1" 200 30131
+INFO 2025-06-29 23:46:32,568 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751237192 HTTP/1.1" 200 70636
+WARNING 2025-06-29 23:46:32,606 basehttp 39354 135219185182400 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-29 23:46:32,606 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 23:46:47,469 basehttp 39354 135219149514432 "GET / HTTP/1.1" 200 30131
+WARNING 2025-06-29 23:46:47,545 basehttp 39354 135219185182400 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-29 23:46:47,546 basehttp 39354 135219158955712 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-29 23:46:47,549 basehttp 39354 135219149514432 "GET /static/css/dist/styles.css?v=1751237207 HTTP/1.1" 200 70636
+INFO 2025-06-29 23:46:49,496 basehttp 39354 135219176789696 "GET / HTTP/1.1" 200 30131
+WARNING 2025-06-29 23:46:49,544 basehttp 39354 135219158955712 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-29 23:46:49,545 basehttp 39354 135219185182400 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-29 23:46:49,547 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751237209 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:17:42,651 basehttp 39354 135219176789696 "GET /users/register/ HTTP/1.1" 200 7417
+INFO 2025-06-30 10:17:42,688 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751275062 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:17:51,677 basehttp 39354 135219149514432 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:20:12,176 basehttp 39354 135219176789696 "GET /contact/ HTTP/1.1" 200 25294
+INFO 2025-06-30 10:20:12,211 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751275212 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:20:12,251 basehttp 39354 135219176789696 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-30 10:20:12,251 basehttp 39354 135219185182400 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:20:28,228 basehttp 39354 135219149514432 "GET /contact/ HTTP/1.1" 200 25294
+INFO 2025-06-30 10:20:28,278 basehttp 39354 135219149514432 "GET /static/css/dist/styles.css?v=1751275228 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:20:28,307 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-30 10:20:28,326 basehttp 39354 135219176789696 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-30 10:20:31,548 basehttp 39354 135219185182400 "GET /apropos/ HTTP/1.1" 200 26233
+INFO 2025-06-30 10:20:31,601 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751275231 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:20:31,648 basehttp 39354 135219176789696 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-30 10:20:31,650 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:20:33,859 basehttp 39354 135219149514432 "GET /maisons/reservation/ HTTP/1.1" 200 26440
+INFO 2025-06-30 10:20:33,901 basehttp 39354 135219149514432 "GET /static/css/dist/styles.css?v=1751275233 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:20:33,939 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:20:33,941 basehttp 39354 135219176789696 "GET /media/maisons/photos/duplex2_053w0QH.jpg HTTP/1.1" 304 0
+WARNING 2025-06-30 10:20:33,940 basehttp 39354 135219149514432 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-30 10:20:39,216 basehttp 39354 135219185182400 "GET /maisons/ HTTP/1.1" 200 21608
+INFO 2025-06-30 10:20:39,264 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751275239 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:20:39,309 basehttp 39354 135219149514432 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-30 10:20:39,315 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:20:41,554 basehttp 39354 135219176789696 "GET / HTTP/1.1" 200 30131
+INFO 2025-06-30 10:20:41,595 basehttp 39354 135219176789696 "GET /static/css/dist/styles.css?v=1751275241 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:20:41,639 basehttp 39354 135219176789696 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-30 10:20:41,652 basehttp 39354 135219158955712 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:34:59,696 basehttp 39354 135219185182400 "GET /maisons/ HTTP/1.1" 200 21608
+INFO 2025-06-30 10:34:59,750 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276099 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:34:59,811 basehttp 39354 135219176789696 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-30 10:34:59,813 basehttp 39354 135219149514432 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:35:07,392 basehttp 39354 135219158955712 "GET /maisons/reservation/ HTTP/1.1" 200 26440
+INFO 2025-06-30 10:35:07,451 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276107 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:35:07,502 basehttp 39354 135219176789696 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-30 10:35:07,505 basehttp 39354 135219149514432 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-30 10:35:16,405 basehttp 39354 135219185182400 "GET /apropos/ HTTP/1.1" 200 26233
+WARNING 2025-06-30 10:35:16,487 basehttp 39354 135219149514432 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-30 10:35:16,489 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276116 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:35:16,516 basehttp 39354 135219176789696 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:35:19,284 basehttp 39354 135219158955712 "GET /contact/ HTTP/1.1" 200 25294
+WARNING 2025-06-30 10:35:19,394 basehttp 39354 135219176789696 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-30 10:35:19,397 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276119 HTTP/1.1" 200 70636
+WARNING 2025-06-30 10:35:19,399 basehttp 39354 135219149514432 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 10:35:22,373 basehttp 39354 135219185182400 "GET /users/login/ HTTP/1.1" 200 4593
+INFO 2025-06-30 10:35:22,412 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276122 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:35:30,497 basehttp 39354 135219158955712 "POST /users/login/ HTTP/1.1" 302 0
+INFO 2025-06-30 10:35:30,770 basehttp 39354 135219158955712 "GET /repavi-admin/ HTTP/1.1" 200 65467
+INFO 2025-06-30 10:35:30,848 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276130 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:37:52,713 basehttp 39354 135219185182400 "GET /repavi-admin/users/ HTTP/1.1" 200 34335
+INFO 2025-06-30 10:37:52,750 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276272 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:38:12,953 basehttp 39354 135219158955712 "GET /repavi-admin/users/?search=&role=GESTIONNAIRE HTTP/1.1" 200 28195
+INFO 2025-06-30 10:38:12,999 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276292 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:38:16,886 basehttp 39354 135219185182400 "GET /repavi-admin/users/?search=&role=SUPER_ADMIN HTTP/1.1" 200 28195
+INFO 2025-06-30 10:38:16,924 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276296 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:38:19,912 basehttp 39354 135219158955712 "GET /repavi-admin/users/?search=&role=CLIENT HTTP/1.1" 200 34348
+INFO 2025-06-30 10:38:19,950 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276299 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:38:25,582 basehttp 39354 135219185182400 "GET /admin/ HTTP/1.1" 200 24775
+INFO 2025-06-30 10:38:25,622 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276305 HTTP/1.1" 200 70636
+ERROR 2025-06-30 10:38:28,457 log 39354 135219158955712 Internal Server Error: /meubles/rapports/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 792, in generer_rapport
+    return render(request, 'meubles/rapports/form.html', {'form': form})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: meubles/rapports/form.html
+ERROR 2025-06-30 10:38:28,470 basehttp 39354 135219158955712 "GET /meubles/rapports/ HTTP/1.1" 500 112474
+INFO 2025-06-30 10:38:31,586 basehttp 39354 135219158955712 "GET /admin/ HTTP/1.1" 200 24775
+INFO 2025-06-30 10:38:31,629 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276311 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:38:34,083 basehttp 39354 135219185182400 "GET /meubles/ HTTP/1.1" 200 21322
+INFO 2025-06-30 10:38:34,128 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276314 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:38:42,819 basehttp 39354 135219158955712 "GET /meubles/meubles/creer/ HTTP/1.1" 200 30658
+INFO 2025-06-30 10:38:42,868 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276322 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:39:00,940 basehttp 39354 135219185182400 "GET /meubles/inventaires/creer/ HTTP/1.1" 200 30635
+INFO 2025-06-30 10:39:00,983 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276340 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:39:05,418 basehttp 39354 135219158955712 "GET /meubles/api/meubles/maison/1/ HTTP/1.1" 200 15
+INFO 2025-06-30 10:39:59,210 basehttp 39354 135219158955712 "POST /meubles/inventaires/creer/ HTTP/1.1" 302 0
+ERROR 2025-06-30 10:39:59,585 log 39354 135219158955712 Internal Server Error: /meubles/inventaires/1/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 668, in inventaire_detail
+    return render(request, 'meubles/inventaires/detail.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'mul'
+ERROR 2025-06-30 10:39:59,603 basehttp 39354 135219158955712 "GET /meubles/inventaires/1/ HTTP/1.1" 500 304168
+INFO 2025-06-30 10:40:06,204 basehttp 39354 135219158955712 "GET /meubles/inventaires/creer/ HTTP/1.1" 200 31305
+INFO 2025-06-30 10:40:06,247 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276406 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:40:12,003 basehttp 39354 135219185182400 "GET /meubles/meubles/creer/ HTTP/1.1" 200 30658
+INFO 2025-06-30 10:40:12,045 basehttp 39354 135219185182400 "GET /static/css/dist/styles.css?v=1751276411 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:40:14,784 basehttp 39354 135219158955712 "GET /meubles/types/creer/ HTTP/1.1" 200 25782
+INFO 2025-06-30 10:40:14,832 basehttp 39354 135219158955712 "GET /static/css/dist/styles.css?v=1751276414 HTTP/1.1" 200 70636
+INFO 2025-06-30 10:41:21,421 basehttp 39354 135219185182400 "POST /meubles/types/creer/ HTTP/1.1" 302 0
+ERROR 2025-06-30 10:41:21,654 log 39354 135219185182400 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 292, in types_meubles_list
+    return render(request, 'meubles/types/list.html', {'types': types})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'regroup'
+ERROR 2025-06-30 10:41:21,683 basehttp 39354 135219185182400 "GET /meubles/types/ HTTP/1.1" 500 279847
+ERROR 2025-06-30 11:12:55,588 log 39354 135219158955712 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'endfor|join:""|length'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 292, in types_meubles_list
+    return render(request, 'meubles/types/list.html', {'types': types})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 567, in invalid_block_tag
+    raise self.error(
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 73: 'endfor|join:""|length', expected 'empty' or 'endfor'. Did you forget to register or load this tag?
+ERROR 2025-06-30 11:12:55,614 basehttp 39354 135219158955712 "GET /meubles/types/ HTTP/1.1" 500 283546
+ERROR 2025-06-30 11:12:59,738 log 39354 135219185182400 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 292, in types_meubles_list
+    return render(request, 'meubles/types/list.html', {'types': types})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'regroup'
+ERROR 2025-06-30 11:12:59,762 basehttp 39354 135219185182400 "GET /meubles/types/ HTTP/1.1" 500 279710
+ERROR 2025-06-30 11:13:00,734 log 39354 135219158955712 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'endfor|join:""|length'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 292, in types_meubles_list
+    return render(request, 'meubles/types/list.html', {'types': types})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 567, in invalid_block_tag
+    raise self.error(
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 73: 'endfor|join:""|length', expected 'empty' or 'endfor'. Did you forget to register or load this tag?
+ERROR 2025-06-30 11:13:00,752 basehttp 39354 135219158955712 "GET /meubles/types/ HTTP/1.1" 500 283546
+ERROR 2025-06-30 11:13:18,039 log 39354 135219185182400 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 510, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'endfor|join:""|length'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 292, in types_meubles_list
+    return render(request, 'meubles/types/list.html', {'types': types})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 862, in do_for
+    nodelist_loop = parser.parse(
+                    ^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 512, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 567, in invalid_block_tag
+    raise self.error(
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 73: 'endfor|join:""|length', expected 'empty' or 'endfor'. Did you forget to register or load this tag?
+ERROR 2025-06-30 11:13:18,069 basehttp 39354 135219185182400 "GET /meubles/types/ HTTP/1.1" 500 283677
+INFO 2025-06-30 11:14:38,331 autoreload 39354 135219280945280 /home/davy/repavi/meubles/views.py changed, reloading.
+INFO 2025-06-30 11:14:39,041 autoreload 45413 133800391483520 Watching for file changes with StatReloader
+ERROR 2025-06-30 11:14:39,804 log 45413 133800289883840 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:14:39,911 basehttp 45413 133800289883840 "GET /meubles/types/ HTTP/1.1" 500 113976
+INFO 2025-06-30 11:15:12,995 autoreload 45413 133800391483520 /home/davy/repavi/meubles/views.py changed, reloading.
+INFO 2025-06-30 11:15:13,744 autoreload 45493 133330247848064 Watching for file changes with StatReloader
+ERROR 2025-06-30 11:15:14,555 log 45493 133330070660800 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:15:14,671 basehttp 45493 133330070660800 "GET /meubles/types/ HTTP/1.1" 500 113976
+ERROR 2025-06-30 11:16:49,548 log 45493 133330079053504 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:16:49,560 basehttp 45493 133330079053504 "GET /meubles/types/ HTTP/1.1" 500 113976
+ERROR 2025-06-30 11:16:53,622 log 45493 133330070660800 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:16:53,631 basehttp 45493 133330070660800 "GET /meubles/types/ HTTP/1.1" 500 114107
+ERROR 2025-06-30 11:18:32,396 log 45493 133330079053504 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:18:32,404 basehttp 45493 133330079053504 "GET /meubles/types/ HTTP/1.1" 500 113976
+ERROR 2025-06-30 11:18:35,459 log 45493 133330070660800 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:18:35,468 basehttp 45493 133330070660800 "GET /meubles/types/ HTTP/1.1" 500 114107
+INFO 2025-06-30 11:18:44,631 autoreload 45493 133330247848064 /home/davy/repavi/meubles/views.py changed, reloading.
+INFO 2025-06-30 11:18:45,439 autoreload 45776 126289789821056 Watching for file changes with StatReloader
+ERROR 2025-06-30 11:18:46,264 log 45776 126289612629696 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:18:46,344 basehttp 45776 126289612629696 "GET /meubles/types/ HTTP/1.1" 500 113976
+INFO 2025-06-30 11:18:51,509 autoreload 45776 126289789821056 /home/davy/repavi/meubles/views.py changed, reloading.
+INFO 2025-06-30 11:18:52,504 autoreload 45832 137574754750592 Watching for file changes with StatReloader
+ERROR 2025-06-30 11:18:53,174 log 45832 137574580483776 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:18:53,284 basehttp 45832 137574580483776 "GET /meubles/types/ HTTP/1.1" 500 113976
+INFO 2025-06-30 11:19:03,882 autoreload 45832 137574754750592 /home/davy/repavi/meubles/views.py changed, reloading.
+INFO 2025-06-30 11:19:04,650 autoreload 45901 131451189469312 Watching for file changes with StatReloader
+ERROR 2025-06-30 11:19:05,704 log 45901 131451086427840 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 292, in types_meubles_list
+    return render(request, 'meubles/types/list.html', {'types': types})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 377, in render
+    for key, val in groupby(
+                    ^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:19:05,731 basehttp 45901 131451086427840 "GET /meubles/types/ HTTP/1.1" 500 225277
+INFO 2025-06-30 11:19:12,881 autoreload 45901 131451189469312 /home/davy/repavi/meubles/views.py changed, reloading.
+INFO 2025-06-30 11:19:13,604 autoreload 45956 127795214618752 Watching for file changes with StatReloader
+ERROR 2025-06-30 11:19:14,297 log 45956 127795111909056 Internal Server Error: /meubles/types/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 294, in types_meubles_list
+    total_meubles = sum(type_obj.nombre_meubles for type_obj in types)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 384, in __iter__
+    self._fetch_all()
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 131, in __iter__
+    setattr(obj, attr_name, row[col_pos])
+AttributeError: property 'nombre_meubles' of 'TypeMeuble' object has no setter
+ERROR 2025-06-30 11:19:14,363 basehttp 45956 127795111909056 "GET /meubles/types/ HTTP/1.1" 500 113691
+INFO 2025-06-30 11:20:57,309 autoreload 45956 127795214618752 /home/davy/repavi/meubles/views.py changed, reloading.
+INFO 2025-06-30 11:20:58,078 autoreload 46043 130878690484352 Watching for file changes with StatReloader
+INFO 2025-06-30 11:20:58,998 basehttp 46043 130878516750016 "GET /meubles/types/ HTTP/1.1" 200 21087
+INFO 2025-06-30 11:20:59,033 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751278858 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:21:37,594 basehttp 46043 130878525142720 "GET /meubles/types/ HTTP/1.1" 200 21062
+INFO 2025-06-30 11:21:37,633 basehttp 46043 130878525142720 "GET /static/css/dist/styles.css?v=1751278897 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:21:41,715 basehttp 46043 130878516750016 "GET /meubles/types/ HTTP/1.1" 200 21062
+INFO 2025-06-30 11:21:41,773 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751278901 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:21:49,431 basehttp 46043 130878525142720 "GET /meubles/ HTTP/1.1" 200 21322
+INFO 2025-06-30 11:21:49,500 basehttp 46043 130878525142720 "GET /static/css/dist/styles.css?v=1751278909 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:21:51,682 basehttp 46043 130878516750016 "GET /meubles/meubles/creer/ HTTP/1.1" 200 30695
+INFO 2025-06-30 11:21:51,739 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751278911 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:23:41,719 basehttp 46043 130878525142720 "POST /meubles/meubles/creer/ HTTP/1.1" 302 0
+INFO 2025-06-30 11:23:41,928 basehttp 46043 130878525142720 "GET /meubles/meubles/ HTTP/1.1" 200 31892
+INFO 2025-06-30 11:23:42,060 basehttp 46043 130878525142720 "GET /static/css/dist/styles.css?v=1751279021 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:39:23,913 basehttp 46043 130878516750016 "GET /meubles/meubles/ HTTP/1.1" 200 31196
+INFO 2025-06-30 11:39:23,966 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751279963 HTTP/1.1" 200 70636
+ERROR 2025-06-30 11:39:27,076 log 46043 130878525142720 Internal Server Error: /meubles/meubles/1/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 470, in meuble_detail
+    return render(request, 'meubles/detail.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: meubles/detail.html
+ERROR 2025-06-30 11:39:27,089 basehttp 46043 130878525142720 "GET /meubles/meubles/1/ HTTP/1.1" 500 113370
+INFO 2025-06-30 11:41:15,046 basehttp 46043 130878516750016 "GET /meubles/meubles/1/ HTTP/1.1" 200 28619
+INFO 2025-06-30 11:41:15,100 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751280075 HTTP/1.1" 200 70636
+ERROR 2025-06-30 11:42:05,592 log 46043 130878525142720 Internal Server Error: /meubles/meubles/1/photos/ajouter/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 717, in meuble_add_photo
+    return render(request, 'meubles/photos/form.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 409: 'block'. Looking for one of: endblock.
+ERROR 2025-06-30 11:42:05,611 basehttp 46043 130878525142720 "GET /meubles/meubles/1/photos/ajouter/ HTTP/1.1" 500 218739
+INFO 2025-06-30 11:43:35,134 basehttp 46043 130878516750016 "GET /meubles/meubles/1/photos/ajouter/ HTTP/1.1" 200 28411
+INFO 2025-06-30 11:43:35,179 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751280215 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:45:50,006 basehttp 46043 130878525142720 "POST /meubles/meubles/1/photos/ajouter/ HTTP/1.1" 302 0
+INFO 2025-06-30 11:45:50,190 basehttp 46043 130878525142720 "GET /meubles/meubles/1/ HTTP/1.1" 200 30355
+INFO 2025-06-30 11:45:50,365 basehttp 46043 130878525142720 "GET /static/css/dist/styles.css?v=1751280350 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:45:50,470 basehttp 46043 130878506260160 "GET /media/meubles/photos/2025/06/chaise.jpg HTTP/1.1" 200 24239
+INFO 2025-06-30 11:45:59,410 basehttp 46043 130878525142720 "GET /meubles/meubles/1/photos/ajouter/ HTTP/1.1" 200 28411
+INFO 2025-06-30 11:45:59,499 basehttp 46043 130878525142720 "GET /static/css/dist/styles.css?v=1751280359 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:46:04,244 basehttp 46043 130878506260160 "GET /meubles/meubles/1/ HTTP/1.1" 200 29687
+INFO 2025-06-30 11:46:04,315 basehttp 46043 130878506260160 "GET /static/css/dist/styles.css?v=1751280364 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:46:04,428 basehttp 46043 130878516750016 "GET /media/meubles/photos/2025/06/chaise.jpg HTTP/1.1" 304 0
+INFO 2025-06-30 11:46:09,958 basehttp 46043 130878506260160 "GET /meubles/ HTTP/1.1" 200 22833
+INFO 2025-06-30 11:46:10,016 basehttp 46043 130878506260160 "GET /static/css/dist/styles.css?v=1751280369 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:46:22,196 basehttp 46043 130878516750016 "GET /reservations/ HTTP/1.1" 200 35338
+INFO 2025-06-30 11:46:22,295 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751280382 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:47:44,183 basehttp 46043 130878506260160 "GET /reservations/calendrier/ HTTP/1.1" 200 31370
+INFO 2025-06-30 11:47:44,240 basehttp 46043 130878506260160 "GET /static/css/dist/styles.css?v=1751280464 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:47:50,338 basehttp 46043 130878516750016 "GET /reservations/ HTTP/1.1" 200 35338
+INFO 2025-06-30 11:47:50,408 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751280470 HTTP/1.1" 200 70636
+ERROR 2025-06-30 11:47:57,627 log 46043 130878506260160 Internal Server Error: /meubles/rapports/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/meubles/views.py", line 805, in generer_rapport
+    return render(request, 'meubles/rapports/form.html', {'form': form})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: meubles/rapports/form.html
+ERROR 2025-06-30 11:47:57,637 basehttp 46043 130878506260160 "GET /meubles/rapports/ HTTP/1.1" 500 112481
+INFO 2025-06-30 11:52:08,435 basehttp 46043 130878516750016 "GET /meubles/rapports/ HTTP/1.1" 200 34524
+INFO 2025-06-30 11:52:08,494 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751280728 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:52:50,259 basehttp 46043 130878506260160 "POST /meubles/rapports/ HTTP/1.1" 302 0
+INFO 2025-06-30 11:52:50,466 basehttp 46043 130878506260160 "GET /meubles/ HTTP/1.1" 200 23509
+INFO 2025-06-30 11:52:50,580 basehttp 46043 130878506260160 "GET /static/css/dist/styles.css?v=1751280770 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:53:14,195 basehttp 46043 130878516750016 "GET / HTTP/1.1" 200 34399
+INFO 2025-06-30 11:53:14,248 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751280794 HTTP/1.1" 200 70636
+WARNING 2025-06-30 11:53:14,307 basehttp 46043 130878516750016 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-30 11:53:14,309 basehttp 46043 130878525142720 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-30 11:53:18,393 basehttp 46043 130878506260160 "GET /maisons/duplex/reserver/ HTTP/1.1" 302 0
+INFO 2025-06-30 11:53:18,570 basehttp 46043 130878506260160 "GET /reservations/reserver/duplex/?nombre_personnes=1 HTTP/1.1" 200 20139
+INFO 2025-06-30 11:53:18,696 basehttp 46043 130878506260160 "GET /static/css/dist/styles.css?v=1751280798 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:53:28,514 basehttp 46043 130878525142720 "GET /meubles/ HTTP/1.1" 200 22833
+INFO 2025-06-30 11:53:28,579 basehttp 46043 130878525142720 "GET /static/css/dist/styles.css?v=1751280808 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:54:07,347 basehttp 46043 130878506260160 "GET /repavi-admin/categories/ HTTP/1.1" 200 17493
+INFO 2025-06-30 11:54:07,403 basehttp 46043 130878506260160 "GET /static/css/dist/styles.css?v=1751280847 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:54:09,866 basehttp 46043 130878525142720 "GET /repavi-admin/villes/ HTTP/1.1" 200 20048
+INFO 2025-06-30 11:54:09,941 basehttp 46043 130878525142720 "GET /static/css/dist/styles.css?v=1751280849 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:54:12,527 basehttp 46043 130878506260160 "GET /repavi-admin/photos/ HTTP/1.1" 200 28659
+INFO 2025-06-30 11:54:12,627 basehttp 46043 130878506260160 "GET /static/css/dist/styles.css?v=1751280852 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:54:12,742 basehttp 46043 130878516750016 "GET /media/maisons/photos/duplex_cq9OYTI.jpg HTTP/1.1" 200 72411
+INFO 2025-06-30 11:55:08,776 basehttp 46043 130878506260160 "GET /repavi-admin/photos/ajouter/ HTTP/1.1" 200 21060
+INFO 2025-06-30 11:55:08,841 basehttp 46043 130878506260160 "GET /static/css/dist/styles.css?v=1751280908 HTTP/1.1" 200 70636
+INFO 2025-06-30 11:55:13,319 basehttp 46043 130878516750016 "GET /repavi-admin/ HTTP/1.1" 200 66385
+INFO 2025-06-30 11:55:13,392 basehttp 46043 130878516750016 "GET /static/css/dist/styles.css?v=1751280913 HTTP/1.1" 200 70636
+>>>>>>> b8d59ccf6a7c15d6cffddf52dca829752c4c387d

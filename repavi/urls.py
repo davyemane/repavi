@@ -23,6 +23,7 @@ urlpatterns = [
     # # meubles
     path('meubles/', include('meubles.urls')),
 
+
 ]
 
 # Servir les fichiers média et statiques en développement
