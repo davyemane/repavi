@@ -40,13 +40,13 @@
             <!-- Breadcrumb -->
             <nav class="mb-6">
                 <ol class="flex items-center justify-center space-x-2 text-sm text-gray-500">
-                    <li><a href="{% url 'home:index' %}" class="hover:text-blue-800 transition-colors">Accueil</a></li>
+                    <li><a href="{% url 'home:index' %}" class="hover:text-indigo-600 transition-colors">Accueil</a></li>
                     <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li class="text-blue-800 font-medium">Réserver une maison</li>
+                    <li class="text-indigo-600 font-medium">Réserver une maison</li>
                 </ol>
             </nav>
             
-            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900">Réserver votre <span class="text-blue-800">maison</span></h1>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-900">Réserver votre <span class="text-indigo-600">maison</span></h1>
             <p class="text-xl text-gray-600 max-w-3xl mx-auto font-light">
                 {% if total_maisons %}
                     {{ total_maisons }} maison{{ total_maisons|pluralize }} disponible{{ total_maisons|pluralize }} pour vos dates
@@ -58,7 +58,7 @@
             {% if user.is_authenticated and user.is_client %}
                 <div class="mt-8">
                     <a href="{% url 'reservations:mes_reservations' %}" 
-                       class="inline-flex items-center bg-blue-800 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
+                       class="inline-flex items-center bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
                         <i class="fas fa-list mr-2"></i>
                         Mes réservations
                     </a>
@@ -71,30 +71,39 @@
     <section class="py-8 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4">
             <div class="bg-white rounded-2xl p-6 md:p-8 soft-shadow">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Trouvez votre maison idéale</h2>
-                    <p class="text-gray-600">Affinez votre recherche pour des résultats personnalisés</p>
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-semibold text-gray-900 mb-2">Rechercher votre séjour idéal</h2>
+                    <p class="text-gray-600 text-sm mb-12">Sélectionnez vos dates et préférences pour trouver la maison parfaite</p>
                 </div>
                 
                 <form method="get" class="space-y-6">
-                    <!-- Filtres principaux -->
+                    <!-- Filtres principaux avec icons -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Date d'arrivée</label>
+                            <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt text-indigo-500 mr-2"></i>
+                                Date d'arrivée
+                            </label>
                             <input type="date" name="date_debut" value="{{ date_debut }}"
                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                                    min="{% now 'Y-m-d' %}">
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Date de départ</label>
+                            <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-check text-indigo-500 mr-2"></i>
+                                Date de départ
+                            </label>
                             <input type="date" name="date_fin" value="{{ date_fin }}"
                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                                    min="{% now 'Y-m-d' %}">
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Voyageurs</label>
+                            <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-users text-indigo-500 mr-2"></i>
+                                Voyageurs
+                            </label>
                             <select name="capacite" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                 <option value="">Nombre de personnes</option>
                                 <option value="1" {% if current_filters.capacite == "1" %}selected{% endif %}>1 personne</option>
@@ -106,7 +115,10 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+                            <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt text-indigo-500 mr-2"></i>
+                                Destination
+                            </label>
                             <select name="ville" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                 <option value="">Toutes les villes</option>
                                 {% for ville in villes %}
@@ -119,7 +131,7 @@
                         
                         <div class="flex items-end">
                             <button type="submit" 
-                                    class="w-full bg-blue-800 text-white py-3 px-6 rounded-xl font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+                                    class="w-full bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
                                 <i class="fas fa-search mr-2"></i>Rechercher
                             </button>
                         </div>
@@ -129,7 +141,10 @@
                     <div class="border-t pt-6">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Prix max/nuit</label>
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-euro-sign text-indigo-500 mr-2"></i>
+                                    Prix max/nuit
+                                </label>
                                 <select name="prix_max" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                     <option value="">Sans limite</option>
                                     <option value="50" {% if current_filters.prix_max == "50" %}selected{% endif %}>50€ max</option>
@@ -140,7 +155,10 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Type de logement</label>
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-home text-indigo-500 mr-2"></i>
+                                    Type de logement
+                                </label>
                                 <select name="categorie" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                     <option value="">Tous types</option>
                                     {% for categorie in categories %}
@@ -152,7 +170,10 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Mot-clé</label>
+                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-search text-indigo-500 mr-2"></i>
+                                    Mot-clé
+                                </label>
                                 <input type="text" name="search" value="{{ current_filters.search }}" 
                                        placeholder="Nom, description..."
                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
@@ -160,8 +181,8 @@
                             
                             <div class="flex items-end">
                                 <a href="{% url 'home:maisons_reservation' %}" 
-                                   class="w-full text-center bg-gray-200 text-gray-700 py-3 px-4 rounded-xl hover:bg-gray-300 transition-colors">
-                                    Réinitialiser
+                                   class="w-full text-center bg-gray-200 text-gray-700 py-3 px-4 rounded-xl hover:bg-gray-300 transition-colors text-sm font-medium">
+                                    <i class="fas fa-undo mr-1"></i>Réinitialiser
                                 </a>
                             </div>
                         </div>
@@ -243,12 +264,12 @@
                                         
                                         {% if user.is_authenticated and user.is_client %}
                                             <a href="{% url 'home:initier_reservation' maison.slug %}{% if date_debut and date_fin %}?date_debut={{ date_debut }}&date_fin={{ date_fin }}{% if current_filters.capacite %}&nombre_personnes={{ current_filters.capacite }}{% endif %}{% endif %}" 
-                                               class="bg-blue-800 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
+                                               class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
                                                 <i class="fas fa-calendar-plus mr-1"></i>Réserver
                                             </a>
                                         {% else %}
                                             <a href="{% url 'users:login' %}?next={% url 'home:initier_reservation' maison.slug %}" 
-                                               class="bg-blue-800 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
+                                               class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
                                                 <i class="fas fa-calendar-plus mr-1"></i>Réserver
                                             </a>
                                         {% endif %}
@@ -260,7 +281,7 @@
                                     <div class="bg-gray-50 rounded-xl p-3">
                                         <div class="flex justify-between text-sm">
                                             <span class="text-gray-600">{{ date_debut }} → {{ date_fin }}</span>
-                                            <span class="font-semibold text-blue-800">
+                                            <span class="font-semibold text-indigo-600">
                                                 Total estimé: 
                                                 {% with jours_diff=date_fin|timesince:date_debut %}
                                                     {% if "day" in jours_diff %}
@@ -292,7 +313,7 @@
                         
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
-                                <span class="bg-blue-800 text-white px-4 py-2 rounded-xl font-semibold">{{ num }}</span>
+                                <span class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold">{{ num }}</span>
                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                                 <a href="?{% for key, value in current_filters.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" 
                                    class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-50 transition-colors">
@@ -326,7 +347,7 @@
                         </p>
                         <div class="flex flex-col sm:flex-row justify-center gap-4">
                             <a href="{% url 'home:maisons_reservation' %}" 
-                               class="bg-blue-800 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
+                               class="bg-indigo-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
                                 Voir toutes les maisons
                             </a>
                             <a href="{% url 'home:maisons_list' %}" 
@@ -340,7 +361,7 @@
                             Vérifiez plus tard ou consultez notre catalogue complet.
                         </p>
                         <a href="{% url 'home:maisons_list' %}" 
-                           class="inline-flex items-center bg-blue-800 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
+                           class="inline-flex items-center bg-indigo-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
                             <i class="fas fa-home mr-2"></i>
                             Voir toutes nos maisons
                         </a>
@@ -353,19 +374,19 @@
     <!-- Aide à la réservation -->
     <section class="py-16 bg-gray-50">
         <div class="max-w-4xl mx-auto px-4 text-center">
-            <div class="bg-blue-800 rounded-3xl p-8 md:p-12 text-white">
+            <div class="bg-indigo-600 rounded-3xl p-8 md:p-12 text-white">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4">Besoin d'aide pour réserver ?</h2>
                 <p class="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
                     Notre équipe est là pour vous accompagner dans votre réservation et répondre à toutes vos questions
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
                     <a href="{% url 'home:contact' %}" 
-                       class="bg-white text-blue-800 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+                       class="bg-white text-indigo-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-colors">
                         <i class="fas fa-phone mr-2"></i>
                         Nous contacter
                     </a>
                     <a href="{% url 'home:apropos' %}" 
-                       class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-blue-800 transition-colors">
+                       class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-indigo-600 transition-colors">
                         <i class="fas fa-info-circle mr-2"></i>
                         En savoir plus
                     </a>
