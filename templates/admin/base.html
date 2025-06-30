@@ -1,5 +1,4 @@
 {% load static %}
-{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="fr" class="h-full bg-gray-50">
 
@@ -11,7 +10,7 @@
 
     <!-- Tailwind CSS (build local, pas CDN) -->
     <!-- <link href="{% static 'css/tailwind.css' %}" rel="stylesheet"> -->
-      {% tailwind_css %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/dist/styles.css' %}">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
