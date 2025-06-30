@@ -224,11 +224,11 @@ LANGUAGES = [
 ]
 
 # === FICHIERS STATIQUES ===
-STATIC_URL = '/static/'
+STATIC_URL = 'theme/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    BASE_DIR / "theme/static"
 ]
 
 # Optimisation des fichiers statiques en production

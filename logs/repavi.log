@@ -20938,3 +20938,485 @@ INFO 2025-06-30 15:34:18,454 basehttp 66973 128855146751680 "GET / HTTP/1.1" 200
 INFO 2025-06-30 15:34:18,475 basehttp 66973 128855146751680 "GET /static/css/dist/styles.css?v=1751294058 HTTP/1.1" 200 74059
 WARNING 2025-06-30 15:34:18,484 basehttp 66973 128854916064960 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
 WARNING 2025-06-30 15:34:18,493 basehttp 66973 128854924457664 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+ERROR 2025-06-30 16:46:47,099 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 16:46:57,966 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 16:55:56,756 log 597985 140327961740864 Internal Server Error: /maisons/reservation/
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column home_maison.statut_occupation does not exist
+LINE 1: ...ome_maison" WHERE ("home_maison"."disponible" AND "home_mais...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/home/views.py", line 329, in maisons_disponibles_reservation
+    page_obj = paginator.get_page(page_number)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 85, in get_page
+    return self.page(number)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 89, in page
+    number = self.validate_number(number)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 70, in validate_number
+    if number > self.num_pages:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 116, in num_pages
+    if self.count == 0 and not self.allow_empty_first_page:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 110, in count
+    return c()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 604, in count
+    return self.query.get_count(using=self.db)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/query.py", line 644, in get_count
+    return obj.get_aggregation(using, {"__count": Count("*")})["__count"]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/query.py", line 626, in get_aggregation
+    result = compiler.execute_sql(SINGLE)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column home_maison.statut_occupation does not exist
+LINE 1: ...ome_maison" WHERE ("home_maison"."disponible" AND "home_mais...
+                                                             ^
+ERROR 2025-06-30 16:56:50,467 log 597985 140327970133568 Internal Server Error: /maisons/
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column home_categoriemaison.icone does not exist
+LINE 1: ...."description", "home_categoriemaison"."couleur", "home_cate...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/base.py", line 284, in _get_response_async
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 366, in __len__
+    self._fetch_all()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column home_categoriemaison.icone does not exist
+LINE 1: ...."description", "home_categoriemaison"."couleur", "home_cate...
+                                                             ^
+ERROR 2025-06-30 17:53:45,838 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:03:35,442 log 597985 140327970133568 Internal Server Error: /maisons/
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column home_categoriemaison.icone does not exist
+LINE 1: ...."description", "home_categoriemaison"."couleur", "home_cate...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/base.py", line 284, in _get_response_async
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 366, in __len__
+    self._fetch_all()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column home_categoriemaison.icone does not exist
+LINE 1: ...."description", "home_categoriemaison"."couleur", "home_cate...
+                                                             ^
+ERROR 2025-06-30 18:08:22,631 log 597985 140327961740864 Invalid HTTP_HOST header: 'ton-domaine.com'. You may need to add 'ton-domaine.com' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'ton-domaine.com'. You may need to add 'ton-domaine.com' to ALLOWED_HOSTS.
+WARNING 2025-06-30 18:16:22,939 log 597985 140327961740864 Not Found: /wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:23,430 log 597985 140327970133568 Not Found: /wp-admin/install.php
+WARNING 2025-06-30 18:16:23,567 log 597985 140327961740864 Not Found: /wordpress/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:23,719 log 597985 140327970133568 Not Found: /wordpress/wp-admin/install.php
+WARNING 2025-06-30 18:16:23,869 log 597985 140327961740864 Not Found: /wp/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:24,002 log 597985 140327970133568 Not Found: /wp/wp-admin/install.php
+WARNING 2025-06-30 18:16:24,140 log 597985 140327961740864 Not Found: /new/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:24,264 log 597985 140327970133568 Not Found: /new/wp-admin/install.php
+WARNING 2025-06-30 18:16:24,403 log 597985 140327961740864 Not Found: /old/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:24,563 log 597985 140327970133568 Not Found: /old/wp-admin/install.php
+WARNING 2025-06-30 18:16:24,690 log 597985 140327961740864 Not Found: /blog/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:24,837 log 597985 140327970133568 Not Found: /blog/wp-admin/install.php
+WARNING 2025-06-30 18:16:25,006 log 597985 140327961740864 Not Found: /test/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:25,158 log 597985 140327970133568 Not Found: /test/wp-admin/install.php
+WARNING 2025-06-30 18:16:25,337 log 597985 140327961740864 Not Found: /shop/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:25,475 log 597985 140327970133568 Not Found: /shop/wp-admin/install.php
+ERROR 2025-06-30 18:27:11,996 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:12,633 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:13,315 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:14,298 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:14,968 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:15,627 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:16,258 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:16,905 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
