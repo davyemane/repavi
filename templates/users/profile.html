@@ -1,94 +1,943 @@
-<!-- users/profile.html - Section complète des scripts JavaScript -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mon Profil - RepAvi{% endblock %}
+{% block meta_description %}Gérez votre profil et vos informations personnelles sur RepAvi{% endblock %}
+
+{% block extra_css %}
+<style>
+.gradient-background {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.soft-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.hover-lift {
+    transition: all 0.3s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+.subtle-border {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.tab-active {
+    border-bottom: 2px solid #3B82F6;
+    color: #3B82F6;
+    background-color: #EFF6FF;
+}
+.tab-button {
+    transition: all 0.3s ease;
+}
+.tab-button:hover {
+    background-color: #F3F4F6;
+}
+.form-input {
+    transition: all 0.3s ease;
+}
+.form-input:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+.btn-primary {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+.glass-effect {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+.notification-item {
+    transition: all 0.3s ease;
+}
+.notification-item:hover {
+    background-color: #F9FAFB;
+}
+.file-upload-area {
+    border: 2px dashed #D1D5DB;
+    transition: all 0.3s ease;
+}
+.file-upload-area:hover {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Navigation -->
+    {% include 'components/navigation.html' %}
+
+    <!-- Header avec arrière-plan dégradé -->
+    <section class="pt-16 pb-8 bg-white relative isolate">
+        <!-- Background Blobs -->
+        <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
+            <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#667eea] to-[#764ba2] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" 
+                 style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-4 relative z-10">
+            <!-- Breadcrumb -->
+            <div class="flex items-center space-x-2 text-sm text-gray-600 mb-6">
+                <a href="{% url 'home:index' %}" class="hover:text-blue-600 transition-colors">
+                    <i class="fas fa-home mr-1"></i>Accueil
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                {% if user.is_gestionnaire %}
+                    <a href="{% url 'users:dashboard_gestionnaire' %}" class="hover:text-blue-600 transition-colors">Dashboard</a>
+                {% elif user.is_client %}
+                    <a href="{% url 'users:dashboard_client' %}" class="hover:text-blue-600 transition-colors">Dashboard</a>
+                {% else %}
+                    <a href="{% url 'users:dashboard' %}" class="hover:text-blue-600 transition-colors">Dashboard</a>
+                {% endif %}
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <span class="text-gray-900 font-medium">Mon Profil</span>
+            </div>
+
+            <!-- Header du profil -->
+            <div class="bg-white rounded-2xl p-8 soft-shadow subtle-border mb-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                    <!-- Photo de profil -->
+                    <div class="relative">
+                        {% if user.photo_profil %}
+                            <img src="{{ user.photo_profil.url }}" alt="Photo de profil" 
+                                 class="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-blue-100">
+                        {% else %}
+                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-4 border-blue-100">
+                                <span class="text-2xl md:text-3xl font-bold text-white">
+                                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                                </span>
+                            </div>
+                        {% endif %}
+                        <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-camera text-white text-sm"></i>
+                        </div>
+                    </div>
+
+                    <!-- Informations utilisateur -->
+                    <div class="flex-1">
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                            {{ user.nom_complet }}
+                        </h1>
+                        <div class="flex flex-wrap items-center gap-4 text-gray-600 mb-3">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                {% if user.is_gestionnaire %}bg-green-100 text-green-800
+                                {% elif user.is_client %}bg-blue-100 text-blue-800
+                                {% else %}bg-purple-100 text-purple-800{% endif %}">
+                                <i class="fas fa-user-tag mr-2"></i>
+                                {{ user.get_role_display }}
+                            </span>
+                            <span class="flex items-center">
+                                <i class="fas fa-envelope mr-2 text-gray-400"></i>
+                                {{ user.email }}
+                            </span>
+                            {% if user.telephone %}
+                            <span class="flex items-center">
+                                <i class="fas fa-phone mr-2 text-gray-400"></i>
+                                {{ user.telephone }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center gap-4 text-sm">
+                            {% if user.email_verifie %}
+                                <span class="flex items-center text-green-600">
+                                    <i class="fas fa-check-circle mr-1"></i>Email vérifié
+                                </span>
+                            {% else %}
+                                <span class="flex items-center text-orange-600">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>Email non vérifié
+                                </span>
+                            {% endif %}
+                            <span class="text-gray-500">
+                                Membre depuis {{ user.date_joined|date:"F Y" }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Actions rapides -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        {% if user.is_gestionnaire %}
+                            <a href="{% url 'users:dashboard_gestionnaire' %}" 
+                               class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center">
+                                <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                            </a>
+                        {% elif user.is_client %}
+                            <a href="{% url 'users:dashboard_client' %}" 
+                               class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center">
+                                <i class="fas fa-calendar-check mr-2"></i>Mes réservations
+                            </a>
+                        {% endif %}
+                        <button onclick="showSection('security')" 
+                                class="border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors text-center">
+                            <i class="fas fa-shield-alt mr-2"></i>Sécurité
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenu principal -->
+    <section class="pb-20 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <!-- Navigation par onglets -->
+            <div class="bg-white rounded-2xl soft-shadow subtle-border overflow-hidden">
+                <div class="border-b border-gray-200">
+                    <nav class="flex">
+                        <button onclick="showSection('profile')" 
+                                id="tab-profile"
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent tab-active">
+                            <i class="fas fa-user mr-2"></i>
+                            Informations personnelles
+                        </button>
+                        {% if user.is_gestionnaire %}
+                        <button onclick="showSection('gestionnaire')" 
+                                id="tab-gestionnaire"
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">
+                            <i class="fas fa-building mr-2"></i>
+                            Profil gestionnaire
+                        </button>
+                        {% elif user.is_client %}
+                        <button onclick="showSection('client')" 
+                                id="tab-client"
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">
+                            <i class="fas fa-suitcase mr-2"></i>
+                            Profil client
+                        </button>
+                        {% endif %}
+                        <button onclick="showSection('security')" 
+                                id="tab-security"
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Sécurité
+                        </button>
+                        <button onclick="showSection('notifications')" 
+                                id="tab-notifications"
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">
+                            <i class="fas fa-bell mr-2"></i>
+                            Notifications
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Contenu des onglets -->
+                <div class="p-8">
+                    <!-- Section Profil -->
+                    <div id="section-profile" class="tab-content">
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Informations personnelles</h2>
+                            <p class="text-gray-600">Modifiez vos informations de profil et votre photo.</p>
+                        </div>
+
+                        <form method="post" enctype="multipart/form-data" class="space-y-6">
+                            {% csrf_token %}
+                            
+                            <!-- Photo de profil -->
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-4">Photo de profil</label>
+                                <div class="flex items-center gap-6">
+                                    {% if user.photo_profil %}
+                                        <img src="{{ user.photo_profil.url }}" alt="Photo actuelle" 
+                                             class="w-16 h-16 rounded-full object-cover">
+                                    {% else %}
+                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                            <span class="text-xl font-bold text-white">
+                                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="flex-1">
+                                        <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer" onclick="document.getElementById('photo-input').click()">
+                                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                                            <p class="text-sm text-gray-600">Cliquez pour télécharger une nouvelle photo</p>
+                                            <p class="text-xs text-gray-500 mt-1">JPG, PNG jusqu'à 5MB</p>
+                                        </div>
+                                        <input type="file" id="photo-input" name="photo_profil" accept="image/*" class="hidden">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informations de base -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+                                    <input type="text" name="first_name" value="{{ user.first_name }}" 
+                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+                                    <input type="text" name="last_name" value="{{ user.last_name }}" 
+                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <div class="relative">
+                                        <input type="email" name="email" value="{{ user.email }}" 
+                                               class="form-input w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        {% if user.email_verifie %}
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <i class="fas fa-exclamation-circle text-orange-500"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    {% if not user.email_verifie %}
+                                        <p class="text-sm text-orange-600 mt-1">
+                                            <a href="{% url 'users:resend_verification' %}" class="underline hover:text-orange-700">
+                                                Renvoyer l'email de vérification
+                                            </a>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                                    <input type="tel" name="telephone" value="{{ user.telephone|default:'' }}" 
+                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Date de naissance</label>
+                                <input type="date" name="date_naissance" value="{{ user.date_naissance|date:'Y-m-d'|default:'' }}" 
+                                       class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+                                <textarea name="adresse" rows="3" 
+                                          class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ user.adresse|default:'' }}</textarea>
+                            </div>
+
+                            <div class="flex justify-end pt-6">
+                                <button type="submit" class="btn-primary bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Section Gestionnaire -->
+                    {% if user.is_gestionnaire %}
+                    <div id="section-gestionnaire" class="tab-content hidden">
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Profil gestionnaire</h2>
+                            <p class="text-gray-600">Informations spécifiques à votre activité de gestionnaire.</p>
+                        </div>
+
+                        <form method="post" enctype="multipart/form-data" class="space-y-6">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="gestionnaire">
+                            
+                            <!-- Documents -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Pièce d'identité</label>
+                                    <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer">
+                                        <i class="fas fa-id-card text-2xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm text-gray-600">Télécharger votre pièce d'identité</p>
+                                        <input type="file" name="piece_identite" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Justificatif de domicile</label>
+                                    <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer">
+                                        <i class="fas fa-file-alt text-2xl text-gray-400 mb-2"></i>
+                                        <p class="text-sm text-gray-600">Télécharger un justificatif</p>
+                                        <input type="file" name="justificatif_domicile" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">SIRET (si applicable)</label>
+                                    <input type="text" name="numero_siret" 
+                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                           placeholder="123 456 789 01234">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Statut professionnel</label>
+                                    <select name="statut_professionnel" 
+                                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Sélectionner un statut</option>
+                                        <option value="particulier">Particulier</option>
+                                        <option value="auto_entrepreneur">Auto-entrepreneur</option>
+                                        <option value="societe">Société</option>
+                                        <option value="autre">Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Présentation</label>
+                                <textarea name="presentation" rows="4" 
+                                          class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                          placeholder="Présentez-vous à vos futurs clients..."></textarea>
+                            </div>
+
+                            <div class="flex justify-end pt-6">
+                                <button type="submit" class="btn-primary bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-save mr-2"></i>Enregistrer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    <!-- Section Client -->
+                    {% if user.is_client %}
+                    <div id="section-client" class="tab-content hidden">
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Profil client</h2>
+                            <p class="text-gray-600">Préférences et informations pour vos réservations.</p>
+                        </div>
+
+                        <form method="post" enctype="multipart/form-data" class="space-y-6">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="client">
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Pièce d'identité</label>
+                                <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer">
+                                    <i class="fas fa-id-card text-2xl text-gray-400 mb-2"></i>
+                                    <p class="text-sm text-gray-600">Télécharger votre pièce d'identité</p>
+                                    <p class="text-xs text-gray-500 mt-1">Requise pour la validation de vos réservations</p>
+                                    <input type="file" name="piece_identite" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Type de séjour préféré</label>
+                                    <select name="type_sejour_prefere" 
+                                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Sélectionner</option>
+                                        <option value="vacances">Vacances</option>
+                                        <option value="professionnel">Professionnel</option>
+                                        <option value="week_end">Week-end</option>
+                                        <option value="long_sejour">Long séjour</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Budget moyen par nuit</label>
+                                    <select name="budget_moyen" 
+                                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">Sélectionner</option>
+                                        <option value="0-50">0€ - 50€</option>
+                                        <option value="50-100">50€ - 100€</option>
+                                        <option value="100-200">100€ - 200€</option>
+                                        <option value="200+">200€+</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Équipements préférés</label>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="equipements_preferes" value="wifi" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">WiFi</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="equipements_preferes" value="piscine" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Piscine</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="equipements_preferes" value="parking" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Parking</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="equipements_preferes" value="jardin" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Jardin</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="equipements_preferes" value="climatisation" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Climatisation</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="equipements_preferes" value="cuisine" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm text-gray-700">Cuisine équipée</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end pt-6">
+                                <button type="submit" class="btn-primary bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-save mr-2"></i>Enregistrer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    <!-- Section Sécurité -->
+                    <div id="section-security" class="tab-content hidden">
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Sécurité et confidentialité</h2>
+                            <p class="text-gray-600">Gérez vos paramètres de sécurité et de confidentialité.</p>
+                        </div>
+
+                        <!-- Changement de mot de passe -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Changer le mot de passe</h3>
+                            <form method="post" class="space-y-4">
+                                {% csrf_token %}
+                                <input type="hidden" name="form_type" value="password">
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
+                                    <input type="password" name="old_password" 
+                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
+                                        <input type="password" name="new_password1" 
+                                               class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le nouveau mot de passe</label>
+                                        <input type="password" name="new_password2" 
+                                               class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end">
+                                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                        <i class="fas fa-key mr-2"></i>Changer le mot de passe
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Sessions actives -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Sessions actives</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-desktop text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900">Session actuelle</p>
+                                            <p class="text-sm text-gray-600">{{ request.META.REMOTE_ADDR|default:"Adresse IP inconnue" }} • {{ user.date_derniere_connexion_complete|default:"Jamais"|date:"d M Y à H:i" }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Actuelle
+                                    </span>
+                                </div>
+                                
+                                <!-- Autres sessions (simulation) -->
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-mobile-alt text-gray-600"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900">Mobile Chrome</p>
+                                            <p class="text-sm text-gray-600">Il y a 2 jours</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-red-600 hover:text-red-700 text-sm font-medium">
+                                        Déconnecter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Confidentialité -->
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Paramètres de confidentialité</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Profil public</p>
+                                        <p class="text-sm text-gray-600">Permettre aux autres utilisateurs de voir votre profil</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Historique des recherches</p>
+                                        <p class="text-sm text-gray-600">Enregistrer vos recherches pour améliorer les recommandations</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Zone de danger -->
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-red-900 mb-4">Zone de danger</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-red-900">Supprimer mon compte</p>
+                                        <p class="text-sm text-red-700">Cette action est irréversible. Toutes vos données seront supprimées.</p>
+                                    </div>
+                                    <button onclick="confirmAccountDeletion()" 
+                                            class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                                        Supprimer le compte
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section Notifications -->
+                    <div id="section-notifications" class="tab-content hidden">
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Préférences de notifications</h2>
+                            <p class="text-gray-600">Choisissez comment vous souhaitez être notifié.</p>
+                        </div>
+
+                        <form method="post" class="space-y-6">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="notifications">
+                            
+                            <!-- Notifications par email -->
+                            <div class="bg-white border border-gray-200 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-envelope mr-2 text-blue-600"></i>
+                                    Notifications par email
+                                </h3>
+                                <div class="space-y-4">
+                                    {% if user.is_gestionnaire %}
+                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Nouvelles réservations</p>
+                                            <p class="text-sm text-gray-600">Recevoir un email lors de nouvelles réservations</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="notif_nouvelles_reservations" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Modifications de réservations</p>
+                                            <p class="text-sm text-gray-600">Être notifié des modifications ou annulations</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="notif_modifications_reservations" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Rappels de paiement</p>
+                                            <p class="text-sm text-gray-600">Recevoir des rappels pour les paiements en attente</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="notif_rappels_paiement" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    {% elif user.is_client %}
+                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Confirmations de réservation</p>
+                                            <p class="text-sm text-gray-600">Recevoir un email de confirmation de vos réservations</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="notif_confirmations_reservation" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Rappels de séjour</p>
+                                            <p class="text-sm text-gray-600">Recevoir des rappels avant vos séjours</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="notif_rappels_sejour" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Offres spéciales</p>
+                                            <p class="text-sm text-gray-600">Recevoir les promotions et offres spéciales</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="notif_offres_speciales" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Notifications push -->
+                            <div class="bg-white border border-gray-200 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-bell mr-2 text-purple-600"></i>
+                                    Notifications push
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Notifications desktop</p>
+                                            <p class="text-sm text-gray-600">Recevoir des notifications sur votre ordinateur</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="notif_desktop" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Notifications mobiles</p>
+                                            <p class="text-sm text-gray-600">Recevoir des notifications sur votre téléphone</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="notif_mobile" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fréquence des emails -->
+                            <div class="bg-white border border-gray-200 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-clock mr-2 text-green-600"></i>
+                                    Fréquence des emails
+                                </h3>
+                                <div class="space-y-3">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="frequence_emails" value="immediate" class="text-blue-600 focus:ring-blue-500" checked>
+                                        <span class="ml-3 text-gray-700">Immédiate (dès qu'une action se produit)</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="frequence_emails" value="quotidien" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-3 text-gray-700">Quotidienne (résumé journalier)</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="frequence_emails" value="hebdomadaire" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-3 text-gray-700">Hebdomadaire (résumé hebdomadaire)</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="frequence_emails" value="jamais" class="text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-3 text-gray-700">Jamais (sauf notifications importantes)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end pt-6">
+                                <button type="submit" class="btn-primary bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-save mr-2"></i>Enregistrer les préférences
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal de confirmation de suppression -->
+    <div id="deleteAccountModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 soft-shadow">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Supprimer votre compte</h3>
+                <p class="text-gray-600 mb-6">
+                    Cette action est irréversible. Toutes vos données, réservations et informations personnelles seront définitivement supprimées.
+                </p>
+                
+                <form method="post" action="{% url 'users:delete_account' %}" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Tapez votre mot de passe pour confirmer
+                        </label>
+                        <input type="password" name="password" required
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button type="button" onclick="hideDeleteModal()" 
+                                class="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                            Annuler
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                            Supprimer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
+// Gestion des onglets
+function showSection(sectionName) {
+    // Cacher toutes les sections
+    const sections = document.querySelectorAll('.tab-content');
+    sections.forEach(section => {
+        section.classList.add('hidden');
+    });
+    
+    // Enlever la classe active de tous les onglets
+    const tabs = document.querySelectorAll('[id^="tab-"]');
+    tabs.forEach(tab => {
+        tab.classList.remove('tab-active');
+        tab.classList.add('text-gray-600');
+        tab.classList.remove('text-blue-600');
+    });
+    
+    // Afficher la section sélectionnée
+    document.getElementById('section-' + sectionName).classList.remove('hidden');
+    
+    // Activer l'onglet correspondant
+    const activeTab = document.getElementById('tab-' + sectionName);
+    activeTab.classList.add('tab-active');
+    activeTab.classList.remove('text-gray-600');
+    activeTab.classList.add('text-blue-600');
+}
+
+// Gestion des uploads de fichiers
 document.addEventListener('DOMContentLoaded', function() {
-    // Gestion des onglets
-    const tabLinks = document.querySelectorAll('.tab-link');
-    const tabContents = document.querySelectorAll('.tab-content');
+    const fileUploadAreas = document.querySelectorAll('.file-upload-area');
     
-    tabLinks.forEach(function(link) {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = this.getAttribute('href');
-            
-            // Réinitialiser tous les onglets
-            tabLinks.forEach(function(tab) {
-                tab.classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
-                tab.classList.add('text-gray-500');
-            });
-            
-            tabContents.forEach(function(content) {
-                content.classList.add('hidden');
-            });
-            
-            // Activer l'onglet cliqué
-            this.classList.remove('text-gray-500');
-            this.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
-            document.querySelector(target).classList.remove('hidden');
-        });
-    });
-    
-    // Gestion des notifications toggle
-    const notificationToggles = document.querySelectorAll('.notification-toggle');
-    notificationToggles.forEach(function(toggle) {
-        toggle.addEventListener('change', function() {
-            const type = this.getAttribute('data-type');
-            const enabled = this.checked;
-            
-            // Envoi AJAX
-            fetch('{% url "users:toggle_notification_ajax" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: new URLSearchParams({
-                    'type': type,
-                    'enabled': enabled.toString()
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    console.error('Erreur lors de la mise à jour des préférences');
-                    // Rétablir l'état précédent
-                    this.checked = !enabled;
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                // Rétablir l'état précédent
-                this.checked = !enabled;
-            });
-        });
-    });
-    
-    // Modal de suppression
-    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-    const deleteModal = document.getElementById('deleteModal');
-    const cancelDelete = document.getElementById('cancelDelete');
-    
-    if (deleteAccountBtn) {
-        deleteAccountBtn.addEventListener('click', function() {
-            deleteModal.classList.remove('hidden');
-        });
-    }
-    
-    if (cancelDelete) {
-        cancelDelete.addEventListener('click', function() {
-            deleteModal.classList.add('hidden');
-        });
-    }
-    
-    // Fermer le modal en cliquant à l'extérieur
-    if (deleteModal) {
-        deleteModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.add('hidden');
+    fileUploadAreas.forEach(area => {
+        area.addEventListener('click', function() {
+            const input = this.querySelector('input[type="file"]');
+            if (input) {
+                input.click();
             }
         });
+        
+        // Gestion du drag & drop
+        area.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('border-blue-500', 'bg-blue-50');
+        });
+        
+        area.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-blue-500', 'bg-blue-50');
+        });
+        
+        area.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-blue-500', 'bg-blue-50');
+            
+            const input = this.querySelector('input[type="file"]');
+            if (input && e.dataTransfer.files.length > 0) {
+                input.files = e.dataTransfer.files;
+                
+                // Afficher le nom du fichier
+                const fileName = e.dataTransfer.files[0].name;
+                const text = this.querySelector('p');
+                if (text) {
+                    text.textContent = fileName;
+                    text.classList.add('text-blue-600', 'font-medium');
+                }
+            }
+        });
+    });
+    
+    // Gestion des changements de fichiers
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const fileName = this.files[0].name;
+                const uploadArea = this.closest('.file-upload-area');
+                const text = uploadArea.querySelector('p');
+                if (text) {
+                    text.textContent = fileName;
+                    text.classList.add('text-blue-600', 'font-medium');
+                }
+            }
+        });
+    });
+});
+
+// Modal de suppression de compte
+function confirmAccountDeletion() {
+    document.getElementById('deleteAccountModal').classList.remove('hidden');
+    document.getElementById('deleteAccountModal').classList.add('flex');
+}
+
+function hideDeleteModal() {
+    document.getElementById('deleteAccountModal').classList.add('hidden');
+    document.getElementById('deleteAccountModal').classList.remove('flex');
+}
+
+// Fermer le modal en cliquant à l'extérieur
+document.getElementById('deleteAccountModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideDeleteModal();
     }
+});
+
+// Messages flash auto-hide
+document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.alert');
+    messages.forEach(message => {
+        setTimeout(() => {
+            message.style.opacity = '0';
+            setTimeout(() => {
+                message.remove();
+            }, 300);
+        }, 5000);
+    });
+});
+
+// Validation en temps réel des mots de passe
+const passwordInputs = document.querySelectorAll('input[type="password"]');
+passwordInputs.forEach(input => {
+    input.addEventListener('input', function() {
+        const form = this.closest('form');
+        const newPassword1 = form.querySelector('input[name="new_password1"]');
+        const newPassword2 = form.querySelector('input[name="new_password2"]');
+        
+        if (newPassword1 && newPassword2 && newPassword1.value && newPassword2.value) {
+            if (newPassword1.value !== newPassword2.value) {
+                newPassword2.setCustomValidity('Les mots de passe ne correspondent pas');
+                newPassword2.classList.add('border-red-500');
+            } else {
+                newPassword2.setCustomValidity('');
+                newPassword2.classList.remove('border-red-500');
+                newPassword2.classList.add('border-green-500');
+            }
+        }
+    });
 });
 </script>
 {% endblock %}

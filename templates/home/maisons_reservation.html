@@ -57,7 +57,7 @@
             
             {% if user.is_authenticated and user.is_client %}
                 <div class="mt-8">
-                    <a href="{% url 'reservations:mes_reservations' %}" 
+                    <a href="{% url 'users:mes_reservations_client' %}" 
                        class="inline-flex items-center bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
                         <i class="fas fa-list mr-2"></i>
                         Mes réservations

@@ -1,0 +1,404 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-gray-50">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mon Espace - RepAvi{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Lato', 'Inter', sans-serif;
+        }
+        
+        .client-card {
+            transition: all 0.3s ease;
+        }
+        
+        .client-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            height: 2px;
+            width: 0;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            width: 100%;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .client-sidebar-link {
+            transition: all 0.3s ease;
+        }
+        
+        .client-sidebar-link:hover {
+            background-color: #f3f4f6;
+            transform: translateX(4px);
+        }
+        
+        .client-sidebar-link.active {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-right: 3px solid #2563eb;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-gray-50">
+    <!-- Navigation principale -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{% url 'home:index' %}" class="flex items-center space-x-2">
+                        <img src="{% static 'images/repavi_lodge_dark.png' %}" alt="RepAvi" class="h-8 w-8 object-contain" />
+                        <span class="text-xl font-bold text-gray-800 hover:text-gray-900 transition-colors">
+                            RepAvi
+                        </span>
+                    </a>
+                    <span class="ml-3 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full font-medium">
+                        Mon Espace
+                    </span>
+                </div>
+                
+                <!-- Navigation client -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home:index' %}" 
+                       class="nav-link text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                        Accueil
+                    </a>
+                    <a href="{% url 'users:dashboard_client' %}" 
+                       class="nav-link text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                        Mon Dashboard
+                    </a>
+                    <a href="{% url 'users:mes_reservations_client' %}" 
+                       class="nav-link text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                        Mes Réservations
+                    </a>
+                </div>
+
+                <!-- Menu utilisateur -->
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button class="text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-lg hover:bg-gray-100" id="notifications-btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">2</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Menu profil -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors p-2 rounded-lg hover:bg-gray-100">
+                            {% if user.photo_profil %}
+                                <img src="{{ user.photo_profil.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-gray-200">
+                            {% else %}
+                                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-500 text-sm"></i>
+                                </div>
+                            {% endif %}
+                            <span class="text-sm font-medium hidden lg:block">{{ user.first_name|default:user.username }}</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        
+                        <!-- Dropdown menu -->
+                        <div class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                            <div class="p-4 border-b border-gray-200">
+                                <div class="flex items-center">
+                                    {% if user.photo_profil %}
+                                        <img src="{{ user.photo_profil.url }}" alt="Profile" class="w-10 h-10 rounded-full object-cover mr-3">
+                                    {% else %}
+                                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                            <i class="fas fa-user text-gray-500"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ user.first_name|default:user.username }}</p>
+                                        <p class="text-sm text-gray-500">{{ user.email }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="py-2">
+                                <a href="{% url 'users:dashboard_client' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-tachometer-alt mr-3 text-gray-400"></i>
+                                    Mon Dashboard
+                                </a>
+                                <a href="{% url 'users:profile' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-user mr-3 text-gray-400"></i>
+                                    Mon profil
+                                </a>
+                                <a href="{% url 'users:mes_reservations_client' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-calendar mr-3 text-gray-400"></i>
+                                    Mes réservations
+                                </a>
+                                <a href="{% url 'users:account_settings' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-cog mr-3 text-gray-400"></i>
+                                    Paramètres
+                                </a>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 py-2">
+                                <a href="{% url 'users:logout' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-3 text-red-400"></i>
+                                    Déconnexion
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Layout principal -->
+    <div class="flex">
+        <!-- Sidebar client (optionnelle selon la page) -->
+        {% block sidebar %}
+        <aside class="hidden lg:block w-64 bg-white shadow-sm min-h-screen border-r border-gray-200">
+            <nav class="mt-6 px-4 space-y-2">
+                <!-- Profil rapide -->
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white mb-6">
+                    <div class="flex items-center">
+                        {% if user.photo_profil %}
+                            <img src="{{ user.photo_profil.url }}" alt="Profile" class="w-12 h-12 rounded-full object-cover mr-3">
+                        {% else %}
+                            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <p class="font-medium">{{ user.first_name|default:user.username }}</p>
+                            <p class="text-sm text-blue-100">Client RepAvi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation sidebar -->
+                <a href="{% url 'users:dashboard_client' %}"
+                   class="client-sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-tachometer-alt mr-3 w-5"></i>
+                    Dashboard
+                </a>
+
+                <a href="{% url 'users:mes_reservations_client' %}"
+                   class="client-sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-calendar-check mr-3 w-5"></i>
+                    Mes Réservations
+                </a>
+
+                <a href="{% url 'home:index' %}"
+                   class="client-sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-search mr-3 w-5"></i>
+                    Rechercher
+                </a>
+
+                <a href="{% url 'users:profile' %}"
+                   class="client-sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-user mr-3 w-5"></i>
+                    Mon Profil
+                </a>
+
+                <!-- Séparateur -->
+                <div class="border-t border-gray-200 my-4"></div>
+
+                <!-- Actions rapides -->
+                <div class="space-y-2">
+                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions Rapides</p>
+                    
+                    <a href="{% url 'home:index' %}"
+                       class="client-sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-plus mr-3 w-5 text-green-600"></i>
+                        Nouvelle Réservation
+                    </a>
+
+                    <a href="#"
+                       class="client-sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-heart mr-3 w-5 text-red-600"></i>
+                        Mes Favoris
+                    </a>
+
+                    <a href="#"
+                       class="client-sidebar-link flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-headset mr-3 w-5 text-purple-600"></i>
+                        Support
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        {% endblock %}
+
+        <!-- Contenu principal -->
+        <main class="flex-1 min-h-screen">
+            <!-- Breadcrumb (optionnel) -->
+            {% block breadcrumb %}{% endblock %}
+
+            <!-- Messages -->
+            {% if messages %}
+            <div class="px-6 py-4">
+                {% for message in messages %}
+                <div class="alert mb-3 p-4 border rounded-lg flex items-center fade-in
+                        {% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800
+                        {% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800
+                        {% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800
+                        {% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} mr-3"></i>
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.remove()" class="ml-auto text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Contenu de la page -->
+            {% block content %}
+            <!-- Contenu par défaut -->
+            <div class="p-6">
+                <div class="max-w-7xl mx-auto">
+                    <div class="text-center py-12">
+                        <i class="fas fa-home text-6xl text-gray-300 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Bienvenue dans votre espace client</h2>
+                        <p class="text-gray-600 mb-6">Gérez vos réservations et découvrez nos maisons</p>
+                        <a href="{% url 'users:dashboard_client' %}" 
+                           class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                            Aller au dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- Footer client (optionnel) -->
+    {% block footer %}
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                    <span class="text-sm text-gray-500">© 2025 RepAvi. Tous droits réservés.</span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">Aide</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">Contact</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">Conditions</a>
+                    <a href="#" class="text-sm text-gray-500 hover:text-gray-700 transition-colors">Confidentialité</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Scripts globaux -->
+    <script>
+        // Gestion du menu actif
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentPath = window.location.pathname;
+            const sidebarLinks = document.querySelectorAll('.client-sidebar-link');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Sidebar
+            sidebarLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (currentPath === href || (currentPath.startsWith(href) && href !== '/')) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Navigation principale
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (currentPath === href || (currentPath.startsWith(href) && href !== '/')) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Auto-hide des messages après 5 secondes
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+
+        // Animation des cartes au chargement
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.client-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('fade-in');
+                }, index * 100);
+            });
+        });
+
+        // Menu mobile toggle (si nécessaire)
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
