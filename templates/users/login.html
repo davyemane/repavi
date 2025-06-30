@@ -33,13 +33,35 @@
             <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                 {{ form.password.label }}
             </label>
-            {{ form.password }}
+            <div class="relative">
+                {{ form.password }}
+                <button type="button" onclick="togglePasswordVisibility()" tabindex="-1"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none"
+                    aria-label="Afficher/Masquer le mot de passe">
+                    <i id="password-eye" class="fas fa-eye"></i>
+                </button>
+            </div>
             {% if form.password.errors %}
                 <div class="mt-1 text-sm text-red-600">
                     {{ form.password.errors.0 }}
                 </div>
             {% endif %}
         </div>
+        <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("{{ form.password.id_for_label }}");
+            const eyeIcon = document.getElementById("password-eye");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+        </script>
 
         <div class="flex items-center justify-between">
             <div class="flex items-center">

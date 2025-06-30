@@ -19759,3 +19759,46 @@ INFO 2025-06-30 13:39:33,943 basehttp 25933 124424514688704 "GET /static/css/dis
 INFO 2025-06-30 13:39:34,007 basehttp 25933 124424747472576 "GET /static/css/dist/styles.css?v=1751287173 HTTP/1.1" 200 97923
 INFO 2025-06-30 13:39:47,504 basehttp 25933 124424747472576 "GET /apropos/ HTTP/1.1" 200 25861
 INFO 2025-06-30 13:39:47,571 basehttp 25933 124424747472576 "GET /static/css/dist/styles.css?v=1751287187 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:42:46,106 basehttp 25933 124424747472576 "GET /users/login/ HTTP/1.1" 200 5036
+INFO 2025-06-30 13:42:46,175 basehttp 25933 124424747472576 "GET /static/css/dist/styles.css?v=1751287366 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:43:40,835 basehttp 25933 124424747472576 "GET /users/login/ HTTP/1.1" 200 6102
+INFO 2025-06-30 13:43:40,845 basehttp 25933 124424523081408 "GET /users/register/ HTTP/1.1" 200 7894
+INFO 2025-06-30 13:43:40,868 basehttp 25933 124424523081408 "GET /static/css/dist/styles.css?v=1751287420 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:43:40,915 basehttp 25933 124424747472576 "GET /static/css/dist/styles.css?v=1751287420 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:43:45,247 basehttp 25933 124424747472576 "GET /users/login/ HTTP/1.1" 200 6102
+INFO 2025-06-30 13:43:45,283 basehttp 25933 124424747472576 "GET /static/css/dist/styles.css?v=1751287425 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:43:57,827 basehttp 25933 124424747472576 "GET /users/login/ HTTP/1.1" 200 6102
+INFO 2025-06-30 13:43:57,926 basehttp 25933 124424747472576 "GET /static/css/dist/styles.css?v=1751287437 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:44:21,766 basehttp 25933 124424747472576 "POST /users/login/ HTTP/1.1" 302 0
+INFO 2025-06-30 13:44:21,883 basehttp 25933 124424747472576 "GET /repavi-admin/ HTTP/1.1" 200 56211
+INFO 2025-06-30 13:44:21,990 basehttp 25933 124424747472576 "GET /static/css/dist/styles.css?v=1751287461 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:50:21,578 basehttp 25933 124424523081408 "GET /users/login/ HTTP/1.1" 200 6102
+INFO 2025-06-30 13:50:21,615 basehttp 25933 124424523081408 "GET /static/css/dist/styles.css?v=1751287821 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:50:21,760 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55738
+INFO 2025-06-30 13:50:21,842 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751287821 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:50:24,004 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55738
+INFO 2025-06-30 13:50:24,048 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751287823 HTTP/1.1" 200 97923
+INFO 2025-06-30 13:51:57,465 basehttp 25933 124424747472576 "GET /users/login/ HTTP/1.1" 200 6102
+INFO 2025-06-30 13:51:57,508 basehttp 25933 124424747472576 "GET /static/css/dist/styles.css?v=1751287917 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:51:57,570 log 25933 124424747472576 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:51:57,571 basehttp 25933 124424747472576 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:51:57,589 log 25933 124424747472576 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:51:57,590 basehttp 25933 124424747472576 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
+INFO 2025-06-30 13:51:57,751 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55738
+INFO 2025-06-30 13:51:57,933 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751287917 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:51:58,340 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:51:58,341 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:51:58,487 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:51:58,489 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
+INFO 2025-06-30 13:55:01,827 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55738
+INFO 2025-06-30 13:55:01,964 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751288101 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:55:02,182 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:55:02,183 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:55:02,345 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:55:02,346 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
+INFO 2025-06-30 13:55:24,395 basehttp 25933 124424514688704 "GET /repavi-admin/ HTTP/1.1" 200 55691
+INFO 2025-06-30 13:55:24,575 basehttp 25933 124424514688704 "GET /static/css/dist/styles.css?v=1751288124 HTTP/1.1" 200 188415
+WARNING 2025-06-30 13:55:26,452 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 13:55:26,453 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14172
+WARNING 2025-06-30 13:55:26,535 log 25933 124424514688704 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 13:55:26,536 basehttp 25933 124424514688704 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14166
