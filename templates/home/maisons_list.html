@@ -48,18 +48,33 @@
     </section>
 
     <!-- Filtres -->
-    <section class="py-8 bg-white border-b border-gray-100">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="bg-gray-50 rounded-2xl p-6">
-                <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                    <div class="lg:col-span-2">
-                        <input type="text" name="search" value="{{ current_filters.search }}" 
-                               placeholder="Rechercher une maison..." 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white">
+ <section class="py-8 bg-white border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="bg-gray-50 rounded-2xl p-6 md:p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-4xl font-semibold text-gray-900 mb-2">Rechercher les maisons</h2>
+                <p class="text-gray-600 text-sm">Affinez votre recherche pour trouver la maison parfaite</p>
+            </div>
+            
+            <form method="get" class="space-y-6">
+                <!-- Recherche principale -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
                     </div>
-                    
+                    <input type="text" name="search" value="{{ current_filters.search }}"
+                        placeholder="Rechercher par nom, ville, description..."
+                        class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-lg placeholder:text-gray-400 placeholder:ml-3">
+                </div>
+                
+                <!-- Filtres en grille responsive -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <select name="ville" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white">
+                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>
+                            Destination
+                        </label>
+                        <select name="ville" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white">
                             <option value="">Toutes les destinations</option>
                             {% for ville in villes %}
                                 <option value="{{ ville.id }}" {% if current_filters.ville == ville.id|stringformat:"s" %}selected{% endif %}>
@@ -70,7 +85,11 @@
                     </div>
                     
                     <div>
-                        <select name="categorie" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white">
+                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-home text-blue-500 mr-2"></i>
+                            Type de logement
+                        </label>
+                        <select name="categorie" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white">
                             <option value="">Tous les types</option>
                             {% for categorie in categories %}
                                 <option value="{{ categorie.id }}" {% if current_filters.categorie == categorie.id|stringformat:"s" %}selected{% endif %}>
@@ -81,8 +100,12 @@
                     </div>
                     
                     <div>
-                        <select name="prix_max" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white">
-                            <option value="">Budget maximum</option>
+                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-euro-sign text-blue-500 mr-2"></i>
+                            Budget maximum
+                        </label>
+                        <select name="prix_max" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white">
+                            <option value="">Sans limite</option>
                             <option value="100" {% if current_filters.prix_max == "100" %}selected{% endif %}>Jusqu'à 100€</option>
                             <option value="200" {% if current_filters.prix_max == "200" %}selected{% endif %}>Jusqu'à 200€</option>
                             <option value="300" {% if current_filters.prix_max == "300" %}selected{% endif %}>Jusqu'à 300€</option>
@@ -90,15 +113,63 @@
                         </select>
                     </div>
                     
-                    <div>
-                        <button type="submit" class="w-full bg-blue-800 text-white px-4 py-3 rounded-xl font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-search mr-2"></i>Rechercher
-                        </button>
+                    <div class="sm:col-span-2 lg:col-span-1">
+                        
+                        <label class="block text-sm font-medium text-blue-700 mb-2 opacity-0">Actions new</label>
+                        <div class="grid grid-cols-2 gap-2">
+                           
+                            <a href="{% url 'home:maisons_list' %}" 
+                               class="bg-gray-200 text-gray-700 px-1 py-2  rounded-xl font-medium hover:bg-gray-300 transition-colors text-center">
+                                <i class="fas fa-undo mr-1"></i>
+                                <span class="hidden sm:inline">Reset</span>
+                                
+                            </a>
+                            <button type="submit" 
+                                class="bg-blue-800 text-white px-5 py-2 rounded-xl font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center">
+                                <i class="fas fa-search mr-2"></i>
+                                <span class="hidden sm:inline">Rechercher</span>
+                                <span class="sm:hidden">Go</span>
+                            </button>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+                
+                <!-- Compteur de résultats et tri -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-gray-200">
+                    <div class="mb-2 sm:mb-0">
+                        {% if total_results %}
+                            <p class="text-sm text-gray-600">
+                                <span class="font-semibold text-gray-900">{{ total_results }}</span> 
+                                maison{{ total_results|pluralize }} trouvée{{ total_results|pluralize }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <label class="text-sm text-gray-600 mr-2">Trier par:</label>
+                            <select name="sort" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                                <option value="">Pertinence</option>
+                                <option value="prix_asc" {% if current_filters.sort == "prix_asc" %}selected{% endif %}>Prix croissant</option>
+                                <option value="prix_desc" {% if current_filters.sort == "prix_desc" %}selected{% endif %}>Prix décroissant</option>
+                                <option value="recent" {% if current_filters.sort == "recent" %}selected{% endif %}>Plus récentes</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center space-x-1">
+                            <button type="button" class="p-2 text-gray-400 hover:text-blue-800 transition-colors" title="Vue grille">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button type="button" class="p-2 text-gray-400 hover:text-blue-800 transition-colors" title="Vue liste">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Résultats -->
     <section class="py-16 bg-gray-50">
@@ -163,7 +234,7 @@
                                     <span class="text-sm font-normal text-gray-500">/nuit</span>
                                 </div>
                                 <a href="{% url 'home:maison_detail' maison.slug %}" 
-                                   class="bg-blue-800 text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors">
+                                   class="bg-blue-800 text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
                                     Voir détails
                                 </a>
                             </div>
@@ -221,7 +292,7 @@
                         Essayez de modifier vos critères de recherche ou explorez toutes nos maisons disponibles
                     </p>
                     <a href="{% url 'home:maisons_list' %}" 
-                       class="bg-blue-800 text-white px-8 py-3 rounded-full font-semibold hover:bg-indigo-700 transition-colors">
+                       class="bg-blue-800 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors">
                         Voir toutes les maisons
                     </a>
                 </div>
