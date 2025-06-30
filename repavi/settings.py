@@ -184,25 +184,16 @@ DATABASES = {
 }
 
 # === CACHE ===
-if IS_PRODUCTION:
-    # Redis pour production
-    CACHES = {
-        'default': {
-            'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/1'),
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 300,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
         }
     }
-else:
-    # Cache simple pour développement
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    }
-
+}
 # === VALIDATION DES MOTS DE PASSE ===
 AUTH_PASSWORD_VALIDATORS = [
     {
