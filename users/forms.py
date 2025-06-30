@@ -35,8 +35,8 @@ class CustomLoginForm(AuthenticationForm):
     )
 
 
-class CustomRegistrationForm(UserCreationForm):
-    """Formulaire d'inscription personnalisé - ADAPTÉ AVEC NOUVEAUX RÔLES"""
+class SimpleRegistrationForm(forms.ModelForm):
+    """Formulaire d'inscription simplifié"""
     
     username = forms.CharField(
         max_length=150,
@@ -78,12 +78,11 @@ class CustomRegistrationForm(UserCreationForm):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-            'placeholder': '+33 1 23 45 67 89'
+            'placeholder': '+237 6XX XX XX XX'
         }),
         label='Téléphone (optionnel)'
     )
     
-    # ADAPTATION: nouveaux rôles
     role = forms.ChoiceField(
         choices=[
             ('CLIENT', 'Client - Je souhaite réserver des maisons'),
@@ -96,27 +95,21 @@ class CustomRegistrationForm(UserCreationForm):
         initial='CLIENT'
     )
     
-    password1 = forms.CharField(
+    password = forms.CharField(
+        min_length=6,
         widget=forms.PasswordInput(attrs={
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-            'placeholder': 'Mot de passe'
+            'placeholder': 'Mot de passe (minimum 6 caractères)'
         }),
-        label='Mot de passe'
-    )
-    
-    password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-            'placeholder': 'Confirmer le mot de passe'
-        }),
-        label='Confirmer le mot de passe'
+        label='Mot de passe',
+        help_text='Minimum 6 caractères'
     )
     
     accepter_conditions = forms.BooleanField(
         widget=forms.CheckboxInput(attrs={
             'class': 'w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
         }),
-        label='J\'accepte les conditions d\'utilisation et la politique de confidentialité'
+        label='J\'accepte les conditions d\'utilisation'
     )
     
     newsletter = forms.BooleanField(
@@ -131,7 +124,7 @@ class CustomRegistrationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'telephone', 'role', 
-                 'password1', 'password2', 'accepter_conditions', 'newsletter')
+                 'password', 'accepter_conditions', 'newsletter')
     
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -145,28 +138,37 @@ class CustomRegistrationForm(UserCreationForm):
             raise ValidationError("Un compte avec cet email existe déjà.")
         return email
     
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if len(password) < 6:
+            raise ValidationError("Le mot de passe doit contenir au moins 6 caractères.")
+        return password
+    
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.username = self.cleaned_data['username']
-        user.email = self.cleaned_data['email']
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
-        user.telephone = self.cleaned_data.get('telephone', '')
-        user.role = self.cleaned_data['role']  # NOUVEAU
-        user.newsletter = self.cleaned_data.get('newsletter', True)
+        user = User(
+            username=self.cleaned_data['username'],
+            email=self.cleaned_data['email'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            telephone=self.cleaned_data.get('telephone', ''),
+            role=self.cleaned_data['role'],
+            newsletter=self.cleaned_data.get('newsletter', True)
+        )
+        
+        # Définir le mot de passe de manière sécurisée
+        user.set_password(self.cleaned_data['password'])
         
         if commit:
             user.save()
             
-            # Créer le profil étendu selon le nouveau rôle
+            # Créer le profil étendu selon le rôle
             if user.role == 'GESTIONNAIRE':
                 ProfilGestionnaire.objects.create(user=user)
             elif user.role == 'CLIENT':
                 ProfilClient.objects.create(user=user)
         
         return user
-
-
+    
 class ProfileForm(forms.ModelForm):
     """Formulaire de modification du profil - ADAPTÉ"""
     

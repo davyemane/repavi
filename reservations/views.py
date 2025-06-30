@@ -548,6 +548,7 @@ def mes_reservations(request):
     return render(request, 'reservations/mes_reservations.html', context)
 
 
+
 @login_required
 def detail_reservation(request, numero):
     """Détail d'une réservation"""

@@ -48,7 +48,7 @@
                 </a>
                 {% if request.resolver_match.url_name == 'dashboard' or 'admin' in request.resolver_match.url_name %}
                     <span class="ml-3 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full font-medium">
-                        {% if user.est_admin %}Admin{% elif user.est_proprietaire %}Pro{% else %}Dashboard{% endif %}
+                        {% if user.is_super_admin %}Admin{% elif user.is_gestionnaire %}Pro{% else %}Dashboard{% endif %}
                     </span>
                 {% endif %}
             </div>
@@ -70,12 +70,10 @@
                 </a>
 
                 <!-- Réservations (si disponible) -->
-                {% if reservations_available and not user.est_proprietaire and not user.est_admin %}
+                {% if reservations_available and not user.is_gestionnaire and not user.is_super_admin %}
                     <a href="{% url 'home:maisons_reservation' %}"
                        class="nav-link relative text-gray-600 hover:text-gray-900 font-medium transition-colors
                        {% if request.resolver_match.url_name == 'maisons_reservation' %}text-gray-900 font-semibold active{% endif %}">
-                       
-
                         Réserver
                     </a>
                     
@@ -148,20 +146,20 @@
                         </div>
                         
                         <!-- Raccourcis selon le type d'utilisateur -->
-                        {% if user.est_admin %}
+                        {% if user.is_super_admin or user.is_superuser %}
                             <a href="{% url 'users:dashboard' %}" 
                                class="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-purple-700 transition-colors">
                                 <i class="fas fa-cogs mr-1"></i>Admin
                             </a>
-                        {% elif user.est_proprietaire %}
-                            <a href="{% url 'users:dashboard_proprietaire' %}" 
+                        {% elif user.is_gestionnaire %}
+                            <a href="{% url 'users:dashboard_gestionnaire' %}" 
                                class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-plus mr-1"></i>Mes biens
+                                <i class="fas fa-home mr-1"></i>Mes biens
                             </a>
-                        {% else %}
-                            <a href="{% url 'users:dashboard_locataire' %}" 
+                        {% elif user.is_client %}
+                            <a href="{% url 'users:dashboard_client' %}" 
                                class="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-700 transition-colors">
-                                <i class="fas fa-search mr-1"></i>Mon espace
+                                <i class="fas fa-user mr-1"></i>Mon espace
                             </a>
                         {% endif %}
                         
@@ -206,16 +204,16 @@
                                         <i class="fas fa-user mr-3 text-gray-400"></i>
                                         Mon profil
                                     </a>
-                                    {% if user.est_proprietaire %}
-                                        <a href="{% url 'users:dashboard_proprietaire' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    {% if user.is_gestionnaire %}
+                                        <a href="{% url 'users:mes_maisons' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                             <i class="fas fa-home mr-3 text-gray-400"></i>
                                             Mes biens
                                         </a>
                                     {% endif %}
-                                    {% if reservations_available %}
-                                        <a href="{% url 'reservations:dashboard' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    {% if user.is_client and reservations_available %}
+                                        <a href="{% url 'users:mes_reservations_client' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                             <i class="fas fa-calendar mr-3 text-gray-400"></i>
-                                            Réservations
+                                            Mes réservations
                                         </a>
                                     {% endif %}
                                 </div>
@@ -257,13 +255,13 @@
             <a href="{% url 'home:index' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
             <a href="{% url 'home:maisons_list' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
             
-            {% if reservations_available and not user.est_proprietaire and not user.est_admin %}
+            {% if reservations_available and not user.is_gestionnaire and not user.is_super_admin %}
                 <a href="{% url 'home:maisons_reservation' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
                     Réserver
                 </a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'reservations:mes_reservations' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                       </i>Mes Réservations
+                       Mes Réservations
                     </a>
                 {% endif %}
             {% endif %}
@@ -289,16 +287,16 @@
                 </div>
                 
                 <!-- Dashboard link based on user type -->
-                {% if user.est_admin %}
+                {% if user.is_super_admin or user.is_superuser %}
                     <a href="{% url 'users:dashboard' %}" class="block text-purple-600 hover:text-purple-700 font-medium transition-colors">
                         <i class="fas fa-cogs mr-2"></i>Admin Dashboard
                     </a>
-                {% elif user.est_proprietaire %}
-                    <a href="{% url 'users:dashboard_proprietaire' %}" class="block text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                {% elif user.is_gestionnaire %}
+                    <a href="{% url 'users:dashboard_gestionnaire' %}" class="block text-blue-600 hover:text-blue-700 font-medium transition-colors">
                         <i class="fas fa-home mr-2"></i>Mes biens
                     </a>
-                {% else %}
-                    <a href="{% url 'users:dashboard_locataire' %}" class="block text-green-600 hover:text-green-700 font-medium transition-colors">
+                {% elif user.is_client %}
+                    <a href="{% url 'users:dashboard_client' %}" class="block text-green-600 hover:text-green-700 font-medium transition-colors">
                         <i class="fas fa-user mr-2"></i>Mon espace
                     </a>
                 {% endif %}
@@ -306,11 +304,19 @@
                 <a href="{% url 'users:profile' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
                     <i class="fas fa-user mr-2"></i>Profil
                 </a>
-                {% if reservations_available %}
-                    <a href="{% url 'reservations:dashboard' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                        <i class="fas fa-calendar mr-2"></i>Réservations
+                
+                {% if user.is_client and reservations_available %}
+                    <a href="{% url 'users:mes_reservations_client' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                        <i class="fas fa-calendar mr-2"></i>Mes réservations
                     </a>
                 {% endif %}
+                
+                {% if user.is_gestionnaire %}
+                    <a href="{% url 'users:mes_maisons' %}" class="block text-gray-600 hover:text-gray-900 font-medium transition-colors">
+                        <i class="fas fa-home mr-2"></i>Mes maisons
+                    </a>
+                {% endif %}
+                
                 <a href="{% url 'users:logout' %}" class="block text-red-600 hover:text-red-700 font-medium transition-colors">
                     <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
                 </a>

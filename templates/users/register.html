@@ -4,12 +4,19 @@
 
 {% block content %}
 <div>
-    <h2 class="text-center text-3xl font-bold text-gray-900 mb-8">
-        Créer votre compte RepAvi
+    <h2 class="text-center text-3xl font-bold text-gray-900 mb-4">
+        Créer votre compte Client
     </h2>
+    
+    <p class="text-center text-gray-600 mb-8">
+        Rejoignez RepAvi et découvrez nos maisons disponibles à la location
+    </p>
 
     <form method="post" action="{% url 'users:register' %}" class="space-y-6" id="registerForm">
         {% csrf_token %}
+        
+        <!-- Champ role caché pour CLIENT -->
+        <input type="hidden" name="role" value="CLIENT">
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -76,49 +83,30 @@
             {% endif %}
         </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-4">
-                {{ form.type_utilisateur.label }}
-            </label>
-            <div class="space-y-3">
-                {% for choice in form.type_utilisateur %}
-                    <div class="flex items-center p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition">
-                        {{ choice.tag }}
-                        <div class="ml-3">
-                            <span class="text-sm font-medium text-gray-900">{{ choice.choice_label }}</span>
-                            <p class="text-xs text-gray-500">
-                                {% if choice.data.value == 'locataire' %}
-                                    Je recherche des maisons à louer
-                                {% elif choice.data.value == 'proprietaire' %}
-                                    Je souhaite mettre en location mes biens
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                {% endfor %}
+        <!-- Information sur le type de compte -->
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+            <div class="flex items-center">
+                <i class="fas fa-user text-indigo-600 text-lg mr-3"></i>
+                <div>
+                    <h4 class="text-sm font-medium text-indigo-900">Compte Client</h4>
+                    <p class="text-sm text-indigo-700">
+                        Vous pourrez rechercher et réserver des maisons disponibles à la location.
+                    </p>
+                </div>
             </div>
         </div>
 
         <div>
-            <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                {{ form.password1.label }}
+            <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                {{ form.password.label }}
             </label>
-            {{ form.password1 }}
-            {% if form.password1.errors %}
+            {{ form.password }}
+            <div class="mt-1 text-xs text-gray-500">
+                Minimum 6 caractères
+            </div>
+            {% if form.password.errors %}
                 <div class="mt-1 text-sm text-red-600">
-                    {{ form.password1.errors.0 }}
-                </div>
-            {% endif %}
-        </div>
-
-        <div>
-            <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                {{ form.password2.label }}
-            </label>
-            {{ form.password2 }}
-            {% if form.password2.errors %}
-                <div class="mt-1 text-sm text-red-600">
-                    {{ form.password2.errors.0 }}
+                    {{ form.password.errors.0 }}
                 </div>
             {% endif %}
         </div>
@@ -127,7 +115,8 @@
             <div class="flex items-start">
                 {{ form.accepter_conditions }}
                 <label for="{{ form.accepter_conditions.id_for_label }}" class="ml-2 block text-sm text-gray-900">
-                    {{ form.accepter_conditions.label }}
+                    J'accepte les <a href="#" class="text-indigo-600 hover:text-indigo-500">conditions d'utilisation</a> 
+                    et la <a href="#" class="text-indigo-600 hover:text-indigo-500">politique de confidentialité</a>
                 </label>
             </div>
             {% if form.accepter_conditions.errors %}
@@ -139,18 +128,33 @@
             <div class="flex items-start">
                 {{ form.newsletter }}
                 <label for="{{ form.newsletter.id_for_label }}" class="ml-2 block text-sm text-gray-900">
-                    {{ form.newsletter.label }}
+                    Je souhaite recevoir les actualités et offres spéciales par email
                 </label>
             </div>
         </div>
 
         <div>
-            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out" id="submitBtn">
                 <i class="fas fa-user-plus mr-2"></i>
-                Créer mon compte
+                <span>Créer mon compte client</span>
             </button>
         </div>
     </form>
+
+    <!-- Information pour les gestionnaires -->
+    <div class="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+        <div class="flex items-start">
+            <i class="fas fa-info-circle text-gray-400 mt-0.5 mr-2"></i>
+            <div class="text-sm text-gray-600">
+                <p class="font-medium text-gray-900 mb-1">Vous êtes propriétaire ?</p>
+                <p>
+                    Les comptes gestionnaires sont créés sur invitation uniquement. 
+                    Contactez notre équipe à <a href="mailto:admin@repavi.com" class="text-indigo-600 hover:text-indigo-500">admin@repavi.com</a> 
+                    pour obtenir un accès gestionnaire.
+                </p>
+            </div>
+        </div>
+    </div>
 
     <div class="mt-6">
         <div class="relative">
@@ -186,6 +190,17 @@ $('#id_email').on('blur', function() {
             }
         });
     }
+});
+
+// Animation du bouton de soumission
+$('#registerForm').on('submit', function() {
+    const submitBtn = $('#submitBtn');
+    const icon = submitBtn.find('i');
+    const text = submitBtn.find('span');
+    
+    submitBtn.prop('disabled', true);
+    icon.removeClass('fa-user-plus').addClass('fa-spinner fa-spin');
+    text.text('Création en cours...');
 });
 </script>
 {% endblock %}

@@ -26,14 +26,15 @@ urlpatterns = [
     
     # Dashboards selon les nouveaux rôles
     path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('dashboard/gestionnaire/', views.dashboard_gestionnaire_view, name='dashboard_gestionnaire'),
     path('dashboard/client/', views.dashboard_client_view, name='dashboard_client'),
-    
+    path('dashboard/gestionnaire/', views.dashboard_gestionnaire_view, name='dashboard_gestionnaire'),
+        
     # NOUVELLES VUES SPÉCIFIQUES AUX RÔLES
-    # Pour les clients
-    path('mes-reservations/', views.mes_reservations_view, name='mes_reservations'),
+    # # Pour les clients
+    # path('mes-reservations/', views.mes_reservations_view, name='mes_reservations'),
     
     # Pour les gestionnaires
+    path('mes-reservations/', views.mes_reservations_client, name='mes_reservations_client'),
     path('mes-maisons/', views.mes_maisons_view, name='mes_maisons'),
     
     # Pour les super admins

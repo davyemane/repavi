@@ -14,14 +14,36 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db import transaction
 
+from reservations.views import client_required
 from services.reservation_service import ReservationService
 from services.statistics_service import StatisticsService
 from .models import User, TokenVerificationEmail, PasswordResetToken, ProfilGestionnaire, ProfilClient
 from .forms import (
-    CustomLoginForm, CustomRegistrationForm, ProfileForm,
+    CustomLoginForm, SimpleRegistrationForm, ProfileForm,
     CustomPasswordChangeForm, PasswordResetRequestForm, PasswordResetForm,
     ProfilGestionnaireForm, ProfilClientForm, ChangeUserRoleForm
 )
+
+from django.db.models import Sum  # Si pas déjà importé
+
+from django.db.models import Q  # Ajoutez cette ligne si elle n'existe pas
+from home.models import Maison  # Import du modèle Maison
+from reservations.models import Reservation  # Import du modèle Reservation
+
+# Si vous avez un service de réservation, importez-le aussi
+try:
+    from services.reservation_service import ReservationService
+except ImportError:
+    # Fallback si le service n'existe pas
+    class ReservationService:
+        @staticmethod
+        def get_reservations_for_user(user):
+            if hasattr(user, 'is_client') and user.is_client():
+                return Reservation.objects.filter(client=user)
+            elif hasattr(user, 'is_gestionnaire') and user.is_gestionnaire():
+                return Reservation.objects.filter(maison__gestionnaire=user)
+            else:
+                return Reservation.objects.none()
 
 
 def login_view(request):
@@ -70,41 +92,42 @@ def login_view(request):
 
 
 def register_view(request):
-    """Vue d'inscription - ADAPTÉE AVEC NOUVEAUX RÔLES"""
+    """Vue d'inscription simplifiée"""
     if request.user.is_authenticated:
         return redirect('home:index')
     
     if request.method == 'POST':
-        form = CustomRegistrationForm(request.POST)
+        form = SimpleRegistrationForm(request.POST)
         if form.is_valid():
             try:
                 with transaction.atomic():
                     user = form.save()
                     
-                    # Envoyer l'email de vérification
-                    send_email_verification(user)
+                    # Connecter automatiquement l'utilisateur
+                    login(request, user)
                     
                     # Message selon le rôle choisi
                     role_messages = {
-                        'CLIENT': 'Votre compte client a été créé avec succès!',
-                        'GESTIONNAIRE': 'Votre compte gestionnaire a été créé avec succès! Un administrateur vérifiera vos informations.'
+                        'CLIENT': 'Bienvenue ! Votre compte client a été créé avec succès.',
+                        'GESTIONNAIRE': 'Bienvenue ! Votre compte gestionnaire a été créé. Vous pouvez maintenant ajouter vos maisons.'
                     }
                     
-                    messages.success(request, 
-                        f'{role_messages.get(user.role, "Votre compte a été créé avec succès!")} '
-                        'Veuillez vérifier votre email pour activer votre compte.')
+                    messages.success(request, role_messages.get(user.role, "Votre compte a été créé avec succès !"))
                     
-                    return redirect('users:login')
+                    # Redirection selon le rôle
+                    if user.role == 'GESTIONNAIRE':
+                        return redirect('maisons:mes_maisons')  # Vers la gestion des maisons
+                    else:
+                        return redirect('home:index')  # Vers l'accueil pour les clients
+                        
             except Exception as e:
-                messages.error(request, 'Une erreur est survenue lors de la création de votre compte.')
+                messages.error(request, 'Une erreur est survenue lors de la création de votre compte. Veuillez réessayer.')
         else:
             messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
     else:
-        form = CustomRegistrationForm()
+        form = SimpleRegistrationForm()
     
     return render(request, 'users/register.html', {'form': form})
-
-
 @login_required
 def dashboard_view(request):
     """Dashboard principal selon le NOUVEAU type d'utilisateur"""
@@ -159,6 +182,73 @@ def dashboard_gestionnaire_view(request):
     
     return render(request, 'users/dashboard_gestionnaire.html', context)
 
+@login_required
+@client_required
+def mes_reservations_client(request):
+    """Vue simplifiée des réservations pour les clients"""
+    # Récupérer uniquement les réservations du client connecté
+    reservations = Reservation.objects.filter(
+        client=request.user
+    ).select_related('maison', 'client').prefetch_related('maison__photos').order_by('-date_creation')
+    
+    # Filtrage simple
+    statut_filter = request.GET.get('statut', '')
+    search = request.GET.get('search', '')
+    
+    if statut_filter:
+        reservations = reservations.filter(statut=statut_filter)
+    
+    if search:
+        reservations = reservations.filter(
+            Q(numero__icontains=search) |
+            Q(maison__nom__icontains=search)
+        )
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(reservations, 8)  # 8 réservations par page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistiques simples pour le client
+    stats = {
+        'total': reservations.count(),
+        'en_cours': reservations.filter(statut__in=['en_attente', 'confirmee']).count(),
+        'terminees': reservations.filter(statut='terminee').count(),
+        'annulees': reservations.filter(statut='annulee').count(),
+    }
+    
+    # Calculer le montant total dépensé (réservations confirmées et terminées)
+    montant_total = reservations.filter(
+        statut__in=['confirmee', 'terminee']
+    ).aggregate(total=Sum('prix_total'))['total'] or 0
+    
+    # Prochaine réservation
+    prochaine_reservation = reservations.filter(
+        statut='confirmee',
+        date_debut__gte=timezone.now().date()
+    ).order_by('date_debut').first()
+    
+    # Choix de statut pour le filtre
+    statut_choices = [
+        ('', 'Toutes'),
+        ('en_attente', 'En attente'),
+        ('confirmee', 'Confirmée'),
+        ('terminee', 'Terminée'),
+        ('annulee', 'Annulée'),
+    ]
+    
+    context = {
+        'page_obj': page_obj,
+        'stats': stats,
+        'montant_total': montant_total,
+        'prochaine_reservation': prochaine_reservation,
+        'statut_filter': statut_filter,
+        'search': search,
+        'statut_choices': statut_choices,
+    }
+    
+    return render(request, 'users/mes_reservations_client.html', context)
 
 @login_required
 def dashboard_client_view(request):
@@ -172,8 +262,18 @@ def dashboard_client_view(request):
     reservations_actives = reservations.filter(statut__in=['en_attente', 'confirmee'])
     reservations_passees = reservations.filter(statut='terminee')
     
-    # Maisons favorites (à implémenter avec le système d'avis)
-    # maisons_favorites = FavoriteService.get_user_favorites(request.user)
+    # Maisons recommandées - prendre quelques maisons populaires ou récentes
+    maisons_recommandees = Maison.objects.filter(
+        disponible=True,
+        statut_occupation='libre'
+    ).select_related('ville', 'categorie').prefetch_related('photos').order_by('-date_creation')[:3]
+    
+    # Si pas assez de maisons récentes, prendre les mieux notées
+    if maisons_recommandees.count() < 3:
+        maisons_recommandees = Maison.objects.filter(
+            disponible=True,
+            statut_occupation='libre'
+        ).select_related('ville', 'categorie').prefetch_related('photos').order_by('?')[:3]
     
     # Vérifier si le profil client est complet
     try:
@@ -189,11 +289,10 @@ def dashboard_client_view(request):
         'nombre_sejours': reservations_passees.count(),
         'profil_complet': profil_complet,
         'user_role': request.user.role,
+        'maisons_recommandees': maisons_recommandees,  # Ajout des maisons recommandées
     }
     
     return render(request, 'users/dashboard_client.html', context)
-
-
 @login_required
 def profile_view(request):
     """Vue du profil utilisateur - ADAPTÉE AVEC PROFILS ÉTENDUS"""
@@ -257,34 +356,6 @@ def profile_view(request):
     
     return render(request, 'users/profile.html', context)
 
-
-@login_required
-def mes_reservations_view(request):
-    """Vue des réservations de l'utilisateur - NOUVELLE"""
-    if request.user.is_client():
-        reservations = ReservationService.get_reservations_for_user(request.user)
-        
-        # Filtres
-        statut = request.GET.get('statut', '')
-        if statut:
-            reservations = reservations.filter(statut=statut)
-        
-        from django.core.paginator import Paginator
-        paginator = Paginator(reservations, 10)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        
-        context = {
-            'page_obj': page_obj,
-            'statut_actuel': statut,
-            'statuts': Reservation.STATUT_CHOICES,
-        }
-        
-        return render(request, 'users/mes_reservations.html', context)
-    
-    else:
-        messages.error(request, "Cette page est réservée aux clients.")
-        return redirect('users:dashboard')
 
 
 @login_required
