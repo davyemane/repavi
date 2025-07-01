@@ -21021,3 +21021,35 @@ WARNING 2025-06-30 19:16:28,170 basehttp 76302 134546657883840 "GET /theme/stati
 WARNING 2025-06-30 19:16:28,171 basehttp 76302 134546666276544 "GET /theme/static/css/fonts.css HTTP/1.1" 404 1978
 INFO 2025-06-30 19:16:28,172 basehttp 76302 134546675717824 "GET /theme/static/css/dist/styles.css?v=1751307388 HTTP/1.1" 200 74059
 INFO 2025-06-30 19:52:56,068 autoreload 79144 132734451855488 Watching for file changes with StatReloader
+INFO 2025-06-30 20:43:12,911 autoreload 86971 132631386865792 Watching for file changes with StatReloader
+INFO 2025-06-30 20:43:16,015 basehttp 86971 132631291225792 code 400, message Bad request version ('9Í\x12½Ãa\x8a\x8bMD\x18]à\x9ad×£¹Ø\x80R±DÍ\x00\x05\x00\x03\x02h2\x00\x05\x00\x05\x01\x00\x00\x00\x00\x00\x1b\x00\x03\x02\x00\x02\x00#\x00\x00\x00')
+ERROR 2025-06-30 20:43:16,015 basehttp 86971 132631291225792 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-06-30 20:43:16,017 basehttp 86971 132631291225792 code 400, message Bad request syntax ('\x16\x03\x01\x06À\x01\x00\x06¼\x03\x03')
+ERROR 2025-06-30 20:43:16,017 basehttp 86971 132631291225792 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-06-30 20:43:21,415 basehttp 86971 132631198951104 code 400, message Bad request version (')n\\\x17\x10\x18½âÊ\x18#P\x97Ñe\x19Wl\x11#\x1b\x00\x8bË\x1böej\x06ã\x94\x19ø.)°\x90\x17ü9¥\x88\x92FÌ\x12ÿQp®xÁ\x88\x98LQYb\x06')
+ERROR 2025-06-30 20:43:21,416 basehttp 86971 132631198951104 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-06-30 20:43:21,418 basehttp 86971 132631198951104 code 400, message Bad request version ('\x98èDi¶cÇîø\x9f\x9bgr\x1b\x00')
+ERROR 2025-06-30 20:43:21,419 basehttp 86971 132631198951104 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-06-30 20:43:21,421 basehttp 86971 132631190558400 code 400, message Bad request version (']¬S\x9cA')
+ERROR 2025-06-30 20:43:21,422 basehttp 86971 132631190558400 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-06-30 20:43:21,426 basehttp 86971 132631190558400 code 400, message Bad request version ('\x10À~`>\x905\x05ê\x94')
+ERROR 2025-06-30 20:43:21,427 basehttp 86971 132631190558400 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-06-30 20:43:42,890 basehttp 86971 132631190558400 code 400, message Bad request version ('\x16')
+ERROR 2025-06-30 20:43:42,891 basehttp 86971 132631190558400 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-06-30 20:43:42,894 basehttp 86971 132631190558400 code 400, message Bad request version ('\x00\x02\x01\x00\x00+\x00\x07\x06úú\x03\x04\x03\x03\x00\x1b\x00\x03\x02\x00\x02\x00')
+ERROR 2025-06-30 20:43:42,895 basehttp 86971 132631190558400 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-06-30 20:43:55,724 basehttp 86971 132631190558400 "GET / HTTP/1.1" 200 32464
+WARNING 2025-06-30 20:43:55,786 basehttp 86971 132631165380288 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-30 20:43:55,786 basehttp 86971 132631173772992 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 200 623
+INFO 2025-06-30 20:43:55,788 basehttp 86971 132631190558400 "GET /static/css/dist/styles.css HTTP/1.1" 200 74059
+WARNING 2025-06-30 20:43:56,649 basehttp 86971 132631182165696 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-06-30 20:43:56,651 basehttp 86971 132631173772992 "GET /media/maisons/photos/duplex2_053w0QH.jpg HTTP/1.1" 200 54754
+INFO 2025-06-30 20:43:57,116 basehttp 86971 132631173772992 "GET /static/django-browser-reload/reload-worker.js HTTP/1.1" 200 2711
+WARNING 2025-06-30 20:43:57,324 basehttp 86971 132631198951104 "GET /static/favicon.ico HTTP/1.1" 404 1960
+INFO 2025-06-30 20:44:03,253 basehttp 86971 132631190558400 "GET /maisons/ HTTP/1.1" 200 26559
+WARNING 2025-06-30 20:44:03,383 basehttp 86971 132631190558400 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-30 20:44:03,384 basehttp 86971 132631198951104 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-06-30 20:44:05,388 basehttp 86971 132631198951104 "GET /maisons/reservation/ HTTP/1.1" 200 29041
+WARNING 2025-06-30 20:44:05,434 basehttp 86971 132631198951104 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-06-30 20:44:05,443 basehttp 86971 132631190558400 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-06-30 20:44:05,481 basehttp 86971 132631190558400 "GET /static/favicon.ico HTTP/1.1" 404 1960
