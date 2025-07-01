@@ -20938,6 +20938,567 @@ INFO 2025-06-30 15:34:18,454 basehttp 66973 128855146751680 "GET / HTTP/1.1" 200
 INFO 2025-06-30 15:34:18,475 basehttp 66973 128855146751680 "GET /static/css/dist/styles.css?v=1751294058 HTTP/1.1" 200 74059
 WARNING 2025-06-30 15:34:18,484 basehttp 66973 128854916064960 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
 WARNING 2025-06-30 15:34:18,493 basehttp 66973 128854924457664 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+<<<<<<< HEAD
+ERROR 2025-06-30 16:46:47,099 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 16:46:57,966 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 16:55:56,756 log 597985 140327961740864 Internal Server Error: /maisons/reservation/
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column home_maison.statut_occupation does not exist
+LINE 1: ...ome_maison" WHERE ("home_maison"."disponible" AND "home_mais...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/home/views.py", line 329, in maisons_disponibles_reservation
+    page_obj = paginator.get_page(page_number)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 85, in get_page
+    return self.page(number)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 89, in page
+    number = self.validate_number(number)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 70, in validate_number
+    if number > self.num_pages:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 116, in num_pages
+    if self.count == 0 and not self.allow_empty_first_page:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/paginator.py", line 110, in count
+    return c()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 604, in count
+    return self.query.get_count(using=self.db)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/query.py", line 644, in get_count
+    return obj.get_aggregation(using, {"__count": Count("*")})["__count"]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/query.py", line 626, in get_aggregation
+    result = compiler.execute_sql(SINGLE)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column home_maison.statut_occupation does not exist
+LINE 1: ...ome_maison" WHERE ("home_maison"."disponible" AND "home_mais...
+                                                             ^
+ERROR 2025-06-30 16:56:50,467 log 597985 140327970133568 Internal Server Error: /maisons/
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column home_categoriemaison.icone does not exist
+LINE 1: ...."description", "home_categoriemaison"."couleur", "home_cate...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/base.py", line 284, in _get_response_async
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 366, in __len__
+    self._fetch_all()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column home_categoriemaison.icone does not exist
+LINE 1: ...."description", "home_categoriemaison"."couleur", "home_cate...
+                                                             ^
+ERROR 2025-06-30 17:53:45,838 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:03:35,442 log 597985 140327970133568 Internal Server Error: /maisons/
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.UndefinedColumn: column home_categoriemaison.icone does not exist
+LINE 1: ...."description", "home_categoriemaison"."couleur", "home_cate...
+                                                             ^
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/base.py", line 284, in _get_response_async
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/defaulttags.py", line 199, in render
+    len_values = len(values)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 366, in __len__
+    self._fetch_all()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/root/repavi/env/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+  File "/root/repavi/env/lib/python3.10/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+django.db.utils.ProgrammingError: column home_categoriemaison.icone does not exist
+LINE 1: ...."description", "home_categoriemaison"."couleur", "home_cate...
+                                                             ^
+ERROR 2025-06-30 18:08:22,631 log 597985 140327961740864 Invalid HTTP_HOST header: 'ton-domaine.com'. You may need to add 'ton-domaine.com' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'ton-domaine.com'. You may need to add 'ton-domaine.com' to ALLOWED_HOSTS.
+WARNING 2025-06-30 18:16:22,939 log 597985 140327961740864 Not Found: /wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:23,430 log 597985 140327970133568 Not Found: /wp-admin/install.php
+WARNING 2025-06-30 18:16:23,567 log 597985 140327961740864 Not Found: /wordpress/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:23,719 log 597985 140327970133568 Not Found: /wordpress/wp-admin/install.php
+WARNING 2025-06-30 18:16:23,869 log 597985 140327961740864 Not Found: /wp/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:24,002 log 597985 140327970133568 Not Found: /wp/wp-admin/install.php
+WARNING 2025-06-30 18:16:24,140 log 597985 140327961740864 Not Found: /new/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:24,264 log 597985 140327970133568 Not Found: /new/wp-admin/install.php
+WARNING 2025-06-30 18:16:24,403 log 597985 140327961740864 Not Found: /old/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:24,563 log 597985 140327970133568 Not Found: /old/wp-admin/install.php
+WARNING 2025-06-30 18:16:24,690 log 597985 140327961740864 Not Found: /blog/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:24,837 log 597985 140327970133568 Not Found: /blog/wp-admin/install.php
+WARNING 2025-06-30 18:16:25,006 log 597985 140327961740864 Not Found: /test/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:25,158 log 597985 140327970133568 Not Found: /test/wp-admin/install.php
+WARNING 2025-06-30 18:16:25,337 log 597985 140327961740864 Not Found: /shop/wp-admin/setup-config.php
+WARNING 2025-06-30 18:16:25,475 log 597985 140327970133568 Not Found: /shop/wp-admin/install.php
+ERROR 2025-06-30 18:27:11,996 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:12,633 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:13,315 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:14,298 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:14,968 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:15,627 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:16,258 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 18:27:16,905 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 19:21:05,285 log 597985 140327970133568 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 19:21:06,299 log 597985 140327961740864 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 20:10:24,464 log 603059 139819817625152 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 20:10:25,343 log 603059 139819817625152 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+WARNING 2025-06-30 20:51:16,871 log 603059 139819817625152 Not Found: /robots.txt
+=======
 INFO 2025-06-30 16:43:38,855 autoreload 73485 138282202427520 Watching for file changes with StatReloader
 INFO 2025-06-30 16:43:48,893 basehttp 73485 138282040030912 "GET / HTTP/1.1" 200 41194
 WARNING 2025-06-30 16:43:48,927 basehttp 73485 138282031638208 "GET /static/css/fonts.css HTTP/1.1" 404 1966
@@ -21021,6 +21582,7 @@ WARNING 2025-06-30 19:16:28,170 basehttp 76302 134546657883840 "GET /theme/stati
 WARNING 2025-06-30 19:16:28,171 basehttp 76302 134546666276544 "GET /theme/static/css/fonts.css HTTP/1.1" 404 1978
 INFO 2025-06-30 19:16:28,172 basehttp 76302 134546675717824 "GET /theme/static/css/dist/styles.css?v=1751307388 HTTP/1.1" 200 74059
 INFO 2025-06-30 19:52:56,068 autoreload 79144 132734451855488 Watching for file changes with StatReloader
+<<<<<<< HEAD
 INFO 2025-06-30 20:43:12,911 autoreload 86971 132631386865792 Watching for file changes with StatReloader
 INFO 2025-06-30 20:43:16,015 basehttp 86971 132631291225792 code 400, message Bad request version ('9Í\x12½Ãa\x8a\x8bMD\x18]à\x9ad×£¹Ø\x80R±DÍ\x00\x05\x00\x03\x02h2\x00\x05\x00\x05\x01\x00\x00\x00\x00\x00\x1b\x00\x03\x02\x00\x02\x00#\x00\x00\x00')
 ERROR 2025-06-30 20:43:16,015 basehttp 86971 132631291225792 You're accessing the development server over HTTPS, but it only supports HTTP.
@@ -21053,3 +21615,1703 @@ INFO 2025-06-30 20:44:05,388 basehttp 86971 132631198951104 "GET /maisons/reserv
 WARNING 2025-06-30 20:44:05,434 basehttp 86971 132631198951104 "GET /static/css/fonts.css HTTP/1.1" 404 1966
 WARNING 2025-06-30 20:44:05,443 basehttp 86971 132631190558400 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
 WARNING 2025-06-30 20:44:05,481 basehttp 86971 132631190558400 "GET /static/favicon.ico HTTP/1.1" 404 1960
+=======
+>>>>>>> 72233ab6d0dd0112952065753ec7444a3bd2ad94
+WARNING 2025-06-30 21:37:56,205 log 604546 140328915953216 Not Found: /wordpress/wp-admin/setup-config.php
+WARNING 2025-06-30 21:39:19,981 log 604546 140328915953216 Not Found: /wp-admin/setup-config.php
+WARNING 2025-06-30 21:39:42,726 log 604546 140328915953216 Not Found: /wordpress/wp-admin/setup-config.php
+WARNING 2025-06-30 21:40:25,318 log 604546 140328915953216 Not Found: /wp-admin/setup-config.php
+WARNING 2025-06-30 21:49:17,905 log 604546 140328915953216 Not Found: /robots.txt
+WARNING 2025-06-30 21:49:30,118 log 604546 140328915953216 Not Found: /index.html
+ERROR 2025-06-30 22:41:56,608 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 22:59:09,585 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 23:01:17,376 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+WARNING 2025-06-30 23:04:11,233 log 604546 140328907560512 Not Found: //wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:11,529 log 604546 140328915953216 Not Found: //xmlrpc.php
+WARNING 2025-06-30 23:04:12,526 log 604546 140328915953216 Not Found: //blog/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:12,749 log 604546 140328915953216 Not Found: //web/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:13,595 log 604546 140328915953216 Not Found: //wordpress/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:13,864 log 604546 140328915953216 Not Found: //website/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:14,425 log 604546 140328907560512 Not Found: //wp/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:14,801 log 604546 140328915953216 Not Found: //news/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:15,375 log 604546 140328915953216 Not Found: //2018/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:15,499 log 604546 140328907560512 Not Found: //2019/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:16,045 log 604546 140328907560512 Not Found: //shop/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:16,384 log 604546 140328915953216 Not Found: //wp1/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:16,558 log 604546 140328915953216 Not Found: //test/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:17,206 log 604546 140328907560512 Not Found: //wp2/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:17,846 log 604546 140328907560512 Not Found: //site/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:18,127 log 604546 140328915953216 Not Found: //cms/wp-includes/wlwmanifest.xml
+WARNING 2025-06-30 23:04:18,248 log 604546 140328907560512 Not Found: //sito/wp-includes/wlwmanifest.xml
+ERROR 2025-06-30 23:17:49,236 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 23:18:00,880 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 23:24:34,153 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-06-30 23:45:10,248 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 00:23:08,691 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 00:33:41,305 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 00:55:32,168 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 01:36:28,880 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 01:51:46,332 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 03:02:45,674 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+WARNING 2025-07-01 03:07:01,587 log 604546 140328907560512 Not Found: /wordpress/wp-admin/setup-config.php
+WARNING 2025-07-01 03:07:27,414 log 604546 140328915953216 Not Found: /wordpress/wp-admin/setup-config.php
+WARNING 2025-07-01 03:09:02,905 log 604546 140328907560512 Not Found: /wp-admin/setup-config.php
+WARNING 2025-07-01 03:10:12,058 log 604546 140328915953216 Not Found: /wp-admin/setup-config.php
+ERROR 2025-07-01 03:16:59,009 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 03:32:19,047 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 03:33:20,851 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 03:33:22,332 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:14,648 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:14,710 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:14,712 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:14,720 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:14,747 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:14,755 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:14,782 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:14,810 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:15,018 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:15,020 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:15,020 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:15,024 log 604546 140328907560512 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:15,026 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:15,053 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 05:57:15,517 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 06:15:59,089 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 06:24:10,604 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 06:24:11,115 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+WARNING 2025-07-01 06:53:57,263 log 604546 140328907560512 Not Found: /wp-includes/js/jquery/jquery.js
+ERROR 2025-07-01 06:55:58,001 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 06:56:18,909 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:03:51,380 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:03:51,433 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:22:03,487 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:22:03,691 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:22:03,893 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:22:04,094 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:22:04,490 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:22:04,692 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:22:05,298 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:22:05,496 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:38:22,311 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:44:43,252 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:56:27,002 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 07:56:27,181 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 09:04:39,963 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 09:20:41,526 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 09:28:03,661 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 09:28:07,078 log 604546 140328915953216 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+WARNING 2025-07-01 09:54:25,461 log 604546 140328907560512 Not Found: /wordpress/wp-admin/setup-config.php
+WARNING 2025-07-01 09:54:59,628 log 604546 140328915953216 Not Found: /wp-admin/setup-config.php
+ERROR 2025-07-01 09:56:02,762 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 09:56:03,047 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+WARNING 2025-07-01 09:56:33,902 log 604546 140328915953216 Not Found: /wp-admin/setup-config.php
+WARNING 2025-07-01 09:56:38,877 log 604546 140328915953216 Not Found: /wordpress/wp-admin/setup-config.php
+ERROR 2025-07-01 11:04:25,242 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:35,459 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:35,537 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:35,892 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:35,901 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:36,261 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:36,282 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:36,329 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:36,402 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:36,424 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:36,633 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:36,670 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:36,757 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:37,173 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:37,589 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:05:42,700 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:08:26,169 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:11:35,835 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:11:35,992 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:11:38,798 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:11:39,243 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:11:39,692 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 11:13:53,263 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 12:35:08,489 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 13:18:44,122 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 13:20:35,750 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 14:05:41,396 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 14:05:42,922 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+ERROR 2025-07-01 14:34:07,032 log 604546 140328392717888 Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/root/repavi/env/lib/python3.10/site-packages/django/http/request.py", line 191, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '168.231.77.228'. You may need to add '168.231.77.228' to ALLOWED_HOSTS.
+WARNING 2025-07-01 14:45:32,721 log 604546 140328907560512 Not Found: /favicon.ico
+ERROR 2025-07-01 15:15:33,685 log 604546 140328392717888 Internal Server Error: /repavi-admin/users/1/change-role/
+Traceback (most recent call last):
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 518, in thread_handler
+    raise exc_info[1]
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 468, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/asgiref/sync.py", line 522, in thread_handler
+    return func(*args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/root/repavi/utils/decorators.py", line 66, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/root/repavi/home/admin_views.py", line 850, in change_user_role_view
+    return render(request, 'admin/users/change_role.html', context)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "/root/repavi/env/lib/python3.10/site-packages/django/template/loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: admin/users/change_role.html
+WARNING 2025-07-01 15:15:52,277 log 604546 140328915953216 Not Found: /wp-includes/js/jquery/jquery.js
+>>>>>>> 892cdfcb8be9f523ddeea6ecf06318958e3e1b7b
