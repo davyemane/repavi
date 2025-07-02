@@ -673,6 +673,29 @@ def maisons_disponibles_reservation(request):
     
     return render(request, 'home/maisons_reservation.html', context)
 
+
+def enrich_maisons_with_avis(maisons_queryset):
+    """Fonction utilitaire pour enrichir les maisons avec les données d'avis"""
+    maisons_list = list(maisons_queryset) if hasattr(maisons_queryset, '__iter__') else maisons_queryset
+    
+    if AVIS_AVAILABLE:
+        for maison in maisons_list:
+            try:
+                maison._note_moyenne = maison.get_note_moyenne()
+                maison._nombre_avis = maison.get_nombre_avis()
+                maison.avis_recents = maison.get_avis_recents(1)
+            except Exception as e:
+                print(f"Erreur lors de la récupération des avis pour {maison.nom}: {e}")
+                maison._note_moyenne = 0
+                maison._nombre_avis = 0
+                maison.avis_recents = []
+    else:
+        for maison in maisons_list:
+            maison._note_moyenne = 0
+            maison._nombre_avis = 0
+            maison.avis_recents = []
+    
+    return maisons_list
 # ======== MAISONS - GESTION ========
 
 class MaisonCreateView(LoginRequiredMixin, GestionnaireRequiredMixin, CreateView):

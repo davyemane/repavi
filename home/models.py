@@ -124,6 +124,7 @@ class Maison(models.Model):
     disponible = models.BooleanField(default=True, verbose_name="Disponible à la location")
     featured = models.BooleanField(default=False, help_text="Afficher sur la page d'accueil", verbose_name="Mise en avant")
     
+    
     # Statut d'occupation (NOUVEAU selon vos besoins)
     statut_occupation = models.CharField(
         max_length=20, 
@@ -220,135 +221,76 @@ class Maison(models.Model):
     # ============================================================================
     
     def get_note_moyenne(self):
-        """Calcule la note moyenne des avis approuvés"""
+        """Retourne la note moyenne des avis de cette maison"""
+        if hasattr(self, '_note_moyenne_cached'):
+            return self._note_moyenne_cached
+        
+        try:
+            # Import conditionnel pour éviter les erreurs si l'app avis n'est pas installée
+            from avis.models import Avis
+            avg = self.avis.aggregate(Avg('note'))['note__avg']
+            result = round(avg, 1) if avg else 0
+        except ImportError:
+            result = 0
+        except Exception:
+            result = 0
+            
+        # Cache pour éviter les requêtes répétées
+        self._note_moyenne_cached = result
+        return result
+    
+    def get_nombre_avis(self):
+        """Retourne le nombre total d'avis pour cette maison"""
+        if hasattr(self, '_nombre_avis_cached'):
+            return self._nombre_avis_cached
+        
+        try:
+            count = self.avis.count()
+        except Exception:
+            count = 0
+            
+        # Cache pour éviter les requêtes répétées
+        self._nombre_avis_cached = count
+        return count
+    
+    def get_avis_recents(self, limit=5):
+        """Retourne les avis les plus récents"""
+        try:
+            return self.avis.all().order_by('-date_creation')[:limit]
+        except Exception:
+            return []
+    
+    def get_statistiques_avis(self):
+        """Retourne un dictionnaire avec toutes les statistiques d'avis"""
         try:
             from avis.models import Avis
-            result = self.avis.filter(statut_moderation='approuve').aggregate(
-                moyenne=Avg('note')
-            )
-            return round(result['moyenne'] or 0, 1)
-        except ImportError:
-            return 0
-
-    def get_nombre_avis(self):
-        """Nombre total d'avis approuvés"""
-        try:
-            return self.avis.filter(statut_moderation='approuve').count()
-        except:
-            return 0
-
-    def get_repartition_notes(self):
-        """Répartition des notes (pour graphiques)"""
-        try:
-            return self.avis.filter(statut_moderation='approuve').values('note').annotate(
-                count=Count('note')
-            ).order_by('note')
-        except:
-            return []
-
-    def get_avis_recents(self, limit=3):
-        """Derniers avis approuvés"""
-        try:
-            return self.avis.filter(statut_moderation='approuve').select_related(
-                'client', 'reponse_par'
-            ).prefetch_related('photos').order_by('-date_creation')[:limit]
-        except:
-            return []
-
-    def get_pourcentage_recommandation(self):
-        """Pourcentage de clients qui recommandent"""
-        try:
-            total_avis = self.avis.filter(statut_moderation='approuve').count()
-            if total_avis == 0:
-                return 0
-            
-            avis_recommandes = self.avis.filter(
-                statut_moderation='approuve',
-                recommande=True
-            ).count()
-            
-            return round((avis_recommandes / total_avis) * 100)
-        except:
-            return 0
-
-    @property
-    def note_moyenne(self):
-        """Propriété pour accès direct à la note moyenne"""
-        return self.get_note_moyenne()
-
-    @property
-    def nombre_avis(self):
-        """Propriété pour accès direct au nombre d'avis"""
-        return self.get_nombre_avis()
-
-    def peut_etre_evalue_par(self, user):
-        """Vérifie si un utilisateur peut donner un avis pour cette maison"""
-        if not user.is_authenticated:
-            return False
-        
-        # Seuls les clients peuvent donner des avis
-        if not (hasattr(user, 'is_client') and user.is_client()):
-            return False
-        
-        # Vérifier qu'il n'a pas déjà donné un avis
-        try:
-            return not self.avis.filter(client=user).exists()
-        except:
-            return True
-
-    def get_avis_utilisateur(self, user):
-        """Récupère l'avis d'un utilisateur pour cette maison s'il existe"""
-        if not user.is_authenticated:
-            return None
-        
-        try:
-            return self.avis.get(client=user)
-        except:
-            return None
-
-    def get_statistiques_avis(self):
-        """Statistiques complètes des avis"""
-        try:
-            stats = self.avis.filter(statut_moderation='approuve').aggregate(
+            stats = self.avis.aggregate(
                 note_moyenne=Avg('note'),
-                total_avis=Count('id'),
-                recommandations=Count('id', filter=Q(recommande=True))
+                total_avis=Count('id')
             )
             
-            stats['pourcentage_recommandation'] = 0
-            if stats['total_avis'] and stats['total_avis'] > 0:
-                stats['pourcentage_recommandation'] = round(
-                    (stats['recommandations'] / stats['total_avis']) * 100
-                )
-            
-            return stats
-        except:
+            return {
+                'note_moyenne': round(stats['note_moyenne'], 1) if stats['note_moyenne'] else 0,
+                'total_avis': stats['total_avis'] or 0,
+            }
+        except Exception:
             return {
                 'note_moyenne': 0,
                 'total_avis': 0,
-                'recommandations': 0,
-                'pourcentage_recommandation': 0
             }
-
-    def get_avis_avec_photos(self):
-        """Avis qui ont des photos"""
-        try:
-            return self.avis.filter(
-                statut_moderation='approuve',
-                photos__isnull=False
-            ).distinct()
-        except:
-            return []
-
-    def get_derniers_avis_clients(self, limit=5):
-        """Derniers avis avec informations clients pour affichage"""
-        try:
-            return self.avis.filter(
-                statut_moderation='approuve'
-            ).select_related('client').order_by('-date_creation')[:limit]
-        except:
-            return []
     
+    def peut_recevoir_avis(self, user):
+        """Vérifie si un utilisateur peut donner un avis sur cette maison"""
+        if not user.is_authenticated:
+            return False
+            
+        # Vérifier que c'est un client
+        if not (hasattr(user, 'is_client') and user.is_client()):
+            return False
+            
+        # Dans notre système simplifié, un utilisateur peut donner plusieurs avis
+        return True
+        
     # ============================================================================
     # FIN MÉTHODES AVIS
     # ============================================================================

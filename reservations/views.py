@@ -1392,3 +1392,4 @@ def _export_pdf(reservations, inclure_paiements, inclure_evaluations):
     """Export PDF des réservations"""
     # TODO: Implémenter l'export PDF avec ReportLab
     return HttpResponse("Export PDF en cours de développement", status=501)
+

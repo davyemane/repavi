@@ -1,512 +1,70 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Avis - {{ maison.nom }} | RepAvi{% endblock %}
-
-{% block extra_css %}
-<style>
-.star-rating {
-    color: #fbbf24;
-}
-.like-button {
-    transition: all 0.3s ease;
-}
-.like-button:hover {
-    transform: scale(1.1);
-}
-.like-button.liked {
-    color: #ef4444;
-}
-.avis-card {
-    transition: all 0.3s ease;
-}
-.avis-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-</style>
-{% endblock %}
-
-{% block content %}
-<!-- Navigation -->
-{% include 'components/navigation.html' %}
-
-<div class="pt-16 min-h-screen bg-gray-50">
-    <!-- En-tête de la page -->
-    <div class="bg-white shadow-sm border-b">
-        <div class="max-w-6xl mx-auto px-4 py-8">
-            <!-- Breadcrumb -->
-            <nav class="text-sm mb-4">
-                <ol class="flex items-center space-x-2 text-gray-500">
-                    <li><a href="{% url 'home:index' %}" class="hover:text-blue-600">Accueil</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li><a href="{% url 'home:maisons_list' %}" class="hover:text-blue-600">Maisons</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li><a href="{% url 'home:maison_detail' maison.slug %}" class="hover:text-blue-600">{{ maison.nom }}</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    <li class="text-gray-900">Avis</li>
-                </ol>
-            </nav>
-
-            <!-- Titre et infos maison -->
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+<!-- avis/templates/avis/avis_list_partial.html -->
+<div class="space-y-6">
+    {% for avis in avis_list %}
+    <div class="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0">
+        <!-- En-tête de l'avis -->
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span class="text-blue-600 font-semibold">{{ avis.user.username.0|upper }}</span>
+                </div>
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                        Avis clients - {{ maison.nom }}
-                    </h1>
-                    <p class="text-gray-600">{{ maison.ville }} • {{ maison.capacite_personnes }} personnes</p>
-                </div>
-                
-                <!-- Statistiques rapides -->
-                <div class="flex items-center space-x-6">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-gray-900">{{ avis_stats.note_moyenne|floatformat:1 }}</div>
-                        <div class="flex justify-center mb-1">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= avis_stats.note_moyenne|floatformat:0 %}
-                                    <i class="fas fa-star text-yellow-400 text-sm"></i>
-                                {% else %}
-                                    <i class="far fa-star text-gray-300 text-sm"></i>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <div class="text-sm text-gray-500">{{ avis_stats.total_avis }} avis</div>
-                    </div>
-                    
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-green-600">{{ pourcentage_recommandation }}%</div>
-                        <div class="text-sm text-gray-500">recommandent</div>
-                    </div>
+                    <div class="font-medium text-gray-900">{{ avis.user.username }}</div>
+                    <div class="text-sm text-gray-500">{{ avis.date_creation|date:"d F Y" }}</div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
-            <!-- Sidebar avec filtres et actions -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
-                    <h3 class="font-semibold text-gray-900 mb-4">Filtrer les avis</h3>
-                    
-                    <form method="get" class="space-y-4">
-                        {{ filtre_form.as_p }}
-                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-filter mr-2"></i>Filtrer
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Répartition des notes -->
-                <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
-                    <h3 class="font-semibold text-gray-900 mb-4">Répartition des notes</h3>
-                    
-                    {% for note_data in repartition_notes %}
-                    <div class="flex items-center mb-2">
-                        <span class="text-sm text-gray-600 w-8">{{ note_data.note }}★</span>
-                        <div class="flex-1 bg-gray-200 rounded-full h-2 mx-3">
-                            {% widthratio note_data.count avis_stats.total_avis 100 as pourcentage %}
-                            <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ pourcentage }}%"></div>
-                        </div>
-                        <span class="text-sm text-gray-500 w-8">{{ note_data.count }}</span>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Bouton créer avis -->
-                {% if peut_donner_avis %}
-                <div class="bg-blue-50 rounded-lg border border-blue-200 p-6">
-                    <h3 class="font-semibold text-blue-900 mb-2">Votre avis compte !</h3>
-                    <p class="text-sm text-blue-700 mb-4">Partagez votre expérience pour aider d'autres voyageurs.</p>
-                    <a href="{% url 'avis:creer_avis' maison.slug %}" 
-                       class="block w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-star mr-2"></i>Donner mon avis
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Liste des avis -->
-            <div class="lg:col-span-3">
-                
-                <!-- En-tête avec tri -->
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-semibold text-gray-900">
-                        {{ avis_list|length }} avis{% if avis_list|length > 1 %}s{% endif %}
-                    </h2>
-                    
-                    <!-- Sélecteur de tri -->
-                    <select onchange="window.location.href=updateURLParameter(window.location.href, 'tri', this.value)" 
-                            class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="-date_creation">Plus récents</option>
-                        <option value="date_creation">Plus anciens</option>
-                        <option value="-note">Meilleures notes</option>
-                        <option value="note">Notes les plus basses</option>
-                        <option value="-nombre_likes">Plus utiles</option>
-                    </select>
-                </div>
-
-                <!-- Liste des avis -->
-                <div class="space-y-6">
-                    {% for avis in avis_list %}
-                    <div class="avis-card bg-white rounded-lg shadow-sm border p-6" data-avis-id="{{ avis.id }}">
-                        
-                        <!-- En-tête de l'avis -->
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <span class="text-blue-600 font-semibold">{{ avis.client.first_name.0 }}{{ avis.client.last_name.0 }}</span>
-                                </div>
-                                <div>
-                                    <div class="font-medium text-gray-900">{{ avis.client.nom_complet }}</div>
-                                    <div class="text-sm text-gray-500">{{ avis.date_creation|date:"d F Y" }}</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Note et actions -->
-                            <div class="flex items-center space-x-3">
-                                <div class="flex items-center">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= avis.note %}
-                                            <i class="fas fa-star text-yellow-400"></i>
-                                        {% else %}
-                                            <i class="far fa-star text-gray-300"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                                
-                                <!-- Menu actions -->
-                                <div class="relative">
-                                    <button class="text-gray-400 hover:text-gray-600 p-1" onclick="toggleDropdown('menu-{{ avis.id }}')">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </button>
-                                    <div id="menu-{{ avis.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-10">
-                                        {% if user.is_authenticated %}
-                                        <button onclick="likeAvis({{ avis.id }})" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                            <i class="fas fa-thumbs-up mr-2"></i>Utile
-                                        </button>
-                                        <button onclick="signalerAvis({{ avis.id }})" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                            <i class="fas fa-flag mr-2"></i>Signaler
-                                        </button>
-                                        {% endif %}
-                                    </div>
-                                </div>
-            </div>
-                        </div>
-
-                        <!-- Contenu de l'avis -->
-                        <div class="mb-4">
-                            <h4 class="font-semibold text-gray-900 mb-2">{{ avis.titre }}</h4>
-                            <p class="text-gray-700 leading-relaxed">{{ avis.commentaire }}</p>
-                        </div>
-
-                        <!-- Informations sur le séjour -->
-                        {% if avis.date_sejour or avis.duree_sejour %}
-                        <div class="bg-gray-50 rounded-lg p-3 mb-4">
-                            <div class="flex items-center text-sm text-gray-600 space-x-4">
-                                {% if avis.date_sejour %}
-                                <span><i class="fas fa-calendar mr-1"></i>Séjour en {{ avis.date_sejour|date:"F Y" }}</span>
-                                {% endif %}
-                                {% if avis.duree_sejour %}
-                                <span><i class="fas fa-clock mr-1"></i>{{ avis.duree_sejour }} nuit{{ avis.duree_sejour|pluralize }}</span>
-                                {% endif %}
-                                {% if avis.recommande %}
-                                <span class="text-green-600"><i class="fas fa-check mr-1"></i>Recommande</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Photos de l'avis -->
-                        {% if avis.photos.exists %}
-                        <div class="mb-4">
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                {% for photo in avis.photos.all %}
-                                <img src="{{ photo.image.url }}" 
-                                     alt="{{ photo.legende }}" 
-                                     class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                     onclick="openPhotoModal('{{ photo.image.url }}', '{{ photo.legende }}')">
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Réponse du gestionnaire -->
-                        {% if avis.reponse_gestionnaire %}
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user-tie text-blue-600 text-sm"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center mb-1">
-                                        <span class="font-medium text-blue-900">Réponse du gestionnaire</span>
-                                        <span class="ml-2 text-sm text-blue-600">{{ avis.date_reponse|date:"d/m/Y" }}</span>
-                                    </div>
-                                    <p class="text-blue-800">{{ avis.reponse_gestionnaire }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Actions en bas -->
-                        <div class="flex items-center justify-between pt-4 border-t">
-                            <div class="flex items-center space-x-4">
-                                {% if user.is_authenticated %}
-                                <button onclick="likeAvis({{ avis.id }})" 
-                                        class="like-button flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors">
-                                    <i class="fas fa-heart"></i>
-                                    <span class="like-count">{{ avis.nombre_likes }}</span>
-                                </button>
-                                {% endif %}
-                                
-                                {% if avis.est_recent %}
-                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                                    <i class="fas fa-clock mr-1"></i>Récent
-                                </span>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Actions pour le gestionnaire -->
-                            {% if user.has_gestionnaire_permissions and avis.maison.can_be_managed_by:user and not avis.reponse_gestionnaire %}
-                            <a href="{% url 'avis:repondre_avis' avis.id %}" 
-                               class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                <i class="fas fa-reply mr-1"></i>Répondre
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% empty %}
-                    
-                    <!-- État vide -->
-                    <div class="text-center py-12">
-                        <i class="fas fa-comments text-4xl text-gray-300 mb-4"></i>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun avis pour le moment</h3>
-                        <p class="text-gray-600 mb-6">Soyez le premier à partager votre expérience !</p>
-                        {% if peut_donner_avis %}
-                        <a href="{% url 'avis:creer_avis' maison.slug %}" 
-                           class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-star mr-2"></i>Donner le premier avis
-                        </a>
-                        {% endif %}
-                    </div>
-                    
-                    {% endfor %}
-                </div>
-
-                <!-- Pagination -->
-                {% if is_paginated %}
-                <div class="flex justify-center mt-8">
-                    <nav class="flex items-center space-x-2">
-                        {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}" 
-                           class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                        {% endif %}
-                        
-                        {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                        <span class="px-3 py-2 rounded-lg bg-blue-600 text-white">{{ num }}</span>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <a href="?page={{ num }}" 
-                           class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">{{ num }}</a>
-                        {% endif %}
-                        {% endfor %}
-                        
-                        {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" 
-                           class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                        {% endif %}
-                    </nav>
-                </div>
-                {% endif %}
+            <!-- Note en étoiles -->
+            <div class="flex text-yellow-400">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= avis.note %}
+                        <i class="fas fa-star"></i>
+                    {% else %}
+                        <i class="far fa-star text-gray-300"></i>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
+
+        <!-- Commentaire -->
+        <div class="text-gray-700 leading-relaxed">
+            {{ avis.commentaire|linebreaks }}
+        </div>
     </div>
+    {% empty %}
+    <div class="text-center py-8">
+        <i class="fas fa-comments text-4xl text-gray-300 mb-4"></i>
+        <h4 class="text-lg font-medium text-gray-900 mb-2">Aucun avis pour le moment</h4>
+        <p class="text-gray-600">Soyez le premier à partager votre expérience !</p>
+    </div>
+    {% endfor %}
 </div>
 
-<!-- Modal pour photos -->
-<div id="photoModal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-    <div class="max-w-4xl max-h-full">
-        <img id="modalImage" src="" alt="" class="max-w-full max-h-full object-contain">
-        <div id="modalCaption" class="text-white text-center mt-2"></div>
-        <button onclick="closePhotoModal()" class="absolute top-4 right-4 text-white text-2xl">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-</div>
-
-<!-- Modal de signalement -->
-<div id="signalementModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg max-w-md w-full p-6">
-        <h3 class="text-lg font-semibold mb-4">Signaler cet avis</h3>
-        <form id="signalementForm">
-            {% csrf_token %}
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Raison du signalement</label>
-                <select name="raison" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
-                    <option value="">Choisir une raison</option>
-                    <option value="spam">Spam</option>
-                    <option value="faux">Faux avis</option>
-                    <option value="inapproprie">Contenu inapproprié</option>
-                    <option value="hors_sujet">Hors sujet</option>
-                    <option value="insultes">Insultes ou menaces</option>
-                    <option value="autre">Autre</option>
-                </select>
-            </div>
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Commentaire (optionnel)</label>
-                <textarea name="commentaire" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Expliquez pourquoi vous signalez cet avis..."></textarea>
-            </div>
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeSignalementModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Annuler
-                </button>
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                    Signaler
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Fonctions JavaScript pour l'interactivité
-
-// Gestion des dropdowns
-function toggleDropdown(id) {
-    const dropdown = document.getElementById(id);
-    dropdown.classList.toggle('hidden');
-    
-    // Fermer les autres dropdowns
-    document.querySelectorAll('[id^="menu-"]').forEach(menu => {
-        if (menu.id !== id) {
-            menu.classList.add('hidden');
-        }
-    });
-}
-
-// Fermer les dropdowns en cliquant ailleurs
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('[onclick*="toggleDropdown"]')) {
-        document.querySelectorAll('[id^="menu-"]').forEach(menu => {
-            menu.classList.add('hidden');
-        });
-    }
-});
-
-// Gestion des likes
-function likeAvis(avisId) {
-    fetch(`/avis/avis/${avisId}/like/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const likeButton = document.querySelector(`[data-avis-id="${avisId}"] .like-button`);
-        const likeCount = likeButton.querySelector('.like-count');
+<!-- Pagination (si applicable) -->
+{% if page_obj.has_next or page_obj.has_previous %}
+<div class="mt-6 pt-6 border-t border-gray-100">
+    <div class="flex justify-between items-center">
+        {% if page_obj.has_previous %}
+            <button onclick="loadMoreAvis({{ page_obj.previous_page_number }})" 
+                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                ← Page précédente
+            </button>
+        {% else %}
+            <div></div>
+        {% endif %}
         
-        likeCount.textContent = data.nombre_likes;
+        <span class="text-sm text-gray-500">
+            Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+        </span>
         
-        if (data.liked) {
-            likeButton.classList.add('liked');
-        } else {
-            likeButton.classList.remove('liked');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        alert('Erreur lors de l\'action. Veuillez réessayer.');
-    });
-}
-
-// Gestion des modals de photos
-function openPhotoModal(imageUrl, caption) {
-    const modal = document.getElementById('photoModal');
-    const modalImage = document.getElementById('modalImage');
-    const modalCaption = document.getElementById('modalCaption');
-    
-    modalImage.src = imageUrl;
-    modalCaption.textContent = caption;
-    modal.classList.remove('hidden');
-}
-
-function closePhotoModal() {
-    document.getElementById('photoModal').classList.add('hidden');
-}
-
-// Gestion du modal de signalement
-let currentAvisId = null;
-
-function signalerAvis(avisId) {
-    currentAvisId = avisId;
-    document.getElementById('signalementModal').classList.remove('hidden');
-}
-
-function closeSignalementModal() {
-    document.getElementById('signalementModal').classList.add('hidden');
-    currentAvisId = null;
-}
-
-// Soumission du signalement
-document.getElementById('signalementForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    if (!currentAvisId) return;
-    
-    const formData = new FormData(this);
-    
-    fetch(`/avis/avis/${currentAvisId}/signaler/`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            closeSignalementModal();
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Erreur:', error);
-        alert('Erreur lors du signalement. Veuillez réessayer.');
-    });
-});
-
-// Utilitaire pour mettre à jour les paramètres URL
-function updateURLParameter(url, param, paramVal) {
-    let newAdditionalURL = "";
-    let tempArray = url.split("?");
-    let baseURL = tempArray[0];
-    let additionalURL = tempArray[1];
-    let temp = "";
-    
-    if (additionalURL) {
-        tempArray = additionalURL.split("&");
-        for (let i = 0; i < tempArray.length; i++) {
-            if (tempArray[i].split('=')[0] != param) {
-                newAdditionalURL += temp + tempArray[i];
-                temp = "&";
-            }
-        }
-    }
-    
-    let rows_txt = temp + "" + param + "=" + paramVal;
-    return baseURL + "?" + newAdditionalURL + rows_txt;
-}
-</script>
-{% endblock %}
+        {% if page_obj.has_next %}
+            <button onclick="loadMoreAvis({{ page_obj.next_page_number }})" 
+                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                Page suivante →
+            </button>
+        {% else %}
+            <div></div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
