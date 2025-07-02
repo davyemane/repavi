@@ -1,4 +1,3 @@
-# home/views.py - Version complète
 from datetime import timezone
 from django.forms import ValidationError
 from django.shortcuts import redirect, render, get_object_or_404, redirect
@@ -18,6 +17,14 @@ from services.reservation_service import ReservationService
 from .models import Maison, CategorieMaison, Ville, PhotoMaison
 from reservations.models import Reservation
 from django.contrib.auth import get_user_model
+
+# Import pour le système d'avis
+try:
+    from avis.models import Avis
+    AVIS_AVAILABLE = True
+except ImportError:
+    AVIS_AVAILABLE = False
+    print("⚠️ Système d'avis non disponible")
 
 import json
 import csv
@@ -67,7 +74,7 @@ class MaisonOwnerMixin(UserPassesTestMixin):
 # ======== PAGES PUBLIQUES ========
 
 def index(request):
-    """Vue principale de la page d'accueil"""
+    """Vue principale de la page d'accueil avec avis intégrés"""
     
     try:
         # Récupérer les maisons featured disponibles pour tous
@@ -76,12 +83,69 @@ def index(request):
             disponible=True
         ).select_related('ville', 'categorie').prefetch_related('photos')[:6]
         
+        # Enrichir chaque maison avec les avis récents
+        for maison in maisons_featured:
+            # Utiliser les méthodes du modèle Maison (monkey patched) au lieu d'annotations
+            if AVIS_AVAILABLE:
+                try:
+                    maison._note_moyenne = maison.get_note_moyenne()
+                    maison._nombre_avis = maison.get_nombre_avis()
+                    maison.avis_recents = maison.get_avis_recents(1)
+                except Exception as e:
+                    print(f"Erreur lors de la récupération des avis pour {maison.nom}: {e}")
+                    maison._note_moyenne = 0
+                    maison._nombre_avis = 0
+                    maison.avis_recents = []
+            else:
+                maison._note_moyenne = 0
+                maison._nombre_avis = 0
+                maison.avis_recents = []
+        
+        # Sélectionner des avis remarquables pour la page d'accueil
+        avis_destacados = []
+        stats_avis = {
+            'total_avis': 0,
+            'note_moyenne_globale': 0,
+            'pourcentage_recommandation': 0
+        }
+        
+        if AVIS_AVAILABLE:
+            try:
+                from avis.models import Avis
+                avis_destacados = Avis.objects.filter(
+                    statut_moderation='approuve',
+                    note__gte=4  # Avis 4 étoiles et plus
+                ).select_related('client', 'maison').order_by('-date_creation')[:6]
+                
+                # Statistiques globales des avis
+                stats_avis = {
+                    'total_avis': Avis.objects.filter(statut_moderation='approuve').count(),
+                    'note_moyenne_globale': Avis.objects.filter(
+                        statut_moderation='approuve'
+                    ).aggregate(moyenne=Avg('note'))['moyenne'] or 0,
+                    'pourcentage_recommandation': 0
+                }
+                
+                # Calculer le pourcentage de recommandation global
+                if stats_avis['total_avis'] > 0:
+                    avis_recommandes = Avis.objects.filter(
+                        statut_moderation='approuve',
+                        recommande=True
+                    ).count()
+                    stats_avis['pourcentage_recommandation'] = round(
+                        (avis_recommandes / stats_avis['total_avis']) * 100
+                    )
+            except Exception as e:
+                print(f"Erreur lors de la récupération des avis: {e}")
+                # Continuer sans les avis
+                pass
+        
         # Statistiques pour la section stats
         stats = {
             'total_maisons': Maison.objects.filter(disponible=True).count(),
             'total_villes': Ville.objects.count(),
             'total_reservations': 0,
-            'satisfaction_client': 98,
+            'satisfaction_client': stats_avis['pourcentage_recommandation'] or 98,
         }
         
         # Calculer les statistiques de réservations si disponible
@@ -108,6 +172,8 @@ def index(request):
         # En cas d'erreur (tables vides, etc.), utiliser des valeurs par défaut
         print(f"Erreur dans index: {e}")
         maisons_featured = []
+        avis_destacados = []
+        stats_avis = {'total_avis': 0, 'note_moyenne_globale': 0, 'pourcentage_recommandation': 0}
         stats = {
             'total_maisons': 0,
             'total_villes': 0,
@@ -119,6 +185,8 @@ def index(request):
     
     context = {
         'maisons_featured': maisons_featured,
+        'avis_destacados': avis_destacados,
+        'stats_avis': stats_avis,
         'stats': stats,
         'categories': categories,
         'villes_populaires': villes_populaires,
@@ -151,6 +219,8 @@ def contact(request):
     }
     
     return render(request, 'home/contact.html', context)
+
+
 def apropos(request):
     """Page à propos avec statistiques"""
     stats = {
@@ -179,72 +249,101 @@ def apropos(request):
     }
     
     return render(request, 'home/apropos.html', context)
+
 # ======== MAISONS - CONSULTATION ========
 
 class MaisonListView(ListView):
-    """Vue liste des maisons avec filtres"""
+    """Vue liste des maisons avec filtres et avis intégrés"""
     model = Maison
     template_name = 'home/maisons_list.html'
     context_object_name = 'maisons'
     paginate_by = 12
     
     def get_queryset(self):
-        # Utiliser le service si disponible, sinon fallback
-        user = self.request.user if self.request.user.is_authenticated else None
-        
-        if MAISON_SERVICE_AVAILABLE and user:
-            try:
-                queryset = MaisonService.get_maisons_for_user(user)
-            except Exception:
+            # Utiliser le service si disponible, sinon fallback
+            user = self.request.user if self.request.user.is_authenticated else None
+            
+            if MAISON_SERVICE_AVAILABLE and user:
+                try:
+                    queryset = MaisonService.get_maisons_for_user(user)
+                except Exception:
+                    queryset = self._get_fallback_queryset(user)
+            else:
                 queryset = self._get_fallback_queryset(user)
-        else:
-            queryset = self._get_fallback_queryset(user)
-        
-        queryset = queryset.with_photos_and_details()
-        
-        # Filtres de recherche
-        search = self.request.GET.get('search')
-        ville_id = self.request.GET.get('ville')
-        categorie_id = self.request.GET.get('categorie')
-        capacite = self.request.GET.get('capacite')
-        prix_min = self.request.GET.get('prix_min')
-        prix_max = self.request.GET.get('prix_max')
-        disponible_reservation = self.request.GET.get('disponible_reservation')
-        
-        # Appliquer les filtres
-        if search:
-            queryset = queryset.filter(
-                Q(nom__icontains=search) |
-                Q(description__icontains=search) |
-                Q(ville__nom__icontains=search)
-            )
-        
-        if ville_id:
-            queryset = queryset.filter(ville_id=ville_id)
-        if categorie_id:
-            queryset = queryset.filter(categorie_id=categorie_id)
-        if capacite:
-            queryset = queryset.filter(capacite_personnes__gte=capacite)
-        if prix_min:
-            queryset = queryset.filter(prix_par_nuit__gte=prix_min)
-        if prix_max:
-            queryset = queryset.filter(prix_par_nuit__lte=prix_max)
-        
-        # Filtre pour les maisons disponibles à la réservation
-        if disponible_reservation == '1':
-            queryset = queryset.filter(disponible=True, statut_occupation='libre')
-        
-        # Tri
-        sort_by = self.request.GET.get('sort', '-date_creation')
-        valid_sorts = [
-            'prix_par_nuit', '-prix_par_nuit',
-            'capacite_personnes', '-capacite_personnes',
-            'date_creation', '-date_creation'
-        ]
-        if sort_by in valid_sorts:
-            queryset = queryset.order_by(sort_by)
-        
-        return queryset
+            
+            # Utiliser with_photos_and_details sans annotations d'avis
+            queryset = queryset.with_photos_and_details()
+            
+            # Filtres de recherche existants
+            search = self.request.GET.get('search')
+            ville_id = self.request.GET.get('ville')
+            categorie_id = self.request.GET.get('categorie')
+            prix_min = self.request.GET.get('prix_min')
+            prix_max = self.request.GET.get('prix_max')
+            note_min = self.request.GET.get('note_min')
+            
+            # Appliquer les filtres existants
+            if search:
+                queryset = queryset.filter(
+                    Q(nom__icontains=search) |
+                    Q(description__icontains=search) |
+                    Q(ville__nom__icontains=search)
+                )
+            
+            if ville_id:
+                queryset = queryset.filter(ville_id=ville_id)
+            if categorie_id:
+                queryset = queryset.filter(categorie_id=categorie_id)
+            if prix_min:
+                queryset = queryset.filter(prix_par_nuit__gte=prix_min)
+            if prix_max:
+                queryset = queryset.filter(prix_par_nuit__lte=prix_max)
+            
+            # Tri
+            sort_by = self.request.GET.get('sort', '-date_creation')
+            valid_sorts = [
+                'prix_par_nuit', '-prix_par_nuit',
+                'capacite_personnes', '-capacite_personnes',
+                'date_creation', '-date_creation'
+            ]
+            
+            if sort_by in valid_sorts:
+                queryset = queryset.order_by(sort_by)
+            
+            # Pour le filtre par note et le tri par note, traiter après récupération
+            queryset_list = list(queryset)
+            
+            # Enrichir avec les données d'avis
+            if AVIS_AVAILABLE:
+                for maison in queryset_list:
+                    try:
+                        maison._note_moyenne = maison.get_note_moyenne()
+                        maison._nombre_avis = maison.get_nombre_avis()
+                        maison.avis_recents = maison.get_avis_recents(1)
+                    except:
+                        maison._note_moyenne = 0
+                        maison._nombre_avis = 0
+                        maison.avis_recents = []
+            else:
+                for maison in queryset_list:
+                    maison._note_moyenne = 0
+                    maison._nombre_avis = 0
+                    maison.avis_recents = []
+            
+            # Filtrer par note si demandé
+            if note_min:
+                try:
+                    note_min_float = float(note_min)
+                    queryset_list = [m for m in queryset_list if m._note_moyenne >= note_min_float]
+                except ValueError:
+                    pass
+            
+            # Trier par note si demandé
+            if sort_by in ['note_moyenne', '-note_moyenne']:
+                reverse = sort_by.startswith('-')
+                queryset_list.sort(key=lambda m: m._note_moyenne, reverse=reverse)
+            
+            return queryset_list
     
     def _get_fallback_queryset(self, user):
         """Fallback pour récupérer les maisons selon les permissions"""
@@ -259,17 +358,229 @@ class MaisonListView(ListView):
             return Maison.objects.filter(disponible=True)
     
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['villes'] = Ville.objects.all().order_by('nom')
-        context['categories'] = CategorieMaison.objects.all()
-        context['current_filters'] = self.request.GET
-        context['user_role'] = getattr(self.request.user, 'role', None) if self.request.user.is_authenticated else None
-        context['reservations_available'] = RESERVATIONS_AVAILABLE
-        return context
-
+            context = super().get_context_data(**kwargs)
+            
+            # Context existant
+            context['villes'] = Ville.objects.all().order_by('nom')
+            context['categories'] = CategorieMaison.objects.all()
+            context['current_filters'] = self.request.GET
+            context['user_role'] = getattr(self.request.user, 'role', None) if self.request.user.is_authenticated else None
+            context['reservations_available'] = RESERVATIONS_AVAILABLE
+            
+            # CORRECTION : Enrichir chaque maison avec les avis récents
+            maisons = context['maisons']
+            for maison in maisons:
+                # Utiliser les attributs temporaires définis dans get_queryset()
+                # Vérifier s'ils existent déjà (définis dans get_queryset)
+                if not hasattr(maison, '_note_moyenne'):
+                    if AVIS_AVAILABLE:
+                        try:
+                            maison._note_moyenne = maison.get_note_moyenne()
+                            maison._nombre_avis = maison.get_nombre_avis()
+                            maison.avis_recents = maison.get_avis_recents(1)
+                        except Exception:
+                            maison._note_moyenne = 0
+                            maison._nombre_avis = 0
+                            maison.avis_recents = []
+                    else:
+                        maison._note_moyenne = 0
+                        maison._nombre_avis = 0
+                        maison.avis_recents = []
+            
+            # Compter les résultats pour l'affichage
+            if hasattr(self.get_queryset(), '__len__'):
+                context['total_results'] = len(self.get_queryset())
+            else:
+                context['total_results'] = len(maisons)
+            
+            return context
+class MaisonDetailView(DetailView):
+    """Vue détail d'une maison avec avis intégrés"""
+    model = Maison
+    template_name = 'home/maison_detail.html'
+    context_object_name = 'maison'
+    slug_field = 'slug'
+    
+    def get_queryset(self):
+        user = self.request.user if self.request.user.is_authenticated else None
+        
+        if MAISON_SERVICE_AVAILABLE and user:
+            try:
+                return MaisonService.get_maisons_for_user(user)
+            except Exception:
+                pass
+        
+        # Fallback
+        return Maison.objects.accessible_to_user(user if user else None)
+    
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            
+            # Photos de la maison
+            context['photos'] = self.object.photos.all().order_by('ordre')
+            
+            # Statistiques des avis
+            if AVIS_AVAILABLE:
+                try:
+                    avis_stats = self.object.avis.filter(statut_moderation='approuve').aggregate(
+                        note_moyenne=Avg('note'),
+                        total_avis=Count('id'),
+                        recommandations=Count('id', filter=Q(recommande=True))
+                    )
+                except Exception:
+                    avis_stats = {
+                        'note_moyenne': 0,
+                        'total_avis': 0,
+                        'recommandations': 0
+                    }
+            else:
+                avis_stats = {
+                    'note_moyenne': 0,
+                    'total_avis': 0,
+                    'recommandations': 0
+                }
+            
+            context['avis_stats'] = avis_stats
+            context['pourcentage_recommandation'] = 0
+            if avis_stats['total_avis'] and avis_stats['total_avis'] > 0:
+                context['pourcentage_recommandation'] = round(
+                    (avis_stats['recommandations'] / avis_stats['total_avis']) * 100
+                )
+            
+            # Répartition des notes
+            repartition_notes = []
+            if AVIS_AVAILABLE:
+                try:
+                    for note in range(1, 6):
+                        count = self.object.avis.filter(
+                            statut_moderation='approuve',
+                            note=note
+                        ).count()
+                        if avis_stats['total_avis'] > 0:
+                            pourcentage = round((count / avis_stats['total_avis']) * 100)
+                        else:
+                            pourcentage = 0
+                        repartition_notes.append({
+                            'note': note,
+                            'count': count,
+                            'pourcentage': pourcentage
+                        })
+                except Exception:
+                    pass
+            
+            context['repartition_notes'] = repartition_notes
+            
+            # Avis récents pour l'aperçu
+            if AVIS_AVAILABLE:
+                try:
+                    context['avis_recents'] = self.object.avis.filter(
+                        statut_moderation='approuve'
+                    ).select_related('client', 'reponse_par').prefetch_related(
+                        'photos'
+                    ).order_by('-date_creation')[:3]
+                except Exception:
+                    context['avis_recents'] = []
+            else:
+                context['avis_recents'] = []
+            
+            # Vérifier si l'utilisateur a déjà donné un avis
+            if self.request.user.is_authenticated and AVIS_AVAILABLE:
+                try:
+                    context['user_has_reviewed'] = self.object.avis.filter(
+                        client=self.request.user
+                    ).exists()
+                except Exception:
+                    context['user_has_reviewed'] = False
+            else:
+                context['user_has_reviewed'] = False
+            
+            # Maisons similaires SANS annotations d'avis (utiliser les filtres template)
+            maisons_similaires = Maison.objects.filter(
+                ville=self.object.ville,
+                disponible=True
+            ).exclude(id=self.object.id).with_photos_and_details()[:3]
+            
+            # Enrichir chaque maison similaire avec les données d'avis
+            maisons_similaires_list = list(maisons_similaires)
+            for maison in maisons_similaires_list:
+                if AVIS_AVAILABLE:
+                    try:
+                        maison._note_moyenne = maison.get_note_moyenne()
+                        maison._nombre_avis = maison.get_nombre_avis()
+                    except Exception:
+                        maison._note_moyenne = 0
+                        maison._nombre_avis = 0
+                else:
+                    maison._note_moyenne = 0
+                    maison._nombre_avis = 0
+            
+            context['maisons_similaires'] = maisons_similaires_list
+            
+            # Meubles de la maison
+            try:
+                from meubles.models import Meuble
+                context['meubles'] = self.object.meubles.all().select_related('type_meuble')
+                context['meubles_par_piece'] = {}
+                for meuble in context['meubles']:
+                    piece = meuble.get_piece_display()
+                    if piece not in context['meubles_par_piece']:
+                        context['meubles_par_piece'][piece] = []
+                    context['meubles_par_piece'][piece].append(meuble)
+            except ImportError:
+                context['meubles'] = []
+                context['meubles_par_piece'] = {}
+            
+            # Permissions pour les boutons d'action
+            user = self.request.user
+            context['can_reserve'] = user.is_authenticated and hasattr(user, 'is_client') and user.is_client()
+            context['can_manage'] = user.is_authenticated and self.object.can_be_managed_by(user)
+            context['user_role'] = getattr(user, 'role', None) if user.is_authenticated else None
+            
+            # Vérification de disponibilité pour réservation
+            context['disponible_reservation'] = (
+                self.object.disponible and 
+                self.object.statut_occupation == 'libre' and
+                RESERVATIONS_AVAILABLE
+            )
+            
+            # Informations de réservation
+            if RESERVATIONS_AVAILABLE and context['disponible_reservation']:
+                try:
+                    from datetime import date
+                    today = date.today()
+                    
+                    # Réservations actuelles ou futures
+                    reservations_actives = Reservation.objects.filter(
+                        maison=self.object,
+                        statut__in=['confirmee', 'en_attente'],
+                        date_fin__gte=today
+                    ).order_by('date_debut')
+                    
+                    context['prochaines_reservations'] = reservations_actives[:3]
+                    context['maison_libre_maintenant'] = not reservations_actives.filter(
+                        date_debut__lte=today,
+                        date_fin__gte=today
+                    ).exists()
+                    
+                except Exception:
+                    context['prochaines_reservations'] = []
+                    context['maison_libre_maintenant'] = True
+            
+            # Informations de contact du gestionnaire (pour les clients)
+            if user.is_authenticated and hasattr(user, 'is_client') and user.is_client():
+                gestionnaire = self.object.gestionnaire
+                context['gestionnaire_info'] = {
+                    'nom': getattr(gestionnaire, 'nom_complet', f"{gestionnaire.first_name} {gestionnaire.last_name}"),
+                    'telephone': getattr(gestionnaire, 'telephone', ''),
+                    'email': gestionnaire.email if getattr(gestionnaire, 'email_verifie', True) else None,
+                }
+            
+            context['reservations_available'] = RESERVATIONS_AVAILABLE
+            
+            return context
 
 def maisons_disponibles_reservation(request):
-    """Vue pour afficher les maisons disponibles à la réservation"""
+    """Vue pour afficher les maisons disponibles à la réservation avec avis"""
     
     # Filtrer uniquement les maisons disponibles pour réservation
     maisons = Maison.objects.filter(
@@ -323,8 +634,27 @@ def maisons_disponibles_reservation(request):
         except ValueError:
             pass  # Dates invalides, ignorer le filtre
     
+    # Enrichir chaque maison avec les avis récents
+    maisons_list = list(maisons)
+    for maison in maisons_list:
+        # CORRECTION : Utiliser des attributs temporaires au lieu des propriétés
+        if AVIS_AVAILABLE:
+            try:
+                maison._note_moyenne = maison.get_note_moyenne()
+                maison._nombre_avis = maison.get_nombre_avis()
+                maison.avis_recents = maison.get_avis_recents(1)
+            except Exception as e:
+                print(f"Erreur lors de la récupération des avis pour {maison.nom}: {e}")
+                maison._note_moyenne = 0
+                maison._nombre_avis = 0
+                maison.avis_recents = []
+        else:
+            maison._note_moyenne = 0
+            maison._nombre_avis = 0
+            maison.avis_recents = []
+    
     # Pagination
-    paginator = Paginator(maisons, 12)
+    paginator = Paginator(maisons_list, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -336,108 +666,12 @@ def maisons_disponibles_reservation(request):
         'current_filters': request.GET,
         'date_debut': date_debut,
         'date_fin': date_fin,
-        'total_maisons': maisons.count(),
+        'total_maisons': len(maisons_list),
         'reservations_available': RESERVATIONS_AVAILABLE,
         'page_title': 'Maisons Disponibles à la Réservation',
     }
     
     return render(request, 'home/maisons_reservation.html', context)
-
-
-
-class MaisonDetailView(DetailView):
-    """Vue détail d'une maison"""
-    model = Maison
-    template_name = 'home/maison_detail.html'
-    context_object_name = 'maison'
-    slug_field = 'slug'
-    
-    def get_queryset(self):
-        user = self.request.user if self.request.user.is_authenticated else None
-        
-        if MAISON_SERVICE_AVAILABLE and user:
-            try:
-                return MaisonService.get_maisons_for_user(user)
-            except Exception:
-                pass
-        
-        # Fallback
-        return Maison.objects.accessible_to_user(user if user else None)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        # Photos de la maison
-        context['photos'] = self.object.photos.all().order_by('ordre')
-        
-        # Maisons similaires
-        context['maisons_similaires'] = Maison.objects.filter(
-            ville=self.object.ville,
-            disponible=True
-        ).exclude(id=self.object.id).with_photos_and_details()[:3]
-        
-        # Meubles de la maison
-        try:
-            from meubles.models import Meuble
-            context['meubles'] = self.object.meubles.all().select_related('type_meuble')
-            context['meubles_par_piece'] = {}
-            for meuble in context['meubles']:
-                piece = meuble.get_piece_display()
-                if piece not in context['meubles_par_piece']:
-                    context['meubles_par_piece'][piece] = []
-                context['meubles_par_piece'][piece].append(meuble)
-        except ImportError:
-            context['meubles'] = []
-            context['meubles_par_piece'] = {}
-        
-        # Permissions pour les boutons d'action
-        user = self.request.user
-        context['can_reserve'] = user.is_authenticated and hasattr(user, 'is_client') and user.is_client()
-        context['can_manage'] = user.is_authenticated and self.object.can_be_managed_by(user)
-        context['user_role'] = getattr(user, 'role', None) if user.is_authenticated else None
-        
-        # Vérification de disponibilité pour réservation
-        context['disponible_reservation'] = (
-            self.object.disponible and 
-            self.object.statut_occupation == 'libre' and
-            RESERVATIONS_AVAILABLE
-        )
-        
-        # Informations de réservation
-        if RESERVATIONS_AVAILABLE and context['disponible_reservation']:
-            try:
-                from datetime import date
-                today = date.today()
-                
-                # Réservations actuelles ou futures
-                reservations_actives = Reservation.objects.filter(
-                    maison=self.object,
-                    statut__in=['confirmee', 'en_attente'],
-                    date_fin__gte=today
-                ).order_by('date_debut')
-                
-                context['prochaines_reservations'] = reservations_actives[:3]
-                context['maison_libre_maintenant'] = not reservations_actives.filter(
-                    date_debut__lte=today,
-                    date_fin__gte=today
-                ).exists()
-                
-            except Exception:
-                context['prochaines_reservations'] = []
-                context['maison_libre_maintenant'] = True
-        
-        # Informations de contact du gestionnaire (pour les clients)
-        if user.is_authenticated and hasattr(user, 'is_client') and user.is_client():
-            gestionnaire = self.object.gestionnaire
-            context['gestionnaire_info'] = {
-                'nom': getattr(gestionnaire, 'nom_complet', f"{gestionnaire.first_name} {gestionnaire.last_name}"),
-                'telephone': getattr(gestionnaire, 'telephone', ''),
-                'email': gestionnaire.email if getattr(gestionnaire, 'email_verifie', True) else None,
-            }
-        
-        context['reservations_available'] = RESERVATIONS_AVAILABLE
-        
-        return context
 
 # ======== MAISONS - GESTION ========
 
@@ -787,8 +1021,6 @@ def initier_reservation(request, maison_slug):
         reservation_url += "?" + "&".join(params)
     
     return redirect(reservation_url)
-
-
 # ======== INVENTAIRE DES MEUBLES ========
 
 @login_required

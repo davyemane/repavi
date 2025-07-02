@@ -1,0 +1,481 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Donner un avis - {{ maison.nom }} | RepAvi{% endblock %}
+
+{% block extra_css %}
+<style>
+.star-rating-input {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+.star-rating-input input[type="radio"] {
+    display: none;
+}
+.star-rating-input label {
+    font-size: 2rem;
+    color: #e5e7eb;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    margin: 0 0.2rem;
+}
+.star-rating-input label:hover,
+.star-rating-input label:hover ~ label,
+.star-rating-input input[type="radio"]:checked ~ label {
+    color: #fbbf24;
+}
+.photo-preview {
+    position: relative;
+    display: inline-block;
+    margin: 0.5rem;
+}
+.photo-preview img {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+}
+.photo-preview .delete-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+{% include 'components/navigation.html' %}
+
+<div class="pt-16 min-h-screen bg-gray-50">
+    <!-- En-tête -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-4xl mx-auto px-4 py-6">
+            <!-- Breadcrumb -->
+            <nav class="text-sm mb-4">
+                <ol class="flex items-center space-x-2 text-gray-500">
+                    <li><a href="{% url 'home:index' %}" class="hover:text-blue-600">Accueil</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li><a href="{% url 'home:maison_detail' maison.slug %}" class="hover:text-blue-600">{{ maison.nom }}</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li><a href="{% url 'avis:avis_list' maison.slug %}" class="hover:text-blue-600">Avis</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li class="text-gray-900">Donner un avis</li>
+                </ol>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                {% if maison.photo_principale %}
+                <img src="{{ maison.photo_principale.url }}" alt="{{ maison.nom }}" 
+                     class="w-16 h-16 object-cover rounded-lg">
+                {% else %}
+                <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-home text-gray-400"></i>
+                </div>
+                {% endif %}
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Donner un avis</h1>
+                    <p class="text-gray-600">{{ maison.nom }} • {{ maison.ville }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-sm border p-8">
+            <div class="mb-8 text-center">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">Partagez votre expérience</h2>
+                <p class="text-gray-600">Votre avis aide d'autres voyageurs à faire le bon choix</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" id="avisForm">
+                {% csrf_token %}
+                
+                <!-- Note avec étoiles interactives -->
+                <div class="mb-8 text-center">
+                    <label class="block text-lg font-medium text-gray-900 mb-4">
+                        Quelle note donneriez-vous à cette maison ?
+                    </label>
+                    
+                    <div class="star-rating-input">
+                        <input type="radio" name="note" value="5" id="star5" required>
+                        <label for="star5" title="Excellent">★</label>
+                        <input type="radio" name="note" value="4" id="star4">
+                        <label for="star4" title="Très bien">★</label>
+                        <input type="radio" name="note" value="3" id="star3">
+                        <label for="star3" title="Bien">★</label>
+                        <input type="radio" name="note" value="2" id="star2">
+                        <label for="star2" title="Décevant">★</label>
+                        <input type="radio" name="note" value="1" id="star1">
+                        <label for="star1" title="Très décevant">★</label>
+                    </div>
+                    
+                    <div id="rating-text" class="text-sm text-gray-500 mt-2"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Titre -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.titre.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.titre.label }}
+                        </label>
+                        {{ form.titre }}
+                        {% if form.titre.help_text %}
+                        <p class="text-sm text-gray-500 mt-1">{{ form.titre.help_text }}</p>
+                        {% endif %}
+                        {% if form.titre.errors %}
+                        <div class="text-red-600 text-sm mt-1">{{ form.titre.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Date de séjour -->
+                    <div>
+                        <label for="{{ form.date_sejour.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.date_sejour.label }}
+                        </label>
+                        {{ form.date_sejour }}
+                        {% if form.date_sejour.help_text %}
+                        <p class="text-sm text-gray-500 mt-1">{{ form.date_sejour.help_text }}</p>
+                        {% endif %}
+                        {% if form.date_sejour.errors %}
+                        <div class="text-red-600 text-sm mt-1">{{ form.date_sejour.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Durée du séjour -->
+                    <div>
+                        <label for="{{ form.duree_sejour.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.duree_sejour.label }}
+                        </label>
+                        {{ form.duree_sejour }}
+                        {% if form.duree_sejour.help_text %}
+                        <p class="text-sm text-gray-500 mt-1">{{ form.duree_sejour.help_text }}</p>
+                        {% endif %}
+                        {% if form.duree_sejour.errors %}
+                        <div class="text-red-600 text-sm mt-1">{{ form.duree_sejour.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Commentaire -->
+                <div class="mb-6">
+                    <label for="{{ form.commentaire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.commentaire.label }}
+                    </label>
+                    {{ form.commentaire }}
+                    <div class="flex justify-between items-center mt-1">
+                        <div>
+                            {% if form.commentaire.help_text %}
+                            <p class="text-sm text-gray-500">{{ form.commentaire.help_text }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <span id="char-count">0</span>/2000 caractères
+                        </div>
+                    </div>
+                    {% if form.commentaire.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.commentaire.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Recommandation -->
+                <div class="mb-6">
+                    <div class="flex items-center">
+                        {{ form.recommande }}
+                        <label for="{{ form.recommande.id_for_label }}" class="ml-3 text-sm font-medium text-gray-700">
+                            {{ form.recommande.label }}
+                        </label>
+                    </div>
+                    {% if form.recommande.help_text %}
+                    <p class="text-sm text-gray-500 mt-1 ml-8">{{ form.recommande.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Photos -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-camera mr-2 text-gray-500"></i>
+                        Ajouter des photos (optionnel)
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Ajoutez jusqu'à 5 photos pour illustrer votre expérience
+                    </p>
+
+                    <!-- Formset pour les photos -->
+                    {{ photo_formset.management_form }}
+                    <div id="photo-forms">
+                        {% for form_photo in photo_formset %}
+                        <div class="photo-form border border-gray-200 rounded-lg p-4 mb-4">
+                            {% if form_photo.instance.pk %}
+                            {{ form_photo.DELETE }}
+                            {% endif %}
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Photo</label>
+                                    {{ form_photo.image }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Légende</label>
+                                    {{ form_photo.legende }}
+                                </div>
+                            </div>
+                            
+                            {% if form_photo.instance.pk and form_photo.instance.image %}
+                            <div class="mt-4">
+                                <img src="{{ form_photo.instance.image.url }}" alt="" class="w-32 h-24 object-cover rounded">
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="button" id="add-photo" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        <i class="fas fa-plus mr-1"></i>Ajouter une photo
+                    </button>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t">
+                    <a href="{% url 'avis:avis_list' maison.slug %}" 
+                       class="text-gray-600 hover:text-gray-800 font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i>Retour aux avis
+                    </a>
+                    
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="saveDraft()" 
+                                class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+                            <i class="fas fa-save mr-2"></i>Sauvegarder brouillon
+                        </button>
+                        <button type="submit" 
+                                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                            <i class="fas fa-paper-plane mr-2"></i>Publier mon avis
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Conseils pour un bon avis -->
+        <div class="mt-8 bg-blue-50 rounded-lg border border-blue-200 p-6">
+            <h3 class="text-lg font-semibold text-blue-900 mb-4">
+                <i class="fas fa-lightbulb mr-2"></i>Conseils pour un avis utile
+            </h3>
+            <ul class="space-y-2 text-sm text-blue-800">
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mr-2 mt-0.5"></i>
+                    Soyez précis et détaillé dans vos commentaires
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mr-2 mt-0.5"></i>
+                    Mentionnez ce qui vous a plu et les points à améliorer
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mr-2 mt-0.5"></i>
+                    Ajoutez des photos pour illustrer votre expérience
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mr-2 mt-0.5"></i>
+                    Restez respectueux et constructif
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gestion des étoiles interactives
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star-rating-input label');
+    const ratingText = document.getElementById('rating-text');
+    const ratings = {
+        5: 'Excellent - Vous recommandez vivement cette maison',
+        4: 'Très bien - Vous avez passé un excellent séjour',
+        3: 'Bien - Votre séjour s\'est bien passé dans l\'ensemble',
+        2: 'Décevant - Quelques aspects pourraient être améliorés',
+        1: 'Très décevant - Votre séjour ne s\'est pas bien passé'
+    };
+
+    stars.forEach(star => {
+        star.addEventListener('mouseover', function() {
+            const value = this.getAttribute('for').replace('star', '');
+            ratingText.textContent = ratings[value];
+            ratingText.className = 'text-sm text-gray-700 mt-2 font-medium';
+        });
+
+        star.addEventListener('click', function() {
+            const value = this.getAttribute('for').replace('star', '');
+            ratingText.textContent = ratings[value];
+            ratingText.className = 'text-sm text-blue-600 mt-2 font-medium';
+        });
+    });
+
+    document.querySelector('.star-rating-input').addEventListener('mouseleave', function() {
+        const checked = document.querySelector('.star-rating-input input:checked');
+        if (checked) {
+            const value = checked.value;
+            ratingText.textContent = ratings[value];
+            ratingText.className = 'text-sm text-blue-600 mt-2 font-medium';
+        } else {
+            ratingText.textContent = '';
+        }
+    });
+});
+
+// Compteur de caractères pour le commentaire
+const commentaireField = document.querySelector('textarea[name="commentaire"]');
+const charCount = document.getElementById('char-count');
+
+if (commentaireField && charCount) {
+    commentaireField.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count;
+        
+        if (count > 2000) {
+            charCount.parentElement.classList.add('text-red-600');
+        } else if (count > 1800) {
+            charCount.parentElement.classList.add('text-yellow-600');
+        } else {
+            charCount.parentElement.classList.remove('text-red-600', 'text-yellow-600');
+        }
+    });
+
+    // Initialiser le compteur
+    charCount.textContent = commentaireField.value.length;
+}
+
+// Gestion du formset photos
+let photoFormCount = parseInt(document.querySelector('#id_form-TOTAL_FORMS').value);
+const addPhotoBtn = document.getElementById('add-photo');
+const photoFormsContainer = document.getElementById('photo-forms');
+
+addPhotoBtn.addEventListener('click', function() {
+    if (photoFormCount >= 5) {
+        alert('Vous ne pouvez ajouter que 5 photos maximum.');
+        return;
+    }
+
+    const emptyFormTemplate = document.querySelector('.photo-form').cloneNode(true);
+    const formRegex = RegExp(`form-(\\d){1}-`, 'g');
+    
+    emptyFormTemplate.innerHTML = emptyFormTemplate.innerHTML.replace(formRegex, `form-${photoFormCount}-`);
+    emptyFormTemplate.querySelectorAll('input, select, textarea').forEach(field => {
+        field.value = '';
+        field.checked = false;
+    });
+
+    photoFormsContainer.appendChild(emptyFormTemplate);
+    photoFormCount++;
+    document.querySelector('#id_form-TOTAL_FORMS').value = photoFormCount;
+
+    // Masquer le bouton si on atteint la limite
+    if (photoFormCount >= 5) {
+        addPhotoBtn.style.display = 'none';
+    }
+});
+
+// Sauvegarder brouillon (localStorage)
+function saveDraft() {
+    const formData = {
+        note: document.querySelector('input[name="note"]:checked')?.value || '',
+        titre: document.querySelector('input[name="titre"]').value,
+        commentaire: document.querySelector('textarea[name="commentaire"]').value,
+        date_sejour: document.querySelector('input[name="date_sejour"]').value,
+        duree_sejour: document.querySelector('input[name="duree_sejour"]').value,
+        recommande: document.querySelector('input[name="recommande"]').checked
+    };
+
+    localStorage.setItem('avis_draft_{{ maison.id }}', JSON.stringify(formData));
+    
+    // Afficher notification
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+    notification.textContent = 'Brouillon sauvegardé !';
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Charger brouillon au chargement de la page
+window.addEventListener('load', function() {
+    const draft = localStorage.getItem('avis_draft_{{ maison.id }}');
+    if (draft) {
+        const formData = JSON.parse(draft);
+        
+        if (confirm('Un brouillon a été trouvé. Voulez-vous le charger ?')) {
+            if (formData.note) {
+                document.querySelector(`input[name="note"][value="${formData.note}"]`).checked = true;
+            }
+            if (formData.titre) {
+                document.querySelector('input[name="titre"]').value = formData.titre;
+            }
+            if (formData.commentaire) {
+                document.querySelector('textarea[name="commentaire"]').value = formData.commentaire;
+                // Mettre à jour le compteur
+                charCount.textContent = formData.commentaire.length;
+            }
+            if (formData.date_sejour) {
+                document.querySelector('input[name="date_sejour"]').value = formData.date_sejour;
+            }
+            if (formData.duree_sejour) {
+                document.querySelector('input[name="duree_sejour"]').value = formData.duree_sejour;
+            }
+            document.querySelector('input[name="recommande"]').checked = formData.recommande;
+        }
+    }
+});
+
+// Supprimer le brouillon après soumission réussie
+document.getElementById('avisForm').addEventListener('submit', function() {
+    localStorage.removeItem('avis_draft_{{ maison.id }}');
+});
+
+// Validation côté client
+document.getElementById('avisForm').addEventListener('submit', function(e) {
+    const note = document.querySelector('input[name="note"]:checked');
+    const titre = document.querySelector('input[name="titre"]').value.trim();
+    const commentaire = document.querySelector('textarea[name="commentaire"]').value.trim();
+
+    if (!note) {
+        e.preventDefault();
+        alert('Veuillez donner une note à cette maison.');
+        return;
+    }
+
+    if (titre.length < 5) {
+        e.preventDefault();
+        alert('Le titre doit contenir au moins 5 caractères.');
+        return;
+    }
+
+    if (commentaire.length < 10) {
+        e.preventDefault();
+        alert('Le commentaire doit contenir au moins 10 caractères.');
+        return;
+    }
+
+    if (commentaire.length > 2000) {
+        e.preventDefault();
+        alert('Le commentaire ne peut pas dépasser 2000 caractères.');
+        return;
+    }
+});
+</script>
+{% endblock %}

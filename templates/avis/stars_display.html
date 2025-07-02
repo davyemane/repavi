@@ -1,0 +1,20 @@
+<!-- avis/templates/avis/stars_display.html -->
+<div class="flex items-center">
+    <div class="flex">
+        {% for star in full_stars %}
+            <i class="fas fa-star text-yellow-400 text-sm"></i>
+        {% endfor %}
+        
+        {% if half_star %}
+            <i class="fas fa-star-half-alt text-yellow-400 text-sm"></i>
+        {% endif %}
+        
+        {% for star in empty_stars %}
+            <i class="far fa-star text-gray-300 text-sm"></i>
+        {% endfor %}
+    </div>
+    
+    {% if show_number and note > 0 %}
+        <span class="ml-1 text-sm font-medium text-gray-700">{{ note|floatformat:1 }}</span>
+    {% endif %}
+</div>

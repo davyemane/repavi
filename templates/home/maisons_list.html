@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load avis_extras %}
+
 
 {% block title %}Nos Maisons - RepAvi{% endblock %}
 
@@ -21,6 +23,12 @@
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -68,7 +76,7 @@
                 </div>
                 
                 <!-- Filtres en grille responsive -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div>
                         <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>
@@ -113,16 +121,27 @@
                         </select>
                     </div>
                     
+                    <!-- NOUVEAU : Filtre par note -->
+                    <div>
+                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-star text-blue-500 mr-2"></i>
+                            Note minimum
+                        </label>
+                        <select name="note_min" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white">
+                            <option value="">Toutes les notes</option>
+                            <option value="4" {% if current_filters.note_min == "4" %}selected{% endif %}>4+ étoiles</option>
+                            <option value="3" {% if current_filters.note_min == "3" %}selected{% endif %}>3+ étoiles</option>
+                            <option value="2" {% if current_filters.note_min == "2" %}selected{% endif %}>2+ étoiles</option>
+                        </select>
+                    </div>
+                    
                     <div class="sm:col-span-2 lg:col-span-1">
-                        
-                        <label class="block text-sm font-medium text-blue-700 mb-2 opacity-0">Actions new</label>
+                        <label class="block text-sm font-medium text-blue-700 mb-2 opacity-0">Actions</label>
                         <div class="grid grid-cols-2 gap-2">
-                           
                             <a href="{% url 'home:maisons_list' %}" 
-                               class="bg-gray-200 text-gray-700 px-1 py-2  rounded-xl font-medium hover:bg-gray-300 transition-colors text-center">
+                               class="bg-gray-200 text-gray-700 px-1 py-2 rounded-xl font-medium hover:bg-gray-300 transition-colors text-center">
                                 <i class="fas fa-undo mr-1"></i>
                                 <span class="hidden sm:inline">Reset</span>
-                                
                             </a>
                             <button type="submit" 
                                 class="bg-blue-800 text-white px-5 py-2 rounded-xl font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center">
@@ -152,6 +171,7 @@
                                 <option value="">Pertinence</option>
                                 <option value="prix_asc" {% if current_filters.sort == "prix_asc" %}selected{% endif %}>Prix croissant</option>
                                 <option value="prix_desc" {% if current_filters.sort == "prix_desc" %}selected{% endif %}>Prix décroissant</option>
+                                <option value="-note_moyenne" {% if current_filters.sort == "-note_moyenne" %}selected{% endif %}>Mieux notées</option>
                                 <option value="recent" {% if current_filters.sort == "recent" %}selected{% endif %}>Plus récentes</option>
                             </select>
                         </div>
@@ -183,7 +203,7 @@
                     </p>
                 </div>
 
-                <!-- Grille des maisons -->
+                <!-- Grille des maisons avec avis intégrés -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                     {% for maison in maisons %}
                     <div class="bg-white rounded-2xl overflow-hidden soft-shadow hover-lift">
@@ -206,6 +226,25 @@
                             </div>
                             {% endif %}
                             
+                            <!-- NOUVEAU : Badge note moyenne sur l'image -->
+                            {% if maison.note_moyenne > 0 %}
+                            <div class="absolute bottom-4 left-4">
+                                <div class="bg-white/95 px-3 py-1 rounded-full backdrop-blur-sm flex items-center space-x-1">
+                                    <div class="flex">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= maison.note_moyenne|floatformat:0 %}
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-gray-300 text-xs"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <span class="text-xs font-medium text-gray-700">{{ maison.note_moyenne|floatformat:1 }}</span>
+                                    <span class="text-xs text-gray-500">({{ maison.nombre_avis }})</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
                             <div class="absolute top-4 right-4">
                                 <button class="bg-white/90 p-2 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
                                     <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
@@ -214,8 +253,50 @@
                         </div>
                         
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ maison.nom }}</h3>
+                            <!-- NOUVEAU : Titre avec note à droite -->
+                            <div class="flex items-start justify-between mb-2">
+                                <h3 class="text-xl font-semibold text-gray-900 flex-1">{{ maison.nom }}</h3>
+                                {% if maison.note_moyenne > 0 %}
+                                <div class="flex items-center ml-3 flex-shrink-0">
+                                    <i class="fas fa-star text-yellow-400 text-sm mr-1"></i>
+                                    <span class="text-sm font-medium text-gray-700">{{ maison.note_moyenne|floatformat:1 }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
                             <p class="text-gray-600 mb-4 line-clamp-2">{{ maison.description|truncatewords:12 }}</p>
+                            
+                            <!-- NOUVEAU : Section avis récents -->
+                            {% if maison.avis_recents %}
+                            <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-quote-left text-blue-600 text-sm mr-2"></i>
+                                    <span class="text-sm font-medium text-gray-700">Dernier avis</span>
+                                </div>
+                                {% with maison.avis_recents.0 as dernier_avis %}
+                                <p class="text-sm text-gray-600 italic mb-2">"{{ dernier_avis.commentaire|truncatewords:12 }}"</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                                            <span class="text-blue-600 font-medium text-xs">
+                                                {{ dernier_avis.client.first_name.0 }}
+                                            </span>
+                                        </div>
+                                        <span class="text-xs text-gray-500">{{ dernier_avis.client.first_name }}</span>
+                                    </div>
+                                    <div class="flex">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= dernier_avis.note %}
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-gray-300 text-xs"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endwith %}
+                            </div>
+                            {% endif %}
                             
                             <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
                                 <div class="flex items-center">
@@ -228,15 +309,45 @@
                                 </div>
                             </div>
                             
+                            <!-- NOUVEAU : Statistiques d'avis étendues -->
+                            {% if maison.nombre_avis > 0 %}
+                            <div class="flex items-center justify-between text-xs text-gray-500 mb-4 p-2 bg-blue-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-comments text-blue-600 mr-1"></i>
+                                    <span>{{ maison.nombre_avis }} avis</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-thumbs-up text-green-600 mr-1"></i>
+                                    <span>Très apprécié</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
                             <div class="flex items-center justify-between">
                                 <div class="text-2xl font-bold text-gray-900">
                                     {{ maison.prix_par_nuit }}€
                                     <span class="text-sm font-normal text-gray-500">/nuit</span>
                                 </div>
-                                <a href="{% url 'home:maison_detail' maison.slug %}" 
-                                   class="bg-blue-800 text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
-                                    Voir détails
-                                </a>
+                                
+                                <!-- NOUVEAU : Boutons avec avis -->
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'home:maison_detail' maison.slug %}" 
+                                       class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-300 transition-colors">
+                                        Détails
+                                    </a>
+                                    
+                                    {% if maison.nombre_avis > 0 %}
+                                        <a href="{% url 'avis:avis_list' maison.slug %}" 
+                                           class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-200 transition-colors flex items-center">
+                                            <i class="fas fa-star mr-1 text-xs"></i>Avis
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'home:maison_detail' maison.slug %}" 
+                                           class="bg-blue-800 text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
+                                            Voir détails
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -300,14 +411,14 @@
         </div>
     </section>
 
-    <!-- Call to action pour encourager la réservation -->
+    <!-- Call to action avec mention des avis -->
     {% if maisons %}
     <section class="py-16 bg-white">
         <div class="max-w-4xl mx-auto px-4 text-center">
             <div class="bg-gray-900 rounded-3xl p-8 md:p-12 text-white">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4">Une maison vous plaît ?</h2>
                 <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                    Réservez dès maintenant ou contactez-nous pour plus d'informations
+                    Découvrez les avis de nos clients ou contactez-nous pour plus d'informations
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="{% url 'home:contact' %}"

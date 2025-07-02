@@ -1,511 +1,844 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load avis_extras %}
 
 {% block title %}{{ maison.nom }} - RepAvi{% endblock %}
 
+{% block extra_css %}
+<style>
+.glass-effect {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.soft-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.subtle-border {
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.loading {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-    <!-- Navigation -->
-    <nav class="glass-effect border-b border-white/20 fixed w-full z-50">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="{% url 'home:index' %}" class="text-2xl font-bold text-gray-800">RepAvi</a>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{% url 'home:index' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
-                    <a href="{% url 'home:maisons_list' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
-                    {% if reservations_available %}
-                        <a href="{% url 'home:maisons_reservation' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Réserver</a>
-                    {% endif %}
-                    <a href="{% url 'home:apropos' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">À propos</a>
-                    <a href="{% url 'home:contact' %}" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Contact</a>
-                </div>
+<!-- Navigation -->
+<nav class="glass-effect border-b border-white/20 fixed w-full z-50">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center">
+                <a href="{% url 'home:index' %}" class="text-2xl font-bold text-gray-800">RepAvi</a>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="{% url 'home:index' %}"
+                    class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Accueil</a>
+                <a href="{% url 'home:maisons_list' %}"
+                    class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Maisons</a>
+                {% if reservations_available %}
+                <a href="{% url 'home:maisons_reservation' %}"
+                    class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Réserver</a>
+                {% endif %}
+                <a href="{% url 'home:apropos' %}"
+                    class="text-gray-600 hover:text-gray-900 font-medium transition-colors">À propos</a>
+                <a href="{% url 'home:contact' %}"
+                    class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Contact</a>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Contenu principal -->
-    <div class="pt-16 bg-gray-50 min-h-screen">
-        <div class="max-w-6xl mx-auto px-4 py-8">
-            <!-- Breadcrumb -->
-            <nav class="mb-8">
-                <ol class="flex items-center space-x-2 text-sm text-gray-500">
-                    <li><a href="{% url 'home:index' %}" class="hover:text-gray-700 transition-colors">Accueil</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    {% if reservations_available %}
-                        <li><a href="{% url 'home:maisons_reservation' %}" class="hover:text-gray-700 transition-colors">Réserver</a></li>
-                        <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    {% else %}
-                        <li><a href="{% url 'home:maisons_list' %}" class="hover:text-gray-700 transition-colors">Maisons</a></li>
-                        <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    {% endif %}
-                    <li class="text-gray-900 font-medium">{{ maison.nom }}</li>
-                </ol>
-            </nav>
+<!-- Contenu principal -->
+<div class="pt-16 bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-sm text-gray-500">
+                <li><a href="{% url 'home:index' %}" class="hover:text-gray-700 transition-colors">Accueil</a></li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                {% if reservations_available %}
+                <li><a href="{% url 'home:maisons_reservation' %}"
+                        class="hover:text-gray-700 transition-colors">Réserver</a></li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                {% else %}
+                <li><a href="{% url 'home:maisons_list' %}" class="hover:text-gray-700 transition-colors">Maisons</a>
+                </li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                {% endif %}
+                <li class="text-gray-900 font-medium">{{ maison.nom }}</li>
+            </ol>
+        </nav>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Colonne principale -->
-                <div class="lg:col-span-2 space-y-8">
-                    <!-- Galerie photos -->
-                    <div class="bg-white rounded-2xl overflow-hidden soft-shadow">
-                        {% if photos %}
-                            <div class="relative">
-                                <img id="main-photo" 
-                                     src="{{ photos.0.image.url }}" 
-                                     alt="{{ maison.nom }}" 
-                                     class="w-full h-96 object-cover">
-                                
-                                {% if maison.categorie %}
-                                <div class="absolute top-6 left-6">
-                                    <span class="bg-white/90 text-gray-700 px-4 py-2 rounded-full font-medium backdrop-blur-sm">
-                                        {{ maison.categorie.nom }}
-                                    </span>
-                                </div>
-                                {% endif %}
-                                
-                                <!-- Statut de disponibilité -->
-                                <div class="absolute top-6 right-6">
-                                    {% if disponible_reservation %}
-                                        <span class="bg-green-500 text-white px-4 py-2 rounded-full font-medium backdrop-blur-sm">
-                                            <i class="fas fa-check mr-2"></i>Disponible
-                                        </span>
-                                    {% elif reservations_available %}
-                                        <span class="bg-red-500 text-white px-4 py-2 rounded-full font-medium backdrop-blur-sm">
-                                            <i class="fas fa-times mr-2"></i>Occupée
-                                        </span>
-                                    {% else %}
-                                        <button class="bg-white/90 p-3 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
-                                            <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
-                                        </button>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            {% if photos|length > 1 %}
-                            <div class="p-6">
-                                <div class="grid grid-cols-4 gap-3">
-                                    {% for photo in photos %}
-                                    <img src="{{ photo.image.url }}" 
-                                         alt="{{ photo.titre }}" 
-                                         class="w-full h-20 object-cover rounded-lg cursor-pointer opacity-70 hover:opacity-100 transition-opacity border-2 border-transparent hover:border-gray-300"
-                                         onclick="changeMainPhoto('{{ photo.image.url }}')">
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endif %}
-                        {% else %}
-                            <div class="w-full h-96 bg-gray-100 flex items-center justify-center">
-                                <i class="fas fa-home text-6xl text-gray-300"></i>
-                            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Colonne principale -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Galerie photos -->
+                <div class="bg-white rounded-2xl overflow-hidden soft-shadow">
+                    {% if photos %}
+                    <div class="relative">
+                        <img id="main-photo" src="{{ photos.0.image.url }}" alt="{{ maison.nom }}"
+                            class="w-full h-96 object-cover">
+
+                        {% if maison.categorie %}
+                        <div class="absolute top-6 left-6">
+                            <span class="bg-white/90 text-gray-700 px-4 py-2 rounded-full font-medium backdrop-blur-sm">
+                                {{ maison.categorie.nom }}
+                            </span>
+                        </div>
                         {% endif %}
-                    </div>
 
-                    <!-- Informations de la maison -->
-                    <div class="bg-white rounded-2xl p-8 soft-shadow">
-                        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ maison.nom }}</h1>
-                        
-                        <div class="flex items-center text-gray-600 mb-8">
-                            <i class="fas fa-map-marker-alt mr-2"></i>
-                            <span class="font-medium">{{ maison.adresse }}, {{ maison.ville }}</span>
-                        </div>
-
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <i class="fas fa-users text-indigo-600 text-2xl mb-3"></i>
-                                <div class="font-bold text-lg text-gray-900">{{ maison.capacite_personnes }}</div>
-                                <div class="text-sm text-gray-600">Personnes</div>
-                            </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <i class="fas fa-bed text-indigo-600 text-2xl mb-3"></i>
-                                <div class="font-bold text-lg text-gray-900">{{ maison.nombre_chambres }}</div>
-                                <div class="text-sm text-gray-600">Chambres</div>
-                            </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <i class="fas fa-bath text-indigo-600 text-2xl mb-3"></i>
-                                <div class="font-bold text-lg text-gray-900">{{ maison.nombre_salles_bain }}</div>
-                                <div class="text-sm text-gray-600">Salles de bain</div>
-                            </div>
-                            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                                <i class="fas fa-expand-arrows-alt text-indigo-600 text-2xl mb-3"></i>
-                                <div class="font-bold text-lg text-gray-900">{{ maison.superficie }}m²</div>
-                                <div class="text-sm text-gray-600">Surface</div>
+                        <!-- Badge note moyenne -->
+                        {% if maison|get_note_moyenne > 0 %}
+                        <div class="absolute bottom-6 left-6">
+                            <div class="bg-white/95 px-4 py-2 rounded-full backdrop-blur-sm flex items-center space-x-2">
+                                {% display_stars maison|get_note_moyenne False %}
+                                <span class="font-medium text-gray-700">{{ maison|get_note_moyenne|floatformat:1 }}</span>
+                                <span class="text-gray-500">({{ maison|get_nombre_avis }})</span>
                             </div>
                         </div>
+                        {% endif %}
 
-                        <div class="border-t border-gray-100 pt-8">
-                            <h2 class="text-2xl font-bold text-gray-900 mb-4">Description</h2>
-                            <p class="text-gray-600 leading-relaxed text-lg">{{ maison.description }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Équipements -->
-                    <div class="bg-white rounded-2xl p-8 soft-shadow">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Équipements inclus</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                            {% if maison.wifi %}
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="fas fa-wifi text-green-600"></i>
-                                </div>
-                                <span class="text-gray-700 font-medium">WiFi gratuit</span>
-                            </div>
-                            {% endif %}
-                            {% if maison.parking %}
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="fas fa-car text-green-600"></i>
-                                </div>
-                                <span class="text-gray-700 font-medium">Parking privé</span>
-                            </div>
-                            {% endif %}
-                            {% if maison.piscine %}
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="fas fa-swimmer text-green-600"></i>
-                                </div>
-                                <span class="text-gray-700 font-medium">Piscine</span>
-                            </div>
-                            {% endif %}
-                            {% if maison.jardin %}
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="fas fa-tree text-green-600"></i>
-                                </div>
-                                <span class="text-gray-700 font-medium">Jardin privé</span>
-                            </div>
-                            {% endif %}
-                            {% if maison.climatisation %}
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="fas fa-snowflake text-green-600"></i>
-                                </div>
-                                <span class="text-gray-700 font-medium">Climatisation</span>
-                            </div>
-                            {% endif %}
-                            {% if maison.lave_vaisselle %}
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="fas fa-utensils text-green-600"></i>
-                                </div>
-                                <span class="text-gray-700 font-medium">Lave-vaisselle</span>
-                            </div>
-                            {% endif %}
-                            {% if maison.machine_laver %}
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="fas fa-tshirt text-green-600"></i>
-                                </div>
-                                <span class="text-gray-700 font-medium">Lave-linge</span>
-                            </div>
+                        <!-- Statut de disponibilité -->
+                        <div class="absolute top-6 right-6">
+                            {% if disponible_reservation %}
+                            <span class="bg-green-500 text-white px-4 py-2 rounded-full font-medium backdrop-blur-sm">
+                                <i class="fas fa-check mr-2"></i>Disponible
+                            </span>
+                            {% elif reservations_available %}
+                            <span class="bg-red-500 text-white px-4 py-2 rounded-full font-medium backdrop-blur-sm">
+                                <i class="fas fa-times mr-2"></i>Occupée
+                            </span>
+                            {% else %}
+                            <button
+                                class="bg-white/90 p-3 rounded-full hover:bg-white transition-colors backdrop-blur-sm">
+                                <i class="fas fa-heart text-gray-400 hover:text-red-500 transition-colors"></i>
+                            </button>
                             {% endif %}
                         </div>
                     </div>
 
-                    <!-- Disponibilité et réservations (pour gestionnaires) -->
-                    {% if reservations_available and can_manage and prochaines_reservations %}
-                    <div class="bg-white rounded-2xl p-8 soft-shadow">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Prochaines réservations</h2>
-                        <div class="space-y-4">
-                            {% for reservation in prochaines_reservations %}
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                <div>
-                                    <div class="font-semibold text-gray-900">{{ reservation.client.get_full_name }}</div>
-                                    <div class="text-sm text-gray-600">
-                                        {{ reservation.date_debut }} → {{ reservation.date_fin }}
-                                        ({{ reservation.nombre_nuits }} nuit{{ reservation.nombre_nuits|pluralize }})
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <span class="px-3 py-1 rounded-full text-sm font-medium
-                                        {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
-                                        {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
-                                        {% endif %}">
-                                        {{ reservation.get_statut_display }}
-                                    </span>
-                                    <a href="{% url 'reservations:detail' reservation.numero %}" 
-                                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                        Gérer →
-                                    </a>
-                                </div>
-                            </div>
+                    {% if photos|length > 1 %}
+                    <div class="p-6">
+                        <div class="grid grid-cols-4 gap-3">
+                            {% for photo in photos %}
+                            <img src="{{ photo.image.url }}" alt="{{ photo.titre }}"
+                                class="w-full h-20 object-cover rounded-lg cursor-pointer opacity-70 hover:opacity-100 transition-opacity border-2 border-transparent hover:border-gray-300"
+                                onclick="changeMainPhoto('{{ photo.image.url }}')">
                             {% endfor %}
                         </div>
                     </div>
                     {% endif %}
-                </div>
-
-                <!-- Sidebar réservation -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-2xl p-6 soft-shadow sticky top-24">
-                        <div class="text-center mb-6">
-                            <div class="text-3xl font-bold text-gray-900">{{ maison.prix_par_nuit }}€</div>
-                            <div class="text-gray-600">par nuit</div>
-                        </div>
-
-                        {% if reservations_available and disponible_reservation %}
-                            <!-- Formulaire de réservation -->
-                            <form id="reservation-form" method="get" action="{% url 'home:initier_reservation' maison.slug %}" class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date d'arrivée</label>
-                                    <input type="date" name="date_debut" id="date_debut"
-                                           class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                           min="{% now 'Y-m-d' %}" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date de départ</label>
-                                    <input type="date" name="date_fin" id="date_fin"
-                                           class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                           min="{% now 'Y-m-d' %}" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Voyageurs</label>
-                                    <select name="nombre_personnes" id="nombre_personnes" 
-                                            class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        {% for i in "123456789"|make_list %}
-                                            {% if i|add:0 <= maison.capacite_personnes %}
-                                            <option value="{{ i }}">{{ i }} voyageur{{ i|pluralize }}</option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                
-                                <!-- Calcul du prix en temps réel -->
-                                <div id="price-calculation" class="hidden p-4 bg-blue-50 rounded-lg">
-                                    <div class="flex justify-between text-sm mb-2">
-                                        <span>Prix par nuit:</span>
-                                        <span>{{ maison.prix_par_nuit }}€</span>
-                                    </div>
-                                    <div class="flex justify-between text-sm mb-2">
-                                        <span id="nights-text">Nombre de nuits:</span>
-                                        <span id="nights-count">0</span>
-                                    </div>
-                                    <div class="border-t pt-2">
-                                        <div class="flex justify-between font-semibold">
-                                            <span>Total estimé:</span>
-                                            <span id="total-price" class="text-blue-600">0€</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {% if user.is_authenticated and can_reserve %}
-                                    <button type="submit" 
-                                            class="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
-                                        <i class="fas fa-calendar-plus mr-2"></i>Réserver maintenant
-                                    </button>
-                                {% else %}
-                                    <a href="{% url 'users:login' %}?next={% url 'home:maison_detail' maison.slug %}" 
-                                       class="block w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-center">
-                                        <i class="fas fa-user mr-2"></i>Connectez-vous pour réserver
-                                    </a>
-                                {% endif %}
-                            </form>
-                            
-                            <!-- Vérification de disponibilité -->
-                            <div id="availability-check" class="hidden mt-4 p-3 rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="loading mr-3"></div>
-                                    <span class="text-sm text-gray-600">Vérification de la disponibilité...</span>
-                                </div>
-                            </div>
-
-                        {% elif reservations_available %}
-                            <!-- Maison non disponible -->
-                            <div class="text-center">
-                                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-times text-2xl text-red-600"></i>
-                                </div>
-                                <h3 class="font-semibold text-gray-900 mb-2">Non disponible</h3>
-                                <p class="text-gray-600 text-sm mb-4">Cette maison est actuellement occupée</p>
-                                
-                                {% if prochaines_reservations %}
-                                <div class="text-left">
-                                    <h4 class="font-medium text-gray-700 mb-2">Prochaine disponibilité:</h4>
-                                    {% for reservation in prochaines_reservations|slice:":1" %}
-                                        <p class="text-sm text-gray-600">
-                                            À partir du {{ reservation.date_fin|date:"d/m/Y" }}
-                                        </p>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                                
-                                <a href="{% url 'home:maisons_reservation' %}" 
-                                   class="block w-full bg-gray-600 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-colors mt-4">
-                                    Voir d'autres maisons
-                                </a>
-                            </div>
-                        {% else %}
-                            <!-- Système de réservation non disponible -->
-                            <div class="text-center">
-                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-phone text-2xl text-gray-600"></i>
-                                </div>
-                                <h3 class="font-semibold text-gray-900 mb-2">Contactez-nous</h3>
-                                <p class="text-gray-600 text-sm mb-4">Pour réserver cette maison, contactez directement notre équipe</p>
-                                
-                                <a href="{% url 'home:contact' %}" 
-                                   class="block w-full bg-gray-900 text-white py-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors">
-                                    Nous contacter
-                                </a>
-                            </div>
-                        {% endif %}
-
-                        <div class="mt-6 pt-6 border-t border-gray-100">
-                            <div class="flex items-center justify-center text-gray-600">
-                                <i class="fas fa-shield-alt mr-2 text-green-600"></i>
-                                <span class="text-sm font-medium">Paiement sécurisé</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contact gestionnaire (pour clients) -->
-                    {% if gestionnaire_info %}
-                    <div class="bg-gray-900 rounded-2xl p-6 mt-6 text-white">
-                        <h3 class="font-bold text-lg mb-3">Contacter le gestionnaire</h3>
-                        <div class="space-y-2 mb-4">
-                            <p class="text-gray-300 text-sm">{{ gestionnaire_info.nom }}</p>
-                            {% if gestionnaire_info.telephone %}
-                                <p class="text-gray-300 text-sm">
-                                    <i class="fas fa-phone mr-2"></i>{{ gestionnaire_info.telephone }}
-                                </p>
-                            {% endif %}
-                            {% if gestionnaire_info.email %}
-                                <p class="text-gray-300 text-sm">
-                                    <i class="fas fa-envelope mr-2"></i>{{ gestionnaire_info.email }}
-                                </p>
-                            {% endif %}
-                        </div>
-                        <a href="{% url 'home:contact' %}" 
-                           class="block w-full bg-white text-gray-900 py-3 rounded-xl text-center font-semibold hover:bg-gray-100 transition-colors">
-                            Envoyer un message
-                        </a>
+                    {% else %}
+                    <div class="w-full h-96 bg-gray-100 flex items-center justify-center">
+                        <i class="fas fa-home text-6xl text-gray-300"></i>
                     </div>
                     {% endif %}
                 </div>
+
+                <!-- Informations de la maison -->
+                <div class="bg-white rounded-2xl p-8 soft-shadow">
+                    <div class="flex items-start justify-between mb-4">
+                        <h1 class="text-3xl font-bold text-gray-900">{{ maison.nom }}</h1>
+                        <!-- Note compacte à droite du titre -->
+                        {% if maison|get_note_moyenne > 0 %}
+                        <div class="flex items-center ml-4">
+                            <i class="fas fa-star text-yellow-400 text-lg mr-2"></i>
+                            <span class="text-lg font-semibold text-gray-700">{{ maison|get_note_moyenne|floatformat:1 }}</span>
+                            <span class="text-gray-500 ml-1">({{ maison|get_nombre_avis }})</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-center text-gray-600 mb-8">
+                        <i class="fas fa-map-marker-alt mr-2"></i>
+                        <span class="font-medium">{{ maison.adresse }}, {{ maison.ville }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <i class="fas fa-users text-indigo-600 text-2xl mb-3"></i>
+                            <div class="font-bold text-lg text-gray-900">{{ maison.capacite_personnes }}</div>
+                            <div class="text-sm text-gray-600">Personnes</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <i class="fas fa-bed text-indigo-600 text-2xl mb-3"></i>
+                            <div class="font-bold text-lg text-gray-900">{{ maison.nombre_chambres }}</div>
+                            <div class="text-sm text-gray-600">Chambres</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <i class="fas fa-bath text-indigo-600 text-2xl mb-3"></i>
+                            <div class="font-bold text-lg text-gray-900">{{ maison.nombre_salles_bain }}</div>
+                            <div class="text-sm text-gray-600">Salles de bain</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-xl">
+                            <i class="fas fa-expand-arrows-alt text-indigo-600 text-2xl mb-3"></i>
+                            <div class="font-bold text-lg text-gray-900">{{ maison.superficie }}m²</div>
+                            <div class="text-sm text-gray-600">Surface</div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Description</h2>
+                        <p class="text-gray-600 leading-relaxed text-lg">{{ maison.description }}</p>
+                    </div>
+                </div>
+
+                <!-- Équipements -->
+                <div class="bg-white rounded-2xl p-8 soft-shadow">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Équipements inclus</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        {% if maison.wifi %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-wifi text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">WiFi gratuit</span>
+                        </div>
+                        {% endif %}
+                        {% if maison.parking %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-car text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">Parking privé</span>
+                        </div>
+                        {% endif %}
+                        {% if maison.piscine %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-swimmer text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">Piscine</span>
+                        </div>
+                        {% endif %}
+                        {% if maison.jardin %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-tree text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">Jardin privé</span>
+                        </div>
+                        {% endif %}
+                        {% if maison.climatisation %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-snowflake text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">Climatisation</span>
+                        </div>
+                        {% endif %}
+                        {% if maison.lave_vaisselle %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-utensils text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">Lave-vaisselle</span>
+                        </div>
+                        {% endif %}
+                        {% if maison.machine_laver %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-tshirt text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">Lave-linge</span>
+                        </div>
+                        {% endif %}
+                        {% if maison.balcon %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-building text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">Balcon</span>
+                        </div>
+                        {% endif %}
+                        {% if maison.terrasse %}
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-sun text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium">Terrasse</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Disponibilité et réservations (pour gestionnaires) -->
+                {% if reservations_available and can_manage and prochaines_reservations %}
+                <div class="bg-white rounded-2xl p-8 soft-shadow">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Prochaines réservations</h2>
+                    <div class="space-y-4">
+                        {% for reservation in prochaines_reservations %}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="font-semibold text-gray-900">{{ reservation.client.get_full_name }}</div>
+                                <div class="text-sm text-gray-600">
+                                    {{ reservation.date_debut }} → {{ reservation.date_fin }}
+                                    ({{ reservation.nombre_nuits }} nuit{{ reservation.nombre_nuits|pluralize }})
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-3 py-1 rounded-full text-sm font-medium
+                                        {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                        {% elif reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                                        {% endif %}">
+                                    {{ reservation.get_statut_display }}
+                                </span>
+                                <a href="{% url 'reservations:detail' reservation.numero %}"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Gérer →
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Avis clients -->
+                {% if avis_stats.total_avis > 0 or user.is_authenticated and user.is_client %}
+                <div class="bg-white rounded-2xl p-8 soft-shadow">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-star mr-3 text-yellow-500"></i>
+                            Avis clients
+                        </h2>
+
+                        {% if avis_stats.total_avis > 0 %}
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <div class="flex items-center">
+                                    {% display_stars avis_stats.note_moyenne True %}
+                                </div>
+                                <p class="text-sm text-gray-500">{{ avis_stats.total_avis }} avis</p>
+                            </div>
+
+                            {% if user.is_authenticated and user.is_client and not user_has_reviewed %}
+                            <a href="{% url 'avis:creer_avis' maison.slug %}"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-star mr-1"></i>Donner un avis
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if avis_stats.total_avis > 0 %}
+                    <!-- Statistiques rapides -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 p-4 bg-gray-50 rounded-xl">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ avis_stats.note_moyenne|floatformat:1 }}</div>
+                            <div class="text-sm text-gray-600">Note moyenne</div>
+                            <div class="flex justify-center mt-1">
+                                {% display_stars avis_stats.note_moyenne False %}
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-gray-900">{{ avis_stats.total_avis }}</div>
+                            <div class="text-sm text-gray-600">Total avis</div>
+                        </div>
+
+                        {% if pourcentage_recommandation > 0 %}
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600">{{ pourcentage_recommandation }}%</div>
+                            <div class="text-sm text-gray-600">Recommandent</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Répartition des notes -->
+                    {% if repartition_notes %}
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Répartition des notes</h3>
+                        <div class="space-y-3">
+                            {% for note_data in repartition_notes %}
+                            {% if note_data.count > 0 %}
+                            <div class="flex items-center">
+                                <span class="text-sm text-gray-600 w-16">{{ note_data.note }} étoile{{ note_data.note|pluralize }}</span>
+                                <div class="flex-1 bg-gray-200 rounded-full h-3 mx-4">
+                                    <div class="bg-yellow-400 h-3 rounded-full transition-all duration-500"
+                                        style="width: {{ note_data.pourcentage }}%"></div>
+                                </div>
+                                <span class="text-sm text-gray-500 w-12">{{ note_data.count }}</span>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Aperçu des avis récents -->
+                    <div class="space-y-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900">Avis récents</h3>
+
+                        {% for avis in avis_recents %}
+                        <div class="border-l-4 border-blue-200 pl-6 py-4 bg-gray-50 rounded-r-xl">
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span class="text-blue-600 font-semibold text-sm">
+                                            {{ avis.client.first_name.0 }}{{ avis.client.last_name.0 }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">{{ avis.client.first_name }}</div>
+                                        <div class="text-sm text-gray-500">{{ avis.date_creation|date:"d F Y" }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center">
+                                    {% display_stars avis.note False %}
+                                </div>
+                            </div>
+
+                            <h4 class="font-semibold text-gray-900 mb-2">{{ avis.titre }}</h4>
+                            <p class="text-gray-700 mb-3">{{ avis.commentaire|truncatewords:25 }}</p>
+
+                            <!-- Informations sur le séjour -->
+                            <div class="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                                {% if avis.date_sejour %}
+                                <span>
+                                    <i class="fas fa-calendar mr-1"></i>
+                                    {{ avis.date_sejour|date:"F Y" }}
+                                </span>
+                                {% endif %}
+                                {% if avis.duree_sejour %}
+                                <span>
+                                    <i class="fas fa-bed mr-1"></i>
+                                    {{ avis.duree_sejour }} nuit{{ avis.duree_sejour|pluralize }}
+                                </span>
+                                {% endif %}
+                                {% if avis.recommande %}
+                                <span class="text-green-600">
+                                    <i class="fas fa-thumbs-up mr-1"></i>
+                                    Recommande
+                                </span>
+                                {% endif %}
+                                {% if avis.photos.exists %}
+                                <span class="text-blue-600">
+                                    <i class="fas fa-camera mr-1"></i>
+                                    {{ avis.photos.count }} photo{{ avis.photos.count|pluralize }}
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Photos de l'avis -->
+                            {% if avis.photos.exists %}
+                            <div class="grid grid-cols-3 gap-2 mb-3">
+                                {% for photo in avis.photos.all|slice:":3" %}
+                                <img src="{{ photo.image.url }}" alt="{{ photo.legende }}"
+                                    class="w-full h-16 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                    onclick="openPhotoModal('{{ photo.image.url }}', '{{ photo.legende }}')">
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Réponse du gestionnaire -->
+                            {% if avis.reponse_gestionnaire %}
+                            <div class="mt-4 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-user-tie text-blue-600 mr-2"></i>
+                                    <span class="font-medium text-blue-900">Réponse du gestionnaire</span>
+                                    <span class="ml-2 text-sm text-blue-600">{{ avis.date_reponse|date:"d/m/Y" }}</span>
+                                </div>
+                                <p class="text-blue-800 text-sm">{{ avis.reponse_gestionnaire|truncatewords:20 }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Lien vers tous les avis -->
+                    <div class="text-center">
+                        <a href="{% url 'avis:avis_list' maison.slug %}"
+                            class="inline-flex items-center bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-comments mr-2"></i>
+                            Voir les {{ avis_stats.total_avis }} avis
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+
+                    {% else %}
+                    <!-- État vide - Premier avis -->
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-star text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium text-gray-900 mb-2">Aucun avis pour le moment</h3>
+                        <p class="text-gray-600 text-sm mb-6">
+                            Soyez le premier à partager votre expérience dans cette maison !
+                        </p>
+
+                        {% if user.is_authenticated and user.is_client %}
+                        <a href="{% url 'avis:creer_avis' maison.slug %}"
+                            class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-star mr-2"></i>
+                            Donner le premier avis
+                        </a>
+                        {% elif not user.is_authenticated %}
+                        <a href="{% url 'users:login' %}?next={% url 'avis:creer_avis' maison.slug %}"
+                            class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Se connecter pour donner un avis
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
 
-            <!-- Maisons similaires -->
-            {% if maisons_similaires %}
-            <div class="mt-20">
-                <h2 class="text-3xl font-bold text-gray-900 mb-8">Vous pourriez aussi aimer</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {% for maison_sim in maisons_similaires %}
-                    <div class="bg-white rounded-2xl overflow-hidden soft-shadow hover-lift">
-                        {% if maison_sim.photo_principale %}
-                            <img src="{{ maison_sim.photo_principale.url }}" 
-                                 alt="{{ maison_sim.nom }}" 
-                                 class="w-full h-48 object-cover">
-                        {% else %}
-                            <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
-                                <i class="fas fa-home text-2xl text-gray-400"></i>
-                            </div>
+            <!-- Sidebar réservation -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl p-6 soft-shadow sticky top-24">
+                    <div class="text-center mb-6">
+                        <div class="text-3xl font-bold text-gray-900">{{ maison.prix_par_nuit }}€</div>
+                        <div class="text-gray-600">par nuit</div>
+                        
+                        <!-- Affichage de la note dans la sidebar -->
+                        {% if maison|get_note_moyenne > 0 %}
+                        <div class="flex items-center justify-center mt-2">
+                            {% display_stars maison|get_note_moyenne False %}
+                            <span class="ml-2 text-sm text-gray-600">({{ maison|get_nombre_avis }} avis)</span>
+                        </div>
                         {% endif %}
-                        <div class="p-6">
-                            <h3 class="font-bold text-gray-900 mb-2">{{ maison_sim.nom }}</h3>
-                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ maison_sim.description|truncatewords:8 }}</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-lg font-bold text-gray-900">{{ maison_sim.prix_par_nuit }}€<span class="text-sm font-normal text-gray-500">/nuit</span></span>
-                                <div class="flex space-x-2">
-                                    <a href="{% url 'home:maison_detail' maison_sim.slug %}" 
-                                       class="text-gray-600 hover:text-gray-800 text-sm font-medium">
-                                        Détails
-                                    </a>
-                                    {% if reservations_available and maison_sim.disponible and maison_sim.statut_occupation == 'libre' %}
-                                        <a href="{% url 'home:initier_reservation' maison_sim.slug %}" 
-                                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            Réserver →
-                                        </a>
-                                    {% endif %}
+                    </div>
+
+                    {% if reservations_available and disponible_reservation %}
+                    <!-- Formulaire de réservation -->
+                    <form id="reservation-form" method="get" action="{% url 'home:initier_reservation' maison.slug %}"
+                        class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date d'arrivée</label>
+                            <input type="date" name="date_debut" id="date_debut"
+                                class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                min="{% now 'Y-m-d' %}" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date de départ</label>
+                            <input type="date" name="date_fin" id="date_fin"
+                                class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                min="{% now 'Y-m-d' %}" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Voyageurs</label>
+                            <select name="nombre_personnes" id="nombre_personnes"
+                                class="w-full px-4 py-3 subtle-border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                {% for i in "123456789"|make_list %}
+                                {% if i|add:0 <= maison.capacite_personnes %}
+                                <option value="{{ i }}">{{ i }} voyageur{{ i|pluralize }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Calcul du prix en temps réel -->
+                        <div id="price-calculation" class="hidden p-4 bg-blue-50 rounded-lg">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span>Prix par nuit:</span>
+                                <span>{{ maison.prix_par_nuit }}€</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span id="nights-text">Nombre de nuits:</span>
+                                <span id="nights-count">0</span>
+                            </div>
+                            <div class="border-t pt-2">
+                                <div class="flex justify-between font-semibold">
+                                    <span>Total estimé:</span>
+                                    <span id="total-price" class="text-blue-600">0€</span>
                                 </div>
                             </div>
                         </div>
+
+                        {% if user.is_authenticated and can_reserve %}
+                        <button type="submit"
+                            class="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-calendar-plus mr-2"></i>Réserver maintenant
+                        </button>
+                        {% else %}
+                        <a href="{% url 'users:login' %}?next={% url 'home:maison_detail' maison.slug %}"
+                            class="block w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-center">
+                            <i class="fas fa-user mr-2"></i>Connectez-vous pour réserver
+                        </a>
+                        {% endif %}
+                    </form>
+
+                    <!-- Vérification de disponibilité -->
+                    <div id="availability-check" class="hidden mt-4 p-3 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="loading mr-3"></div>
+                            <span class="text-sm text-gray-600">Vérification de la disponibilité...</span>
+                        </div>
                     </div>
-                    {% endfor %}
+
+                    {% elif reservations_available %}
+                    <!-- Maison non disponible -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-times text-2xl text-red-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Non disponible</h3>
+                        <p class="text-gray-600 text-sm mb-4">Cette maison est actuellement occupée</p>
+
+                        {% if prochaines_reservations %}
+                        <div class="text-left">
+                            <h4 class="font-medium text-gray-700 mb-2">Prochaine disponibilité:</h4>
+                            {% for reservation in prochaines_reservations|slice:":1" %}
+                            <p class="text-sm text-gray-600">
+                                À partir du {{ reservation.date_fin|date:"d/m/Y" }}
+                            </p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <a href="{% url 'home:maisons_reservation' %}"
+                            class="block w-full bg-gray-600 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition-colors mt-4">
+                            Voir d'autres maisons
+                        </a>
+                    </div>
+                    {% else %}
+                    <!-- Système de réservation non disponible -->
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-phone text-2xl text-gray-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Contactez-nous</h3>
+                        <p class="text-gray-600 text-sm mb-4">Pour réserver cette maison, contactez directement notre équipe</p>
+
+                        <a href="{% url 'home:contact' %}"
+                            class="block w-full bg-gray-900 text-white py-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors">
+                            Nous contacter
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-6 pt-6 border-t border-gray-100">
+                        <div class="flex items-center justify-center text-gray-600">
+                            <i class="fas fa-shield-alt mr-2 text-green-600"></i>
+                            <span class="text-sm font-medium">Paiement sécurisé</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact gestionnaire (pour clients) -->
+                {% if gestionnaire_info %}
+                <div class="bg-gray-900 rounded-2xl p-6 mt-6 text-white">
+                    <h3 class="font-bold text-lg mb-3">Contacter le gestionnaire</h3>
+                    <div class="space-y-2 mb-4">
+                        <p class="text-gray-300 text-sm">{{ gestionnaire_info.nom }}</p>
+                        {% if gestionnaire_info.telephone %}
+                        <p class="text-gray-300 text-sm">
+                            <i class="fas fa-phone mr-2"></i>{{ gestionnaire_info.telephone }}
+                        </p>
+                        {% endif %}
+                        {% if gestionnaire_info.email %}
+                        <p class="text-gray-300 text-sm">
+                            <i class="fas fa-envelope mr-2"></i>{{ gestionnaire_info.email }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'home:contact' %}"
+                        class="block w-full bg-white text-gray-900 py-3 rounded-xl text-center font-semibold hover:bg-gray-100 transition-colors">
+                        Envoyer un message
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Modal pour les photos d'avis -->
+        <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+            <div class="max-w-4xl max-h-full p-4">
+                <img id="modalPhoto" src="" alt="" class="max-w-full max-h-full object-contain">
+                <div class="text-center mt-4">
+                    <p id="modalCaption" class="text-white text-lg"></p>
+                    <button onclick="closePhotoModal()"
+                        class="mt-4 bg-white text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        Fermer
+                    </button>
                 </div>
             </div>
-            {% endif %}
         </div>
+
+        <!-- Maisons similaires -->
+        {% if maisons_similaires %}
+        <div class="mt-20">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">Vous pourriez aussi aimer</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {% for maison_sim in maisons_similaires %}
+                <div class="bg-white rounded-2xl overflow-hidden soft-shadow hover-lift">
+                    {% if maison_sim.photo_principale %}
+                    <img src="{{ maison_sim.photo_principale.url }}" alt="{{ maison_sim.nom }}"
+                        class="w-full h-48 object-cover">
+                    {% else %}
+                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                        <i class="fas fa-home text-2xl text-gray-400"></i>
+                    </div>
+                    {% endif %}
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-2">
+                            <h3 class="font-bold text-gray-900 flex-1">{{ maison_sim.nom }}</h3>
+                            {% if maison_sim|get_note_moyenne > 0 %}
+                            <div class="flex items-center ml-2">
+                                <i class="fas fa-star text-yellow-400 text-sm mr-1"></i>
+                                <span class="text-sm text-gray-600">{{ maison_sim|get_note_moyenne|floatformat:1 }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ maison_sim.description|truncatewords:8 }}</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold text-gray-900">{{ maison_sim.prix_par_nuit }}€<span
+                                    class="text-sm font-normal text-gray-500">/nuit</span></span>
+                            <div class="flex space-x-2">
+                                <a href="{% url 'home:maison_detail' maison_sim.slug %}"
+                                    class="text-gray-600 hover:text-gray-800 text-sm font-medium">
+                                    Détails
+                                </a>
+                                {% if reservations_available and maison_sim.disponible and maison_sim.statut_occupation == 'libre' %}
+                                <a href="{% url 'home:initier_reservation' maison_sim.slug %}"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Réserver →
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
+</div>
 
-    <script>
-        function changeMainPhoto(photoUrl) {
-            document.getElementById('main-photo').src = photoUrl;
+<script>
+    function openPhotoModal(photoUrl, caption) {
+        document.getElementById('modalPhoto').src = photoUrl;
+        document.getElementById('modalCaption').textContent = caption;
+        document.getElementById('photoModal').classList.remove('hidden');
+    }
+
+    function closePhotoModal() {
+        document.getElementById('photoModal').classList.add('hidden');
+    }
+
+    // Fermer le modal en cliquant à l'extérieur
+    document.getElementById('photoModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closePhotoModal();
         }
+    });
+    
+    function changeMainPhoto(photoUrl) {
+        document.getElementById('main-photo').src = photoUrl;
+    }
 
-        {% if reservations_available and disponible_reservation %}
-        // Calcul automatique du prix
-        function calculatePrice() {
-            const dateDebut = document.getElementById('date_debut').value;
-            const dateFin = document.getElementById('date_fin').value;
-            const prixParNuit = {{ maison.prix_par_nuit }};
-            
-            if (dateDebut && dateFin) {
-                const debut = new Date(dateDebut);
-                const fin = new Date(dateFin);
-                const diffTime = Math.abs(fin - debut);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                if (diffDays > 0) {
-                    const total = prixParNuit * diffDays;
-                    document.getElementById('nights-count').textContent = diffDays;
-                    document.getElementById('total-price').textContent = total + '€';
-                    document.getElementById('price-calculation').classList.remove('hidden');
-                    
-                    // Vérifier la disponibilité
-                    checkAvailability(dateDebut, dateFin);
-                } else {
-                    document.getElementById('price-calculation').classList.add('hidden');
-                }
+    {% if reservations_available and disponible_reservation %}
+    // Calcul automatique du prix
+    function calculatePrice() {
+        const dateDebut = document.getElementById('date_debut').value;
+        const dateFin = document.getElementById('date_fin').value;
+        const prixParNuit = {{ maison.prix_par_nuit }};
+
+        if (dateDebut && dateFin) {
+            const debut = new Date(dateDebut);
+            const fin = new Date(dateFin);
+            const diffTime = Math.abs(fin - debut);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 0) {
+                const total = prixParNuit * diffDays;
+                document.getElementById('nights-count').textContent = diffDays;
+                document.getElementById('total-price').textContent = total + '€';
+                document.getElementById('price-calculation').classList.remove('hidden');
+
+                // Vérifier la disponibilité
+                checkAvailability(dateDebut, dateFin);
             } else {
                 document.getElementById('price-calculation').classList.add('hidden');
             }
+        } else {
+            document.getElementById('price-calculation').classList.add('hidden');
         }
+    }
 
-        // Vérification de disponibilité via AJAX
-        function checkAvailability(dateDebut, dateFin) {
-            const availabilityDiv = document.getElementById('availability-check');
-            availabilityDiv.classList.remove('hidden');
-            availabilityDiv.innerHTML = `
-                <div class="flex items-center">
-                    <div class="loading mr-3"></div>
-                    <span class="text-sm text-gray-600">Vérification de la disponibilité...</span>
-                </div>
-            `;
-            
-            fetch(`{% url 'home:verifier_disponibilite' maison.slug %}?date_debut=${dateDebut}&date_fin=${dateFin}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.disponible) {
-                        availabilityDiv.innerHTML = `
-                            <div class="flex items-center text-green-600">
-                                <i class="fas fa-check mr-2"></i>
-                                <span class="text-sm font-medium">Disponible pour ces dates</span>
-                            </div>
-                        `;
-                        availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-green-50';
-                    } else {
-                        availabilityDiv.innerHTML = `
-                            <div class="flex items-center text-red-600">
-                                <i class="fas fa-times mr-2"></i>
-                                <span class="text-sm font-medium">Non disponible pour ces dates</span>
-                            </div>
-                        `;
-                        availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-red-50';
-                    }
-                })
-                .catch(error => {
-                    availabilityDiv.classList.add('hidden');
-                });
-        }
+    // Vérification de disponibilité via AJAX
+    function checkAvailability(dateDebut, dateFin) {
+        const availabilityDiv = document.getElementById('availability-check');
+        availabilityDiv.classList.remove('hidden');
+        availabilityDiv.innerHTML = `
+            <div class="flex items-center">
+                <div class="loading mr-3"></div>
+                <span class="text-sm text-gray-600">Vérification de la disponibilité...</span>
+            </div>
+        `;
 
-        // Event listeners
-        document.getElementById('date_debut').addEventListener('change', calculatePrice);
-        document.getElementById('date_fin').addEventListener('change', calculatePrice);
-        
-        // Validation des dates
-        document.getElementById('date_debut').addEventListener('change', function() {
-            document.getElementById('date_fin').min = this.value;
-        });
-        {% endif %}
-    </script>
+        fetch(`{% url 'home:verifier_disponibilite' maison.slug %}?date_debut=${dateDebut}&date_fin=${dateFin}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.disponible) {
+                    availabilityDiv.innerHTML = `
+                        <div class="flex items-center text-green-600">
+                            <i class="fas fa-check mr-2"></i>
+                            <span class="text-sm font-medium">Disponible pour ces dates</span>
+                        </div>
+                    `;
+                    availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-green-50';
+                } else {
+                    availabilityDiv.innerHTML = `
+                        <div class="flex items-center text-red-600">
+                            <i class="fas fa-times mr-2"></i>
+                            <span class="text-sm font-medium">Non disponible pour ces dates</span>
+                        </div>
+                    `;
+                    availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-red-50';
+                }
+            })
+            .catch(error => {
+                availabilityDiv.classList.add('hidden');
+            });
+    }
+
+    // Event listeners
+    document.getElementById('date_debut').addEventListener('change', calculatePrice);
+    document.getElementById('date_fin').addEventListener('change', calculatePrice);
+
+    // Validation des dates
+    document.getElementById('date_debut').addEventListener('change', function () {
+        document.getElementById('date_fin').min = this.value;
+    });
+    {% endif %}
+</script>
 {% endblock %}

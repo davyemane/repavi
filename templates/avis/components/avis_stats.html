@@ -1,0 +1,44 @@
+<div class="bg-white rounded-lg shadow-sm border p-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        <i class="fas fa-chart-bar mr-2 text-blue-600"></i>
+        Statistiques des avis
+    </h3>
+    
+    <!-- Métriques principales -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <div class="text-2xl font-bold text-gray-900">{{ stats.note_moyenne|floatformat:1 }}</div>
+            <div class="text-sm text-gray-600">Note moyenne</div>
+            <div class="flex justify-center mt-1">
+                {% include 'avis/components/star_rating.html' with rating=stats.note_moyenne %}
+            </div>
+        </div>
+        
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <div class="text-2xl font-bold text-gray-900">{{ stats.nombre_avis }}</div>
+            <div class="text-sm text-gray-600">Total avis</div>
+        </div>
+        
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+            <div class="text-2xl font-bold text-green-600">{{ stats.pourcentage_recommandation }}%</div>
+            <div class="text-sm text-gray-600">Recommandent</div>
+        </div>
+    </div>
+    
+    <!-- Répartition des notes -->
+    {% if repartition_notes %}
+    <div class="space-y-2">
+        <h4 class="font-medium text-gray-900 mb-3">Répartition des notes</h4>
+        {% for note_data in repartition_notes %}
+        <div class="flex items-center">
+            <span class="text-sm text-gray-600 w-12">{{ note_data.note }}★</span>
+            <div class="flex-1 bg-gray-200 rounded-full h-2 mx-3">
+                {% widthratio note_data.count stats.nombre_avis 100 as pourcentage %}
+                <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ pourcentage }}%"></div>
+            </div>
+            <span class="text-sm text-gray-500 w-8">{{ note_data.count }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>

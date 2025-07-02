@@ -1,0 +1,22 @@
+Résumé quotidien - Avis
+
+Bonjour {{ gestionnaire.first_name }},
+
+Voici votre résumé quotidien des avis en attente :
+
+{% if nouveaux_avis > 0 %}
+⏰ Modération requise : {{ nouveaux_avis }} nouvel{% if nouveaux_avis > 1 %}x{% endif %} avis en attente
+{% endif %}
+
+{% if avis_sans_reponse > 0 %}
+💬 Réponses en attente : {{ avis_sans_reponse }} avis sans réponse depuis plus de 2 jours
+{% endif %}
+
+Accéder au tableau de bord : {{ site_url }}{% url 'avis:tableau_avis_gestionnaire' %}
+
+Rappel : Une réponse rapide aux avis améliore votre image et la satisfaction de vos clients.
+
+Bonne journée,
+L'équipe RepAvi
+
+Pour modifier la fréquence de ces emails, accédez à vos préférences : {{ site_url }}{% url 'users:profil' %}

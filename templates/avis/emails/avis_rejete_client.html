@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votre avis nécessite une révision</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #e5e7eb; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: 0; }
+        .btn { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; }
+        .warning { background: #fef2f2; padding: 15px; border-left: 4px solid #ef4444; margin: 20px 0; }
+        .reason { background: #f3f4f6; padding: 15px; border-radius: 6px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Votre avis nécessite une révision</h1>
+        </div>
+        
+        <div class="content">
+            <p>Bonjour {{ client.first_name }},</p>
+            
+            <div class="warning">
+                <p>Votre avis pour <strong>{{ maison.nom }}</strong> n'a pas pu être publié en l'état.</p>
+            </div>
+            
+            <p><strong>Raison :</strong></p>
+            <div class="reason">
+                {{ raison_rejet }}
+            </div>
+            
+            <p>Ne vous inquiétez pas ! Vous pouvez :</p>
+            <ul>
+                <li>Modifier votre avis pour respecter nos conditions d'utilisation</li>
+                <li>Nous contacter si vous avez des questions</li>
+                <li>Soumettre un nouvel avis</li>
+            </ul>
+            
+            <p style="text-align: center; margin: 30px 0;">
+                <a href="{{ site_url }}{% url 'avis:creer_avis' maison.slug %}" class="btn">
+                    Soumettre un nouvel avis
+                </a>
+            </p>
+            
+            <p>Nous vous remercions pour votre compréhension.</p>
+            
+            <p>Cordialement,<br>L'équipe RepAvi</p>
+        </div>
+        
+        <div class="footer">
+            <p style="font-size: 12px; color: #6b7280;">
+                Pour toute question, contactez-nous à support@repavi.com
+            </p>
+        </div>
+    </div>
+</body>
+</html>
