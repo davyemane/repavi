@@ -31328,3 +31328,23 @@ WARNING 2025-07-03 11:51:58,753 basehttp 900843 127754495317696 "GET /media/imag
 INFO 2025-07-03 11:51:58,758 basehttp 900843 127754485876416 "GET /static/fonts/lato/Lato-Bold.ttf HTTP/1.1" 304 0
 INFO 2025-07-03 11:51:58,759 basehttp 900843 127754504758976 "GET /static/fonts/lato/Lato-Regular.ttf HTTP/1.1" 304 0
 INFO 2025-07-03 11:52:02,766 basehttp 900843 127754485876416 "GET / HTTP/1.1" 200 27807
+INFO 2025-07-03 11:53:28,045 basehttp 900843 127754504758976 "GET /users/register/ HTTP/1.1" 200 8553
+WARNING 2025-07-03 11:53:28,070 log 900843 127754504758976 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-07-03 11:53:28,070 basehttp 900843 127754504758976 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14130
+WARNING 2025-07-03 11:53:28,116 log 900843 127754504758976 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-07-03 11:53:28,116 basehttp 900843 127754504758976 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14124
+WARNING 2025-07-03 11:53:28,175 log 900843 127754504758976 Not Found: /favicon.ico
+WARNING 2025-07-03 11:53:28,175 basehttp 900843 127754504758976 "GET /favicon.ico HTTP/1.1" 404 13953
+INFO 2025-07-03 11:53:34,250 basehttp 900843 127754504758976 "GET /users/login/ HTTP/1.1" 200 5884
+WARNING 2025-07-03 11:53:34,279 log 900843 127754504758976 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-07-03 11:53:34,279 basehttp 900843 127754504758976 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14130
+WARNING 2025-07-03 11:53:34,326 log 900843 127754504758976 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-07-03 11:53:34,326 basehttp 900843 127754504758976 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14124
+INFO 2025-07-03 11:53:44,482 basehttp 900843 127754504758976 "POST /users/login/ HTTP/1.1" 302 0
+INFO 2025-07-03 11:53:44,531 basehttp 900843 127754504758976 "GET /repavi-admin/ HTTP/1.1" 200 56302
+WARNING 2025-07-03 11:54:10,316 log 900843 127754504758976 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-07-03 11:54:10,316 basehttp 900843 127754504758976 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 14130
+WARNING 2025-07-03 11:54:10,333 log 900843 127754504758976 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-07-03 11:54:10,333 basehttp 900843 127754504758976 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 14124
+WARNING 2025-07-03 11:54:10,400 log 900843 127754504758976 Not Found: /repavi-admin/media/images/logo3.svg
+WARNING 2025-07-03 11:54:10,401 basehttp 900843 127754504758976 "GET /repavi-admin/media/images/logo3.svg HTTP/1.1" 404 20505
