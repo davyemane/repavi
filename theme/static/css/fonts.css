@@ -1,0 +1,90 @@
+/* static/css/fonts.css */
+/* Local TTF Fonts Definition */
+
+/* Romla Font Family */
+@font-face {
+    font-family: 'Romla';
+    src: url('../fonts/romla/Romla.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Romla';
+    src: url('../fonts/romla/Romla.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Romla';
+    src: url('../fonts/romla/Romla.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Arimo Font Family */
+@font-face {
+    font-family: 'Arimo';
+    src: url('../fonts/arimo/Arimo.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Arimo';
+    src: url('../fonts/arimo/Arimo.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Arimo';
+    src: url('../fonts/arimo/Arimo.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Lato Font Family */
+@font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato/Lato-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+/* 
+@font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato/Lato-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+} */
+
+@font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato/Lato-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Tailwind Font Classes */
+.font-romla {
+    font-family: 'Romla', 'Georgia', serif !important;
+}
+
+.font-arimo {
+    font-family: 'Arimo', 'Arial', sans-serif !important;
+}
+
+.font-lato {
+    font-family: 'Lato', 'Helvetica', sans-serif !important;
+}
