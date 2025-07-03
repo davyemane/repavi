@@ -26,7 +26,7 @@ except ImportError:
                 return redirect('users:login')
             if not hasattr(request.user, 'is_gestionnaire') or not request.user.is_gestionnaire():
                 messages.error(request, "Accès réservé aux gestionnaires")
-                return redirect('home:index')
+                return redirect('repavi_admin:index')
             return func(request, *args, **kwargs)
         return wrapper
         
@@ -37,7 +37,7 @@ except ImportError:
                 return redirect('users:login')
             if not hasattr(request.user, 'is_super_admin') or not request.user.is_super_admin():
                 messages.error(request, "Accès réservé aux super administrateurs")
-                return redirect('home:index')
+                return redirect('repavi_admin:index')
             return func(request, *args, **kwargs)
         return wrapper
     
@@ -826,7 +826,7 @@ def change_user_role_view(request, user_id):
                 messages.success(request, 
                     f'Rôle de {user_to_modify.first_name} {user_to_modify.last_name} changé de {old_role} à {new_role}.')
             
-            return redirect('home:admin_users_list')
+            return redirect('repavi_admin:admin_users_list')
     
     # Déterminer les rôles disponibles
     try:
@@ -883,6 +883,7 @@ def admin_villes_list(request):
     
     return render(request, 'admin/villes/list.html', context)
 
+
 @login_required
 @gestionnaire_required
 def admin_ville_create(request):
@@ -892,7 +893,7 @@ def admin_ville_create(request):
         if form.is_valid():
             ville = form.save()
             messages.success(request, f'La ville "{ville.nom}" a été créée avec succès.')
-            return redirect('home:admin_villes_list')
+            return redirect('repavi_admin:villes_list')
     else:
         form = VilleForm()
     
@@ -909,14 +910,14 @@ def admin_ville_edit(request, pk):
     if not (hasattr(request.user, 'is_super_admin') and request.user.is_super_admin()):
         if not ville.maison_set.filter(gestionnaire=request.user).exists():
             messages.error(request, "Vous n'avez pas les droits pour modifier cette ville.")
-            return redirect('home:admin_villes_list')
+            return redirect('repavi_admin:villes_list')
     
     if request.method == 'POST':
         form = VilleForm(request.POST, instance=ville)
         if form.is_valid():
             form.save()
             messages.success(request, f'La ville "{ville.nom}" a été modifiée avec succès.')
-            return redirect('home:admin_villes_list')
+            return redirect('repavi_admin:villes_list')
     else:
         form = VilleForm(instance=ville)
     
@@ -933,7 +934,7 @@ def admin_ville_delete(request, pk):
         nom = ville.nom
         ville.delete()
         messages.success(request, f'La ville "{nom}" a été supprimée avec succès.')
-        return redirect('home:admin_villes_list')
+        return redirect('repavi_admin:villes_list')
     
     context = {'objet': ville, 'type': 'ville'}
     return render(request, 'admin/confirm_delete.html', context)
@@ -968,7 +969,7 @@ def admin_categorie_create(request):
         if form.is_valid():
             categorie = form.save()
             messages.success(request, f'La catégorie "{categorie.nom}" a été créée avec succès.')
-            return redirect('home:admin_categories_list')
+            return redirect('repavi_admin:categories_list')
     else:
         form = CategorieMaisonForm()
     
@@ -986,7 +987,7 @@ def admin_categorie_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'La catégorie "{categorie.nom}" a été modifiée avec succès.')
-            return redirect('home:admin_categories_list')
+            return redirect('repavi_admin:categories_list')
     else:
         form = CategorieMaisonForm(instance=categorie)
     
@@ -1003,7 +1004,7 @@ def admin_categorie_delete(request, pk):
         nom = categorie.nom
         categorie.delete()
         messages.success(request, f'La catégorie "{nom}" a été supprimée avec succès.')
-        return redirect('home:admin_categories_list')
+        return redirect('repavi_admin:categories_list')
     
     context = {'objet': categorie, 'type': 'catégorie'}
     return render(request, 'admin/confirm_delete.html', context)
@@ -1216,13 +1217,13 @@ def admin_maison_delete(request, pk):
     
     if not maison.can_be_managed_by(request.user):
         messages.error(request, "Vous n'avez pas les droits pour supprimer cette maison.")
-        return redirect('home:admin_maisons_list')
+        return redirect('repavi_admin:maisons_list')
     
     if request.method == 'POST':
         nom = maison.nom
         maison.delete()
         messages.success(request, f'La maison "{nom}" a été supprimée avec succès.')
-        return redirect('home:admin_maisons_list')
+        return redirect('repavi_admin:maisons_list')
     
     context = {'objet': maison, 'type': 'maison'}
     return render(request, 'admin/confirm_delete.html', context)
@@ -1235,7 +1236,7 @@ def admin_maison_detail(request, pk):
     
     if not maison.can_be_managed_by(request.user):
         messages.error(request, "Vous n'avez pas les droits pour voir cette maison.")
-        return redirect('home:admin_maisons_list')
+        return redirect('repavi_admin:maisons_list')
     
     # Statistiques de la maison
     photos_count = maison.photos.count()
@@ -1371,7 +1372,7 @@ def admin_photo_create(request):
             try:
                 photo = form.save()
                 messages.success(request, f'Photo ajoutée avec succès pour "{photo.maison.nom}".')
-                return redirect('home:admin_photos_list')
+                return redirect('repavi_admin:photos_list')
             except Exception as e:
                 messages.error(request, f'Erreur lors de l\'ajout : {str(e)}')
     else:
@@ -1388,14 +1389,14 @@ def admin_photo_edit(request, pk):
     
     if not photo.maison.can_be_managed_by(request.user):
         messages.error(request, "Vous n'avez pas les droits pour modifier cette photo.")
-        return redirect('home:admin_photos_list')
+        return redirect('repavi_admin:photos_list')
     
     if request.method == 'POST':
         form = PhotoMaisonForm(request.POST, request.FILES, instance=photo, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, f'Photo modifiée avec succès.')
-            return redirect('home:admin_photos_list')
+            return redirect('repavi_admin:photos_list')
     else:
         form = PhotoMaisonForm(instance=photo, user=request.user)
     
@@ -1410,7 +1411,7 @@ def admin_photo_delete(request, pk):
     
     if not photo.maison.can_be_managed_by(request.user):
         messages.error(request, "Vous n'avez pas les droits pour supprimer cette photo.")
-        return redirect('home:admin_photos_list')
+        return redirect('repavi_admin:photos_list')
     
     if request.method == 'POST':
         # Supprimer le fichier physique
@@ -1424,7 +1425,7 @@ def admin_photo_delete(request, pk):
         
         photo.delete()
         messages.success(request, f'Photo supprimée avec succès.')
-        return redirect('home:admin_photos_list')
+        return redirect('repavi_admin:photos_list')
     
     context = {'objet': photo, 'type': 'photo'}
     return render(request, 'admin/confirm_delete.html', context)
@@ -1507,7 +1508,7 @@ if RESERVATIONS_AVAILABLE:
                 try:
                     reservation = form.save()
                     messages.success(request, f'Réservation créée avec succès.')
-                    return redirect('home:admin_reservations_list')
+                    return redirect('repavi_admin:reservations_list')
                 except Exception as e:
                     messages.error(request, f'Erreur lors de la création : {str(e)}')
         else:
@@ -1524,7 +1525,7 @@ if RESERVATIONS_AVAILABLE:
         
         if not reservation.can_be_managed_by(request.user):
             messages.error(request, "Vous n'avez pas les droits pour modifier cette réservation.")
-            return redirect('home:admin_reservations_list')
+            return redirect('repavi_admin:admin_reservations_list')
         
         if request.method == 'POST':
             # Permettre seulement la modification du statut pour les gestionnaires
@@ -1533,7 +1534,7 @@ if RESERVATIONS_AVAILABLE:
                 reservation.statut = nouveau_statut
                 reservation.save()
                 messages.success(request, f'Statut de la réservation mis à jour.')
-                return redirect('home:admin_reservations_list')
+                return redirect('repavi_admin:admin_reservations_list')
         
         context = {
             'reservation': reservation,
@@ -1551,12 +1552,12 @@ if RESERVATIONS_AVAILABLE:
         
         if not reservation.can_be_managed_by(request.user):
             messages.error(request, "Vous n'avez pas les droits pour supprimer cette réservation.")
-            return redirect('home:admin_reservations_list')
+            return redirect('repavi_admin:admin_reservations_list')
         
         if request.method == 'POST':
             reservation.delete()
             messages.success(request, f'Réservation supprimée avec succès.')
-            return redirect('home:admin_reservations_list')
+            return redirect('repavi_admin:admin_reservations_list')
         
         context = {'objet': reservation, 'type': 'réservation'}
         return render(request, 'admin/confirm_delete.html', context)
@@ -1601,7 +1602,7 @@ def admin_export_data(request):
     """Export des données en CSV/Excel"""
     # TODO: Implémenter l'export des données
     messages.info(request, "Fonctionnalité d'export en cours de développement.")
-    return redirect('home:admin_dashboard')
+    return redirect('repavi_admin:admin_dashboard')
 
 @login_required
 @gestionnaire_required
@@ -1609,7 +1610,7 @@ def admin_import_data(request):
     """Import des données depuis CSV/Excel"""
     # TODO: Implémenter l'import des données
     messages.info(request, "Fonctionnalité d'import en cours de développement.")
-    return redirect('home:admin_dashboard')
+    return redirect('repavi_admin:admin_dashboard')
 
 # ======== API ENDPOINTS POUR AJAX ========
 
@@ -1693,7 +1694,7 @@ if RESERVATIONS_AVAILABLE:
             if form.is_valid():
                 type_paiement = form.save()
                 messages.success(request, f'Type de paiement "{type_paiement.nom}" créé avec succès.')
-                return redirect('home:admin_types_paiement_list')
+                return redirect('repavi_admin:admin_types_paiement_list')
         else:
             form = TypePaiementForm()
         
@@ -1711,7 +1712,7 @@ if RESERVATIONS_AVAILABLE:
             if form.is_valid():
                 form.save()
                 messages.success(request, f'Type de paiement "{type_paiement.nom}" modifié avec succès.')
-                return redirect('home:admin_types_paiement_list')
+                return redirect('repavi_admin:admin_types_paiement_list')
         else:
             form = TypePaiementForm(instance=type_paiement)
         
@@ -1728,7 +1729,7 @@ if RESERVATIONS_AVAILABLE:
             nom = type_paiement.nom
             type_paiement.delete()
             messages.success(request, f'Type de paiement "{nom}" supprimé avec succès.')
-            return redirect('home:admin_types_paiement_list')
+            return redirect('repavi_admin:admin_types_paiement_list')
         
         context = {'objet': type_paiement, 'type': 'type de paiement'}
         return render(request, 'admin/confirm_delete.html', context)

@@ -1,0 +1,70 @@
+<!-- avis/templates/avis/avis_list_partial.html -->
+<div class="space-y-6">
+    {% for avis in avis_list %}
+    <div class="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0">
+        <!-- En-tête de l'avis -->
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span class="text-blue-600 font-semibold">{{ avis.user.username.0|upper }}</span>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-900">{{ avis.user.username }}</div>
+                    <div class="text-sm text-gray-500">{{ avis.date_creation|date:"d F Y" }}</div>
+                </div>
+            </div>
+            
+            <!-- Note en étoiles -->
+            <div class="flex text-yellow-400">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= avis.note %}
+                        <i class="fas fa-star"></i>
+                    {% else %}
+                        <i class="far fa-star text-gray-300"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Commentaire -->
+        <div class="text-gray-700 leading-relaxed">
+            {{ avis.commentaire|linebreaks }}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-8">
+        <i class="fas fa-comments text-4xl text-gray-300 mb-4"></i>
+        <h4 class="text-lg font-medium text-gray-900 mb-2">Aucun avis pour le moment</h4>
+        <p class="text-gray-600">Soyez le premier à partager votre expérience !</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination (si applicable) -->
+{% if page_obj.has_next or page_obj.has_previous %}
+<div class="mt-6 pt-6 border-t border-gray-100">
+    <div class="flex justify-between items-center">
+        {% if page_obj.has_previous %}
+            <button onclick="loadMoreAvis({{ page_obj.previous_page_number }})" 
+                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                ← Page précédente
+            </button>
+        {% else %}
+            <div></div>
+        {% endif %}
+        
+        <span class="text-sm text-gray-500">
+            Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+            <button onclick="loadMoreAvis({{ page_obj.next_page_number }})" 
+                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                Page suivante →
+            </button>
+        {% else %}
+            <div></div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

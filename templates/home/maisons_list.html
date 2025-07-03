@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load avis_extras %}
+{% include 'avis/stars_display.html' with note=maison.get_note_moyenne show_number=True %}
+
 
 {% block title %}Nos Maisons - RepAvi{% endblock %}
 
@@ -153,6 +156,7 @@
                                 <option value="prix_asc" {% if current_filters.sort == "prix_asc" %}selected{% endif %}>Prix croissant</option>
                                 <option value="prix_desc" {% if current_filters.sort == "prix_desc" %}selected{% endif %}>Prix décroissant</option>
                                 <option value="recent" {% if current_filters.sort == "recent" %}selected{% endif %}>Plus récentes</option>
+                                <option value="rating" {% if current_filters.sort == "rating" %}selected{% endif %}>Mieux notées</option>
                             </select>
                         </div>
                         
@@ -216,6 +220,24 @@
                         <div class="p-6">
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ maison.nom }}</h3>
                             <p class="text-gray-600 mb-4 line-clamp-2">{{ maison.description|truncatewords:12 }}</p>
+                            
+                            <!-- Note et avis -->
+                            {% if maison.get_nombre_avis > 0 %}
+                            <div class="flex items-center mb-4">
+                                <div class="flex text-yellow-400 mr-2">
+                                    {% with note=maison.get_note_moyenne %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= note|floatformat:0 %}
+                                                <i class="fas fa-star text-sm"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-gray-300 text-sm"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                </div>
+                                <span class="text-sm text-gray-600 font-medium">{{ maison.get_note_moyenne }} ({{ maison.get_nombre_avis }} avis)</span>
+                            </div>
+                            {% endif %}
                             
                             <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
                                 <div class="flex items-center">

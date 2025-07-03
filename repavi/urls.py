@@ -13,6 +13,8 @@ urlpatterns = [
     
     # Site public
     path('', include('home.urls')),
+    path('avis/', include('avis.urls')),  # <- Cette ligne doit être présente
+
 
     path('users/', include('users.urls')),  # ← Ajouter cette ligne
     path("__reload__/", include("django_browser_reload.urls")),

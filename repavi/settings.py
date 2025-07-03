@@ -55,6 +55,7 @@ LOCAL_APPS = [
     'home',         # Page d'accueil et modèles de base
     'meubles',      # Gestion des meubles
     'reservations', # Gestion des réservations
+    'avis'
 ]
 
 # Liste finale des applications

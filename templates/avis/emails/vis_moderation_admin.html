@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avis en attente de modération</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #e5e7eb; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: 0; }
+        .btn { display: inline-block; background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; }
+        .priority { background: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ Avis en attente de modération</h1>
+        </div>
+        
+        <div class="content">
+            <p>Bonjour,</p>
+            
+            <div class="priority">
+                <h3>Modération requise</h3>
+                <p>Un nouvel avis pour <strong>{{ maison.nom }}</strong> nécessite votre attention.</p>
+                
+                <p><strong>Détails :</strong></p>
+                <ul>
+                    <li>Client : {{ avis.client.nom_complet }}</li>
+                    <li>Note : {{ avis.note }}/5 étoiles</li>
+                    <li>Date : {{ avis.date_creation|date:"d F Y à H:i" }}</li>
+                    <li>Maison : {{ maison.nom }} ({{ maison.ville }})</li>
+                </ul>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+                <a href="{{ site_url }}{% url 'avis:moderer_avis' avis.id %}" class="btn">
+                    Modérer maintenant
+                </a>
+            </p>
+            
+            <p>Cordialement,<br>Système RepAvi</p>
+        </div>
+        
+        <div class="footer">
+            <p style="font-size: 12px; color: #6b7280;">
+                Email automatique - Système de modération RepAvi
+            </p>
+        </div>
+    </div>
+</body>
+</html>

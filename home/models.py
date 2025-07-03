@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from PIL import Image
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Avg
 
 class Ville(models.Model):
     nom = models.CharField(max_length=100)
@@ -124,6 +124,7 @@ class Maison(models.Model):
     disponible = models.BooleanField(default=True, verbose_name="Disponible à la location")
     featured = models.BooleanField(default=False, help_text="Afficher sur la page d'accueil", verbose_name="Mise en avant")
     
+    
     # Statut d'occupation (NOUVEAU selon vos besoins)
     statut_occupation = models.CharField(
         max_length=20, 
@@ -209,22 +210,92 @@ class Maison(models.Model):
             return None
         except:
             return None    
+    
     @property
     def photos_additionnelles(self):
         """Récupère toutes les photos sauf la principale"""
         return self.photos.filter(principale=False).order_by('ordre')
     
-    @property
-    def note_moyenne(self):
-        """Note moyenne des avis (à implémenter avec l'app avis)"""
-        return 0  # TODO: calculer depuis l'app avis
+    # ============================================================================
+    # MÉTHODES AVIS - INTÉGRATION AVEC LE SYSTÈME D'AVIS
+    # ============================================================================
     
-    @property
-    def nombre_avis(self):
-        """Nombre total d'avis (à implémenter avec l'app avis)"""
-        return 0  # TODO: compter depuis l'app avis
+    def get_note_moyenne(self):
+        """Retourne la note moyenne des avis de cette maison"""
+        if hasattr(self, '_note_moyenne_cached'):
+            return self._note_moyenne_cached
+        
+        try:
+            # Import conditionnel pour éviter les erreurs si l'app avis n'est pas installée
+            from avis.models import Avis
+            avg = self.avis.aggregate(Avg('note'))['note__avg']
+            result = round(avg, 1) if avg else 0
+        except ImportError:
+            result = 0
+        except Exception:
+            result = 0
+            
+        # Cache pour éviter les requêtes répétées
+        self._note_moyenne_cached = result
+        return result
     
-    # NOUVELLES PROPRIÉTÉS selon vos besoins
+    def get_nombre_avis(self):
+        """Retourne le nombre total d'avis pour cette maison"""
+        if hasattr(self, '_nombre_avis_cached'):
+            return self._nombre_avis_cached
+        
+        try:
+            count = self.avis.count()
+        except Exception:
+            count = 0
+            
+        # Cache pour éviter les requêtes répétées
+        self._nombre_avis_cached = count
+        return count
+    
+    def get_avis_recents(self, limit=5):
+        """Retourne les avis les plus récents"""
+        try:
+            return self.avis.all().order_by('-date_creation')[:limit]
+        except Exception:
+            return []
+    
+    def get_statistiques_avis(self):
+        """Retourne un dictionnaire avec toutes les statistiques d'avis"""
+        try:
+            from avis.models import Avis
+            stats = self.avis.aggregate(
+                note_moyenne=Avg('note'),
+                total_avis=Count('id')
+            )
+            
+            return {
+                'note_moyenne': round(stats['note_moyenne'], 1) if stats['note_moyenne'] else 0,
+                'total_avis': stats['total_avis'] or 0,
+            }
+        except Exception:
+            return {
+                'note_moyenne': 0,
+                'total_avis': 0,
+            }
+    
+    def peut_recevoir_avis(self, user):
+        """Vérifie si un utilisateur peut donner un avis sur cette maison"""
+        if not user.is_authenticated:
+            return False
+            
+        # Vérifier que c'est un client
+        if not (hasattr(user, 'is_client') and user.is_client()):
+            return False
+            
+        # Dans notre système simplifié, un utilisateur peut donner plusieurs avis
+        return True
+        
+    # ============================================================================
+    # FIN MÉTHODES AVIS
+    # ============================================================================
+    
+    # PROPRIÉTÉS MEUBLES (existantes)
     @property
     def nombre_meubles(self):
         """Nombre total de meubles dans la maison"""
@@ -240,6 +311,7 @@ class Maison(models.Model):
         """Nombre de meubles en bon état"""
         return getattr(self, 'meubles', self.__class__.objects.none()).filter(etat='bon').count()
     
+    # PROPRIÉTÉS OCCUPATION (existantes)
     @property
     def est_occupee(self):
         """Vérifie si la maison est actuellement occupée"""

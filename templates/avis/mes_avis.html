@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mes avis | RepAvi{% endblock %}
+
+{% block extra_css %}
+<style>
+.avis-card {
+    transition: all 0.3s ease;
+}
+.avis-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+}
+.star-display {
+    color: #fbbf24;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+{% include 'components/navigation.html' %}
+
+<div class="pt-16 min-h-screen bg-gray-50">
+    <!-- En-tête -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <!-- Breadcrumb -->
+            <nav class="text-sm mb-4">
+                <ol class="flex items-center space-x-2 text-gray-500">
+                    <li><a href="{% url 'home:index' %}" class="hover:text-blue-600">Accueil</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li><a href="{% url 'users:dashboard_locataire' %}" class="hover:text-blue-600">Mon espace</a></li>
+                    <li><i class="fas fa-chevron-right text-xs"></i></li>
+                    <li class="text-gray-900">Mes avis</li>
+                </ol>
+            </nav>
+
+            <!-- Titre et statistiques -->
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Mes avis</h1>
+                    <p class="text-gray-600">Gérez et suivez tous vos avis publiés</p>
+                </div>
+                
+                <!-- Statistiques rapides -->
+                <div class="flex items-center space-x-6">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-gray-900">{{ avis.paginator.count }}</div>
+                        <div class="text-sm text-gray-500">Total</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600">
+                            {{ avis.object_list|length|add:0 }}
+                        </div>
+                        <div class="text-sm text-gray-500">Cette page</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- Filtres et actions -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <!-- Filtres -->
+            <div class="flex flex-wrap items-center gap-3">
+                <select onchange="filterAvis(this.value)" class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tous les statuts</option>
+                    <option value="en_attente">En attente</option>
+                    <option value="approuve">Publiés</option>
+                    <option value="rejete">Rejetés</option>
+                </select>
+                
+                <select onchange="sortAvis(this.value)" class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="-date_creation">Plus récents</option>
+                    <option value="date_creation">Plus anciens</option>
+                    <option value="-note">Meilleures notes</option>
+                    <option value="note">Notes les plus basses</option>
+                </select>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'home:maisons_list' %}" 
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Donner un nouvel avis
+                </a>
+            </div>
+        </div>
+
+        <!-- Liste des avis -->
+        {% if avis %}
+        <div class="space-y-6">
+            {% for avis_item in avis %}
+            <div class="avis-card bg-white rounded-lg shadow-sm border p-6" data-status="{{ avis_item.statut_moderation }}">
+                <div class="flex flex-col lg:flex-row gap-6">
+                    
+                    <!-- Image de la maison -->
+                    <div class="lg:w-48 flex-shrink-0">
+                        {% if avis_item.maison.photo_principale %}
+                        <img src="{{ avis_item.maison.photo_principale.url }}" 
+                             alt="{{ avis_item.maison.nom }}" 
+                             class="w-full h-32 lg:h-full object-cover rounded-lg">
+                        {% else %}
+                        <div class="w-full h-32 lg:h-full bg-gray-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-home text-3xl text-gray-400"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Contenu de l'avis -->
+                    <div class="flex-1">
+                        <!-- En-tête avec maison et statut -->
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-4">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">
+                                    <a href="{% url 'home:maison_detail' avis_item.maison.slug %}" 
+                                       class="hover:text-blue-600 transition-colors">
+                                        {{ avis_item.maison.nom }}
+                                    </a>
+                                </h3>
+                                <p class="text-gray-600">{{ avis_item.maison.ville }}</p>
+                            </div>
+                            
+                            <!-- Statut et note -->
+                            <div class="flex items-center space-x-3">
+                                <!-- Note -->
+                                <div class="flex items-center">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= avis_item.note %}
+                                            <i class="fas fa-star star-display text-sm"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-gray-300 text-sm"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ml-2 text-sm text-gray-600">{{ avis_item.note }}/5</span>
+                                </div>
+                                
+                                <!-- Statut -->
+                                {% if avis_item.statut_moderation == 'en_attente' %}
+                                <span class="status-badge bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-clock mr-1"></i>En attente
+                                </span>
+                                {% elif avis_item.statut_moderation == 'approuve' %}
+                                <span class="status-badge bg-green-100 text-green-800">
+                                    <i class="fas fa-check mr-1"></i>Publié
+                                </span>
+                                {% elif avis_item.statut_moderation == 'rejete' %}
+                                <span class="status-badge bg-red-100 text-red-800">
+                                    <i class="fas fa-times mr-1"></i>Rejeté
+                                </span>
+                                {% elif avis_item.statut_moderation == 'signale' %}
+                                <span class="status-badge bg-orange-100 text-orange-800">
+                                    <i class="fas fa-flag mr-1"></i>Signalé
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Titre et extrait du commentaire -->
+                        <div class="mb-4">
+                            <h4 class="font-medium text-gray-900 mb-2">{{ avis_item.titre }}</h4>
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                {{ avis_item.commentaire|truncatewords:25 }}
+                                {% if avis_item.commentaire|length > 150 %}...{% endif %}
+                            </p>
+                        </div>
+                        
+                        <!-- Informations sur le séjour -->
+                        <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                                <span>
+                                    <i class="fas fa-calendar mr-1"></i>
+                                    Publié le {{ avis_item.date_creation|date:"d/m/Y" }}
+                                </span>
+                                {% if avis_item.date_sejour %}
+                                <span>
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    Séjour en {{ avis_item.date_sejour|date:"F Y" }}
+                                </span>
+                                {% endif %}
+                                {% if avis_item.duree_sejour %}
+                                <span>
+                                    <i class="fas fa-bed mr-1"></i>
+                                    {{ avis_item.duree_sejour }} nuit{{ avis_item.duree_sejour|pluralize }}
+                                </span>
+                                {% endif %}
+                                {% if avis_item.recommande %}
+                                <span class="text-green-600">
+                                    <i class="fas fa-thumbs-up mr-1"></i>
+                                    Recommandé
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Photos de l'avis -->
+                        {% if avis_item.photos.exists %}
+                        <div class="mb-4">
+                            <div class="flex space-x-2 overflow-x-auto">
+                                {% for photo in avis_item.photos.all|slice:":3" %}
+                                <img src="{{ photo.image.url }}" 
+                                     alt="{{ photo.legende }}" 
+                                     class="w-16 h-12 object-cover rounded flex-shrink-0">
+                                {% endfor %}
+                                {% if avis_item.photos.count > 3 %}
+                                <div class="w-16 h-12 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
+                                    <span class="text-xs text-gray-500">+{{ avis_item.photos.count|add:"-3" }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Réponse du gestionnaire -->
+                        {% if avis_item.reponse_gestionnaire %}
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-3 mb-4">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-reply text-blue-600 text-sm mt-1"></i>
+                                <div>
+                                    <p class="text-blue-900 text-sm font-medium">Réponse du gestionnaire :</p>
+                                    <p class="text-blue-800 text-sm">{{ avis_item.reponse_gestionnaire|truncatewords:20 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Raison de rejet -->
+                        {% if avis_item.statut_moderation == 'rejete' and avis_item.raison_rejet %}
+                        <div class="bg-red-50 border-l-4 border-red-400 p-3 mb-4">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-sm mt-1"></i>
+                                <div>
+                                    <p class="text-red-900 text-sm font-medium">Raison du rejet :</p>
+                                    <p class="text-red-800 text-sm">{{ avis_item.raison_rejet }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Statistiques et actions -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t">
+                            <!-- Statistiques -->
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                {% if avis_item.statut_moderation == 'approuve' %}
+                                <span>
+                                    <i class="fas fa-heart mr-1"></i>
+                                    {{ avis_item.nombre_likes }} like{{ avis_item.nombre_likes|pluralize }}
+                                </span>
+                                <span>
+                                    <i class="fas fa-eye mr-1"></i>
+                                    <a href="{% url 'avis:avis_list' avis_item.maison.slug %}" class="hover:text-blue-600">
+                                        Voir public
+                                    </a>
+                                </span>
+                                {% endif %}
+                                
+                                {% if avis_item.date_modification != avis_item.date_creation %}
+                                <span>
+                                    <i class="fas fa-edit mr-1"></i>
+                                    Modifié le {{ avis_item.date_modification|date:"d/m/Y" }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="flex items-center space-x-3">
+                                <!-- Modifier (si possible) -->
+                                {% if avis_item.peut_etre_modifie %}
+                                <a href="{% url 'avis:modifier_avis' avis_item.id %}" 
+                                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    <i class="fas fa-edit mr-1"></i>Modifier
+                                </a>
+                                {% endif %}
+                                
+                                <!-- Voir détails -->
+                                <button onclick="showAvisDetails({{ avis_item.id }})" 
+                                        class="text-gray-600 hover:text-gray-800 text-sm font-medium">
+                                    <i class="fas fa-eye mr-1"></i>Détails
+                                </button>
+                                
+                                <!-- Supprimer (si en attente) -->
+                                {% if avis_item.statut_moderation == 'en_attente' %}
+                                <button onclick="deleteAvis({{ avis_item.id }})" 
+                                        class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                    <i class="fas fa-trash mr-1"></i>Supprimer
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if avis.has_other_pages %}
+        <div class="flex justify-center mt-8">
+            <nav class="flex items-center space-x-2">
+                {% if avis.has_previous %}
+                <a href="?page={{ avis.previous_page_number }}" 
+                   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                {% for num in avis.paginator.page_range %}
+                {% if avis.number == num %}
+                <span class="px-3 py-2 rounded-lg bg-blue-600 text-white">{{ num }}</span>
+                {% elif num > avis.number|add:'-3' and num < avis.number|add:'3' %}
+                <a href="?page={{ num }}" 
+                   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">{{ num }}</a>
+                {% endif %}
+                {% endfor %}
+                
+                {% if avis.has_next %}
+                <a href="?page={{ avis.next_page_number }}" 
+                   class="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        
+        <!-- État vide -->
+        <div class="text-center py-16">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-star text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Aucun avis pour le moment</h3>
+            <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                Vous n'avez pas encore donné d'avis. Partagez votre expérience pour aider d'autres voyageurs !
+            </p>
+            <a href="{% url 'home:maisons_list' %}" 
+               class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-search mr-2"></i>Découvrir nos maisons
+            </a>
+        </div>
+        
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal détails avis -->
+<div id="detailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Détails de l'avis</h3>
+                <button onclick="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="modalContent">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filtrage par statut
+function filterAvis(status) {
+    const cards = document.querySelectorAll('.avis-card');
+    cards.forEach(card => {
+        if (status === '' || card.dataset.status === status) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Tri des avis (simulation côté client - idéalement côté serveur)
+function sortAvis(sortBy) {
+    // Ici on rechargerait la page avec le paramètre de tri
+    // Pour l'exemple, on fait juste un scroll vers le haut
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Afficher les détails d'un avis
+function showAvisDetails(avisId) {
+    // Simulation de chargement des détails
+    const modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = `
+        <div class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600">Chargement des détails...</p>
+        </div>
+    `;
+    
+    document.getElementById('detailsModal').classList.remove('hidden');
+    
+    // Ici vous pourriez faire un appel AJAX pour récupérer les détails
+    setTimeout(() => {
+        modalContent.innerHTML = `
+            <div class="space-y-4">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="font-medium text-gray-900 mb-2">Informations de l'avis</h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>ID: ${avisId}</div>
+                        <div>Statut: En attente</div>
+                        <div>Date: 15/12/2024</div>
+                        <div>Note: 5/5</div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-900 mb-2">Commentaire complet</h4>
+                    <p class="text-gray-700 text-sm">Voici le commentaire complet de l'avis...</p>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+// Fermer modal détails
+function closeDetailsModal() {
+    document.getElementById('detailsModal').classList.add('hidden');
+}
+
+// Supprimer un avis
+function deleteAvis(avisId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet avis ? Cette action est irréversible.')) {
+        // Ici vous feriez un appel AJAX pour supprimer l'avis
+        fetch(`/avis/avis/${avisId}/supprimer/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Retirer l'élément de la page
+                const avisCard = document.querySelector(`[onclick*="${avisId}"]`).closest('.avis-card');
+                avisCard.remove();
+                
+                // Afficher message de succès
+                showNotification('Avis supprimé avec succès', 'success');
+            } else {
+                showNotification('Erreur lors de la suppression', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            showNotification('Erreur lors de la suppression', 'error');
+        });
+    }
+}
+
+// Afficher notifications
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Fermer modal en cliquant à l'extérieur
+document.getElementById('detailsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDetailsModal();
+    }
+});
+
+// Gestion du clavier pour les modals
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDetailsModal();
+    }
+});
+</script>
+{% endblock %}

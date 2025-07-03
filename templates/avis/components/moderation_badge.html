@@ -1,0 +1,21 @@
+{% if statut_moderation == 'en_attente' %}
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+    <i class="fas fa-clock mr-1"></i>
+    En attente
+</span>
+{% elif statut_moderation == 'approuve' %}
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+    <i class="fas fa-check mr-1"></i>
+    Publié
+</span>
+{% elif statut_moderation == 'rejete' %}
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+    <i class="fas fa-times mr-1"></i>
+    Rejeté
+</span>
+{% elif statut_moderation == 'signale' %}
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+    <i class="fas fa-flag mr-1"></i>
+    Signalé
+</span>
+{% endif %}

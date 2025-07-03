@@ -1,0 +1,25 @@
+<!-- templates/avis/emails/nouvel_avis_gestionnaire.txt -->
+Nouvel avis pour {{ maison.nom }}
+
+Bonjour {{ gestionnaire.first_name }},
+
+Vous avez reçu un nouvel avis pour votre maison {{ maison.nom }} !
+
+Détails de l'avis :
+- Client : {{ avis.client.nom_complet }}
+- Note : {{ avis.note }}/5 étoiles
+- Titre : {{ avis.titre }}
+- Commentaire : {{ avis.commentaire|truncatewords:50 }}
+{% if avis.recommande %}
+- Le client recommande votre maison !
+{% endif %}
+
+Cet avis est actuellement en attente de modération.
+
+Pour modérer cet avis : {{ site_url }}{% url 'avis:moderer_avis' avis.id %}
+
+Bonne journée,
+L'équipe RepAvi
+
+---
+Vous recevez cet email car vous êtes gestionnaire de la maison {{ maison.nom }}.
