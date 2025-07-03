@@ -21021,3 +21021,72 @@ WARNING 2025-06-30 19:16:28,170 basehttp 76302 134546657883840 "GET /theme/stati
 WARNING 2025-06-30 19:16:28,171 basehttp 76302 134546666276544 "GET /theme/static/css/fonts.css HTTP/1.1" 404 1978
 INFO 2025-06-30 19:16:28,172 basehttp 76302 134546675717824 "GET /theme/static/css/dist/styles.css?v=1751307388 HTTP/1.1" 200 74059
 INFO 2025-06-30 19:52:56,068 autoreload 79144 132734451855488 Watching for file changes with StatReloader
+INFO 2025-06-30 23:32:30,091 autoreload 274425 131838707986560 Watching for file changes with StatReloader
+INFO 2025-06-30 23:32:31,150 basehttp 274425 131838606563008 "GET /repavi-admin/ HTTP/1.1" 200 55485
+INFO 2025-06-30 23:32:31,292 basehttp 274425 131838597121728 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 304 0
+INFO 2025-06-30 23:32:31,296 basehttp 274425 131838606563008 "GET /static/css/dist/styles.css HTTP/1.1" 200 190668
+WARNING 2025-06-30 23:32:31,514 log 274425 131838606563008 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-06-30 23:32:31,515 basehttp 274425 131838606563008 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 13982
+WARNING 2025-06-30 23:32:31,591 log 274425 131838606563008 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-06-30 23:32:31,592 basehttp 274425 131838606563008 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 13976
+INFO 2025-07-01 07:29:18,652 basehttp 274425 131838597121728 "GET / HTTP/1.1" 200 27724
+INFO 2025-07-01 07:29:18,673 basehttp 274425 131838597121728 "GET /static/css/dist/styles.css HTTP/1.1" 200 190668
+WARNING 2025-07-01 07:29:18,688 basehttp 274425 131838606563008 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-01 07:29:18,694 basehttp 274425 131838597121728 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-01 07:29:18,695 basehttp 274425 131838383224512 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 304 0
+INFO 2025-07-01 07:29:18,750 basehttp 274425 131838383224512 "GET /static/django-browser-reload/reload-worker.js HTTP/1.1" 304 0
+INFO 2025-07-01 07:29:20,889 basehttp 274425 131838597121728 "GET /maisons/ HTTP/1.1" 200 22446
+WARNING 2025-07-01 07:29:20,920 basehttp 274425 131838597121728 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-01 07:29:20,927 basehttp 274425 131838606563008 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-01 07:29:22,833 basehttp 274425 131838383224512 "GET /maisons/reservation/ HTTP/1.1" 200 25268
+WARNING 2025-07-01 07:29:22,861 basehttp 274425 131838383224512 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-01 07:29:22,869 basehttp 274425 131838597121728 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-01 07:29:36,723 basehttp 274425 131838606563008 "GET /maisons/reservation/ HTTP/1.1" 200 25268
+WARNING 2025-07-01 07:29:36,754 basehttp 274425 131838606563008 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-01 07:29:36,761 basehttp 274425 131838383224512 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+WARNING 2025-07-01 07:29:36,810 basehttp 274425 131838383224512 "GET /static/favicon.ico HTTP/1.1" 404 1960
+INFO 2025-07-01 07:55:55,696 autoreload 351612 135419987390592 Watching for file changes with StatReloader
+INFO 2025-07-01 07:55:56,611 basehttp 351612 135419885770432 "GET /maisons/reservation/ HTTP/1.1" 200 25268
+WARNING 2025-07-01 07:55:56,651 basehttp 351612 135419885770432 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-01 07:55:56,656 basehttp 351612 135419876329152 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-01 07:55:56,987 basehttp 351612 135419867936448 "GET /repavi-admin/ HTTP/1.1" 200 55485
+INFO 2025-07-01 07:55:57,061 basehttp 351612 135419867936448 "GET /static/css/dist/styles.css HTTP/1.1" 304 0
+INFO 2025-07-01 07:55:57,067 basehttp 351612 135419867936448 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 304 0
+WARNING 2025-07-01 07:55:57,203 log 351612 135419867936448 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-07-01 07:55:57,204 basehttp 351612 135419867936448 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 13982
+WARNING 2025-07-01 07:55:57,311 log 351612 135419867936448 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-07-01 07:55:57,311 basehttp 351612 135419867936448 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 13976
+INFO 2025-07-01 07:56:00,595 basehttp 351612 135419894163136 "GET /maisons/reservation/ HTTP/1.1" 200 25268
+WARNING 2025-07-01 07:56:00,637 basehttp 351612 135419894163136 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-01 07:56:00,646 basehttp 351612 135419513534144 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-01 07:57:51,418 basehttp 351612 135419885770432 "GET /maisons/reservation/ HTTP/1.1" 200 25268
+WARNING 2025-07-01 07:57:51,463 basehttp 351612 135419885770432 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-01 07:57:51,493 basehttp 351612 135419513534144 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-01 07:57:51,560 basehttp 351612 135419867936448 "GET /repavi-admin/ HTTP/1.1" 200 55551
+WARNING 2025-07-01 07:57:51,816 log 351612 135419867936448 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2
+WARNING 2025-07-01 07:57:51,817 basehttp 351612 135419867936448 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2 HTTP/1.1" 404 13982
+WARNING 2025-07-01 07:57:51,921 log 351612 135419867936448 Not Found: /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf
+WARNING 2025-07-01 07:57:51,922 basehttp 351612 135419867936448 "GET /node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf HTTP/1.1" 404 13976
+INFO 2025-07-03 11:29:46,277 autoreload 859207 125106306457728 Watching for file changes with StatReloader
+INFO 2025-07-03 11:29:50,734 basehttp 859207 125106212824768 "GET / HTTP/1.1" 200 27724
+WARNING 2025-07-03 11:29:50,760 basehttp 859207 125106204432064 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+INFO 2025-07-03 11:29:50,761 basehttp 859207 125106212824768 "GET /static/css/dist/styles.css HTTP/1.1" 200 190668
+INFO 2025-07-03 11:29:50,764 basehttp 859207 125106204432064 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 304 0
+WARNING 2025-07-03 11:29:50,766 basehttp 859207 125106194990784 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-03 11:29:50,778 basehttp 859207 125106212824768 "GET /static/django-browser-reload/reload-worker.js HTTP/1.1" 304 0
+WARNING 2025-07-03 11:29:50,826 basehttp 859207 125106212824768 "GET /static/favicon.ico HTTP/1.1" 404 1960
+INFO 2025-07-03 11:30:15,781 basehttp 859207 125106212824768 "GET / HTTP/1.1" 200 27724
+WARNING 2025-07-03 11:30:15,793 basehttp 859207 125106212824768 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-03 11:30:15,796 basehttp 859207 125106194990784 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-03 11:30:16,912 basehttp 859207 125106212824768 "GET / HTTP/1.1" 200 27724
+WARNING 2025-07-03 11:30:16,922 basehttp 859207 125106212824768 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-03 11:30:16,925 basehttp 859207 125106185549504 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-03 11:30:50,095 basehttp 859207 125106194990784 "GET / HTTP/1.1" 200 27724
+WARNING 2025-07-03 11:30:50,105 basehttp 859207 125106194990784 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-03 11:30:50,109 basehttp 859207 125106204432064 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-03 11:30:50,917 basehttp 859207 125106194990784 "GET / HTTP/1.1" 200 27724
+WARNING 2025-07-03 11:30:50,931 basehttp 859207 125106194990784 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-03 11:30:50,932 basehttp 859207 125106212824768 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
+INFO 2025-07-03 11:31:13,318 basehttp 859207 125106204432064 "GET / HTTP/1.1" 200 27724
+WARNING 2025-07-03 11:31:13,333 basehttp 859207 125106204432064 "GET /static/css/fonts.css HTTP/1.1" 404 1966
+WARNING 2025-07-03 11:31:13,336 basehttp 859207 125106185549504 "GET /static/images/repavi_lodge_dark.png HTTP/1.1" 404 2011
