@@ -1,12 +1,106 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load avis_extras %}
-{% include 'avis/stars_display.html' with note=maison.get_note_moyenne show_number=True %}
-
 
 {% block title %}{{ maison.nom }} - RepAvi{% endblock %}
 
 {% block content %}
+    <!-- Script global pour les fonctions du modal (à placer en haut) -->
+    <script>
+        // Variables globales
+        let selectedRating = 0;
+
+        // Fonctions globales pour le modal
+        function openAvisModal() {
+            document.getElementById('avisModal').classList.remove('hidden');
+            initializeStars(); // Initialiser les étoiles quand le modal s'ouvre
+        }
+
+        function closeAvisModal() {
+            document.getElementById('avisModal').classList.add('hidden');
+            document.getElementById('avisForm').reset();
+            resetStars();
+        }
+
+        function resetStars() {
+            selectedRating = 0;
+            updateStarsDisplay();
+        }
+
+        // Fonction pour initialiser les étoiles
+        function initializeStars() {
+            const stars = document.querySelectorAll('.star-rating');
+            const starContainer = document.querySelector('#avisModal .flex.space-x-2');
+
+            stars.forEach(star => {
+                // Supprimer les anciens listeners pour éviter les doublons
+                star.replaceWith(star.cloneNode(true));
+            });
+
+            // Re-sélectionner après clonage
+            const newStars = document.querySelectorAll('.star-rating');
+            
+            newStars.forEach(star => {
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.rating);
+                    updateStarsDisplay();
+                    // Cocher le bon input radio
+                    const input = document.querySelector(`input[value="${selectedRating}"]`);
+                    if (input) input.checked = true;
+                });
+                
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    highlightStars(rating);
+                });
+            });
+
+            if (starContainer) {
+                starContainer.addEventListener('mouseleave', function() {
+                    updateStarsDisplay();
+                });
+            }
+        }
+
+        // Fonction pour mettre à jour l'affichage des étoiles
+        function updateStarsDisplay() {
+            highlightStars(selectedRating);
+        }
+
+        // Fonction pour surligner les étoiles
+        function highlightStars(rating) {
+            const stars = document.querySelectorAll('.star-rating');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                    star.style.color = '#fbbf24'; // Jaune
+                } else {
+                    star.classList.remove('active');
+                    star.style.color = '#d1d5db'; // Gris
+                }
+            });
+        }
+
+        function changeMainPhoto(photoUrl) {
+            document.getElementById('main-photo').src = photoUrl;
+        }
+
+        function loadMoreAvis(page) {
+            fetch(`{% url 'avis:avis_list' maison.slug %}?page=${page}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('avis-container').innerHTML = data.avis_html;
+                
+                const loadMoreBtn = document.getElementById('load-more-btn');
+                if (!data.has_next) {
+                    loadMoreBtn.style.display = 'none';
+                } else {
+                    loadMoreBtn.setAttribute('onclick', `loadMoreAvis(${page + 1})`);
+                }
+            });
+        }
+    </script>
+
     <!-- Navigation -->
     <nav class="glass-effect border-b border-white/20 fixed w-full z-50">
         <div class="max-w-6xl mx-auto px-4">
@@ -28,8 +122,24 @@
         </div>
     </nav>
 
+    <!-- Affichage des messages Flash -->
+    {% if messages %}
+    <div class="pt-16">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mb-4 p-4 rounded-lg border {% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} flex items-center">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} mr-3"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="pt-16"></div>
+    {% endif %}
+
     <!-- Contenu principal -->
-    <div class="pt-16 bg-gray-50 min-h-screen">
+    <div class="bg-gray-50 min-h-screen">
         <div class="max-w-6xl mx-auto px-4 py-8">
             <!-- Breadcrumb -->
             <nav class="mb-8">
@@ -568,8 +678,12 @@
     </div>
 
     <!-- Modal pour ajouter un avis -->
-    <div id="avisModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-md w-full p-6">
+    <div id="avisModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <!-- Overlay transparent pour fermer en cliquant à côté -->
+        <div class="absolute inset-0" onclick="closeAvisModal()"></div>
+        
+        <!-- Contenu du modal avec ombre -->
+        <div class="bg-white rounded-lg max-w-md w-full p-6 relative shadow-2xl border border-gray-200">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold">Donner mon avis</h3>
                 <button onclick="closeAvisModal()" class="text-gray-400 hover:text-gray-600">
@@ -577,7 +691,7 @@
                 </button>
             </div>
             
-            <form id="avisForm">
+            <form id="avisForm" method="post" action="{% url 'avis:creer_avis' maison.slug %}">
                 {% csrf_token %}
                 <!-- Sélection de la note -->
                 <div class="mb-4">
@@ -585,7 +699,7 @@
                     <div class="flex space-x-2">
                         {% for i in "12345" %}
                         <label class="cursor-pointer">
-                            <input type="radio" name="note" value="{{ forloop.counter }}" class="hidden note-input">
+                            <input type="radio" name="note" value="{{ forloop.counter }}" class="hidden note-input" required>
                             <i class="fas fa-star text-2xl text-gray-300 hover:text-yellow-400 star-rating" data-rating="{{ forloop.counter }}"></i>
                         </label>
                         {% endfor %}
@@ -595,8 +709,8 @@
                 <!-- Commentaire -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Votre commentaire</label>
-                    <textarea name="commentaire" rows="4" required
-                              placeholder="Partagez votre expérience..."
+                    <textarea name="commentaire" rows="4" required minlength="10"
+                              placeholder="Partagez votre expérience (minimum 10 caractères)..."
                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
                 
@@ -635,191 +749,242 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        
+        /* Styles pour les étoiles du modal */
+        .star-rating {
+            color: #d1d5db !important; /* Gris par défaut */
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .star-rating:hover {
+            color: #fbbf24 !important; /* Jaune au survol */
+        }
+        
         .star-rating.active {
-            color: #fbbf24 !important;
+            color: #fbbf24 !important; /* Jaune quand actif */
+        }
+        
+        /* Amélioration du modal - sans overlay sombre */
+        #avisModal {
+            backdrop-filter: blur(2px);
+        }
+        
+        /* Animation pour l'ouverture du modal */
+        #avisModal > div:last-child {
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
     </style>
 
     <script>
-        function changeMainPhoto(photoUrl) {
-            document.getElementById('main-photo').src = photoUrl;
-        }
-
-        let currentPage = 1;
-        let selectedRating = 0;
-
-        // Gestion du modal
-        function openAvisModal() {
-            document.getElementById('avisModal').classList.remove('hidden');
-        }
-
-        function closeAvisModal() {
-            document.getElementById('avisModal').classList.add('hidden');
-            document.getElementById('avisForm').reset();
-            resetStars();
-        }
-
-        // Gestion des étoiles
-        document.querySelectorAll('.star-rating').forEach(star => {
-            star.addEventListener('click', function() {
-                selectedRating = parseInt(this.dataset.rating);
-                updateStars();
-                document.querySelector(`input[value="${selectedRating}"]`).checked = true;
-            });
+        // Attendre que le DOM soit chargé pour initialiser les fonctionnalités avancées
+        document.addEventListener('DOMContentLoaded', function() {
             
-            star.addEventListener('mouseover', function() {
-                const rating = parseInt(this.dataset.rating);
-                highlightStars(rating);
-            });
-        });
-
-        document.querySelector('.flex.space-x-2').addEventListener('mouseleave', function() {
-            updateStars();
-        });
-
-        function highlightStars(rating) {
-            document.querySelectorAll('.star-rating').forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
-        }
-
-        function updateStars() {
-            highlightStars(selectedRating);
-        }
-
-        function resetStars() {
-            selectedRating = 0;
-            updateStars();
-        }
-
-        // Soumission du formulaire d'avis
-        document.getElementById('avisForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (selectedRating === 0) {
-                alert('Veuillez sélectionner une note');
-                return;
-            }
-            
-            const formData = new FormData(this);
-            
-            fetch(`/avis/maison/{{ maison.slug }}/creer/`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    closeAvisModal();
-                    location.reload(); // Recharger pour voir le nouvel avis
-                } else {
-                    alert('Erreur: ' + Object.values(data.errors).join(', '));
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Une erreur est survenue');
-            });
-        });
-
-        // Charger plus d'avis
-        function loadMoreAvis(page) {
-            fetch(`/avis/maison/{{ maison.slug }}/list/?page=${page}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('avis-container').innerHTML = data.avis_html;
-                
-                const loadMoreBtn = document.getElementById('load-more-btn');
-                if (!data.has_next) {
-                    loadMoreBtn.style.display = 'none';
-                } else {
-                    loadMoreBtn.setAttribute('onclick', `loadMoreAvis(${page + 1})`);
-                }
-            });
-        }
-
-        {% if reservations_available and disponible_reservation %}
-        // Calcul automatique du prix
-        function calculatePrice() {
-            const dateDebut = document.getElementById('date_debut').value;
-            const dateFin = document.getElementById('date_fin').value;
-            const prixParNuit = {{ maison.prix_par_nuit }};
-            
-            if (dateDebut && dateFin) {
-                const debut = new Date(dateDebut);
-                const fin = new Date(dateFin);
-                const diffTime = Math.abs(fin - debut);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                if (diffDays > 0) {
-                    const total = prixParNuit * diffDays;
-                    document.getElementById('nights-count').textContent = diffDays;
-                    document.getElementById('total-price').textContent = total + '€';
-                    document.getElementById('price-calculation').classList.remove('hidden');
+            // Soumission du formulaire d'avis - VERSION DE DÉBOGAGE
+            const avisForm = document.getElementById('avisForm');
+            if (avisForm) {
+                avisForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
                     
-                    // Vérifier la disponibilité
-                    checkAvailability(dateDebut, dateFin);
+                    console.log('🚀 Début soumission formulaire');
+                    console.log('🔍 Form data avant validation:', new FormData(this));
+                    
+                    // Debug: afficher les valeurs
+                    const noteInputs = this.querySelectorAll('input[name="note"]:checked');
+                    const commentaireInput = this.querySelector('textarea[name="commentaire"]');
+                    const csrfInput = this.querySelector('[name="csrfmiddlewaretoken"]');
+                    
+                    console.log('🔍 Note inputs checked:', noteInputs.length);
+                    console.log('🔍 Note value:', noteInputs.length > 0 ? noteInputs[0].value : 'none');
+                    console.log('🔍 Commentaire value:', commentaireInput ? commentaireInput.value : 'none');
+                    console.log('🔍 CSRF token:', csrfInput ? csrfInput.value.substring(0, 10) + '...' : 'none');
+                    console.log('🔍 Selected rating variable:', selectedRating);
+                    
+                    if (selectedRating === 0) {
+                        alert('Veuillez sélectionner une note');
+                        return;
+                    }
+                    
+                    const commentaire = commentaireInput ? commentaireInput.value.trim() : '';
+                    if (commentaire.length < 10) {
+                        alert('Le commentaire doit contenir au moins 10 caractères');
+                        return;
+                    }
+                    
+                    // Préparer les données
+                    const formData = new FormData();
+                    formData.append('note', selectedRating);
+                    formData.append('commentaire', commentaire);
+                    if (csrfInput) {
+                        formData.append('csrfmiddlewaretoken', csrfInput.value);
+                    }
+                    
+                    console.log('🔍 FormData final:');
+                    for (let [key, value] of formData.entries()) {
+                        console.log(`  ${key}: ${value}`);
+                    }
+                    
+                    const url = `{% url 'avis:creer_avis' maison.slug %}`;
+                    console.log('🔍 URL cible:', url);
+                    
+                    // Afficher un indicateur de chargement
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Publication...';
+                    submitBtn.disabled = true;
+                    
+                    // Test préliminaire avec GET pour vérifier l'accès
+                    console.log('🔍 Test GET préliminaire...');
+                    fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                        }
+                    })
+                    .then(response => {
+                        console.log('🔍 Test GET response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('🔍 Test GET response data:', data);
+                        
+                        // Maintenant faire la vraie requête POST
+                        console.log('🚀 Envoi requête POST...');
+                        return fetch(url, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                            }
+                        });
+                    })
+                    .then(response => {
+                        console.log('🔍 POST response status:', response.status);
+                        console.log('🔍 POST response headers:', response.headers);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('✅ POST response data:', data);
+                        
+                        if (data.success) {
+                            alert(data.message || 'Votre avis a été publié avec succès !');
+                            closeAvisModal();
+                            location.reload();
+                        } else {
+                            console.error('❌ Erreurs du formulaire:', data);
+                            let errorMsg = 'Erreur lors de la publication de l\'avis:\n';
+                            if (data.error) {
+                                errorMsg += data.error;
+                            } else if (data.errors) {
+                                for (const [field, errors] of Object.entries(data.errors)) {
+                                    errorMsg += `${field}: ${errors.join(', ')}\n`;
+                                }
+                            }
+                            alert(errorMsg);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('💥 Erreur lors de l\'envoi:', error);
+                        alert(`Une erreur est survenue: ${error.message}`);
+                    })
+                    .finally(() => {
+                        // Restaurer le bouton
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    });
+                });
+            }
+
+            {% if reservations_available and disponible_reservation %}
+            // Calcul automatique du prix
+            function calculatePrice() {
+                const dateDebut = document.getElementById('date_debut').value;
+                const dateFin = document.getElementById('date_fin').value;
+                const prixParNuit = {{ maison.prix_par_nuit }};
+                
+                if (dateDebut && dateFin) {
+                    const debut = new Date(dateDebut);
+                    const fin = new Date(dateFin);
+                    const diffTime = Math.abs(fin - debut);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays > 0) {
+                        const total = prixParNuit * diffDays;
+                        document.getElementById('nights-count').textContent = diffDays;
+                        document.getElementById('total-price').textContent = total + '€';
+                        document.getElementById('price-calculation').classList.remove('hidden');
+                        
+                        // Vérifier la disponibilité
+                        checkAvailability(dateDebut, dateFin);
+                    } else {
+                        document.getElementById('price-calculation').classList.add('hidden');
+                    }
                 } else {
                     document.getElementById('price-calculation').classList.add('hidden');
                 }
-            } else {
-                document.getElementById('price-calculation').classList.add('hidden');
             }
-        }
 
-        // Vérification de disponibilité via AJAX
-        function checkAvailability(dateDebut, dateFin) {
-            const availabilityDiv = document.getElementById('availability-check');
-            availabilityDiv.classList.remove('hidden');
-            availabilityDiv.innerHTML = `
-                <div class="flex items-center">
-                    <div class="loading mr-3"></div>
-                    <span class="text-sm text-gray-600">Vérification de la disponibilité...</span>
-                </div>
-            `;
+            // Vérification de disponibilité via AJAX
+            function checkAvailability(dateDebut, dateFin) {
+                const availabilityDiv = document.getElementById('availability-check');
+                availabilityDiv.classList.remove('hidden');
+                availabilityDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="loading mr-3"></div>
+                        <span class="text-sm text-gray-600">Vérification de la disponibilité...</span>
+                    </div>
+                `;
+                
+                fetch(`{% url 'home:verifier_disponibilite' maison.slug %}?date_debut=${dateDebut}&date_fin=${dateFin}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.disponible) {
+                            availabilityDiv.innerHTML = `
+                                <div class="flex items-center text-green-600">
+                                    <i class="fas fa-check mr-2"></i>
+                                    <span class="text-sm font-medium">Disponible pour ces dates</span>
+                                </div>
+                            `;
+                            availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-green-50';
+                        } else {
+                            availabilityDiv.innerHTML = `
+                                <div class="flex items-center text-red-600">
+                                    <i class="fas fa-times mr-2"></i>
+                                    <span class="text-sm font-medium">Non disponible pour ces dates</span>
+                                </div>
+                            `;
+                            availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-red-50';
+                        }
+                    })
+                    .catch(error => {
+                        availabilityDiv.classList.add('hidden');
+                    });
+            }
+
+            // Event listeners pour les dates
+            document.getElementById('date_debut').addEventListener('change', calculatePrice);
+            document.getElementById('date_fin').addEventListener('change', calculatePrice);
             
-            fetch(`{% url 'home:verifier_disponibilite' maison.slug %}?date_debut=${dateDebut}&date_fin=${dateFin}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.disponible) {
-                        availabilityDiv.innerHTML = `
-                            <div class="flex items-center text-green-600">
-                                <i class="fas fa-check mr-2"></i>
-                                <span class="text-sm font-medium">Disponible pour ces dates</span>
-                            </div>
-                        `;
-                        availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-green-50';
-                    } else {
-                        availabilityDiv.innerHTML = `
-                            <div class="flex items-center text-red-600">
-                                <i class="fas fa-times mr-2"></i>
-                                <span class="text-sm font-medium">Non disponible pour ces dates</span>
-                            </div>
-                        `;
-                        availabilityDiv.className = 'mt-4 p-3 rounded-lg bg-red-50';
-                    }
-                })
-                .catch(error => {
-                    availabilityDiv.classList.add('hidden');
-                });
-        }
-
-        // Event listeners
-        document.getElementById('date_debut').addEventListener('change', calculatePrice);
-        document.getElementById('date_fin').addEventListener('change', calculatePrice);
-        
-        // Validation des dates
-        document.getElementById('date_debut').addEventListener('change', function() {
-            document.getElementById('date_fin').min = this.value;
+            // Validation des dates
+            document.getElementById('date_debut').addEventListener('change', function() {
+                document.getElementById('date_fin').min = this.value;
+            });
+            {% endif %}
         });
-        {% endif %}
     </script>
 {% endblock %}

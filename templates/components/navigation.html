@@ -147,7 +147,7 @@
                         
                         <!-- Raccourcis selon le type d'utilisateur -->
                         {% if user.is_super_admin or user.is_superuser %}
-                            <a href="{% url 'users:dashboard' %}" 
+                            <a href="{% url 'repavi_admin:dashboard' %}" 
                                class="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-purple-700 transition-colors">
                                 <i class="fas fa-cogs mr-1"></i>Admin
                             </a>
@@ -196,10 +196,24 @@
                                 </div>
                                 
                                 <div class="py-2">
-                                    <a href="{% url 'users:dashboard' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    {% if user.is_super_admin %}
+                                    <a href="{% url 'repavi_admin:dashboard' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="fas fa-tachometer-alt mr-3 text-gray-400"></i>
                                         Dashboard
                                     </a>
+
+                                    {% elif user.is_gestionnaire %}
+                                    <a href="{% url 'users:dashboard_gestionnaire' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-tachometer-alt mr-3 text-gray-400"></i>
+                                        Dashboard
+                                    </a>
+
+                                    {% else %}
+                                        <a href="{% url 'users:dashboard' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                            <i class="fas fa-tachometer-alt mr-3 text-gray-400"></i>
+                                            Dashboard
+                                        </a>
+                                    {% endif %}
                                     <a href="{% url 'users:profile' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="fas fa-user mr-3 text-gray-400"></i>
                                         Mon profil
@@ -288,7 +302,7 @@
                 
                 <!-- Dashboard link based on user type -->
                 {% if user.is_super_admin or user.is_superuser %}
-                    <a href="{% url 'users:dashboard' %}" class="block text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                    <a href="{% url 'repavi_admin:dashboard' %}" class="block text-purple-600 hover:text-purple-700 font-medium transition-colors">
                         <i class="fas fa-cogs mr-2"></i>Admin Dashboard
                     </a>
                 {% elif user.is_gestionnaire %}

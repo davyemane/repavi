@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Administration RepAvi{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
+    <link rel="shortcut icon" href="media/images/logo3.svg" type="image/x-icon">
 
     <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}">
     <!-- Tailwind CSS (build local, pas CDN) -->
@@ -156,7 +157,7 @@
                         </span>
                     </a>
 
-                    <a href="{% url 'reservations:dashboard' %}"
+                    <a href="{% url 'reservations:dashboard_alt' %}"
                         class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         <i class="fas fa-calendar-check mr-3 w-5"></i>
                         Réservations
