@@ -154,7 +154,7 @@
                         {% elif user.is_gestionnaire %}
                             <a href="{% url 'users:dashboard_gestionnaire' %}" 
                                class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-home mr-1"></i>Mes biens
+                                <i class="fas fa-home mr-1"></i>Espace de gestion
                             </a>
                         {% elif user.is_client %}
                             <a href="{% url 'users:dashboard_client' %}" 
