@@ -144,6 +144,7 @@ def recherche_disponibilite(request):
 
 
 @login_required
+@super_admin_required
 def reservations_dashboard(request):
     """Dashboard principal des réservations"""
     try:

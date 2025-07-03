@@ -109,10 +109,10 @@
                         </label>
                         <select name="prix_max" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white">
                             <option value="">Sans limite</option>
-                            <option value="100" {% if current_filters.prix_max == "100" %}selected{% endif %}>Jusqu'à 100€</option>
-                            <option value="200" {% if current_filters.prix_max == "200" %}selected{% endif %}>Jusqu'à 200€</option>
-                            <option value="300" {% if current_filters.prix_max == "300" %}selected{% endif %}>Jusqu'à 300€</option>
-                            <option value="500" {% if current_filters.prix_max == "500" %}selected{% endif %}>Jusqu'à 500€</option>
+                            <option value="100" {% if current_filters.prix_max == "100" %}selected{% endif %}>Jusqu'à 100 FCFA</option>
+                            <option value="200" {% if current_filters.prix_max == "200" %}selected{% endif %}>Jusqu'à 200 FCFA</option>
+                            <option value="300" {% if current_filters.prix_max == "300" %}selected{% endif %}>Jusqu'à 300 FCFA</option>
+                            <option value="500" {% if current_filters.prix_max == "500" %}selected{% endif %}>Jusqu'à 500 FCFA</option>
                         </select>
                     </div>
                     
@@ -252,7 +252,7 @@
                             
                             <div class="flex items-center justify-between">
                                 <div class="text-2xl font-bold text-gray-900">
-                                    {{ maison.prix_par_nuit }}€
+                                    {{ maison.prix_par_nuit }}FCFA
                                     <span class="text-sm font-normal text-gray-500">/nuit</span>
                                 </div>
                                 <a href="{% url 'home:maison_detail' maison.slug %}" 

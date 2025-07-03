@@ -70,13 +70,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <!-- Prix minimum -->
                     <div>
-                        <label for="prix_min" class="block text-sm font-medium text-gray-700 mb-1">Prix min (€/nuit)</label>
+                        <label for="prix_min" class="block text-sm font-medium text-gray-700 mb-1">Prix min (FCFA/nuit)</label>
                         {{ form.prix_min }}
                     </div>
                     
                     <!-- Prix maximum -->
                     <div>
-                        <label for="prix_max" class="block text-sm font-medium text-gray-700 mb-1">Prix max (€/nuit)</label>
+                        <label for="prix_max" class="block text-sm font-medium text-gray-700 mb-1">Prix max (FCFA/nuit)</label>
                         {{ form.prix_max }}
                     </div>
                     
@@ -157,7 +157,7 @@
                 </div>
                 <div class="ml-3">
                     <p class="text-sm text-gray-500">Prix moyen</p>
-                    <p class="text-lg font-semibold text-gray-900">-€</p>
+                    <p class="text-lg font-semibold text-gray-900">-FCFA</p>
                 </div>
             </div>
         </div>
@@ -238,7 +238,7 @@
                             {{ maison.nom }}
                         </h4>
                         <div class="text-right ml-2">
-                            <div class="text-lg font-bold text-gray-900">{{ maison.prix_par_nuit }}€</div>
+                            <div class="text-lg font-bold text-gray-900">{{ maison.prix_par_nuit }}FCFA</div>
                             <div class="text-xs text-gray-500">par nuit</div>
                         </div>
                     </div>
