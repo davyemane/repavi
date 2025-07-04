@@ -142,20 +142,7 @@
     <div class="bg-gray-50 min-h-screen">
         <div class="max-w-6xl mx-auto px-4 py-8">
             <!-- Breadcrumb -->
-            <nav class="mb-8">
-                <ol class="flex items-center space-x-2 text-sm text-gray-500">
-                    <li><a href="{% url 'home:index' %}" class="hover:text-gray-700 transition-colors">Accueil</a></li>
-                    <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    {% if reservations_available %}
-                        <li><a href="{% url 'home:maisons_reservation' %}" class="hover:text-gray-700 transition-colors">Réserver</a></li>
-                        <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    {% else %}
-                        <li><a href="{% url 'home:maisons_list' %}" class="hover:text-gray-700 transition-colors">Maisons</a></li>
-                        <li><i class="fas fa-chevron-right text-xs"></i></li>
-                    {% endif %}
-                    <li class="text-gray-900 font-medium">{{ maison.nom }}</li>
-                </ol>
-            </nav>
+    {% include 'components/navigation.html' %}
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Colonne principale -->

@@ -6,9 +6,6 @@
 
 {% block extra_css %}
 <style>
-.gradient-background {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
 .soft-shadow {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
@@ -41,16 +38,13 @@
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 .btn-primary {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: #3B82F6;
     transition: all 0.3s ease;
 }
 .btn-primary:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-}
-.glass-effect {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
+    background: #2563EB;
 }
 .notification-item {
     transition: all 0.3s ease;
@@ -66,6 +60,17 @@
     border-color: #3B82F6;
     background-color: #EFF6FF;
 }
+.current-image {
+    max-width: 150px;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+.error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
 </style>
 {% endblock %}
 
@@ -73,11 +78,11 @@
     <!-- Navigation -->
     {% include 'components/navigation.html' %}
 
-    <!-- Header avec arrière-plan dégradé -->
+    <!-- Header -->
     <section class="pt-16 pb-8 bg-white relative isolate">
         <!-- Background Blobs -->
         <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-            <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#667eea] to-[#764ba2] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" 
+            <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-blue-500 to-blue-600 opacity-10 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" 
                  style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
         </div>
 
@@ -102,15 +107,21 @@
             <!-- Header du profil -->
             <div class="bg-white rounded-2xl p-8 soft-shadow subtle-border mb-8">
                 <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
-                    <!-- Photo de profil -->
+                    <!-- Photo de profil actuelle -->
                     <div class="relative">
                         {% if user.photo_profil %}
                             <img src="{{ user.photo_profil.url }}" alt="Photo de profil" 
-                                 class="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-blue-100">
-                        {% else %}
-                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-4 border-blue-100">
+                                 class="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-blue-100"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center border-4 border-blue-100" style="display: none;">
                                 <span class="text-2xl md:text-3xl font-bold text-white">
-                                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                                    {{ user.first_name|first|upper|default:"U" }}{{ user.last_name|first|upper|default:"" }}
+                                </span>
+                            </div>
+                        {% else %}
+                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center border-4 border-blue-100">
+                                <span class="text-2xl md:text-3xl font-bold text-white">
+                                    {{ user.first_name|first|upper|default:"U" }}{{ user.last_name|first|upper|default:"" }}
                                 </span>
                             </div>
                         {% endif %}
@@ -122,7 +133,7 @@
                     <!-- Informations utilisateur -->
                     <div class="flex-1">
                         <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                            {{ user.nom_complet }}
+                            {{ user.get_full_name|default:user.username }}
                         </h1>
                         <div class="flex flex-wrap items-center gap-4 text-gray-600 mb-3">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
@@ -130,7 +141,7 @@
                                 {% elif user.is_client %}bg-blue-100 text-blue-800
                                 {% else %}bg-purple-100 text-purple-800{% endif %}">
                                 <i class="fas fa-user-tag mr-2"></i>
-                                {{ user.get_role_display }}
+                                {{ user.get_role_display|default:"Utilisateur" }}
                             </span>
                             <span class="flex items-center">
                                 <i class="fas fa-envelope mr-2 text-gray-400"></i>
@@ -182,43 +193,62 @@
         </div>
     </section>
 
+    <!-- Messages -->
+    {% if messages %}
+        <section class="max-w-6xl mx-auto px-4 mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-3 p-4 border rounded-lg flex items-center fade-in
+                        {% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800
+                        {% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800
+                        {% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800
+                        {% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} mr-3"></i>
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.remove()" class="ml-auto text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </section>
+    {% endif %}
+
     <!-- Contenu principal -->
     <section class="pb-20 bg-gray-50">
         <div class="max-w-6xl mx-auto px-4">
             <!-- Navigation par onglets -->
             <div class="bg-white rounded-2xl soft-shadow subtle-border overflow-hidden">
                 <div class="border-b border-gray-200">
-                    <nav class="flex">
+                    <nav class="flex overflow-x-auto">
                         <button onclick="showSection('profile')" 
                                 id="tab-profile"
-                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent tab-active">
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent tab-active whitespace-nowrap">
                             <i class="fas fa-user mr-2"></i>
                             Informations personnelles
                         </button>
                         {% if user.is_gestionnaire %}
                         <button onclick="showSection('gestionnaire')" 
                                 id="tab-gestionnaire"
-                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent whitespace-nowrap">
                             <i class="fas fa-building mr-2"></i>
                             Profil gestionnaire
                         </button>
                         {% elif user.is_client %}
                         <button onclick="showSection('client')" 
                                 id="tab-client"
-                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent whitespace-nowrap">
                             <i class="fas fa-suitcase mr-2"></i>
                             Profil client
                         </button>
                         {% endif %}
                         <button onclick="showSection('security')" 
                                 id="tab-security"
-                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent whitespace-nowrap">
                             <i class="fas fa-shield-alt mr-2"></i>
                             Sécurité
                         </button>
                         <button onclick="showSection('notifications')" 
                                 id="tab-notifications"
-                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">
+                                class="tab-button flex items-center px-6 py-4 text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent whitespace-nowrap">
                             <i class="fas fa-bell mr-2"></i>
                             Notifications
                         </button>
@@ -237,28 +267,73 @@
                         <form method="post" enctype="multipart/form-data" class="space-y-6">
                             {% csrf_token %}
                             
+                            <!-- Affichage des erreurs générales -->
+                            {% if form.non_field_errors %}
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    {% for error in form.non_field_errors %}
+                                        <p class="text-red-700">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
                             <!-- Photo de profil -->
                             <div class="bg-gray-50 rounded-xl p-6">
-                                <label class="block text-sm font-medium text-gray-700 mb-4">Photo de profil</label>
-                                <div class="flex items-center gap-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-4">
+                                    {{ form.photo_profil.label }}
+                                </label>
+                                <div class="space-y-4">
+                                    <!-- Photo actuelle -->
                                     {% if user.photo_profil %}
-                                        <img src="{{ user.photo_profil.url }}" alt="Photo actuelle" 
-                                             class="w-16 h-16 rounded-full object-cover">
-                                    {% else %}
-                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                            <span class="text-xl font-bold text-white">
-                                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
-                                            </span>
+                                        <div class="flex items-center gap-4">
+                                            <div class="flex-shrink-0">
+                                                <img src="{{ user.photo_profil.url }}" alt="Photo actuelle" 
+                                                     class="current-image w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center border-2 border-gray-200" style="display: none;">
+                                                    <span class="text-xl font-bold text-white">
+                                                        {{ user.first_name|first|upper|default:"U" }}{{ user.last_name|first|upper|default:"" }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Photo actuelle</p>
+                                                <p class="text-xs text-gray-500">Sélectionnez une nouvelle photo pour la remplacer</p>
+                                            </div>
                                         </div>
                                     {% endif %}
                                     
-                                    <div class="flex-1">
-                                        <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer" onclick="document.getElementById('photo-input').click()">
-                                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
-                                            <p class="text-sm text-gray-600">Cliquez pour télécharger une nouvelle photo</p>
-                                            <p class="text-xs text-gray-500 mt-1">JPG, PNG jusqu'à 5MB</p>
+                                    <!-- Zone d'upload -->
+                                    <div class="file-upload-area rounded-lg p-6 text-center cursor-pointer" onclick="document.getElementById('{{ form.photo_profil.id_for_label }}').click()">
+                                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                                        <p class="text-sm font-medium text-gray-900 mb-1">Cliquez pour sélectionner une photo</p>
+                                        <p class="text-xs text-gray-500">ou glissez-déposez votre fichier ici</p>
+                                        <p class="text-xs text-gray-400 mt-2">JPG, PNG, GIF jusqu'à 5MB</p>
+                                    </div>
+                                    
+                                    <!-- Input file (caché visuellement mais fonctionnel) -->
+                                    <div class="hidden">
+                                        {{ form.photo_profil }}
+                                    </div>
+                                    
+                                    <!-- Affichage des erreurs pour la photo -->
+                                    {% if form.photo_profil.errors %}
+                                        {% for error in form.photo_profil.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                    
+                                    <!-- Aperçu de la nouvelle photo sélectionnée -->
+                                    <div id="photo-preview" class="hidden">
+                                        <div class="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                            <img id="preview-image" src="" alt="Aperçu" class="w-12 h-12 rounded-full object-cover border-2 border-blue-300">
+                                            <div class="flex-1">
+                                                <p id="photo-name" class="text-sm font-medium text-blue-900"></p>
+                                                <p id="photo-size" class="text-xs text-blue-600"></p>
+                                            </div>
+                                            <button type="button" id="remove-photo" class="text-red-500 hover:text-red-700 transition-colors">
+                                                <i class="fas fa-times"></i>
+                                            </button>
                                         </div>
-                                        <input type="file" id="photo-input" name="photo_profil" accept="image/*" class="hidden">
                                     </div>
                                 </div>
                             </div>
@@ -266,23 +341,30 @@
                             <!-- Informations de base -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
-                                    <input type="text" name="first_name" value="{{ user.first_name }}" 
-                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.first_name.label }}</label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        {% for error in form.first_name.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
-                                    <input type="text" name="last_name" value="{{ user.last_name }}" 
-                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.last_name.label }}</label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        {% for error in form.last_name.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.email.label }}</label>
                                     <div class="relative">
-                                        <input type="email" name="email" value="{{ user.email }}" 
-                                               class="form-input w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        {{ form.email }}
                                         {% if user.email_verifie %}
                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                                 <i class="fas fa-check-circle text-green-500"></i>
@@ -293,6 +375,11 @@
                                             </div>
                                         {% endif %}
                                     </div>
+                                    {% if form.email.errors %}
+                                        {% for error in form.email.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                     {% if not user.email_verifie %}
                                         <p class="text-sm text-orange-600 mt-1">
                                             <a href="{% url 'users:resend_verification' %}" class="underline hover:text-orange-700">
@@ -302,23 +389,99 @@
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
-                                    <input type="tel" name="telephone" value="{{ user.telephone|default:'' }}" 
-                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.telephone.label }}</label>
+                                    {{ form.telephone }}
+                                    {% if form.telephone.errors %}
+                                        {% for error in form.telephone.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Date de naissance</label>
-                                <input type="date" name="date_naissance" value="{{ user.date_naissance|date:'Y-m-d'|default:'' }}" 
-                                       class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.date_naissance.label }}</label>
+                                {{ form.date_naissance }}
+                                {% if form.date_naissance.errors %}
+                                    {% for error in form.date_naissance.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
-                                <textarea name="adresse" rows="3" 
-                                          class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ user.adresse|default:'' }}</textarea>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.adresse.label }}</label>
+                                {{ form.adresse }}
+                                {% if form.adresse.errors %}
+                                    {% for error in form.adresse.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
+
+                            <!-- Champs additionnels si disponibles -->
+                            {% if form.ville %}
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.ville.label }}</label>
+                                    {{ form.ville }}
+                                    {% if form.ville.errors %}
+                                        {% for error in form.ville.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                {% if form.code_postal %}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.code_postal.label }}</label>
+                                    {{ form.code_postal }}
+                                    {% if form.code_postal.errors %}
+                                        {% for error in form.code_postal.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                {% if form.pays %}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.pays.label }}</label>
+                                    {{ form.pays }}
+                                    {% if form.pays.errors %}
+                                        {% for error in form.pays.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Préférences de notification si disponibles -->
+                            {% if form.newsletter or form.notifications_email or form.notifications_sms %}
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Préférences de communication</h3>
+                                <div class="space-y-3">
+                                    {% if form.newsletter %}
+                                    <label class="flex items-center">
+                                        {{ form.newsletter }}
+                                        <span class="ml-3 text-gray-700">{{ form.newsletter.label }}</span>
+                                    </label>
+                                    {% endif %}
+                                    {% if form.notifications_email %}
+                                    <label class="flex items-center">
+                                        {{ form.notifications_email }}
+                                        <span class="ml-3 text-gray-700">{{ form.notifications_email.label }}</span>
+                                    </label>
+                                    {% endif %}
+                                    {% if form.notifications_sms %}
+                                    <label class="flex items-center">
+                                        {{ form.notifications_sms }}
+                                        <span class="ml-3 text-gray-700">{{ form.notifications_sms.label }}</span>
+                                    </label>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
 
                             <div class="flex justify-end pt-6">
                                 <button type="submit" class="btn-primary bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
@@ -329,7 +492,7 @@
                     </div>
 
                     <!-- Section Gestionnaire -->
-                    {% if user.is_gestionnaire %}
+                    {% if user.is_gestionnaire and profil_form %}
                     <div id="section-gestionnaire" class="tab-content hidden">
                         <div class="mb-8">
                             <h2 class="text-2xl font-bold text-gray-900 mb-2">Profil gestionnaire</h2>
@@ -340,52 +503,38 @@
                             {% csrf_token %}
                             <input type="hidden" name="form_type" value="gestionnaire">
                             
-                            <!-- Documents -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Pièce d'identité</label>
-                                    <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer">
-                                        <i class="fas fa-id-card text-2xl text-gray-400 mb-2"></i>
-                                        <p class="text-sm text-gray-600">Télécharger votre pièce d'identité</p>
-                                        <input type="file" name="piece_identite" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
-                                    </div>
+                            <!-- Affichage des erreurs du profil gestionnaire -->
+                            {% if profil_form.non_field_errors %}
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    {% for error in profil_form.non_field_errors %}
+                                        <p class="text-red-700">{{ error }}</p>
+                                    {% endfor %}
                                 </div>
+                            {% endif %}
+                            
+                            <!-- Rendu automatique des champs du profil gestionnaire -->
+                            {% for field in profil_form %}
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Justificatif de domicile</label>
-                                    <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer">
-                                        <i class="fas fa-file-alt text-2xl text-gray-400 mb-2"></i>
-                                        <p class="text-sm text-gray-600">Télécharger un justificatif</p>
-                                        <input type="file" name="justificatif_domicile" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
-                                    </div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                                    {% if field.field.widget.input_type == 'file' %}
+                                        <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer" onclick="document.getElementById('{{ field.id_for_label }}').click()">
+                                            <i class="fas fa-file-alt text-2xl text-gray-400 mb-2"></i>
+                                            <p class="text-sm text-gray-600">{{ field.label }}</p>
+                                            <div class="hidden">{{ field }}</div>
+                                        </div>
+                                    {% else %}
+                                        {{ field }}
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        {% for error in field.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                        <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+                                    {% endif %}
                                 </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">SIRET (si applicable)</label>
-                                    <input type="text" name="numero_siret" 
-                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                           placeholder="123 456 789 01234">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Statut professionnel</label>
-                                    <select name="statut_professionnel" 
-                                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">Sélectionner un statut</option>
-                                        <option value="particulier">Particulier</option>
-                                        <option value="auto_entrepreneur">Auto-entrepreneur</option>
-                                        <option value="societe">Société</option>
-                                        <option value="autre">Autre</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Présentation</label>
-                                <textarea name="presentation" rows="4" 
-                                          class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                          placeholder="Présentez-vous à vos futurs clients..."></textarea>
-                            </div>
+                            {% endfor %}
 
                             <div class="flex justify-end pt-6">
                                 <button type="submit" class="btn-primary bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
@@ -397,7 +546,7 @@
                     {% endif %}
 
                     <!-- Section Client -->
-                    {% if user.is_client %}
+                    {% if user.is_client and profil_form %}
                     <div id="section-client" class="tab-content hidden">
                         <div class="mb-8">
                             <h2 class="text-2xl font-bold text-gray-900 mb-2">Profil client</h2>
@@ -408,70 +557,38 @@
                             {% csrf_token %}
                             <input type="hidden" name="form_type" value="client">
                             
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Pièce d'identité</label>
-                                <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer">
-                                    <i class="fas fa-id-card text-2xl text-gray-400 mb-2"></i>
-                                    <p class="text-sm text-gray-600">Télécharger votre pièce d'identité</p>
-                                    <p class="text-xs text-gray-500 mt-1">Requise pour la validation de vos réservations</p>
-                                    <input type="file" name="piece_identite" accept=".pdf,.jpg,.jpeg,.png" class="hidden">
+                            <!-- Affichage des erreurs du profil client -->
+                            {% if profil_form.non_field_errors %}
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    {% for error in profil_form.non_field_errors %}
+                                        <p class="text-red-700">{{ error }}</p>
+                                    {% endfor %}
                                 </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {% endif %}
+                            
+                            <!-- Rendu automatique des champs du profil client -->
+                            {% for field in profil_form %}
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Type de séjour préféré</label>
-                                    <select name="type_sejour_prefere" 
-                                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">Sélectionner</option>
-                                        <option value="vacances">Vacances</option>
-                                        <option value="professionnel">Professionnel</option>
-                                        <option value="week_end">Week-end</option>
-                                        <option value="long_sejour">Long séjour</option>
-                                    </select>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                                    {% if field.field.widget.input_type == 'file' %}
+                                        <div class="file-upload-area rounded-lg p-4 text-center cursor-pointer" onclick="document.getElementById('{{ field.id_for_label }}').click()">
+                                            <i class="fas fa-id-card text-2xl text-gray-400 mb-2"></i>
+                                            <p class="text-sm text-gray-600">{{ field.label }}</p>
+                                            <div class="hidden">{{ field }}</div>
+                                        </div>
+                                    {% else %}
+                                        {{ field }}
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        {% for error in field.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                        <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+                                    {% endif %}
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Budget moyen par nuit</label>
-                                    <select name="budget_moyen" 
-                                            class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <option value="">Sélectionner</option>
-                                        <option value="0-50">0€ - 50€</option>
-                                        <option value="50-100">50€ - 100€</option>
-                                        <option value="100-200">100€ - 200€</option>
-                                        <option value="200+">200€+</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Équipements préférés</label>
-                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="equipements_preferes" value="wifi" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-2 text-sm text-gray-700">WiFi</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="equipements_preferes" value="piscine" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-2 text-sm text-gray-700">Piscine</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="equipements_preferes" value="parking" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-2 text-sm text-gray-700">Parking</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="equipements_preferes" value="jardin" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-2 text-sm text-gray-700">Jardin</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="equipements_preferes" value="climatisation" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-2 text-sm text-gray-700">Climatisation</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="equipements_preferes" value="cuisine" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-2 text-sm text-gray-700">Cuisine équipée</span>
-                                    </label>
-                                </div>
-                            </div>
+                            {% endfor %}
 
                             <div class="flex justify-end pt-6">
                                 <button type="submit" class="btn-primary bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
@@ -499,19 +616,19 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
                                     <input type="password" name="old_password" 
-                                           class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                           class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 </div>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
                                         <input type="password" name="new_password1" 
-                                               class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le nouveau mot de passe</label>
                                         <input type="password" name="new_password2" 
-                                               class="form-input w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                 </div>
                                 
@@ -534,56 +651,12 @@
                                         </div>
                                         <div>
                                             <p class="font-medium text-gray-900">Session actuelle</p>
-                                            <p class="text-sm text-gray-600">{{ request.META.REMOTE_ADDR|default:"Adresse IP inconnue" }} • {{ user.date_derniere_connexion_complete|default:"Jamais"|date:"d M Y à H:i" }}</p>
+                                            <p class="text-sm text-gray-600">{{ request.META.REMOTE_ADDR|default:"Adresse IP inconnue" }} • {{ user.last_login|default:"Jamais"|date:"d M Y à H:i" }}</p>
                                         </div>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         Actuelle
                                     </span>
-                                </div>
-                                
-                                <!-- Autres sessions (simulation) -->
-                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-mobile-alt text-gray-600"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Mobile Chrome</p>
-                                            <p class="text-sm text-gray-600">Il y a 2 jours</p>
-                                        </div>
-                                    </div>
-                                    <button class="text-red-600 hover:text-red-700 text-sm font-medium">
-                                        Déconnecter
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Confidentialité -->
-                        <div class="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Paramètres de confidentialité</h3>
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="font-medium text-gray-900">Profil public</p>
-                                        <p class="text-sm text-gray-600">Permettre aux autres utilisateurs de voir votre profil</p>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" class="sr-only peer" checked>
-                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                    </label>
-                                </div>
-                                
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="font-medium text-gray-900">Historique des recherches</p>
-                                        <p class="text-sm text-gray-600">Enregistrer vos recherches pour améliorer les recommandations</p>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" class="sr-only peer" checked>
-                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -624,130 +697,16 @@
                                     Notifications par email
                                 </h3>
                                 <div class="space-y-4">
-                                    {% if user.is_gestionnaire %}
                                     <div class="notification-item flex items-center justify-between p-3 rounded-lg">
                                         <div>
-                                            <p class="font-medium text-gray-900">Nouvelles réservations</p>
-                                            <p class="text-sm text-gray-600">Recevoir un email lors de nouvelles réservations</p>
+                                            <p class="font-medium text-gray-900">Notifications importantes</p>
+                                            <p class="text-sm text-gray-600">Recevoir les notifications critiques</p>
                                         </div>
                                         <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="notif_nouvelles_reservations" class="sr-only peer" checked>
+                                            <input type="checkbox" name="notif_importantes" class="sr-only peer" checked>
                                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                         </label>
                                     </div>
-                                    
-                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
-                                        <div>
-                                            <p class="font-medium text-gray-900">Modifications de réservations</p>
-                                            <p class="text-sm text-gray-600">Être notifié des modifications ou annulations</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="notif_modifications_reservations" class="sr-only peer" checked>
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
-                                        <div>
-                                            <p class="font-medium text-gray-900">Rappels de paiement</p>
-                                            <p class="text-sm text-gray-600">Recevoir des rappels pour les paiements en attente</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="notif_rappels_paiement" class="sr-only peer" checked>
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                        </label>
-                                    </div>
-                                    {% elif user.is_client %}
-                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
-                                        <div>
-                                            <p class="font-medium text-gray-900">Confirmations de réservation</p>
-                                            <p class="text-sm text-gray-600">Recevoir un email de confirmation de vos réservations</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="notif_confirmations_reservation" class="sr-only peer" checked>
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
-                                        <div>
-                                            <p class="font-medium text-gray-900">Rappels de séjour</p>
-                                            <p class="text-sm text-gray-600">Recevoir des rappels avant vos séjours</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="notif_rappels_sejour" class="sr-only peer" checked>
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
-                                        <div>
-                                            <p class="font-medium text-gray-900">Offres spéciales</p>
-                                            <p class="text-sm text-gray-600">Recevoir les promotions et offres spéciales</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="notif_offres_speciales" class="sr-only peer">
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                        </label>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Notifications push -->
-                            <div class="bg-white border border-gray-200 rounded-xl p-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-bell mr-2 text-purple-600"></i>
-                                    Notifications push
-                                </h3>
-                                <div class="space-y-4">
-                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
-                                        <div>
-                                            <p class="font-medium text-gray-900">Notifications desktop</p>
-                                            <p class="text-sm text-gray-600">Recevoir des notifications sur votre ordinateur</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="notif_desktop" class="sr-only peer">
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="notification-item flex items-center justify-between p-3 rounded-lg">
-                                        <div>
-                                            <p class="font-medium text-gray-900">Notifications mobiles</p>
-                                            <p class="text-sm text-gray-600">Recevoir des notifications sur votre téléphone</p>
-                                        </div>
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="notif_mobile" class="sr-only peer" checked>
-                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Fréquence des emails -->
-                            <div class="bg-white border border-gray-200 rounded-xl p-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-clock mr-2 text-green-600"></i>
-                                    Fréquence des emails
-                                </h3>
-                                <div class="space-y-3">
-                                    <label class="flex items-center">
-                                        <input type="radio" name="frequence_emails" value="immediate" class="text-blue-600 focus:ring-blue-500" checked>
-                                        <span class="ml-3 text-gray-700">Immédiate (dès qu'une action se produit)</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" name="frequence_emails" value="quotidien" class="text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-3 text-gray-700">Quotidienne (résumé journalier)</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" name="frequence_emails" value="hebdomadaire" class="text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-3 text-gray-700">Hebdomadaire (résumé hebdomadaire)</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" name="frequence_emails" value="jamais" class="text-blue-600 focus:ring-blue-500">
-                                        <span class="ml-3 text-gray-700">Jamais (sauf notifications importantes)</span>
-                                    </label>
                                 </div>
                             </div>
 
@@ -803,6 +762,67 @@
 
 {% block extra_js %}
 <script>
+// Gestion de l'upload de photo
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.getElementById('{{ form.photo_profil.id_for_label }}');
+    const photoPreview = document.getElementById('photo-preview');
+    const previewImage = document.getElementById('preview-image');
+    const photoName = document.getElementById('photo-name');
+    const photoSize = document.getElementById('photo-size');
+    const removePhotoBtn = document.getElementById('remove-photo');
+
+    if (photoInput) {
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handlePhotoSelection(file);
+            }
+        });
+    }
+
+    if (removePhotoBtn) {
+        removePhotoBtn.addEventListener('click', function() {
+            photoInput.value = '';
+            if (photoPreview) {
+                photoPreview.classList.add('hidden');
+            }
+        });
+    }
+
+    function handlePhotoSelection(file) {
+        // Vérifications de base
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Le fichier est trop volumineux. Taille maximale : 5MB');
+            photoInput.value = '';
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            alert('Veuillez sélectionner un fichier image valide (JPG, PNG, etc.)');
+            photoInput.value = '';
+            return;
+        }
+
+        // Aperçu
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (previewImage) previewImage.src = e.target.result;
+            if (photoName) photoName.textContent = file.name;
+            if (photoSize) photoSize.textContent = formatFileSize(file.size);
+            if (photoPreview) photoPreview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+});
+
 // Gestion des onglets
 function showSection(sectionName) {
     // Cacher toutes les sections
@@ -820,93 +840,38 @@ function showSection(sectionName) {
     });
     
     // Afficher la section sélectionnée
-    document.getElementById('section-' + sectionName).classList.remove('hidden');
+    const targetSection = document.getElementById('section-' + sectionName);
+    if (targetSection) {
+        targetSection.classList.remove('hidden');
+    }
     
     // Activer l'onglet correspondant
     const activeTab = document.getElementById('tab-' + sectionName);
-    activeTab.classList.add('tab-active');
-    activeTab.classList.remove('text-gray-600');
-    activeTab.classList.add('text-blue-600');
+    if (activeTab) {
+        activeTab.classList.add('tab-active');
+        activeTab.classList.remove('text-gray-600');
+        activeTab.classList.add('text-blue-600');
+    }
 }
-
-// Gestion des uploads de fichiers
-document.addEventListener('DOMContentLoaded', function() {
-    const fileUploadAreas = document.querySelectorAll('.file-upload-area');
-    
-    fileUploadAreas.forEach(area => {
-        area.addEventListener('click', function() {
-            const input = this.querySelector('input[type="file"]');
-            if (input) {
-                input.click();
-            }
-        });
-        
-        // Gestion du drag & drop
-        area.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.classList.add('border-blue-500', 'bg-blue-50');
-        });
-        
-        area.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            this.classList.remove('border-blue-500', 'bg-blue-50');
-        });
-        
-        area.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('border-blue-500', 'bg-blue-50');
-            
-            const input = this.querySelector('input[type="file"]');
-            if (input && e.dataTransfer.files.length > 0) {
-                input.files = e.dataTransfer.files;
-                
-                // Afficher le nom du fichier
-                const fileName = e.dataTransfer.files[0].name;
-                const text = this.querySelector('p');
-                if (text) {
-                    text.textContent = fileName;
-                    text.classList.add('text-blue-600', 'font-medium');
-                }
-            }
-        });
-    });
-    
-    // Gestion des changements de fichiers
-    const fileInputs = document.querySelectorAll('input[type="file"]');
-    fileInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                const fileName = this.files[0].name;
-                const uploadArea = this.closest('.file-upload-area');
-                const text = uploadArea.querySelector('p');
-                if (text) {
-                    text.textContent = fileName;
-                    text.classList.add('text-blue-600', 'font-medium');
-                }
-            }
-        });
-    });
-});
 
 // Modal de suppression de compte
 function confirmAccountDeletion() {
-    document.getElementById('deleteAccountModal').classList.remove('hidden');
-    document.getElementById('deleteAccountModal').classList.add('flex');
+    const modal = document.getElementById('deleteAccountModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 }
 
 function hideDeleteModal() {
-    document.getElementById('deleteAccountModal').classList.add('hidden');
-    document.getElementById('deleteAccountModal').classList.remove('flex');
+    const modal = document.getElementById('deleteAccountModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 }
 
-// Fermer le modal en cliquant à l'extérieur
-document.getElementById('deleteAccountModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        hideDeleteModal();
-    }
-});
-
-// Messages flash auto-hide
+// Auto-hide des messages
 document.addEventListener('DOMContentLoaded', function() {
     const messages = document.querySelectorAll('.alert');
     messages.forEach(message => {
@@ -919,24 +884,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Validation en temps réel des mots de passe
-const passwordInputs = document.querySelectorAll('input[type="password"]');
-passwordInputs.forEach(input => {
-    input.addEventListener('input', function() {
-        const form = this.closest('form');
-        const newPassword1 = form.querySelector('input[name="new_password1"]');
-        const newPassword2 = form.querySelector('input[name="new_password2"]');
-        
-        if (newPassword1 && newPassword2 && newPassword1.value && newPassword2.value) {
-            if (newPassword1.value !== newPassword2.value) {
-                newPassword2.setCustomValidity('Les mots de passe ne correspondent pas');
-                newPassword2.classList.add('border-red-500');
-            } else {
-                newPassword2.setCustomValidity('');
-                newPassword2.classList.remove('border-red-500');
-                newPassword2.classList.add('border-green-500');
+// Validation des mots de passe
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    passwordInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const form = this.closest('form');
+            if (!form) return;
+            
+            const newPassword1 = form.querySelector('input[name="new_password1"]');
+            const newPassword2 = form.querySelector('input[name="new_password2"]');
+            
+            if (newPassword1 && newPassword2 && newPassword1.value && newPassword2.value) {
+                if (newPassword1.value !== newPassword2.value) {
+                    newPassword2.setCustomValidity('Les mots de passe ne correspondent pas');
+                    newPassword2.classList.add('border-red-500');
+                    newPassword2.classList.remove('border-green-500');
+                } else {
+                    newPassword2.setCustomValidity('');
+                    newPassword2.classList.remove('border-red-500');
+                    newPassword2.classList.add('border-green-500');
+                }
             }
-        }
+        });
     });
 });
 </script>

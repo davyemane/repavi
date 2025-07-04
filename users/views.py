@@ -293,70 +293,47 @@ def dashboard_client_view(request):
     }
     
     return render(request, 'users/dashboard_client.html', context)
+
 @login_required
 def profile_view(request):
-    """Vue du profil utilisateur - ADAPTÉE AVEC PROFILS ÉTENDUS"""
-    # Formulaire principal
+    """Vue du profil utilisateur - AVEC DEBUG"""
+    
+    # Debug: afficher les informations de la photo
+    if request.user.photo_profil:
+        print(f"Photo profil URL: {request.user.photo_profil.url}")
+        print(f"Photo profil name: {request.user.photo_profil.name}")
+        print(f"Photo profil path: {request.user.photo_profil.path}")
+        print(f"MEDIA_URL: {settings.MEDIA_URL}")
+        print(f"MEDIA_ROOT: {settings.MEDIA_ROOT}")
+    
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user)
         
-        # Formulaires étendus selon le rôle
-        profil_form = None
-        if request.user.is_gestionnaire():
-            try:
-                profil_gestionnaire = request.user.profil_gestionnaire
-            except ProfilGestionnaire.DoesNotExist:
-                profil_gestionnaire = ProfilGestionnaire.objects.create(user=request.user)
-            
-            profil_form = ProfilGestionnaireForm(request.POST, request.FILES, instance=profil_gestionnaire)
+        # Debug: vérifier les fichiers uploadés
+        if request.FILES:
+            print(f"Files uploaded: {request.FILES}")
+            if 'photo_profil' in request.FILES:
+                uploaded_file = request.FILES['photo_profil']
+                print(f"Uploaded file: {uploaded_file.name}, size: {uploaded_file.size}")
         
-        elif request.user.is_client():
-            try:
-                profil_client = request.user.profil_client
-            except ProfilClient.DoesNotExist:
-                profil_client = ProfilClient.objects.create(user=request.user)
+        if form.is_valid():
+            user = form.save()
             
-            profil_form = ProfilClientForm(request.POST, request.FILES, instance=profil_client)
-        
-        # Validation et sauvegarde
-        if form.is_valid() and (profil_form is None or profil_form.is_valid()):
-            with transaction.atomic():
-                form.save()
-                if profil_form:
-                    profil_form.save()
+            # Debug après sauvegarde
+            if user.photo_profil:
+                print(f"Saved photo URL: {user.photo_profil.url}")
+                print(f"Saved photo path: {user.photo_profil.path}")
             
             messages.success(request, 'Votre profil a été mis à jour avec succès.')
             return redirect('users:profile')
         else:
             messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
-    
+            print(f"Form errors: {form.errors}")
     else:
         form = ProfileForm(instance=request.user)
-        profil_form = None
-        
-        if request.user.is_gestionnaire():
-            try:
-                profil_gestionnaire = request.user.profil_gestionnaire
-            except ProfilGestionnaire.DoesNotExist:
-                profil_gestionnaire = ProfilGestionnaire.objects.create(user=request.user)
-            profil_form = ProfilGestionnaireForm(instance=profil_gestionnaire)
-        
-        elif request.user.is_client():
-            try:
-                profil_client = request.user.profil_client
-            except ProfilClient.DoesNotExist:
-                profil_client = ProfilClient.objects.create(user=request.user)
-            profil_form = ProfilClientForm(instance=profil_client)
     
-    context = {
-        'form': form,
-        'profil_form': profil_form,
-        'user_role': request.user.role,
-    }
-    
+    context = {'form': form}
     return render(request, 'users/profile.html', context)
-
-
 
 @login_required
 def mes_maisons_view(request):
