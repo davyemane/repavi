@@ -16,6 +16,7 @@
 
 {% block header_actions %}
     <div class="flex items-center space-x-3">
+        {% if can_create %}
         <a href="{% url 'repavi_admin:photo_create' %}" 
            class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
             <i class="fas fa-camera mr-2"></i>
@@ -26,6 +27,7 @@
             <i class="fas fa-plus mr-2"></i>
             Nouvelle maison
         </a>
+        {% endif %}
     </div>
 {% endblock %}
 
@@ -223,11 +225,21 @@
                            title="Modifier">
                             <i class="fas fa-edit"></i>
                         </a>
+                        {% if maison.get_absolute_url %}
                         <a href="{{ maison.get_absolute_url }}" target="_blank"
                            class="p-2 bg-white/90 text-green-600 rounded-lg hover:bg-white hover:text-green-800 transition-colors"
                            title="Voir sur le site">
                             <i class="fas fa-external-link-alt"></i>
                         </a>
+                        {% endif %}
+                        <!-- Icône de suppression toujours visible pour les gestionnaires/admins -->
+                        {% if user.is_superuser or user.is_staff %}
+                        <button onclick="confirmDelete('{{ maison.nom }}', '{% url 'repavi_admin:maison_delete' maison.pk %}')"
+                                class="p-2 bg-white/90 text-red-600 rounded-lg hover:bg-white hover:text-red-800 transition-colors"
+                                title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -298,7 +310,9 @@
                     <!-- Statistiques -->
                     <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                         <span>{{ maison.photos.count }} photo{{ maison.photos.count|pluralize }}</span>
+                        {% if maison.reservations %}
                         <span>{{ maison.reservations.count }} réservation{{ maison.reservations.count|pluralize }}</span>
+                        {% endif %}
                         <span>Créé le {{ maison.date_creation|date:"d/m/Y" }}</span>
                     </div>
                 </div>
@@ -316,17 +330,20 @@
                         </a>
                     </div>
                     <div class="flex items-center space-x-2">
-                        {% if can_delete %}
-                        <a href="{% url 'repavi_admin:maison_delete' maison.pk %}" 
-                           class="text-red-600 hover:text-red-800 text-sm"
-                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette maison ?')">
-                            <i class="fas fa-trash"></i>
+                        <!-- Bouton de suppression visible -->
+                        {% if user.is_superuser or user.is_staff %}
+                        <button onclick="confirmDelete('{{ maison.nom }}', '{% url 'repavi_admin:maison_delete' maison.pk %}')"
+                                class="text-red-600 hover:text-red-800 text-sm font-medium"
+                                title="Supprimer la maison">
+                            <i class="fas fa-trash mr-1"></i>Supprimer
+                        </button>
+                        {% endif %}
+                        {% if maison.get_absolute_url %}
+                        <a href="{{ maison.get_absolute_url }}" target="_blank"
+                           class="text-green-600 hover:text-green-800 text-sm font-medium">
+                            <i class="fas fa-external-link-alt mr-1"></i>Voir
                         </a>
                         {% endif %}
-                        <a href="{{ maison.get_absolute_url }}" target="_blank"
-                           class="text-green-600 hover:text-green-800 text-sm">
-                            <i class="fas fa-external-link-alt"></i>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -349,11 +366,13 @@
                     Commencez par ajouter votre première maison.
                 {% endif %}
             </p>
+            {% if can_create %}
             <a href="{% url 'repavi_admin:maison_create' %}" 
                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-plus mr-2"></i>
                 Ajouter la première maison
             </a>
+            {% endif %}
         </div>
         {% endif %}
 
@@ -411,6 +430,55 @@
         const url = new URL(window.location);
         url.searchParams.set('sort', value);
         window.location.href = url.toString();
+    }
+
+    // Fonction de confirmation de suppression améliorée
+    function confirmDelete(maisonNom, deleteUrl) {
+        // Créer une modal de confirmation personnalisée
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl p-6 max-w-md mx-4">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Confirmer la suppression</h3>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-6">
+                    Êtes-vous sûr de vouloir supprimer la maison <strong>"${maisonNom}"</strong> ?
+                    <br><br>
+                    <span class="text-red-600 text-sm">⚠️ Cette action est irréversible !</span>
+                </p>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Annuler
+                    </button>
+                    <a href="${deleteUrl}" 
+                       class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        <i class="fas fa-trash mr-2"></i>Supprimer
+                    </a>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Fermer avec échap
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+            }
+        });
+        
+        // Fermer en cliquant à côté
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 
     // Initialiser le tri actuel
