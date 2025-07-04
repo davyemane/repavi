@@ -54,12 +54,12 @@
                 <h3 class="text-lg font-medium text-gray-900">
                     <i class="fas fa-info-circle mr-2 text-blue-500"></i>
                     Vous êtes sur le point de supprimer 
-                    {% if type == 'ville' %}la ville
-                    {% elif type == 'catégorie' %}la catégorie
-                    {% elif type == 'maison' %}la maison
-                    {% elif type == 'photo' %}la photo
-                    {% elif type == 'réservation' %}la réservation
-                    {% else %}l'élément{% endif %}
+                    {% if type == 'ville' %}la {{ type }}
+                    {% elif type == 'catégorie' %}la {{ type }}
+                    {% elif type == 'maison' %}la {{ type }}
+                    {% elif type == 'photo' %}la {{ type }}
+                    {% elif type == 'réservation' %}la {{ type }}
+                    {% else %}{{ type }}{% endif %}
                 </h3>
             </div>
             
@@ -230,12 +230,12 @@
                                 </div>
                                 <div class="text-gray-500 mt-1">
                                     Je confirme que je souhaite supprimer définitivement 
-                                    {% if type == 'ville' %}la ville
-                                    {% elif type == 'catégorie' %}la catégorie
-                                    {% elif type == 'maison' %}la maison
-                                    {% elif type == 'photo' %}la photo
-                                    {% elif type == 'réservation' %}la réservation
-                                    {% else %}cet élément{% endif %}
+                                    {% if type == 'ville' %}la {{ type }}
+                                    {% elif type == 'catégorie' %}la {{ type }}
+                                    {% elif type == 'maison' %}la {{ type }}
+                                    {% elif type == 'photo' %}la {{ type }}
+                                    {% elif type == 'réservation' %}la {{ type }}
+                                    {% else %}{{ type }}{% endif %}
                                     <strong>
                                         {% if type == 'ville' %}
                                             "{{ objet.nom }}"
@@ -335,8 +335,8 @@
             return false;
         }
         
-        // Dernière confirmation  
-        const message = `Êtes-vous absolument certain de vouloir supprimer {% if type == 'ville' %}la ville{% elif type == 'catégorie' %}la catégorie{% elif type == 'maison' %}la maison{% elif type == 'photo' %}la photo{% elif type == 'réservation' %}la réservation{% else %}cet élément{% endif %} ?\n\nCette action est IRRÉVERSIBLE !`;
+        // Dernière confirmation
+        const message = `Êtes-vous absolument certain de vouloir supprimer {% if type == 'ville' %}la {{ type }}{% elif type == 'catégorie' %}la {{ type }}{% elif type == 'maison' %}la {{ type }}{% elif type == 'photo' %}la {{ type }}{% elif type == 'réservation' %}la {{ type }}{% else %}{{ type }}{% endif %} ?\n\nCette action est IRRÉVERSIBLE !`;
         return confirm(message);
     }
 
