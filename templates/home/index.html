@@ -306,8 +306,10 @@
                     </div>
                     
                     <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ maison.nom }}</h3>
-                        <p class="text-gray-600 mb-4 line-clamp-2">{{ maison.description|truncatewords:15 }}</p>
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ maison.nom }}</h3>
+                            <p class="text-gray-600 mb-3 line-clamp-2">{{ maison.description|truncatewords:15 }}</p>
+                        </div>
                         
                         <!-- Note et avis -->
                         {% if maison.get_nombre_avis > 0 %}
@@ -327,45 +329,49 @@
                         </div>
                         {% endif %}
                         
-                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-6">
                             <div class="flex items-center">
-                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
                                 <span>{{ maison.ville }}</span>
                             </div>
                             <div class="flex items-center space-x-4">
-                                <span><i class="fas fa-users mr-1"></i>{{ maison.capacite_personnes }}</span>
-                                <span><i class="fas fa-bed mr-1"></i>{{ maison.nombre_chambres }}</span>
+                                <span><i class="fas fa-users mr-1 text-gray-400"></i>{{ maison.capacite_personnes }}</span>
+                                <span><i class="fas fa-bed mr-1 text-gray-400"></i>{{ maison.nombre_chambres }}</span>
                             </div>
                         </div>
                         
-                        <div class="flex items-center justify-between">
-                            <div class="text-2xl font-bold text-gray-900">
-                                {{ maison.prix_par_nuit }}FCFA
-                                <span class="text-sm font-normal text-gray-500">/nuit</span>
+                        <!-- Prix et boutons arrangés -->
+                        <div class="border-t border-gray-100 pt-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="text-2xl font-bold text-gray-900">
+                                    {{ maison.prix_par_nuit }}FCFA
+                                    <span class="text-sm font-normal text-gray-500">/nuit</span>
+                                </div>
                             </div>
                             
-                            <div class="flex space-x-2">
+                            <!-- Boutons améliorés -->
+                            <div class="flex flex-col sm:flex-row gap-3">
                                 <a href="{% url 'home:maison_detail' maison.slug %}" 
-                                   class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-300 transition-colors">
-                                    Détails
+                                   class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center flex items-center justify-center">
+                                    <i class="fas fa-eye mr-2"></i>Voir détails
                                 </a>
                                 
                                 {% if reservations_available and maison.disponible and maison.statut_occupation == 'libre' %}
                                     {% if user.is_authenticated and user.is_client %}
                                         <a href="{% url 'home:initier_reservation' maison.slug %}" 
-                                           class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-calendar-plus mr-1"></i>Réserver
+                                           class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors text-center flex items-center justify-center">
+                                            <i class="fas fa-calendar-plus mr-2"></i>Réserver
                                         </a>
                                     {% else %}
                                         <a href="{% url 'users:login' %}?next={% url 'home:initier_reservation' maison.slug %}" 
-                                           class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-calendar-plus mr-1"></i>Réserver
+                                           class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors text-center flex items-center justify-center">
+                                            <i class="fas fa-calendar-plus mr-2"></i>Réserver
                                         </a>
                                     {% endif %}
                                 {% elif reservations_available %}
-                                    <span class="bg-gray-400 text-white px-4 py-2 rounded-full text-sm font-medium cursor-not-allowed">
-                                        Non disponible
-                                    </span>
+                                    <div class="flex-1 bg-gray-400 text-white px-4 py-3 rounded-lg text-sm font-medium cursor-not-allowed text-center flex items-center justify-center">
+                                        <i class="fas fa-ban mr-2"></i>Non disponible
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>

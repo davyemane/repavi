@@ -1,4 +1,4 @@
-{% extends 'client_base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}Réserver {{ maison.nom }} - RepAvi Lodges{% endblock %}
 
@@ -7,14 +7,9 @@
   <div class="max-w-6xl mx-auto">
     
     <!-- Header -->
-    <div class="mb-8">
-      <nav class="text-sm text-gray-500 mb-4">
-        <a href="{% url 'reservations:recherche_disponibilite' %}" class="hover:text-blue-600">Recherche</a>
-        <span class="mx-2">/</span>
-        <span class="text-gray-900">{{ maison.nom }}</span>
-      </nav>
-      <h1 class="text-3xl font-bold text-gray-900">Réserver {{ maison.nom }}</h1>
-      <p class="text-gray-600 mt-2">{{ maison.ville.nom }} • {{ maison.capacite_personnes }} personnes</p>
+         {% include 'components/navigation.html' %}
+
+    <div class="mb-5 mt-12">
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

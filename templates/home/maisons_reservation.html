@@ -28,9 +28,6 @@
     <!-- Navigation -->
     {% include 'components/navigation.html' %}
 
-    <!-- Header -->
-    {% include 'components/navigation.html' %}
-
     <!-- Formulaire de recherche -->
     <section class="py-8 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4">
@@ -194,55 +191,58 @@
                         
                         <!-- Contenu -->
                         <div class="p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ maison.nom }}</h3>
-                            
-                            <div class="flex items-center text-gray-600 text-sm mb-3">
-                                <i class="fas fa-map-marker-alt mr-2"></i>
-                                <span>{{ maison.ville.nom }}</span>
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ maison.nom }}</h3>
+                                
+                                <div class="flex items-center text-gray-600 text-sm mb-3">
+                                    <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+                                    <span>{{ maison.ville.nom }}</span>
+                                </div>
+                                
+                                <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ maison.description|truncatewords:20 }}</p>
                             </div>
                             
-                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ maison.description|truncatewords:20 }}</p>
-                            
                             <!-- Caractéristiques -->
-                            <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-6">
                                 <div class="flex items-center space-x-4">
-                                    <span><i class="fas fa-users mr-1"></i>{{ maison.capacite_personnes }}</span>
-                                    <span><i class="fas fa-bed mr-1"></i>{{ maison.nombre_chambres }}</span>
-                                    <span><i class="fas fa-bath mr-1"></i>{{ maison.nombre_salles_bain }}</span>
+                                    <span><i class="fas fa-users mr-1 text-gray-400"></i>{{ maison.capacite_personnes }}</span>
+                                    <span><i class="fas fa-bed mr-1 text-gray-400"></i>{{ maison.nombre_chambres }}</span>
+                                    <span><i class="fas fa-bath mr-1 text-gray-400"></i>{{ maison.nombre_salles_bain }}</span>
                                 </div>
                             </div>
                             
-                            <!-- Prix et actions -->
-                            <div class="border-t pt-4">
+                            <!-- Prix et actions améliorés -->
+                            <div class="border-t border-gray-100 pt-4">
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
                                         <div class="text-2xl font-bold text-gray-900">{{ maison.prix_par_nuit }}FCFA</div>
                                         <div class="text-sm text-gray-500">par nuit</div>
                                     </div>
+                                </div>
+                                
+                                <!-- Boutons arrangés -->
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <a href="{% url 'home:maison_detail' maison.slug %}" 
+                                       class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors text-center flex items-center justify-center">
+                                        <i class="fas fa-eye mr-2"></i>Voir détails
+                                    </a>
                                     
-                                    <div class="flex space-x-2">
-                                        <a href="{% url 'home:maison_detail' maison.slug %}" 
-                                           class="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-300 transition-colors">
-                                            Détails
+                                    {% if user.is_authenticated and user.is_client %}
+                                        <a href="{% url 'home:initier_reservation' maison.slug %}{% if date_debut and date_fin %}?date_debut={{ date_debut }}&date_fin={{ date_fin }}{% if current_filters.capacite %}&nombre_personnes={{ current_filters.capacite }}{% endif %}{% endif %}" 
+                                           class="flex-1 bg-indigo-600 text-white px-4 py-3 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors text-center flex items-center justify-center">
+                                            <i class="fas fa-calendar-plus mr-2"></i>Réserver
                                         </a>
-                                        
-                                        {% if user.is_authenticated and user.is_client %}
-                                            <a href="{% url 'home:initier_reservation' maison.slug %}{% if date_debut and date_fin %}?date_debut={{ date_debut }}&date_fin={{ date_fin }}{% if current_filters.capacite %}&nombre_personnes={{ current_filters.capacite }}{% endif %}{% endif %}" 
-                                               class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
-                                                <i class="fas fa-calendar-plus mr-1"></i>Réserver
-                                            </a>
-                                        {% else %}
-                                            <a href="{% url 'users:login' %}?next={% url 'home:initier_reservation' maison.slug %}" 
-                                               class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-colors">
-                                                <i class="fas fa-calendar-plus mr-1"></i>Réserver
-                                            </a>
-                                        {% endif %}
-                                    </div>
+                                    {% else %}
+                                        <a href="{% url 'users:login' %}?next={% url 'home:initier_reservation' maison.slug %}" 
+                                           class="flex-1 bg-indigo-600 text-white px-4 py-3 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors text-center flex items-center justify-center">
+                                            <i class="fas fa-calendar-plus mr-2"></i>Réserver
+                                        </a>
+                                    {% endif %}
                                 </div>
                                 
                                 <!-- Calcul rapide du prix pour les dates -->
                                 {% if date_debut and date_fin %}
-                                    <div class="bg-gray-50 rounded-xl p-3">
+                                    <div class="bg-indigo-50 rounded-xl p-3 mt-3">
                                         <div class="flex justify-between text-sm">
                                             <span class="text-gray-600">{{ date_debut }} → {{ date_fin }}</span>
                                             <span class="font-semibold text-indigo-600">
