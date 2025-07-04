@@ -1,8 +1,43 @@
 # users/models.py
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager as BaseUserManager
 from django.core.validators import RegexValidator
 from PIL import Image
+
+class UserManager(BaseUserManager):
+    """Manager personnalisé pour User"""
+    
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """Créer un superutilisateur avec le bon rôle"""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'SUPER_ADMIN')  # Forcer le rôle SUPER_ADMIN
+        
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        
+        return self.create_user(username, email, password, **extra_fields)
+    
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        """Créer un utilisateur normal"""
+        if not username:
+            raise ValueError('The Username field must be set')
+        
+        # Si pas de rôle défini, mettre CLIENT par défaut
+        if 'role' not in extra_fields:
+            extra_fields['role'] = 'CLIENT'
+        
+        # Normaliser l'email
+        if email:
+            email = self.normalize_email(email)
+        
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
 
 class User(AbstractUser):
     """Modèle utilisateur personnalisé pour RepAvi - Refactorisé selon cahier technique"""
@@ -59,11 +94,18 @@ class User(AbstractUser):
     date_derniere_connexion_complete = models.DateTimeField(null=True, blank=True)
     ip_derniere_connexion = models.GenericIPAddressField(null=True, blank=True)
     
+    # Assigner le manager personnalisé
+    objects = UserManager()
+    
     # Configuration Django
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
     
     def save(self, *args, **kwargs):
+        # Logique spéciale pour les superutilisateurs
+        if self.is_superuser and self.role == 'CLIENT':
+            self.role = 'SUPER_ADMIN'
+        
         super().save(*args, **kwargs)
         
         # Redimensionner la photo de profil

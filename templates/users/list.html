@@ -216,22 +216,25 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end space-x-2">
                                 <a href="{% url 'repavi_admin:change_user_role_view' user.id %}" 
-                                   class="text-blue-600 hover:text-blue-900"
+                                   class="text-blue-600 hover:text-blue-900 cursor-pointer"
                                    title="Changer le rôle">
                                     <i class="fas fa-user-edit"></i>
                                 </a>
                                 {% if not user.is_active %}
-                                    <button class="text-green-600 hover:text-green-900" 
+                                    <button onclick="toggleUserStatus({{ user.id }}, true)" 
+                                            class="text-green-600 hover:text-green-900 cursor-pointer" 
                                             title="Activer l'utilisateur">
                                         <i class="fas fa-user-check"></i>
                                     </button>
                                 {% else %}
-                                    <button class="text-orange-600 hover:text-orange-900" 
+                                    <button onclick="toggleUserStatus({{ user.id }}, false)" 
+                                            class="text-orange-600 hover:text-orange-900 cursor-pointer" 
                                             title="Désactiver l'utilisateur">
                                         <i class="fas fa-user-times"></i>
                                     </button>
                                 {% endif %}
-                                <button class="text-red-600 hover:text-red-900" 
+                                <button onclick="deleteUser({{ user.id }}, '{{ user.first_name }} {{ user.last_name }}')" 
+                                        class="text-red-600 hover:text-red-900 cursor-pointer" 
                                         title="Supprimer l'utilisateur">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -395,6 +398,60 @@
         
         // Reset form
         document.getElementById('createUserForm').reset();
+    }
+
+    // Fonctions pour les actions sur les utilisateurs
+    function toggleUserStatus(userId, activate) {
+        const action = activate ? 'activer' : 'désactiver';
+        
+        if (confirm(`Êtes-vous sûr de vouloir ${action} cet utilisateur ?`)) {
+            fetch(`/repavi-admin/users/${userId}/toggle-status/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    activate: activate
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + (data.error || 'Une erreur est survenue'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue');
+            });
+        }
+    }
+
+    function deleteUser(userId, userName) {
+        if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${userName}" ?\n\nCette action est irréversible !`)) {
+            fetch(`/repavi-admin/users/${userId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + (data.error || 'Une erreur est survenue'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue lors de la suppression');
+            });
+        }
     }
 
     // Fermer la modal avec Escape

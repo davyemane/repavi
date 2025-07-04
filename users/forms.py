@@ -1,4 +1,4 @@
-# users/forms.py - Version adaptée avec nouveaux rôles
+# users/forms.py - Version corrigée
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
 from django.contrib.auth import authenticate
@@ -35,8 +35,8 @@ class CustomLoginForm(AuthenticationForm):
     )
 
 
-class SimpleRegistrationForm(forms.ModelForm):
-    """Formulaire d'inscription simplifié"""
+class SimpleRegistrationForm(forms.Form):
+    """Formulaire d'inscription simplifié - CORRIGÉ"""
     
     username = forms.CharField(
         max_length=150,
@@ -121,11 +121,6 @@ class SimpleRegistrationForm(forms.ModelForm):
         initial=True
     )
     
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'telephone', 'role', 
-                 'password', 'accepter_conditions', 'newsletter')
-    
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if User.objects.filter(username=username).exists():
@@ -145,30 +140,32 @@ class SimpleRegistrationForm(forms.ModelForm):
         return password
     
     def save(self, commit=True):
-        user = User(
-            username=self.cleaned_data['username'],
-            email=self.cleaned_data['email'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            telephone=self.cleaned_data.get('telephone', ''),
-            role=self.cleaned_data['role'],
-            newsletter=self.cleaned_data.get('newsletter', True)
-        )
-        
-        # Définir le mot de passe de manière sécurisée
-        user.set_password(self.cleaned_data['password'])
-        
+        """Créer l'utilisateur en utilisant le manager personnalisé"""
         if commit:
-            user.save()
+            # Utiliser le manager personnalisé pour créer l'utilisateur
+            user = User.objects.create_user(
+                username=self.cleaned_data['username'],
+                email=self.cleaned_data['email'],
+                password=self.cleaned_data['password'],
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                telephone=self.cleaned_data.get('telephone', ''),
+                role=self.cleaned_data['role'],
+                newsletter=self.cleaned_data.get('newsletter', True),
+            )
             
             # Créer le profil étendu selon le rôle
             if user.role == 'GESTIONNAIRE':
                 ProfilGestionnaire.objects.create(user=user)
             elif user.role == 'CLIENT':
                 ProfilClient.objects.create(user=user)
-        
-        return user
-    
+            
+            return user
+        else:
+            # Mode non-commit pour les tests
+            return None
+
+
 class ProfileForm(forms.ModelForm):
     """Formulaire de modification du profil - ADAPTÉ"""
     

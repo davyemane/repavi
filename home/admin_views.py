@@ -14,6 +14,7 @@ from django.db import transaction
 from datetime import datetime, timedelta
 from django.utils.text import slugify
 from django.utils import timezone
+import json
 
 # Import sécurisé des décorateurs
 try:
@@ -188,6 +189,176 @@ def admin_dashboard(request):
     }
     
     return render(request, 'admin/dashboard.html', context)
+
+
+@login_required
+@super_admin_required
+@require_http_methods(["POST"])
+def toggle_user_status(request, user_id):
+    """Activer/désactiver un utilisateur via AJAX - SUPER ADMIN SEULEMENT"""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    try:
+        user = get_object_or_404(User, id=user_id)
+        
+        # Parser les données JSON du body
+        try:
+            data = json.loads(request.body)
+            activate = data.get('activate', False)
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Données JSON invalides.'
+            })
+        
+        # Empêcher de désactiver son propre compte
+        if user == request.user and not activate:
+            return JsonResponse({
+                'success': False,
+                'error': 'Vous ne pouvez pas désactiver votre propre compte.'
+            })
+        
+        # Empêcher de désactiver le dernier super admin
+        if not activate:
+            if hasattr(user, 'role') and user.role == 'SUPER_ADMIN':
+                active_super_admins = User.objects.filter(
+                    role='SUPER_ADMIN', 
+                    is_active=True
+                ).count()
+                if active_super_admins <= 1:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Impossible de désactiver le dernier super administrateur actif.'
+                    })
+            elif user.is_superuser:
+                active_superusers = User.objects.filter(
+                    is_superuser=True, 
+                    is_active=True
+                ).count()
+                if active_superusers <= 1:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Impossible de désactiver le dernier super administrateur actif.'
+                    })
+        
+        # Mettre à jour le statut
+        user.is_active = activate
+        user.save(update_fields=['is_active'])
+        
+        action = 'activé' if activate else 'désactivé'
+        user_name = user.first_name and user.last_name and f"{user.first_name} {user.last_name}" or user.username
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Utilisateur "{user_name}" {action} avec succès.'
+        })
+        
+    except Exception as e:
+        print(f"Erreur dans toggle_user_status: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Une erreur est survenue: {str(e)}'
+        })
+
+
+@login_required
+@super_admin_required
+@require_http_methods(["POST"])
+def delete_user(request, user_id):
+    """Supprimer un utilisateur via AJAX - SUPER ADMIN SEULEMENT"""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    try:
+        user = get_object_or_404(User, id=user_id)
+        
+        # Empêcher de supprimer son propre compte
+        if user == request.user:
+            return JsonResponse({
+                'success': False,
+                'error': 'Vous ne pouvez pas supprimer votre propre compte.'
+            })
+        
+        # Empêcher de supprimer le dernier super admin
+        if hasattr(user, 'role') and user.role == 'SUPER_ADMIN':
+            super_admins_count = User.objects.filter(role='SUPER_ADMIN').count()
+            if super_admins_count <= 1:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Impossible de supprimer le dernier super administrateur.'
+                })
+        elif user.is_superuser:
+            superusers_count = User.objects.filter(is_superuser=True).count()
+            if superusers_count <= 1:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Impossible de supprimer le dernier super administrateur.'
+                })
+        
+        # Vérifier s'il y a des données liées (optionnel)
+        try:
+            # Compter les maisons liées (si c'est un gestionnaire)
+            if hasattr(user, 'role') and user.role == 'GESTIONNAIRE':
+                from home.models import Maison
+                maisons_count = Maison.objects.filter(gestionnaire=user).count()
+                if maisons_count > 0:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Impossible de supprimer cet utilisateur car il gère {maisons_count} maison(s). '
+                                 'Réassignez d\'abord ses maisons à un autre gestionnaire.'
+                    })
+            
+            # Compter les réservations liées (si c'est un client)
+            try:
+                from reservations.models import Reservation
+                if hasattr(user, 'role') and user.role == 'CLIENT':
+                    reservations_count = Reservation.objects.filter(client=user).count()
+                    if reservations_count > 0:
+                        return JsonResponse({
+                            'success': False,
+                            'error': f'Impossible de supprimer cet utilisateur car il a {reservations_count} réservation(s). '
+                                     'Supprimez d\'abord ses réservations ou transférez-les.'
+                        })
+            except ImportError:
+                pass  # Module reservations pas disponible
+                
+        except Exception as e:
+            print(f"Erreur lors de la vérification des données liées: {e}")
+        
+        # Sauvegarder les informations pour le message de confirmation
+        user_name = user.first_name and user.last_name and f"{user.first_name} {user.last_name}" or user.username
+        username = user.username
+        
+        # Supprimer l'utilisateur dans une transaction
+        with transaction.atomic():
+            # Supprimer les profils étendus d'abord (si ils existent)
+            try:
+                if hasattr(user, 'profil_client'):
+                    user.profil_client.delete()
+            except:
+                pass
+            
+            try:
+                if hasattr(user, 'profil_gestionnaire'):
+                    user.profil_gestionnaire.delete()
+            except:
+                pass
+            
+            # Supprimer l'utilisateur
+            user.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Utilisateur "{user_name}" (@{username}) supprimé avec succès.'
+        })
+        
+    except Exception as e:
+        print(f"Erreur dans delete_user: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Une erreur est survenue lors de la suppression: {str(e)}'
+        })
 
 # ======== FONCTIONS HELPER AMÉLIORÉES ========
 
@@ -847,7 +1018,7 @@ def change_user_role_view(request, user_id):
         'roles': roles,
     }
     
-    return render(request, 'admin/users/change_role.html', context)
+    return render(request, 'users/change_role.html', context)
 
 # ======== GESTION DES VILLES ========
 

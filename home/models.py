@@ -120,7 +120,9 @@ class Maison(models.Model):
     superficie = models.PositiveIntegerField(help_text="Superficie en m²", verbose_name="Superficie (m²)")
     
     # Prix et disponibilité
-    prix_par_nuit = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Prix par nuit (FCFA)")
+    prix_par_nuit = models.PositiveIntegerField(verbose_name="Prix par nuit (FCFA)")
+
+    # Conversion automatique des anciens prix décimaux en entier lors de la sauvegarde
     disponible = models.BooleanField(default=True, verbose_name="Disponible à la location")
     featured = models.BooleanField(default=False, help_text="Afficher sur la page d'accueil", verbose_name="Mise en avant")
     
@@ -348,6 +350,13 @@ class Maison(models.Model):
         if self.statut_occupation != 'occupe':
             self.locataire_actuel = None
             self.date_fin_location = None
+
+        if self.prix_par_nuit is not None and not isinstance(self.prix_par_nuit, int):
+            try:
+                self.prix_par_nuit = int(float(self.prix_par_nuit))
+            except Exception:
+                self.prix_par_nuit = 0
+
         
         super().save(*args, **kwargs)
     
