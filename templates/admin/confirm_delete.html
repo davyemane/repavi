@@ -53,7 +53,13 @@
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">
                     <i class="fas fa-info-circle mr-2 text-blue-500"></i>
-                    Vous êtes sur le point de supprimer {{ type|article }} {{ type }}
+                    Vous êtes sur le point de supprimer 
+                    {% if type == 'ville' %}la ville
+                    {% elif type == 'catégorie' %}la catégorie
+                    {% elif type == 'maison' %}la maison
+                    {% elif type == 'photo' %}la photo
+                    {% elif type == 'réservation' %}la réservation
+                    {% else %}l'élément{% endif %}
                 </h3>
             </div>
             
@@ -107,7 +113,9 @@
                                 <p><strong>Capacité :</strong> {{ objet.capacite_personnes }} personnes</p>
                                 <p><strong>Prix :</strong> {{ objet.prix_par_nuit }}€ par nuit</p>
                                 <p><strong>Photos :</strong> {{ objet.photos.count }}</p>
-                                <p><strong>Réservations :</strong> {{ objet.reservations.count }}</p>
+                                {% if objet.reservations %}
+                                    <p><strong>Réservations :</strong> {{ objet.reservations.count }}</p>
+                                {% endif %}
                                 <p><strong>Gestionnaire :</strong> {{ objet.gestionnaire.nom_complet|default:objet.gestionnaire.username }}</p>
                             {% elif type == 'photo' %}
                                 <p><strong>Maison :</strong> {{ objet.maison.nom }}</p>
@@ -154,7 +162,7 @@
                             {% endif %}
                         {% elif type == 'maison' %}
                             <p>🖼️ <strong>{{ objet.photos.count }} photo{{ objet.photos.count|pluralize }}</strong> sera{{ objet.photos.count|pluralize:"nt" }} supprimée{{ objet.photos.count|pluralize:"s" }}</p>
-                            {% if objet.reservations.count > 0 %}
+                            {% if objet.reservations and objet.reservations.count > 0 %}
                                 <p>📅 <strong>{{ objet.reservations.count }} réservation{{ objet.reservations.count|pluralize }}</strong> sera{{ objet.reservations.count|pluralize:"nt" }} supprimée{{ objet.reservations.count|pluralize:"s" }}</p>
                                 <p>👥 Les clients concernés perdront leurs réservations</p>
                             {% endif %}
@@ -176,7 +184,7 @@
         </div>
 
         <!-- Alternatives suggérées -->
-        {% if type == 'maison' and objet.reservations.count > 0 %}
+        {% if type == 'maison' and objet.reservations and objet.reservations.count > 0 %}
         <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
             <div class="flex items-start">
                 <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mt-1">
@@ -221,7 +229,13 @@
                                     Je comprends les conséquences de cette action
                                 </div>
                                 <div class="text-gray-500 mt-1">
-                                    Je confirme que je souhaite supprimer définitivement {{ type|article }} {{ type }} 
+                                    Je confirme que je souhaite supprimer définitivement 
+                                    {% if type == 'ville' %}la ville
+                                    {% elif type == 'catégorie' %}la catégorie
+                                    {% elif type == 'maison' %}la maison
+                                    {% elif type == 'photo' %}la photo
+                                    {% elif type == 'réservation' %}la réservation
+                                    {% else %}cet élément{% endif %}
                                     <strong>
                                         {% if type == 'ville' %}
                                             "{{ objet.nom }}"
@@ -321,8 +335,8 @@
             return false;
         }
         
-        // Dernière confirmation
-        const message = `Êtes-vous absolument certain de vouloir supprimer {{ type|article }} {{ type }} ?\n\nCette action est IRRÉVERSIBLE !`;
+        // Dernière confirmation  
+        const message = `Êtes-vous absolument certain de vouloir supprimer {% if type == 'ville' %}la ville{% elif type == 'catégorie' %}la catégorie{% elif type == 'maison' %}la maison{% elif type == 'photo' %}la photo{% elif type == 'réservation' %}la réservation{% else %}cet élément{% endif %} ?\n\nCette action est IRRÉVERSIBLE !`;
         return confirm(message);
     }
 

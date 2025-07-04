@@ -31886,3 +31886,396 @@ INFO 2025-07-03 13:32:29,245 autoreload 20977 131901448269952 /home/davy/repavi/
 INFO 2025-07-03 13:32:29,674 autoreload 22729 128108685688960 Watching for file changes with StatReloader
 INFO 2025-07-03 13:32:29,972 basehttp 22729 128108582655680 "GET / HTTP/1.1" 200 34150
 INFO 2025-07-03 13:32:30,019 basehttp 22729 128108582655680 "GET /static/css/fonts.css HTTP/1.1" 200 1956
+INFO 2025-07-04 11:57:13,714 autoreload 9190 127177642111104 Watching for file changes with StatReloader
+INFO 2025-07-04 11:57:29,223 basehttp 9190 127177547835072 "GET / HTTP/1.1" 200 34150
+INFO 2025-07-04 11:57:29,413 basehttp 9190 127177470244544 "GET /static/css/fonts.css HTTP/1.1" 200 1956
+INFO 2025-07-04 11:57:29,418 basehttp 9190 127177547835072 "GET /static/css/dist/styles.css HTTP/1.1" 200 75979
+INFO 2025-07-04 11:57:29,430 basehttp 9190 127177461851840 "GET /static/images/repavi_lodge_dark_1.png HTTP/1.1" 200 13358
+INFO 2025-07-04 11:57:29,436 basehttp 9190 127177470244544 "GET /media/maisons/photos/villa_BK5a18z.jpg HTTP/1.1" 200 95766
+INFO 2025-07-04 11:57:29,846 basehttp 9190 127177461851840 "GET /static/fonts/lato/Lato-Regular.ttf HTTP/1.1" 200 75152
+INFO 2025-07-04 11:57:29,846 basehttp 9190 127177470244544 "GET /static/fonts/lato/Lato-Bold.ttf HTTP/1.1" 200 73332
+INFO 2025-07-04 11:57:50,792 basehttp 9190 127177461851840 "GET /users/login/?next=/maisons/villa/reserver/ HTTP/1.1" 200 5884
+WARNING 2025-07-04 11:57:51,024 log 9190 127177461851840 Not Found: /favicon.ico
+WARNING 2025-07-04 11:57:51,025 basehttp 9190 127177461851840 "GET /favicon.ico HTTP/1.1" 404 13953
+INFO 2025-07-04 11:58:05,347 basehttp 9190 127177461851840 "POST /users/login/ HTTP/1.1" 200 6607
+WARNING 2025-07-04 11:58:05,417 log 9190 127177461851840 Not Found: /favicon.ico
+INFO 2025-07-04 11:58:11,383 basehttp 9190 127177461851840 "POST /users/login/ HTTP/1.1" 200 6607
+WARNING 2025-07-04 11:58:11,455 log 9190 127177461851840 Not Found: /favicon.ico
+INFO 2025-07-04 11:58:23,039 basehttp 9190 127177461851840 "POST /users/login/ HTTP/1.1" 302 0
+INFO 2025-07-04 11:58:23,155 basehttp 9190 127177461851840 "GET /repavi-admin/ HTTP/1.1" 200 62967
+INFO 2025-07-04 12:14:12,843 basehttp 9190 127177461851840 "GET /repavi-admin/ HTTP/1.1" 200 62308
+INFO 2025-07-04 12:14:19,511 basehttp 9190 127177461851840 "GET / HTTP/1.1" 200 39414
+INFO 2025-07-04 12:36:49,617 basehttp 9190 127177547835072 "GET / HTTP/1.1" 200 39414
+INFO 2025-07-04 12:36:53,513 basehttp 9190 127177470244544 "GET /repavi-admin/ HTTP/1.1" 200 62308
+WARNING 2025-07-04 12:36:53,997 log 9190 127177470244544 Not Found: /repavi-admin/media/images/logo3.svg
+INFO 2025-07-04 12:36:58,542 basehttp 9190 127177470244544 "GET /repavi-admin/maisons/ HTTP/1.1" 200 32047
+WARNING 2025-07-04 12:36:58,872 log 9190 127177461851840 Not Found: /repavi-admin/maisons/media/images/logo3.svg
+WARNING 2025-07-04 12:36:58,872 basehttp 9190 127177461851840 "GET /repavi-admin/maisons/media/images/logo3.svg HTTP/1.1" 404 20529
+INFO 2025-07-04 12:37:05,766 basehttp 9190 127177470244544 "GET /repavi-admin/photos/ HTTP/1.1" 200 28753
+INFO 2025-07-04 12:37:06,039 basehttp 9190 127177461851840 "GET /media/maisons/photos/villa2.jpg HTTP/1.1" 200 55170
+WARNING 2025-07-04 12:37:06,105 log 9190 127177461851840 Not Found: /repavi-admin/photos/media/images/logo3.svg
+WARNING 2025-07-04 12:37:06,105 basehttp 9190 127177461851840 "GET /repavi-admin/photos/media/images/logo3.svg HTTP/1.1" 404 20526
+ERROR 2025-07-04 12:37:10,920 log 9190 127177461851840 Internal Server Error: /repavi-admin/photos/1/supprimer/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/home/admin_views.py", line 1431, in admin_photo_delete
+    return render(request, 'admin/confirm_delete.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 489, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 487, in parse
+    filter_expression = self.compile_filter(token.contents)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 609, in compile_filter
+    return FilterExpression(token, self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 705, in __init__
+    filter_func = parser.find_filter(filter_name)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 615, in find_filter
+    raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+django.template.exceptions.TemplateSyntaxError: Invalid filter: 'article'
+ERROR 2025-07-04 12:37:10,942 basehttp 9190 127177461851840 "GET /repavi-admin/photos/1/supprimer/ HTTP/1.1" 500 297287
+WARNING 2025-07-04 12:37:11,282 log 9190 127177461851840 Not Found: /favicon.ico
+ERROR 2025-07-04 12:45:42,902 log 9190 127177470244544 Internal Server Error: /repavi-admin/photos/1/supprimer/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1035, in find_library
+    return parser.libraries[name]
+           ~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'home_filters'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/home/admin_views.py", line 1431, in admin_photo_delete
+    return render(request, 'admin/confirm_delete.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1097, in load
+    lib = find_library(parser, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1037, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'home_filters' is not a registered tag library. Must be one of:
+admin_list
+admin_modify
+admin_urls
+avis_extras
+cache
+django_browser_reload
+humanize
+i18n
+l10n
+log
+static
+tailwind_tags
+tz
+ERROR 2025-07-04 12:45:42,920 basehttp 9190 127177470244544 "GET /repavi-admin/photos/1/supprimer/ HTTP/1.1" 500 258932
+ERROR 2025-07-04 12:46:23,546 log 9190 127177470244544 Internal Server Error: /repavi-admin/photos/1/supprimer/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1035, in find_library
+    return parser.libraries[name]
+           ~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'home_filters'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/home/admin_views.py", line 1431, in admin_photo_delete
+    return render(request, 'admin/confirm_delete.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1097, in load
+    lib = find_library(parser, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1037, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'home_filters' is not a registered tag library. Must be one of:
+admin_list
+admin_modify
+admin_urls
+avis_extras
+cache
+django_browser_reload
+humanize
+i18n
+l10n
+log
+static
+tailwind_tags
+tz
+ERROR 2025-07-04 12:46:23,562 basehttp 9190 127177470244544 "GET /repavi-admin/photos/1/supprimer/ HTTP/1.1" 500 258895
+ERROR 2025-07-04 12:48:10,280 log 9190 127177470244544 Internal Server Error: /repavi-admin/photos/1/supprimer/
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1035, in find_library
+    return parser.libraries[name]
+           ~~~~~~~~~~~~~~~~^^^^^^
+KeyError: 'home_filters'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/utils/decorators.py", line 36, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/home/admin_views.py", line 1431, in admin_photo_delete
+    return render(request, 'admin/confirm_delete.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/backends/django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+           ^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/loader_tags.py", line 299, in do_extends
+    nodelist = parser.parse()
+               ^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1097, in load
+    lib = find_library(parser, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/davy/repavi/.venv/lib/python3.12/site-packages/django/template/defaulttags.py", line 1037, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'home_filters' is not a registered tag library. Must be one of:
+admin_list
+admin_modify
+admin_urls
+avis_extras
+cache
+django_browser_reload
+humanize
+i18n
+l10n
+log
+static
+tailwind_tags
+tz
+ERROR 2025-07-04 12:48:10,293 basehttp 9190 127177470244544 "GET /repavi-admin/photos/1/supprimer/ HTTP/1.1" 500 258895
+INFO 2025-07-04 12:49:22,359 basehttp 9190 127177470244544 "GET /repavi-admin/photos/1/supprimer/ HTTP/1.1" 200 23583
+INFO 2025-07-04 12:49:22,446 basehttp 9190 127177470244544 "GET /static/django-browser-reload/reload-listener.js HTTP/1.1" 200 623
+WARNING 2025-07-04 12:49:22,543 log 9190 127177470244544 Not Found: /repavi-admin/photos/1/supprimer/media/images/logo3.svg
+WARNING 2025-07-04 12:49:22,544 basehttp 9190 127177470244544 "GET /repavi-admin/photos/1/supprimer/media/images/logo3.svg HTTP/1.1" 404 20562
+INFO 2025-07-04 12:49:34,734 basehttp 9190 127177470244544 "POST /repavi-admin/photos/1/supprimer/ HTTP/1.1" 302 0
+INFO 2025-07-04 12:49:34,925 basehttp 9190 127177470244544 "GET /repavi-admin/photos/ HTTP/1.1" 200 25764
+WARNING 2025-07-04 12:49:35,327 log 9190 127177470244544 Not Found: /repavi-admin/photos/media/images/logo3.svg
+INFO 2025-07-04 12:49:43,733 basehttp 9190 127177470244544 "GET /repavi-admin/photos/ HTTP/1.1" 200 25094
+WARNING 2025-07-04 12:49:44,106 log 9190 127177470244544 Not Found: /repavi-admin/photos/media/images/logo3.svg
