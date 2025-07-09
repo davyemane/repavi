@@ -1,14 +1,15 @@
-# reservations/models.py - Système de réservations complet
+# reservations/models.py - Modèles corrigés avec PositiveIntegerField
 
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils import timezone
-from decimal import Decimal, ROUND_HALF_UP
+from django.db.models import Sum
 from datetime import timedelta
 import string
 import random
+from decimal import Decimal
 
 from home.models import Maison
 
@@ -25,36 +26,76 @@ class TypePaiement(models.Model):
         help_text="Frais en pourcentage (ex: 2.5 pour 2.5%)",
         verbose_name="Frais (%)"
     )
-    frais_fixe = models.DecimalField(
-        max_digits=8, 
-        decimal_places=2, 
+    frais_fixe = models.PositiveIntegerField(
         default=0,
         help_text="Frais fixe en FCFA",
         verbose_name="Frais fixe (FCFA)"
     )
-    
-    # Icône pour l'affichage
     icone = models.CharField(max_length=50, default='credit-card', verbose_name="Icône")
     couleur = models.CharField(max_length=20, default='blue', verbose_name="Couleur")
-    
-    # Métadonnées
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return self.nom
-    
+
     @property
     def frais_total_exemple(self):
         """Exemple de frais pour 100 000 FCFA"""
-        montant = Decimal('100000')
-        return self.calculer_frais(montant)
-    
+        return self.calculer_frais(100000)
+
     def calculer_frais(self, montant):
         """Calcule les frais pour un montant donné"""
-        frais_pct = (montant * self.frais_pourcentage / 100)
+        frais_pct = int((montant * self.frais_pourcentage / 100))
         return frais_pct + self.frais_fixe
-    
+
+    @staticmethod
+    def creer_paiements_defaut():
+        paiements_defaut = [
+            {
+                "nom": "Mobile Money",
+                "description": "Paiement via MTN ou Orange Money",
+                "frais_pourcentage": Decimal('1.5'),
+                "frais_fixe": 100,
+                "icone": "smartphone",
+                "couleur": "yellow"
+            },
+            {
+                "nom": "Carte bancaire",
+                "description": "Paiement par carte VISA ou MasterCard",
+                "frais_pourcentage": Decimal('2.5'),
+                "frais_fixe": 200,
+                "icone": "credit-card",
+                "couleur": "blue"
+            },
+            {
+                "nom": "Espèces",
+                "description": "Paiement en espèces à l'arrivée",
+                "frais_pourcentage": 0,
+                "frais_fixe": 0,
+                "icone": "cash",
+                "couleur": "gray"
+            },
+            {
+                "nom": "Virement bancaire",
+                "description": "Virement sur notre compte bancaire",
+                "frais_pourcentage": 0,
+                "frais_fixe": 0,
+                "icone": "bank",
+                "couleur": "green"
+            },
+            {
+                "nom": "Paiement en ligne",
+                "description": "Paiement sécurisé par passerelle en ligne",
+                "frais_pourcentage": Decimal('2.0'),
+                "frais_fixe": 150,
+                "icone": "globe",
+                "couleur": "purple"
+            },
+        ]
+        for data in paiements_defaut:
+            TypePaiement.objects.get_or_create(nom=data["nom"], defaults=data)
+
     class Meta:
         verbose_name = 'Type de paiement'
         verbose_name_plural = 'Types de paiement'
@@ -239,28 +280,12 @@ class Reservation(models.Model):
         verbose_name="Statut"
     )
     
-    # Pricing
-    prix_par_nuit = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        verbose_name="Prix par nuit (FCFA)",
-        help_text="Prix au moment de la réservation"
-    )
+    # Pricing - CHANGÉ EN POSITIVEINTEGERFIELD
+    prix_par_nuit = models.PositiveIntegerField(verbose_name="Prix par nuit (FCFA)")
     
-    # Frais et réductions
-    frais_service = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        default=0,
-        verbose_name="Frais de service (FCFA)"
-    )
-    
-    reduction_montant = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        default=0,
-        verbose_name="Réduction (FCFA)"
-    )
+    # Frais et réductions - CHANGÉ EN POSITIVEINTEGERFIELD
+    frais_service = models.PositiveIntegerField(verbose_name="Frais de service (FCFA)", default=0)
+    reduction_montant = models.PositiveIntegerField(verbose_name="Montant de la réduction (FCFA)", default=0)
     
     reduction_raison = models.CharField(
         max_length=255,
@@ -268,22 +293,15 @@ class Reservation(models.Model):
         verbose_name="Raison de la réduction"
     )
     
-    # Totaux
-    sous_total = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        editable=False,
-        verbose_name="Sous-total (FCFA)"
+    # Totaux - CHANGÉ EN POSITIVEINTEGERFIELD
+    sous_total = models.PositiveIntegerField(
+        verbose_name="Sous-total (FCFA)",
+        default=0
     )
-    
-    prix_total = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        editable=False,
-        verbose_name="Prix total (FCFA)"
-    )
-    
-    # Paiement
+
+    prix_total = models.PositiveIntegerField(verbose_name="Prix total (FCFA)")
+
+    # Paiement - CHANGÉ EN POSITIVEINTEGERFIELD
     mode_paiement = models.CharField(
         max_length=20,
         choices=MODE_PAIEMENT_CHOICES,
@@ -291,9 +309,7 @@ class Reservation(models.Model):
         verbose_name="Mode de paiement"
     )
     
-    montant_acompte = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
+    montant_acompte = models.PositiveIntegerField(
         null=True,
         blank=True,
         verbose_name="Montant de l'acompte (FCFA)"
@@ -380,6 +396,15 @@ class Reservation(models.Model):
         return f"{self.numero} - {self.client.first_name} - {self.maison.nom}"
     
     def save(self, *args, **kwargs):
+        # Stocker l'ancien statut pour la gestion d'occupation
+        ancien_statut = None
+        if self.pk:
+            try:
+                old_instance = Reservation.objects.get(pk=self.pk)
+                ancien_statut = old_instance.statut
+            except Reservation.DoesNotExist:
+                pass
+        
         # Générer le numéro si nouveau
         if not self.numero:
             self.numero = Reservation.objects.generate_numero()
@@ -395,65 +420,61 @@ class Reservation(models.Model):
         # Calculer les totaux
         self._calculer_totaux()
         
-        # Gérer l'occupation de la maison
-        if self.pk:  # Modification
-            old_reservation = Reservation.objects.get(pk=self.pk)
-            if old_reservation.statut != self.statut:
-                self._gerer_occupation_maison(old_reservation.statut)
-        else:  # Création
-            if self.statut == 'confirmee':
-                self._gerer_occupation_maison(None)
-        
+        # Sauvegarder d'abord
         super().save(*args, **kwargs)
-    
+        
+        # Gérer l'occupation APRÈS la sauvegarde
+        if self.maison:
+            self._gerer_occupation_maison(ancien_statut)
+
     def clean(self):
-            """Validation personnalisée"""
-            errors = {}
+        """Validation personnalisée"""
+        errors = {}
+        
+        # Vérifier les dates
+        if self.date_debut and self.date_fin:
+            if self.date_debut >= self.date_fin:
+                errors['date_fin'] = "La date de fin doit être après la date de début."
             
-            # Vérifier les dates
-            if self.date_debut and self.date_fin:
-                if self.date_debut >= self.date_fin:
-                    errors['date_fin'] = "La date de fin doit être après la date de début."
-                
-                if self.date_debut < timezone.now().date():
-                    errors['date_debut'] = "La date de début ne peut pas être dans le passé."
-                
-                # Durée minimum et maximum
-                duree = (self.date_fin - self.date_debut).days
-                if duree < 1:
-                    errors['date_fin'] = "La réservation doit durer au moins 1 nuit."
-                elif duree > 365:
-                    errors['date_fin'] = "La réservation ne peut pas dépasser 1 an."
+            if self.date_debut < timezone.now().date():
+                errors['date_debut'] = "La date de début ne peut pas être dans le passé."
             
-            # Vérifier la capacité SEULEMENT si maison est définie
-            if hasattr(self, 'maison') and self.maison and self.nombre_personnes:
-                if self.nombre_personnes > self.maison.capacite_personnes:
-                    errors['nombre_personnes'] = f"Le nombre de personnes ne peut pas dépasser la capacité de la maison ({self.maison.capacite_personnes})."
-            
-            # Vérifier la disponibilité SEULEMENT si maison est définie
-            if hasattr(self, 'maison') and self.maison and self.date_debut and self.date_fin:
-                if not Reservation.objects.verifier_disponibilite(
-                    self.maison, 
-                    self.date_debut, 
-                    self.date_fin, 
-                    exclude_id=self.pk
-                ):
-                    errors['__all__'] = "Cette maison n'est pas disponible pour ces dates."
-            
-            # Vérifier que la maison est disponible à la location SEULEMENT si maison est définie
-            if hasattr(self, 'maison') and self.maison and not self.maison.disponible:
-                errors['maison'] = "Cette maison n'est pas disponible à la location."
-            
-            # Vérifier le mode de paiement et l'acompte
-            if self.mode_paiement == 'acompte' and not self.montant_acompte:
-                errors['montant_acompte'] = "Le montant de l'acompte est requis pour ce mode de paiement."
-            
-            if errors:
-                raise ValidationError(errors)
+            # Durée minimum et maximum
+            duree = (self.date_fin - self.date_debut).days
+            if duree < 1:
+                errors['date_fin'] = "La réservation doit durer au moins 1 nuit."
+            elif duree > 365:
+                errors['date_fin'] = "La réservation ne peut pas dépasser 1 an."
+        
+        # Vérifier la capacité SEULEMENT si maison est définie
+        if hasattr(self, 'maison') and self.maison and self.nombre_personnes:
+            if self.nombre_personnes > self.maison.capacite_personnes:
+                errors['nombre_personnes'] = f"Le nombre de personnes ne peut pas dépasser la capacité de la maison ({self.maison.capacite_personnes})."
+        
+        # Vérifier la disponibilité SEULEMENT si maison est définie
+        if hasattr(self, 'maison') and self.maison and self.date_debut and self.date_fin:
+            if not Reservation.objects.verifier_disponibilite(
+                self.maison, 
+                self.date_debut, 
+                self.date_fin, 
+                exclude_id=self.pk
+            ):
+                errors['__all__'] = "Cette maison n'est pas disponible pour ces dates."
+        
+        # Vérifier que la maison est disponible à la location SEULEMENT si maison est définie
+        if hasattr(self, 'maison') and self.maison and not self.maison.disponible:
+            errors['maison'] = "Cette maison n'est pas disponible à la location."
+        
+        # Vérifier le mode de paiement et l'acompte
+        if self.mode_paiement == 'acompte' and not self.montant_acompte:
+            errors['montant_acompte'] = "Le montant de l'acompte est requis pour ce mode de paiement."
+        
+        if errors:
+            raise ValidationError(errors)
 
     
     def _calculer_totaux(self):
-        """Calcule les totaux de la réservation"""
+        """Calcule les totaux de la réservation - ADAPTÉ POUR ENTIERS"""
         if self.prix_par_nuit and self.nombre_nuits:
             self.sous_total = self.prix_par_nuit * self.nombre_nuits
             
@@ -463,20 +484,39 @@ class Reservation(models.Model):
             # Ajouter les frais de service
             self.prix_total = total_apres_reduction + self.frais_service
             
-            # Calculer l'acompte si nécessaire
+            # Calculer l'acompte si nécessaire (30%)
             if self.mode_paiement == 'acompte' and not self.montant_acompte:
-                self.montant_acompte = (self.prix_total * Decimal('0.30')).quantize(
-                    Decimal('0.01'), rounding=ROUND_HALF_UP
-                )
+                self.montant_acompte = int(self.prix_total * 0.30)
     
     def _gerer_occupation_maison(self, ancien_statut):
         """Gère l'occupation de la maison selon le statut"""
-        if self.statut == 'confirmee' and ancien_statut != 'confirmee':
-            # Réservation confirmée -> occuper la maison
-            self.maison.occuper_maison(self.client, self.date_fin)
-        elif ancien_statut == 'confirmee' and self.statut != 'confirmee':
-            # Réservation non confirmée -> libérer la maison
-            self.maison.liberer_maison()
+        try:
+            if self.statut == 'confirmee' and ancien_statut != 'confirmee':
+                # Réservation confirmée -> occuper la maison
+                self.maison.occuper_maison(self.client, self.date_fin)
+                print(f"🏠 Maison {self.maison.nom} occupée par {self.client.get_full_name()}")
+                
+            elif self.statut == 'terminee' and ancien_statut == 'confirmee':
+                # Réservation terminée -> libérer la maison
+                if self.maison.locataire_actuel == self.client:
+                    self.maison.liberer_maison()
+                    print(f"🏠 Maison {self.maison.nom} libérée")
+                    
+            elif self.statut == 'annulee' and ancien_statut == 'confirmee':
+                # Réservation annulée -> libérer la maison si occupée par ce client
+                if self.maison.locataire_actuel == self.client:
+                    self.maison.liberer_maison()
+                    print(f"🏠 Maison {self.maison.nom} libérée après annulation")
+                    
+            elif ancien_statut == 'confirmee' and self.statut not in ['confirmee', 'terminee']:
+                # Statut changé de confirmé vers autre chose -> libérer
+                if self.maison.locataire_actuel == self.client:
+                    self.maison.liberer_maison()
+                    print(f"🏠 Maison {self.maison.nom} libérée après changement de statut")
+                    
+        except Exception as e:
+            print(f"⚠️ Erreur gestion occupation: {e}")
+            # Ne pas lever d'exception pour ne pas bloquer la sauvegarde
     
     def get_absolute_url(self):
         return reverse('reservations:detail', kwargs={'numero': self.numero})
@@ -525,13 +565,24 @@ class Reservation(models.Model):
         )
     
     @property
+    def est_entierement_paye(self):
+        """Vérifie si la réservation est entièrement payée"""
+        return self.montant_restant <= 0
+
+    @property
+    def montant_paye(self):
+        """Montant total payé et validé"""
+        try:
+            return self.paiements.filter(statut='valide').aggregate(
+                total=Sum('montant')
+            )['total'] or 0
+        except Exception:
+            return 0
+
+    @property
     def montant_restant(self):
         """Montant restant à payer"""
-        if self.mode_paiement == 'integral':
-            return 0
-        elif self.mode_paiement == 'acompte' and self.montant_acompte:
-            return self.prix_total - self.montant_acompte
-        return self.prix_total
+        return max(0, self.prix_total - self.montant_paye)
     
     @property
     def pourcentage_acompte(self):
@@ -542,20 +593,64 @@ class Reservation(models.Model):
     
     # Méthodes d'action
     def confirmer(self, user=None):
-        """Confirme la réservation"""
+        """Confirme la réservation et occupe automatiquement la maison"""
         if self.statut != 'en_attente':
             raise ValidationError("Seules les réservations en attente peuvent être confirmées.")
+        
+        # Vérifier encore une fois la disponibilité
+        if not Reservation.objects.verifier_disponibilite(
+            self.maison, 
+            self.date_debut, 
+            self.date_fin, 
+            exclude_id=self.pk
+        ):
+            raise ValidationError("Cette maison n'est plus disponible pour ces dates.")
         
         self.statut = 'confirmee'
         self.save()
         
-        # TODO: Envoyer notification
-        return True
+        # NOUVELLE LOGIQUE: Occuper automatiquement la maison
+        try:
+            self.maison.occuper_maison(self.client, self.date_fin)
+            print(f"✅ Maison {self.maison.nom} occupée par {self.client.get_full_name()}")
+        except Exception as e:
+            print(f"⚠️ Erreur lors de l'occupation de la maison: {e}")
+            # Ne pas lever d'exception pour ne pas bloquer la confirmation
+        
+        return True    
     
+    def terminer(self):
+        """Termine la réservation et libère automatiquement la maison"""
+        if self.statut != 'confirmee':
+            raise ValidationError("Seules les réservations confirmées peuvent être terminées.")
+        
+        # Vérifier que la date de fin est passée ou proche
+        from django.utils import timezone
+        today = timezone.now().date()
+        if self.date_fin > today + timedelta(days=1):
+            raise ValidationError("Impossible de terminer une réservation dont la date de fin n'est pas encore arrivée.")
+        
+        self.statut = 'terminee'
+        self.save()
+        
+        # NOUVELLE LOGIQUE: Libérer automatiquement la maison
+        try:
+            # Vérifier que c'est bien ce client qui occupe la maison
+            if (self.maison.locataire_actuel == self.client and 
+                self.maison.statut_occupation == 'occupe'):
+                self.maison.liberer_maison()
+                print(f"✅ Maison {self.maison.nom} libérée après fin de séjour")
+        except Exception as e:
+            print(f"⚠️ Erreur lors de la libération de la maison: {e}")
+        
+        return True
+
     def annuler(self, raison, user=None):
-        """Annule la réservation"""
+        """Annule la réservation et libère la maison si nécessaire"""
         if not self.est_annulable:
             raise ValidationError("Cette réservation ne peut pas être annulée.")
+        
+        ancien_statut = self.statut
         
         self.statut = 'annulee'
         self.date_annulation = timezone.now()
@@ -563,20 +658,18 @@ class Reservation(models.Model):
         self.annulee_par = user
         self.save()
         
-        # TODO: Envoyer notification
-        return True
-    
-    def terminer(self):
-        """Termine la réservation"""
-        if self.statut != 'confirmee':
-            raise ValidationError("Seules les réservations confirmées peuvent être terminées.")
+        # NOUVELLE LOGIQUE: Libérer la maison si elle était occupée par ce client
+        try:
+            if (ancien_statut == 'confirmee' and 
+                self.maison.locataire_actuel == self.client and 
+                self.maison.statut_occupation == 'occupe'):
+                self.maison.liberer_maison()
+                print(f"✅ Maison {self.maison.nom} libérée après annulation")
+        except Exception as e:
+            print(f"⚠️ Erreur lors de la libération de la maison: {e}")
         
-        self.statut = 'terminee'
-        self.save()
-        
-        # TODO: Demander évaluation
         return True
-    
+
     def can_be_managed_by(self, user):
         """Vérifie si un utilisateur peut gérer cette réservation"""
         if user.is_anonymous:
@@ -642,31 +735,25 @@ class Paiement(models.Model):
         verbose_name="Type de paiement"
     )
     
-    # Informations du paiement
+    # Informations du paiement - CHANGÉ EN POSITIVEINTEGERFIELD
     numero_transaction = models.CharField(
         max_length=100,
         unique=True,
         verbose_name="Numéro de transaction"
     )
     
-    montant = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
+    montant = models.PositiveIntegerField(
         verbose_name="Montant (FCFA)"
     )
     
-    frais = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
+    frais = models.PositiveIntegerField(
         default=0,
         verbose_name="Frais (FCFA)"
     )
     
-    montant_net = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        editable=False,
-        verbose_name="Montant net (FCFA)"
+    montant_net = models.PositiveIntegerField(
+        verbose_name="Montant net (FCFA)",
+        default=0
     )
     
     statut = models.CharField(
@@ -821,9 +908,8 @@ class Disponibilite(models.Model):
         verbose_name="Disponible"
     )
     
-    prix_special = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
+    # CHANGÉ EN POSITIVEINTEGERFIELD
+    prix_special = models.PositiveIntegerField(
         null=True,
         blank=True,
         verbose_name="Prix spécial (FCFA)",

@@ -64,4 +64,16 @@
                 {% if paiement.statut == 'valide' %}bg-green-100 text-green-800
                 {% elif paiement.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
                 {% else %}bg-red-100 text-red-800{% endif %}">
-              
+                {{ paiement.get_statut_display }}
+              </span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="px-6 py-4 text-gray-600">Aucun paiement enregistré pour cette réservation.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

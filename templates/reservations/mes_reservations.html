@@ -19,7 +19,7 @@
 
 {% block header_actions %}
 <div class="flex items-center space-x-3">
-    <a href="{% url 'reservations:export' %}" 
+    <a href="{% url 'reservations:exporter_reservations' %}" 
        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
         <i class="fas fa-download mr-2"></i>
         Export
@@ -33,6 +33,8 @@
     </a>
     {% endif %}
 </div>
+
+
 {% endblock %}
 
 {% block content %}
@@ -236,30 +238,76 @@
                             {% endif %}
                         </div>
                         
-                        <!-- Actions -->
+<!-- Actions -->
                         <div class="flex flex-col space-y-3 ml-6">
+                            <!-- Action principale selon le statut -->
+                            {% if reservation.statut == 'en_attente' and user.is_gestionnaire %}
+                                <a href="{% url 'reservations:valider' reservation.numero %}" 
+                                   class="inline-flex items-center justify-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
+                                   onclick="return confirm('Valider cette réservation ?\n\nLa maison sera automatiquement marquée comme occupée.')">
+                                    <i class="fas fa-check mr-2"></i>
+                                    VALIDER
+                                </a>
+                            {% elif reservation.statut == 'confirmee' and reservation.date_fin <= today and user.is_gestionnaire %}
+                                <a href="{% url 'reservations:terminer' reservation.numero %}" 
+                                   class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                                   onclick="return confirm('Terminer ce séjour ?\n\nLa maison sera automatiquement libérée.')">
+                                    <i class="fas fa-flag-checkered mr-2"></i>
+                                    TERMINER
+                                </a>
+                            {% elif reservation.statut == 'confirmee' %}
+                                <a href="{% url 'reservations:paiements' reservation.numero %}" 
+                                   class="inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    PAIEMENTS
+                                </a>
+                            {% elif reservation.statut == 'terminee' and user.is_client %}
+                                {% if not reservation.evaluation %}
+                                <a href="{% url 'reservations:evaluer' reservation.numero %}" 
+                                   class="inline-flex items-center justify-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-medium transition-colors">
+                                    <i class="fas fa-star mr-2"></i>
+                                    ÉVALUER
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                            
+                            <!-- Bouton Gérer pour gestionnaires -->
+                            {% if user.is_gestionnaire and reservation.statut != 'terminee' %}
+                            <a href="{% url 'reservations:gerer' reservation.numero %}" 
+                               class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-cogs mr-2"></i>
+                                Gérer
+                            </a>
+                            {% endif %}
+
+                            <!-- Boutons Admin pour super admins -->
+                                {% if user.is_super_admin %}
+                                    {% if reservation.statut == 'en_attente' %}
+                                    <div class="flex space-x-2">
+                                        <button onclick="validationRapideAdmin('{{ reservation.numero }}', 'valider')" 
+                                                class="bg-green-600 hover:bg-green-700 text-white rounded-lg">
+                                            <i class="fas fa-check mr-2"></i>VALIDER
+                                        </button>
+                                        <button onclick="validationRapideAdmin('{{ reservation.numero }}', 'rejeter')" 
+                                                class="bg-red-600 hover:bg-red-700 text-white rounded-lg">
+                                            <i class="fas fa-times mr-2"></i>REJETER
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                    <a href="{% url 'reservations:gerer_admin' reservation.numero %}" 
+                                    class="inline-flex items-center justify-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors">
+                                        <i class="fas fa-user-shield mr-2"></i>ADMIN
+                                    </a>
+                                {% endif %}
+                            
+                            <!-- Voir détails -->
                             <a href="{% url 'reservations:detail' reservation.numero %}" 
                                class="inline-flex items-center justify-center px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors">
                                 <i class="fas fa-eye mr-2"></i>
-                                Voir détails
+                                Détails
                             </a>
                             
-                            {% if reservation.statut == 'en_attente' and user.is_gestionnaire %}
-                            <a href="{% url 'reservations:gerer' reservation.numero %}" 
-                               class="inline-flex items-center justify-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors">
-                                <i class="fas fa-check mr-2"></i>
-                                Valider
-                            </a>
-                            {% endif %}
-                            
-                            {% if reservation.statut == 'confirmee' %}
-                            <a href="{% url 'reservations:paiements' reservation.numero %}" 
-                               class="inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">
-                                <i class="fas fa-credit-card mr-2"></i>
-                                Paiements
-                            </a>
-                            {% endif %}
-                            
+                            <!-- Actions secondaires -->
                             {% if reservation.est_modifiable %}
                             <a href="{% url 'reservations:modifier' reservation.numero %}" 
                                class="inline-flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
@@ -276,6 +324,8 @@
                             </a>
                             {% endif %}
                         </div>
+
+
                     </div>
                 </div>
             </div>
@@ -387,7 +437,7 @@
                 </div>
             </a>
             
-            <a href="{% url 'reservations:export' %}" 
+            <a href="{% url 'reservations:exporter_reservations' %}" 
                class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group border border-gray-200">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">

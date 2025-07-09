@@ -10,6 +10,7 @@ from .models import Reservation, Paiement, TypePaiement, EvaluationReservation, 
 from home.models import Maison
 
 
+
 class ReservationForm(forms.ModelForm):
     """Formulaire principal de réservation"""
     
@@ -80,18 +81,16 @@ class ReservationForm(forms.ModelForm):
                 }
             ),
         }
-    
+
     def __init__(self, *args, user=None, maison=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
         self.maison_preselected = maison
-        
-        # Si une maison est présélectionnée, limiter le nombre de personnes
+
         if maison:
             self.fields['nombre_personnes'].widget.attrs['max'] = maison.capacite_personnes
             self.fields['nombre_personnes'].help_text = f"Maximum {maison.capacite_personnes} personnes"
-        
-        # Personnaliser les labels et help_text
+
         self.fields['date_debut'].help_text = "Date d'arrivée"
         self.fields['date_fin'].help_text = "Date de départ"
         self.fields['nombre_personnes'].help_text = "Nombre total de personnes"
@@ -99,88 +98,69 @@ class ReservationForm(forms.ModelForm):
         self.fields['heure_depart'].help_text = "Heure de départ prévue"
         self.fields['contact_urgence_nom'].help_text = "Personne à contacter en cas d'urgence"
         self.fields['contact_urgence_telephone'].help_text = "Numéro de téléphone du contact d'urgence"
-        
-        # Rendre certains champs obligatoires
+
         self.fields['contact_urgence_nom'].required = True
         self.fields['contact_urgence_telephone'].required = True
-    
+
     def clean(self):
         cleaned_data = super().clean()
         date_debut = cleaned_data.get('date_debut')
         date_fin = cleaned_data.get('date_fin')
         nombre_personnes = cleaned_data.get('nombre_personnes')
-        
-        # Validation des dates
+
         if date_debut and date_fin:
             if date_debut >= date_fin:
-                raise forms.ValidationError("La date de fin doit être après la date de début.")
-            
+                raise ValidationError("La date de fin doit être après la date de début.")
+
             if date_debut < timezone.now().date():
-                raise forms.ValidationError("La date de début ne peut pas être dans le passé.")
-            
-            # Limiter à 1 an maximum
+                raise ValidationError("La date de début ne peut pas être dans le passé.")
+
             if (date_fin - date_debut).days > 365:
-                raise forms.ValidationError("La période ne peut pas dépasser 1 an.")
-            
-            # Minimum 1 nuit
+                raise ValidationError("La période ne peut pas dépasser 1 an.")
+
             if (date_fin - date_debut).days < 1:
-                raise forms.ValidationError("La réservation doit être d'au moins 1 nuit.")
-        
-        # Validation du nombre de personnes avec la maison
+                raise ValidationError("La réservation doit être d'au moins 1 nuit.")
+
         if self.maison_preselected and nombre_personnes:
             if nombre_personnes > self.maison_preselected.capacite_personnes:
-                raise forms.ValidationError(
+                raise ValidationError(
                     f"Le nombre de personnes ne peut pas dépasser {self.maison_preselected.capacite_personnes}."
                 )
-        
+
+        if self.maison_preselected and date_debut and date_fin:
+            exclude_id = self.instance.pk if self.instance.pk else None
+            if not Reservation.objects.verifier_disponibilite(
+                self.maison_preselected,
+                date_debut,
+                date_fin,
+                exclude_id=exclude_id
+            ):
+                raise ValidationError("Cette maison n'est pas disponible pour ces dates.")
+
         return cleaned_data
-    
+
     def save(self, commit=True):
-        """Sauvegarder la réservation avec client et maison"""
         reservation = super().save(commit=False)
-        
-        # Assigner le client et la maison AVANT toute validation
+
+        # Assigner les valeurs nécessaires
         if self.user:
             reservation.client = self.user
         if self.maison_preselected:
             reservation.maison = self.maison_preselected
-        
-        # Calculer le nombre de nuits et le prix total
+
+        # Calculer les valeurs dérivées - MODIFIÉ POUR ENTIERS
         if reservation.date_debut and reservation.date_fin:
             reservation.nombre_nuits = (reservation.date_fin - reservation.date_debut).days
             if reservation.maison:
                 reservation.prix_par_nuit = reservation.maison.prix_par_nuit
-                reservation.prix_total = reservation.maison.prix_par_nuit * reservation.nombre_nuits
-        
+                # Prix total calculé en entiers
+                reservation.prix_total = reservation.prix_par_nuit * reservation.nombre_nuits
+
         if commit:
-            # Vérifier la disponibilité avant de sauvegarder
-            if reservation.maison and reservation.date_debut and reservation.date_fin:
-                # Utiliser exclude_id si la réservation existe déjà (modification)
-                exclude_id = reservation.pk if reservation.pk else None
+            reservation.save()
                 
-                if not Reservation.objects.verifier_disponibilite(
-                    reservation.maison, 
-                    reservation.date_debut, 
-                    reservation.date_fin,
-                    exclude_id=exclude_id
-                ):
-                    raise forms.ValidationError("Cette maison n'est pas disponible pour ces dates.")
-            
-            # Désactiver temporairement la validation du modèle pour éviter le conflit
-            try:
-                reservation.save()
-            except Exception as e:
-                print(f"Erreur lors de la sauvegarde: {e}")
-                # En cas d'erreur, essayer de forcer la sauvegarde
-                reservation._state.adding = False
-                reservation.save(update_fields=[
-                    'client', 'maison', 'date_debut', 'date_fin', 'nombre_personnes',
-                    'nombre_nuits', 'prix_par_nuit', 'prix_total', 'heure_arrivee', 
-                    'heure_depart', 'mode_paiement', 'commentaire_client',
-                    'contact_urgence_nom', 'contact_urgence_telephone'
-                ])
-        
         return reservation
+
 class AnnulationReservationForm(forms.Form):
     """Formulaire d'annulation de réservation"""
     
@@ -223,7 +203,7 @@ class AnnulationReservationForm(forms.Form):
 
 
 class ModificationReservationForm(forms.ModelForm):
-    """Formulaire pour modifier une réservation existante"""
+    """Formulaire pour modifier une réservation - MODIFIÉ POUR ENTIERS"""
     
     class Meta:
         model = Reservation
@@ -234,85 +214,67 @@ class ModificationReservationForm(forms.ModelForm):
         
         widgets = {
             'date_debut': forms.DateInput(
-                attrs={
-                    'type': 'date',
-                    'class': 'form-control'
-                }
+                attrs={'type': 'date', 'class': 'form-control'}
             ),
             'date_fin': forms.DateInput(
-                attrs={
-                    'type': 'date',
-                    'class': 'form-control'
-                }
-            ),
-            'heure_arrivee': forms.TimeInput(
-                attrs={
-                    'type': 'time',
-                    'class': 'form-control'
-                }
-            ),
-            'heure_depart': forms.TimeInput(
-                attrs={
-                    'type': 'time',
-                    'class': 'form-control'
-                }
+                attrs={'type': 'date', 'class': 'form-control'}
             ),
             'nombre_personnes': forms.NumberInput(
-                attrs={
-                    'class': 'form-control',
-                    'min': 1
-                }
+                attrs={'class': 'form-control', 'min': 1}
+            ),
+            'heure_arrivee': forms.TimeInput(
+                attrs={'type': 'time', 'class': 'form-control'}
+            ),
+            'heure_depart': forms.TimeInput(
+                attrs={'type': 'time', 'class': 'form-control'}
             ),
             'commentaire_client': forms.Textarea(
-                attrs={
-                    'class': 'form-control',
-                    'rows': 3
-                }
-            ),
+                attrs={'class': 'form-control', 'rows': 4}
+            )
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Limiter le nombre de personnes à la capacité de la maison
         if self.instance and self.instance.maison:
             self.fields['nombre_personnes'].widget.attrs['max'] = self.instance.maison.capacite_personnes
-        
-        # Désactiver la modification si la réservation n'est pas modifiable
-        if self.instance and not self.instance.est_modifiable:
-            for field in self.fields:
-                self.fields[field].disabled = True
-    
+
     def clean(self):
         cleaned_data = super().clean()
-        
-        # Vérifier que la réservation est modifiable
-        if self.instance and not self.instance.est_modifiable:
-            raise ValidationError("Cette réservation ne peut plus être modifiée.")
-        
-        # Validation normale des dates et disponibilité
         date_debut = cleaned_data.get('date_debut')
         date_fin = cleaned_data.get('date_fin')
         
         if date_debut and date_fin:
             if date_debut >= date_fin:
-                raise ValidationError("La date de départ doit être après la date d'arrivée.")
+                raise ValidationError("La date de fin doit être après la date de début.")
             
             if date_debut < timezone.now().date():
-                raise ValidationError("La date d'arrivée ne peut pas être dans le passé.")
+                raise ValidationError("La date de début ne peut pas être dans le passé.")
             
-            # Vérifier la disponibilité (en excluant cette réservation)
+            # Vérifier la disponibilité
             if self.instance and self.instance.maison:
                 if not Reservation.objects.verifier_disponibilite(
-                    self.instance.maison, 
-                    date_debut, 
-                    date_fin, 
+                    self.instance.maison,
+                    date_debut,
+                    date_fin,
                     exclude_id=self.instance.pk
                 ):
                     raise ValidationError("Cette maison n'est pas disponible pour ces nouvelles dates.")
         
         return cleaned_data
 
+    def save(self, commit=True):
+        reservation = super().save(commit=False)
+        
+        # Recalculer les prix - MODIFIÉ POUR ENTIERS
+        if reservation.date_debut and reservation.date_fin and reservation.maison:
+            reservation.nombre_nuits = (reservation.date_fin - reservation.date_debut).days
+            reservation.prix_total = reservation.prix_par_nuit * reservation.nombre_nuits
+        
+        if commit:
+            reservation.save()
+        
+        return reservation
 
 class StatutReservationForm(forms.Form):
     """Formulaire pour changer le statut d'une réservation"""
@@ -587,135 +549,6 @@ class RechercheDisponibiliteForm(forms.Form):
         return cleaned_data
 
 
-class ExportReservationsForm(forms.Form):
-    """Formulaire pour l'export des réservations"""
-    
-    format_export = forms.ChoiceField(
-        label="Format d'export",
-        choices=[
-            ('csv', 'CSV'),
-            ('excel', 'Excel'),
-            ('pdf', 'PDF'),
-        ],
-        initial='excel',
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-    
-    date_debut = forms.DateField(
-        label="Date de début",
-        widget=forms.DateInput(
-            attrs={
-                'type': 'date',
-                'class': 'form-control'
-            }
-        )
-    )
-    
-    date_fin = forms.DateField(
-        label="Date de fin",
-        widget=forms.DateInput(
-            attrs={
-                'type': 'date',
-                'class': 'form-control'
-            }
-        )
-    )
-    
-    statuts = forms.MultipleChoiceField(
-        required=False,
-        choices=Reservation.STATUT_CHOICES,
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
-    )
-    
-    inclure_paiements = forms.BooleanField(
-        required=False,
-        initial=True,
-        label="Inclure les détails des paiements",
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
-    )
-    
-    inclure_evaluations = forms.BooleanField(
-        required=False,
-        initial=False,
-        label="Inclure les évaluations",
-        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
-    )
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Définir les dates par défaut (dernier mois)
-        today = timezone.now().date()
-        first_day_month = today.replace(day=1)
-        self.fields['date_debut'].initial = first_day_month
-        self.fields['date_fin'].initial = today
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        date_debut = cleaned_data.get('date_debut')
-        date_fin = cleaned_data.get('date_fin')
-        
-        if date_debut and date_fin:
-            if date_debut > date_fin:
-                raise ValidationError("La date de fin doit être après la date de début.")
-            
-            # Limiter à 1 an maximum
-            if (date_fin - date_debut).days > 365:
-                raise ValidationError("La période d'export ne peut pas dépasser 1 an.")
-        
-        return cleaned_data.get('date_debut')
-        date_fin = cleaned_data.get('date_fin')
-        maison = cleaned_data.get('maison') or self.maison_preselected
-        nombre_personnes = cleaned_data.get('nombre_personnes')
-        
-        # Validation des dates
-        if date_debut and date_fin:
-            if date_debut >= date_fin:
-                raise ValidationError("La date de départ doit être après la date d'arrivée.")
-            
-            if date_debut < timezone.now().date():
-                raise ValidationError("La date d'arrivée ne peut pas être dans le passé.")
-            
-            # Vérifier la durée minimum (1 nuit) et maximum (1 an)
-            duree = (date_fin - date_debut).days
-            if duree < 1:
-                raise ValidationError("La réservation doit durer au moins 1 nuit.")
-            elif duree > 365:
-                raise ValidationError("La réservation ne peut pas dépasser 1 an.")
-            
-            # Vérifier la disponibilité
-            if maison:
-                if not Reservation.objects.verifier_disponibilite(
-                    maison, date_debut, date_fin, exclude_id=self.instance.pk if self.instance else None
-                ):
-                    raise ValidationError("Cette maison n'est pas disponible pour ces dates.")
-        
-        # Validation du nombre de personnes
-        if maison and nombre_personnes:
-            if nombre_personnes > maison.capacite_personnes:
-                raise ValidationError(
-                    f"Le nombre de personnes ({nombre_personnes}) dépasse la capacité "
-                    f"de la maison ({maison.capacite_personnes})."
-                )
-        
-        return cleaned_data
-    
-    def save(self, commit=True):
-        reservation = super().save(commit=False)
-        
-        # Assigner le client si pas déjà fait
-        if self.user and not reservation.client_id:
-            reservation.client = self.user
-        
-        # Assigner la maison présélectionnée si applicable
-        if self.maison_preselected and not reservation.maison_id:
-            reservation.maison = self.maison_preselected
-        
-        if commit:
-            reservation.save()
-        
-        return reservation
-
 
 class ReservationQuickForm(forms.Form):
     """Formulaire rapide pour vérifier la disponibilité"""
@@ -895,38 +728,39 @@ class ReservationFilterForm(forms.Form):
 
 
 class PaiementForm(forms.ModelForm):
-    """Formulaire pour les paiements"""
+    """Formulaire pour ajouter un paiement - MODIFIÉ POUR ENTIERS"""
     
     class Meta:
         model = Paiement
-        fields = [
-            'type_paiement', 'montant', 'reference_externe', 'notes'
-        ]
+        fields = ['type_paiement', 'montant', 'reference_externe', 'notes']
         
         widgets = {
-            'type_paiement': forms.Select(attrs={'class': 'form-control'}),
+            'type_paiement': forms.Select(
+                attrs={'class': 'form-control'}
+            ),
             'montant': forms.NumberInput(
                 attrs={
                     'class': 'form-control',
-                    'step': '0.01',
-                    'min': '0'
+                    'min': 1,
+                    'step': 1,  # CHANGÉ: étape de 1 pour les entiers
+                    'placeholder': 'Montant en FCFA'
                 }
             ),
             'reference_externe': forms.TextInput(
                 attrs={
                     'class': 'form-control',
-                    'placeholder': 'Référence du système de paiement'
+                    'placeholder': 'Référence du paiement'
                 }
             ),
             'notes': forms.Textarea(
                 attrs={
                     'class': 'form-control',
                     'rows': 3,
-                    'placeholder': 'Notes internes...'
+                    'placeholder': 'Notes ou commentaires sur ce paiement'
                 }
-            ),
+            )
         }
-    
+
     def __init__(self, *args, reservation=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.reservation = reservation
@@ -934,16 +768,31 @@ class PaiementForm(forms.ModelForm):
         # Filtrer les types de paiement actifs
         self.fields['type_paiement'].queryset = TypePaiement.objects.filter(actif=True)
         
-        # Définir le montant par défaut
         if reservation:
-            if reservation.mode_paiement == 'integral':
-                self.fields['montant'].initial = reservation.prix_total
-            elif reservation.mode_paiement == 'acompte':
-                self.fields['montant'].initial = reservation.montant_acompte or (reservation.prix_total * Decimal('0.30'))
+            # Suggérer le montant restant à payer
+            montant_restant = reservation.montant_restant
+            if montant_restant > 0:
+                self.fields['montant'].widget.attrs['value'] = montant_restant
+                self.fields['montant'].help_text = f"Montant restant à payer: {montant_restant:,} FCFA"
             
-            # Calculer et afficher les frais
-            self.fields['montant'].help_text = f"Montant total de la réservation: {reservation.prix_total} FCFA"
-    
+            # Limiter le montant maximum
+            self.fields['montant'].widget.attrs['max'] = montant_restant
+
+    def clean_montant(self):
+        montant = self.cleaned_data.get('montant')
+        
+        if not montant or montant <= 0:
+            raise ValidationError("Le montant doit être supérieur à 0.")
+        
+        if self.reservation:
+            montant_restant = self.reservation.montant_restant
+            if montant > montant_restant:
+                raise ValidationError(
+                    f"Le montant ne peut pas dépasser le montant restant à payer ({montant_restant:,} FCFA)."
+                )
+        
+        return montant
+
     def save(self, commit=True):
         paiement = super().save(commit=False)
         
@@ -954,7 +803,6 @@ class PaiementForm(forms.ModelForm):
             paiement.save()
         
         return paiement
-
 
 class EvaluationReservationForm(forms.ModelForm):
     """Formulaire d'évaluation d'une réservation"""
@@ -1048,7 +896,7 @@ class ReponseGestionnaireForm(forms.ModelForm):
 
 
 class DisponibiliteForm(forms.ModelForm):
-    """Formulaire pour gérer les disponibilités"""
+    """Formulaire pour gérer la disponibilité d'une maison - MODIFIÉ POUR ENTIERS"""
     
     class Meta:
         model = Disponibilite
@@ -1056,17 +904,17 @@ class DisponibiliteForm(forms.ModelForm):
         
         widgets = {
             'date': forms.DateInput(
-                attrs={
-                    'type': 'date',
-                    'class': 'form-control'
-                }
+                attrs={'type': 'date', 'class': 'form-control'}
             ),
-            'disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'disponible': forms.CheckboxInput(
+                attrs={'class': 'form-check-input'}
+            ),
             'prix_special': forms.NumberInput(
                 attrs={
                     'class': 'form-control',
-                    'step': '0.01',
-                    'min': '0'
+                    'min': 0,
+                    'step': 1,  # CHANGÉ: étape de 1 pour les entiers
+                    'placeholder': 'Prix spécial en FCFA'
                 }
             ),
             'raison_indisponibilite': forms.TextInput(
@@ -1074,16 +922,32 @@ class DisponibiliteForm(forms.ModelForm):
                     'class': 'form-control',
                     'placeholder': 'Raison de l\'indisponibilité'
                 }
-            ),
+            )
         }
-    
+
     def __init__(self, *args, maison=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.maison = maison
         
         if maison:
-            self.fields['prix_special'].help_text = f"Prix normal: {maison.prix_par_nuit} FCFA"
-    
+            self.fields['prix_special'].help_text = f"Prix normal: {maison.prix_par_nuit:,} FCFA"
+
+    def clean_date(self):
+        date = self.cleaned_data.get('date')
+        
+        if date and date < timezone.now().date():
+            raise ValidationError("Impossible de modifier la disponibilité pour une date passée.")
+        
+        return date
+
+    def clean_prix_special(self):
+        prix_special = self.cleaned_data.get('prix_special')
+        
+        if prix_special is not None and prix_special < 0:
+            raise ValidationError("Le prix spécial ne peut pas être négatif.")
+        
+        return prix_special
+
     def save(self, commit=True):
         disponibilite = super().save(commit=False)
         
@@ -1094,6 +958,86 @@ class DisponibiliteForm(forms.ModelForm):
             disponibilite.save()
         
         return disponibilite
+
+
+class ExportReservationsForm(forms.Form):
+    """Formulaire pour exporter les réservations"""
+    
+    FORMAT_CHOICES = [
+        ('csv', 'CSV'),
+        ('excel', 'Excel'),
+        ('pdf', 'PDF'),
+    ]
+    
+    STATUT_CHOICES = [
+        ('en_attente', 'En attente'),
+        ('confirmee', 'Confirmée'),
+        ('terminee', 'Terminée'),
+        ('annulee', 'Annulée'),
+    ]
+    
+    format_export = forms.ChoiceField(
+        choices=FORMAT_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Format d'export"
+    )
+    
+    date_debut = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Date de début",
+        help_text="Date de création des réservations"
+    )
+    
+    date_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        label="Date de fin",
+        help_text="Date de création des réservations"
+    )
+    
+    statuts = forms.MultipleChoiceField(
+        choices=STATUT_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Statuts à inclure",
+        help_text="Laisser vide pour inclure tous les statuts"
+    )
+    
+    inclure_paiements = forms.BooleanField(
+        required=False,
+        initial=True,
+        label="Inclure les informations de paiement"
+    )
+    
+    inclure_evaluations = forms.BooleanField(
+        required=False,
+        initial=False,
+        label="Inclure les évaluations"
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Dates par défaut (dernier mois)
+        today = timezone.now().date()
+        debut_mois = today.replace(day=1)
+        
+        self.fields['date_debut'].initial = debut_mois
+        self.fields['date_fin'].initial = today
+
+    def clean(self):
+        cleaned_data = super().clean()
+        date_debut = cleaned_data.get('date_debut')
+        date_fin = cleaned_data.get('date_fin')
+        
+        if date_debut and date_fin:
+            if date_debut > date_fin:
+                raise ValidationError("La date de début doit être antérieure à la date de fin.")
+            
+            # Limiter la période à 1 an
+            if (date_fin - date_debut).days > 365:
+                raise ValidationError("La période d'export ne peut pas dépasser 1 an.")
+        
+        return cleaned_data
 
 
 class DisponibiliteBulkForm(forms.Form):

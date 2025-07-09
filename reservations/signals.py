@@ -1,12 +1,12 @@
 
-from django.db.models.signals import post_save, pre_save, post_delete
+from django.db.models.signals import post_save, pre_save, post_delete, post_migrate
 from django.dispatch import receiver
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from .models import Reservation, Paiement, EvaluationReservation
+from .models import Reservation, Paiement, EvaluationReservation, TypePaiement
 
 
 @receiver(pre_save, sender=Reservation)
@@ -54,7 +54,11 @@ def reservation_post_save(sender, instance, created, **kwargs):
         except Reservation.DoesNotExist:
             pass
 
-
+@receiver(post_migrate)
+def creer_types_paiement_defaut(sender, **kwargs):
+    from django.apps import apps
+    if sender.name == 'reservations' and apps.is_installed('reservations'):
+        TypePaiement.creer_paiements_defaut()
 @receiver(post_delete, sender=Reservation)
 def reservation_post_delete(sender, instance, **kwargs):
     """Actions après la suppression d'une réservation"""

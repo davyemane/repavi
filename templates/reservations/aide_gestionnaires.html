@@ -1,0 +1,365 @@
+{% extends 'reservations/base.html' %}
+
+{% block title %}Guide du Gestionnaire | RepAvi Admin{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-question-circle text-blue-600 mr-2"></i>
+    Guide du Gestionnaire
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <h2 class="text-2xl font-bold text-gray-900">
+                <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
+                Guide Complet de Gestion des Réservations
+            </h2>
+            <p class="text-gray-600 mt-2">
+                Découvrez comment gérer efficacement vos réservations et l'occupation de vos maisons
+            </p>
+        </div>
+        
+        <div class="p-6">
+            <!-- Table des matières -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-list text-gray-600 mr-2"></i>
+                    Table des Matières
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <a href="#workflow" class="text-blue-600 hover:text-blue-800 text-sm">1. Workflow des Réservations</a>
+                    <a href="#dashboard" class="text-blue-600 hover:text-blue-800 text-sm">2. Dashboard Gestionnaire</a>
+                    <a href="#validation" class="text-blue-600 hover:text-blue-800 text-sm">3. Validation des Réservations</a>
+                    <a href="#occupation" class="text-blue-600 hover:text-blue-800 text-sm">4. Gestion de l'Occupation</a>
+                    <a href="#paiements" class="text-blue-600 hover:text-blue-800 text-sm">5. Gestion des Paiements</a>
+                    <a href="#bonnes-pratiques" class="text-blue-600 hover:text-blue-800 text-sm">6. Bonnes Pratiques</a>
+                </div>
+            </div>
+
+            <!-- Section 1: Workflow -->
+            <section id="workflow" class="mb-12">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                    Workflow des Réservations
+                </h3>
+                
+                <div class="space-y-6">
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-orange-900 mb-3">
+                            <i class="fas fa-clock text-orange-600 mr-2"></i>
+                            Étape 1: Réservation en Attente
+                        </h4>
+                        <p class="text-orange-800 mb-3">
+                            Quand un client fait une réservation, elle est automatiquement mise en statut "En attente" et nécessite votre validation.
+                        </p>
+                        <div class="bg-white rounded p-3">
+                            <strong>Actions disponibles :</strong>
+                            <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
+                                <li>✅ Valider la réservation (passage en "Confirmée")</li>
+                                <li>❌ Rejeter/Annuler la réservation</li>
+                                <li>✏️ Ajouter des commentaires internes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-green-900 mb-3">
+                            <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                            Étape 2: Réservation Confirmée
+                        </h4>
+                        <p class="text-green-800 mb-3">
+                            ⚠️ <strong>IMPORTANT :</strong> Quand vous validez une réservation, la maison est <strong>automatiquement marquée comme occupée</strong> par le client.
+                        </p>
+                        <div class="bg-white rounded p-3">
+                            <strong>Ce qui se passe automatiquement :</strong>
+                            <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
+                                <li>🏠 Maison → Statut "Occupé"</li>
+                                <li>👤 Locataire → Client de la réservation</li>
+                                <li>📅 Date de fin → Date de fin de réservation</li>
+                                <li>💳 Paiements → Disponibles pour gestion</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-blue-900 mb-3">
+                            <i class="fas fa-flag-checkered text-blue-600 mr-2"></i>
+                            Étape 3: Fin de Séjour
+                        </h4>
+                        <p class="text-blue-800 mb-3">
+                            Quand le séjour se termine, vous devez marquer la réservation comme "Terminée".
+                        </p>
+                        <div class="bg-white rounded p-3">
+                            <strong>Ce qui se passe automatiquement :</strong>
+                            <ul class="list-disc list-inside text-sm text-gray-700 mt-2">
+                                <li>🏠 Maison → Statut "Libre"</li>
+                                <li>👤 Locataire → Supprimé</li>
+                                <li>⭐ Évaluation → Demandée au client</li>
+                                <li>📊 Statistiques → Mises à jour</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Dashboard -->
+            <section id="dashboard" class="mb-12">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                    Utilisation du Dashboard
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-900 mb-3">
+                            <i class="fas fa-exclamation-triangle text-orange-600 mr-2"></i>
+                            Actions Prioritaires
+                        </h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• <strong>Réservations à valider :</strong> bouton "VALIDER" direct</li>
+                            <li>• <strong>Arrivées du jour :</strong> préparer l'accueil</li>
+                            <li>• <strong>Départs du jour :</strong> bouton "TERMINER" direct</li>
+                            <li>• <strong>Paiements :</strong> accès à la gestion complète</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-900 mb-3">
+                            <i class="fas fa-chart-bar text-purple-600 mr-2"></i>
+                            Métriques Importantes
+                        </h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• <strong>Taux d'occupation :</strong> % maisons occupées</li>
+                            <li>• <strong>CA mensuel :</strong> revenus confirmés</li>
+                            <li>• <strong>Durée moyenne :</strong> optimisation prix</li>
+                            <li>• <strong>Taux annulation :</strong> qualité service</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Validation -->
+            <section id="validation" class="mb-12">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                    Validation des Réservations
+                </h3>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                    <h4 class="text-lg font-semibold text-yellow-900 mb-3">
+                        <i class="fas fa-lightbulb text-yellow-600 mr-2"></i>
+                        Méthodes de Validation
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white rounded p-4 border">
+                            <h5 class="font-semibold text-gray-900 mb-2">🚀 Validation Rapide</h5>
+                            <p class="text-sm text-gray-700">
+                                Depuis le dashboard → Bouton "VALIDER" orange dans la section "Actions Prioritaires"
+                            </p>
+                        </div>
+                        
+                        <div class="bg-white rounded p-4 border">
+                            <h5 class="font-semibold text-gray-900 mb-2">⚙️ Validation Détaillée</h5>
+                            <p class="text-sm text-gray-700">
+                                Liste réservations → Bouton "Gérer" → Page de gestion complète avec commentaires
+                            </p>
+                        </div>
+                        
+                        <div class="bg-white rounded p-4 border">
+                            <h5 class="font-semibold text-gray-900 mb-2">📱 Validation Mobile</h5>
+                            <p class="text-sm text-gray-700">
+                                Interface responsive adaptée pour validation depuis mobile/tablette
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <h4 class="text-lg font-semibold text-red-900 mb-2">
+                        <i class="fas fa-exclamation-circle text-red-600 mr-2"></i>
+                        ⚠️ Attention lors de la validation
+                    </h4>
+                    <p class="text-red-800 text-sm">
+                        La validation est <strong>irréversible</strong> côté occupation. Une fois validée, la maison sera immédiatement marquée comme occupée et ne sera plus disponible pour d'autres réservations durant la période.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 4: Occupation -->
+            <section id="occupation" class="mb-12">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</span>
+                    Gestion Automatique de l'Occupation
+                </h3>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full border border-gray-200 rounded-lg">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Action Gestionnaire</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Effet sur la Maison</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Statut Maison</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Disponibilité</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-3 text-sm">✅ Valider réservation</td>
+                                <td class="px-4 py-3 text-sm">Maison automatiquement occupée</td>
+                                <td class="px-4 py-3"><span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Occupé</span></td>
+                                <td class="px-4 py-3 text-sm">❌ Indisponible</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 text-sm">🏁 Terminer séjour</td>
+                                <td class="px-4 py-3 text-sm">Maison automatiquement libérée</td>
+                                <td class="px-4 py-3"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Libre</span></td>
+                                <td class="px-4 py-3 text-sm">✅ Disponible</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 text-sm">❌ Annuler réservation</td>
+                                <td class="px-4 py-3 text-sm">Maison libérée si occupée par ce client</td>
+                                <td class="px-4 py-3"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Libre</span></td>
+                                <td class="px-4 py-3 text-sm">✅ Disponible</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-blue-900 mb-2">
+                        <i class="fas fa-sync text-blue-600 mr-2"></i>
+                        Synchronisation Automatique
+                    </h4>
+                    <p class="text-blue-800 text-sm">
+                        Le système maintient automatiquement la cohérence entre les réservations et l'occupation des maisons. En cas d'incohérence, utilisez la commande : 
+                        <code class="bg-blue-100 px-2 py-1 rounded">python manage.py sync_reservations_maisons</code>
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 5: Paiements -->
+            <section id="paiements" class="mb-12">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">5</span>
+                    Gestion des Paiements
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-900 mb-3">
+                            <i class="fas fa-credit-card text-green-600 mr-2"></i>
+                            Accès aux Paiements
+                        </h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• <strong>Dashboard :</strong> section "Gestion Paiements"</li>
+                            <li>• <strong>Liste réservations :</strong> bouton "Paiements"</li>
+                            <li>• <strong>Détail réservation :</strong> onglet paiements</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-900 mb-3">
+                            <i class="fas fa-tasks text-orange-600 mr-2"></i>
+                            Actions Disponibles
+                        </h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>• ✅ Valider paiements en attente</li>
+                            <li>• 💳 Ajouter nouveaux paiements</li>
+                            <li>• 📊 Consulter historique complet</li>
+                            <li>• 💰 Suivre montants restants</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Bonnes Pratiques -->
+            <section id="bonnes-pratiques" class="mb-12">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <span class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">6</span>
+                    Bonnes Pratiques
+                </h3>
+                
+                <div class="space-y-6">
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <h4 class="font-semibold text-green-900 mb-2">✅ À Faire</h4>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>• Valider les réservations dans les 24h</li>
+                            <li>• Vérifier les paiements avant validation</li>
+                            <li>• Terminer les séjours le jour du départ</li>
+                            <li>• Ajouter des commentaires internes utiles</li>
+                            <li>• Consulter le dashboard quotidiennement</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border-l-4 border-red-500 pl-4">
+                        <h4 class="font-semibold text-red-900 mb-2">❌ À Éviter</h4>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>• Laisser des réservations en attente trop longtemps</li>
+                            <li>• Modifier manuellement le statut d'occupation des maisons</li>
+                            <li>• Valider sans vérifier la disponibilité réelle</li>
+                            <li>• Oublier de terminer les séjours expirés</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="font-semibold text-blue-900 mb-2">💡 Conseils</h4>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>• Utilisez les raccourcis du dashboard pour gagner du temps</li>
+                            <li>• Consultez les métriques pour optimiser vos tarifs</li>
+                            <li>• Répondez aux évaluations clients pour améliorer votre image</li>
+                            <li>• Utilisez les commentaires pour communiquer avec l'équipe</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Support -->
+            <div class="bg-gray-50 rounded-lg p-6 text-center">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                    <i class="fas fa-life-ring text-blue-600 mr-2"></i>
+                    Besoin d'Aide ?
+                </h3>
+                <p class="text-gray-600 mb-4">
+                    Notre équipe support est là pour vous accompagner dans l'utilisation de la plateforme.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="mailto:support@repavi.com" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>
+                        support@repavi.com
+                    </a>
+                    <a href="tel:+237000000000" 
+                       class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-phone mr-2"></i>
+                        +237 000 000 000
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Style pour la navigation dans la page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Style pour les liens de la table des matières */
+.table-of-contents a:hover {
+    text-decoration: underline;
+}
+
+/* Style pour les sections */
+section {
+    scroll-margin-top: 2rem;
+}
+
+/* Style pour le code */
+code {
+    font-family: 'Courier New', monospace;
+}
+</style>
+{% endblock %}

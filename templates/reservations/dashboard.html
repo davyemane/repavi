@@ -1,6 +1,11 @@
 {% extends 'reservations/base.html' %}
+{% load humanize %}
 
-{% block title %}Dashboard Réservations | RepAvi Admin{% endblock %}
+{% comment %}
+reservations/templates/reservations/dashboard.html - Dashboard complet avec toutes les fonctions
+{% endcomment %}
+
+{% block title %}Dashboard Réservations | RepAvi{% endblock %}
 
 {% block page_title %}
     <i class="fas fa-calendar-check text-blue-600 mr-2"></i>
@@ -9,7 +14,7 @@
 
 {% block breadcrumb %}
     <nav class="text-sm text-gray-500">
-        <a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-blue-600">Accueil</a>
+        <a href="{% url 'home:index' %}" class="hover:text-blue-600">Accueil</a>
         <span class="mx-2">/</span>
         <a href="{% url 'reservations:dashboard' %}" class="hover:text-blue-600">Réservations</a>
         <span class="mx-2">/</span>
@@ -19,17 +24,19 @@
 
 {% block header_actions %}
 <div class="flex items-center space-x-3">
-    <a href="{% url 'reservations:export' %}" 
+    <a href="{% url 'reservations:exporter_reservations' %}" 
        class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
         <i class="fas fa-download mr-2"></i>
         Export
     </a>
     
+    {% if user.is_gestionnaire or user.is_super_admin %}
     <a href="{% url 'reservations:calendrier' %}" 
        class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
         <i class="fas fa-calendar-alt mr-2"></i>
         Calendrier
     </a>
+    {% endif %}
     
     {% if user.is_client %}
     <a href="{% url 'reservations:recherche_disponibilite' %}" 
@@ -44,10 +51,10 @@
 {% block content %}
 
 <div class="space-y-6">
-    <!-- Statistiques Réservations uniquement -->
+    <!-- Statistiques Réservations -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Total des réservations -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all card-hover">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -55,7 +62,7 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <div class="text-2xl font-bold text-gray-900">{{ stats.total }}</div>
+                    <div class="text-2xl font-bold text-gray-900">{{ stats.total|default:0 }}</div>
                     <div class="text-sm text-gray-600 font-medium">Réservations Total</div>
                     <a href="{% url 'reservations:mes_reservations' %}" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
                         Voir toutes →
@@ -65,7 +72,7 @@
         </div>
 
         <!-- Réservations confirmées -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all card-hover">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -73,15 +80,15 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <div class="text-2xl font-bold text-gray-900">{{ stats.confirmees }}</div>
+                    <div class="text-2xl font-bold text-gray-900">{{ stats.confirmees|default:0 }}</div>
                     <div class="text-sm text-gray-600 font-medium">Confirmées</div>
-                    <div class="text-xs text-green-600 font-medium">{{ stats.pourcentage_confirmees }}% du total</div>
+                    <div class="text-xs text-green-600 font-medium">{{ stats.pourcentage_confirmees|default:0 }}% du total</div>
                 </div>
             </div>
         </div>
 
         <!-- En attente de validation -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all card-hover">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -89,7 +96,7 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <div class="text-2xl font-bold text-gray-900">{{ stats.en_attente }}</div>
+                    <div class="text-2xl font-bold text-gray-900">{{ stats.en_attente|default:0 }}</div>
                     <div class="text-sm text-gray-600 font-medium">En Attente</div>
                     {% if stats.en_attente > 0 %}
                         <div class="text-xs text-orange-600 font-medium">Action requise</div>
@@ -101,7 +108,7 @@
         </div>
 
         <!-- Chiffre d'affaires -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all card-hover">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -109,7 +116,7 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <div class="text-2xl font-bold text-gray-900">{{ stats.ca_total|floatformat:0 }}</div>
+                    <div class="text-2xl font-bold text-gray-900">{{ stats.ca_total|intcomma|default:0 }}</div>
                     <div class="text-sm text-gray-600 font-medium">CA Total (FCFA)</div>
                     <div class="text-xs text-purple-600 font-medium">Confirmées + Terminées</div>
                 </div>
@@ -117,11 +124,334 @@
         </div>
     </div>
 
-    <!-- Actions Urgentes Réservations -->
+    <!-- TOUTES LES FONCTIONS DISPONIBLES - Organisées par catégories -->
+    
+    <!-- ======== SECTION 1: RÉSERVATIONS CLIENT ======== -->
+    {% if user.is_client %}
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h3 class="text-xl font-bold text-gray-900 mb-6">
-            <i class="fas fa-tasks text-blue-600 mr-2"></i>
-            Actions Prioritaires Réservations
+            <i class="fas fa-user text-blue-600 mr-2"></i>
+            Fonctions Client
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Recherche disponibilité -->
+            <a href="{% url 'reservations:recherche_disponibilite' %}" 
+               class="flex items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors group border border-blue-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-search text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-blue-700">Rechercher une Maison</div>
+                    <div class="text-sm text-gray-600">Trouver des maisons disponibles</div>
+                </div>
+            </a>
+            
+            <!-- Mes réservations -->
+            <a href="{% url 'reservations:mes_reservations' %}" 
+               class="flex items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors group border border-green-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-list text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-green-700">Mes Réservations</div>
+                    <div class="text-sm text-gray-600">Voir toutes mes réservations</div>
+                </div>
+            </a>
+            
+            <!-- Évaluations à faire -->
+            <a href="{% url 'reservations:mes_reservations' %}?statut=terminee" 
+               class="flex items-center p-4 bg-yellow-50 rounded-xl hover:bg-yellow-100 transition-colors group border border-yellow-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-star text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-yellow-700">Évaluations</div>
+                    <div class="text-sm text-gray-600">Évaluer mes séjours terminés</div>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ======== SECTION 2: GESTION RÉSERVATIONS (GESTIONNAIRES) ======== -->
+    {% if user.is_gestionnaire or user.is_super_admin %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-cogs text-blue-600 mr-2"></i>
+            Gestion des Réservations
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Tableau de bord gestionnaire -->
+            <a href="{% url 'reservations:tableau_bord_gestionnaire' %}" 
+               class="flex items-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors group border border-purple-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-chart-line text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-purple-700">Tableau de Bord</div>
+                    <div class="text-sm text-gray-600">Vue gestionnaire avancée</div>
+                </div>
+            </a>
+            
+            <!-- Toutes les réservations -->
+            <a href="{% url 'reservations:mes_reservations' %}" 
+               class="flex items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors group border border-blue-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-list text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-blue-700">Toutes les Réservations</div>
+                    <div class="text-sm text-gray-600">Gérer toutes les réservations</div>
+                </div>
+            </a>
+            
+            <!-- Réservations en attente -->
+            <a href="{% url 'reservations:mes_reservations' %}?statut=en_attente" 
+               class="flex items-center p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors group border border-orange-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-clock text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-orange-700">En Attente</div>
+                    <div class="text-sm text-gray-600">Réservations à valider</div>
+                    {% if stats.en_attente > 0 %}
+                    <div class="text-xs text-orange-600 font-bold">{{ stats.en_attente }} à traiter</div>
+                    {% endif %}
+                </div>
+            </a>
+            
+            <!-- Réservations confirmées -->
+            <a href="{% url 'reservations:mes_reservations' %}?statut=confirmee" 
+               class="flex items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors group border border-green-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-check-circle text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-green-700">Confirmées</div>
+                    <div class="text-sm text-gray-600">Séjours en cours</div>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ======== SECTION 3: PAIEMENTS ======== -->
+    {% if user.is_gestionnaire or user.is_super_admin %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-credit-card text-green-600 mr-2"></i>
+            Gestion des Paiements
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Dashboard paiements -->
+            <a href="{% url 'reservations:dashboard_paiements' %}" 
+               class="flex items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors group border border-green-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-tachometer-alt text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-green-700">Dashboard Paiements</div>
+                    <div class="text-sm text-gray-600">Vue d'ensemble des paiements</div>
+                </div>
+            </a>
+            
+            <!-- Paiements en attente -->
+            <a href="{% url 'reservations:dashboard_paiements' %}#en-attente" 
+               class="flex items-center p-4 bg-yellow-50 rounded-xl hover:bg-yellow-100 transition-colors group border border-yellow-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-hourglass-half text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-yellow-700">Paiements en Attente</div>
+                    <div class="text-sm text-gray-600">À valider ou traiter</div>
+                </div>
+            </a>
+            
+            <!-- Historique paiements -->
+            <a href="{% url 'reservations:dashboard_paiements' %}#historique" 
+               class="flex items-center p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors group border border-indigo-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-history text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-indigo-700">Historique</div>
+                    <div class="text-sm text-gray-600">Tous les paiements</div>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ======== SECTION 4: CALENDRIER ET DISPONIBILITÉS ======== -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-calendar-alt text-purple-600 mr-2"></i>
+            Calendrier et Disponibilités
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Calendrier réservations -->
+            <a href="{% url 'reservations:calendrier' %}" 
+               class="flex items-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors group border border-purple-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-calendar-alt text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-purple-700">Calendrier</div>
+                    <div class="text-sm text-gray-600">Vue calendrier des réservations</div>
+                </div>
+            </a>
+            
+            <!-- Vérifier disponibilité (AJAX) -->
+            <button onclick="verifierDisponibilite()" 
+                    class="flex items-center p-4 bg-cyan-50 rounded-xl hover:bg-cyan-100 transition-colors group border border-cyan-100 text-left">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-cyan-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-search-plus text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-cyan-700">Vérifier Disponibilité</div>
+                    <div class="text-sm text-gray-600">Contrôle rapide disponibilité</div>
+                </div>
+            </button>
+            
+            <!-- Calculateur de prix (AJAX) -->
+            <button onclick="calculerPrix()" 
+                    class="flex items-center p-4 bg-teal-50 rounded-xl hover:bg-teal-100 transition-colors group border border-teal-100 text-left">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-teal-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-calculator text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-teal-700">Calculer Prix</div>
+                    <div class="text-sm text-gray-600">Estimation rapide des prix</div>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- ======== SECTION 5: OUTILS ET EXPORTS ======== -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-tools text-gray-600 mr-2"></i>
+            Outils et Exports
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Export réservations -->
+            <a href="{% url 'reservations:exporter_reservations' %}" 
+               class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group border border-gray-200">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-download text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-gray-700">Exporter Données</div>
+                    <div class="text-sm text-gray-600">CSV, Excel, PDF</div>
+                </div>
+            </a>
+            
+            <!-- Dashboard principal (retour) -->
+            <a href="{% url 'reservations:dashboard_alt' %}" 
+               class="flex items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors group border border-blue-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-home text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-blue-700">Dashboard Principal</div>
+                    <div class="text-sm text-gray-600">Vue alternative du dashboard</div>
+                </div>
+            </a>
+            
+            <!-- Aide gestionnaires -->
+            <a href="#" onclick="afficherAide()" 
+               class="flex items-center p-4 bg-amber-50 rounded-xl hover:bg-amber-100 transition-colors group border border-amber-100">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-amber-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fas fa-question-circle text-white text-lg"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <div class="text-lg font-semibold text-gray-900 group-hover:text-amber-700">Aide</div>
+                    <div class="text-sm text-gray-600">Guide d'utilisation</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- ======== SECTION 6: GESTION DES DISPONIBILITÉS (POUR GESTIONNAIRES) ======== -->
+    {% if user.is_gestionnaire or user.is_super_admin %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-home text-green-600 mr-2"></i>
+            Gestion des Maisons et Disponibilités
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Gérer disponibilités par maison -->
+            <div class="border border-gray-200 rounded-xl p-4">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3">Gérer les Disponibilités</h4>
+                <p class="text-sm text-gray-600 mb-4">Sélectionnez une maison pour gérer ses disponibilités</p>
+                <select id="maison-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3">
+                    <option value="">Choisir une maison...</option>
+                    <!-- Les options seront remplies via JavaScript -->
+                </select>
+                <button onclick="gererDisponibilites()" 
+                        class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors">
+                    <i class="fas fa-cog mr-2"></i>
+                    Gérer Disponibilités
+                </button>
+            </div>
+            
+            <!-- Modifier disponibilités (AJAX) -->
+            <div class="border border-gray-200 rounded-xl p-4">
+                <h4 class="text-lg font-semibold text-gray-900 mb-3">Modification Rapide</h4>
+                <p class="text-sm text-gray-600 mb-4">Modifier rapidement les disponibilités via l'interface AJAX</p>
+                <button onclick="ouvrirModificationRapide()" 
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors">
+                    <i class="fas fa-edit mr-2"></i>
+                    Modification Rapide
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions Urgentes Réservations (Déjà existant mais optimisé) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-tasks text-red-600 mr-2"></i>
+            Actions Prioritaires Aujourd'hui
         </h3>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -133,7 +463,7 @@
                             <i class="fas fa-exclamation-triangle text-white text-lg"></i>
                         </div>
                         <div class="ml-3">
-                            <div class="text-lg font-bold text-gray-900">{{ stats.en_attente }}</div>
+                            <div class="text-lg font-bold text-gray-900">{{ stats.en_attente|default:0 }}</div>
                             <div class="text-sm text-gray-700 font-medium">À Valider</div>
                         </div>
                     </div>
@@ -160,15 +490,12 @@
                             <i class="fas fa-credit-card text-white text-lg"></i>
                         </div>
                         <div class="ml-3">
-                            <div class="text-lg font-bold text-gray-900">
-                                {% comment %}Calcul du nombre de paiements en attente{% endcomment %}
-                                {{ reservations_recentes|length }}
-                            </div>
+                            <div class="text-lg font-bold text-gray-900">{{ stats.paiements_en_attente|default:0 }}</div>
                             <div class="text-sm text-gray-700 font-medium">Paiements</div>
                         </div>
                     </div>
                 </div>
-                <a href="{% url 'reservations:mes_reservations' %}?statut=confirmee" 
+                <a href="{% url 'reservations:dashboard_paiements' %}" 
                    class="inline-flex items-center w-full justify-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
                     <i class="fas fa-money-bill mr-2"></i>
                     Gérer paiements
@@ -183,9 +510,7 @@
                             <i class="fas fa-sign-in-alt text-white text-lg"></i>
                         </div>
                         <div class="ml-3">
-                            <div class="text-lg font-bold text-gray-900">
-                                {{ prochaines_echeances|length }}
-                            </div>
+                            <div class="text-lg font-bold text-gray-900">{{ arrivees_aujourdhui|length|default:0 }}</div>
                             <div class="text-sm text-gray-700 font-medium">Arrivées</div>
                         </div>
                     </div>
@@ -217,62 +542,13 @@
                         Rechercher
                     </a>
                 {% else %}
-                    <div class="text-center py-2 text-gray-500 text-sm">
-                        Fonction client
-                    </div>
+                    <a href="{% url 'reservations:recherche_disponibilite' %}" 
+                       class="inline-flex items-center w-full justify-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        Créer réservation
+                    </a>
                 {% endif %}
             </div>
-        </div>
-    </div>
-
-    <!-- Navigation Rapide Réservations -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-6">
-            <i class="fas fa-compass text-blue-600 mr-2"></i>
-            Navigation Rapide
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Mes Réservations -->
-            <a href="{% url 'reservations:mes_reservations' %}" 
-               class="flex items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors group border border-blue-100">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fas fa-list text-white text-lg"></i>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <div class="text-lg font-semibold text-gray-900 group-hover:text-blue-700">Mes Réservations</div>
-                    <div class="text-sm text-gray-600">Liste complète et filtres</div>
-                </div>
-            </a>
-            
-            <!-- Calendrier -->
-            <a href="{% url 'reservations:calendrier' %}" 
-               class="flex items-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors group border border-purple-100">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fas fa-calendar-alt text-white text-lg"></i>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <div class="text-lg font-semibold text-gray-900 group-hover:text-purple-700">Calendrier</div>
-                    <div class="text-sm text-gray-600">Vue planning mensuel</div>
-                </div>
-            </a>
-            
-            <!-- Rapports -->
-            <a href="{% url 'reservations:export' %}" 
-               class="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors group border border-gray-200">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i class="fas fa-chart-bar text-white text-lg"></i>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <div class="text-lg font-semibold text-gray-900 group-hover:text-gray-700">Rapports</div>
-                    <div class="text-sm text-gray-600">Export et analyses</div>
-                </div>
-            </a>
         </div>
     </div>
 
@@ -288,7 +564,7 @@
                         Réservations à Valider
                     </h3>
                     <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">
-                        {{ stats.en_attente }} en attente
+                        {{ stats.en_attente|default:0 }} en attente
                     </span>
                 </div>
             </div>
@@ -311,15 +587,14 @@
                                         {{ action.reservation.client.get_full_name }} • {{ action.reservation.maison.nom }}
                                     </div>
                                     <div class="text-xs text-gray-500">
-                                        {{ action.reservation.date_debut|date:"d/m" }} - {{ action.reservation.date_fin|date:"d/m" }} • {{ action.reservation.prix_total|floatformat:0 }} FCFA
+                                        {{ action.reservation.date_debut|date:"d/m" }} - {{ action.reservation.date_fin|date:"d/m" }} • {{ action.reservation.prix_total|intcomma }} FCFA
                                     </div>
                                 </div>
                             </div>
                             <div class="flex items-center space-x-3">
                                 <!-- Bouton Confirmer Direct -->
-                                <form method="post" action="{% url 'reservations:gerer' action.numero %}" class="inline">
+                                <form method="post" action="{% url 'reservations:valider' action.numero %}" class="inline">
                                     {% csrf_token %}
-                                    <input type="hidden" name="nouveau_statut" value="confirmee">
                                     <button type="submit" 
                                             class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
                                             onclick="return confirm('Confirmer cette réservation ?')">
@@ -383,9 +658,8 @@
                         <div class="flex items-center space-x-2">
                             {% if echeance.type == 'depart' and user.is_gestionnaire %}
                             <!-- Bouton Terminer Séjour -->
-                            <form method="post" action="{% url 'reservations:gerer' echeance.reservation.numero %}" class="inline">
+                            <form method="post" action="{% url 'reservations:terminer' echeance.reservation.numero %}" class="inline">
                                 {% csrf_token %}
-                                <input type="hidden" name="nouveau_statut" value="terminee">
                                 <button type="submit" 
                                         class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                                         onclick="return confirm('Marquer ce séjour comme terminé ?')">
@@ -415,31 +689,6 @@
         </div>
     </div>
     {% endif %}
-
-    <!-- Graphiques Réservations -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Répartition par statut -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-chart-pie text-blue-600 mr-2"></i>
-                Répartition par Statut
-            </h3>
-            <div class="relative h-64">
-                <canvas id="statutChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Évolution mensuelle -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-chart-line text-blue-600 mr-2"></i>
-                Évolution (6 derniers mois)
-            </h3>
-            <div class="relative h-64">
-                <canvas id="evolutionChart"></canvas>
-            </div>
-        </div>
-    </div>
 
     <!-- Réservations Récentes avec Actions -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -483,7 +732,7 @@
                                 • {{ reservation.date_debut|date:"d/m" }} - {{ reservation.date_fin|date:"d/m" }}
                             </div>
                             <div class="text-xs text-gray-500">
-                                {{ reservation.nombre_nuits }} nuit{{ reservation.nombre_nuits|pluralize }} • {{ reservation.nombre_personnes }} pers. • {{ reservation.prix_total|floatformat:0 }} FCFA
+                                {{ reservation.nombre_nuits }} nuit{{ reservation.nombre_nuits|pluralize }} • {{ reservation.nombre_personnes }} pers. • {{ reservation.prix_total|intcomma }} FCFA
                             </div>
                         </div>
                     </div>
@@ -498,7 +747,7 @@
                         
                         <!-- Actions selon le statut -->
                         {% if reservation.statut == 'en_attente' and user.is_gestionnaire %}
-                            <a href="{% url 'reservations:gerer' reservation.numero %}" 
+                            <a href="{% url 'reservations:valider' reservation.numero %}" 
                                class="inline-flex items-center px-3 py-1 bg-orange-600 text-white text-xs font-medium rounded-lg hover:bg-orange-700 transition-colors">
                                 <i class="fas fa-check mr-1"></i>
                                 Valider
@@ -532,151 +781,211 @@
             {% endfor %}
         </div>
     </div>
-
-    <!-- Métriques Performance Réservations -->
-    {% if user.is_gestionnaire or user.is_super_admin %}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-6">
-            <i class="fas fa-chart-bar text-blue-600 mr-2"></i>
-            Métriques Performance Réservations
-        </h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
-                <div class="text-3xl font-bold text-blue-600 mb-2">{{ metriques.taux_occupation }}%</div>
-                <div class="text-sm text-gray-700 font-medium">Taux d'occupation</div>
-                <div class="text-xs text-gray-500 mt-1">Ce mois</div>
-            </div>
-            
-            <div class="text-center p-4 bg-green-50 rounded-xl border border-green-100">
-                <div class="text-3xl font-bold text-green-600 mb-2">{{ metriques.duree_moyenne_sejour|floatformat:1 }}</div>
-                <div class="text-sm text-gray-700 font-medium">Durée moyenne</div>
-                <div class="text-xs text-gray-500 mt-1">En nuits</div>
-            </div>
-            
-            <div class="text-center p-4 bg-purple-50 rounded-xl border border-purple-100">
-                <div class="text-3xl font-bold text-purple-600 mb-2">{{ metriques.panier_moyen|floatformat:0 }}</div>
-                <div class="text-sm text-gray-700 font-medium">Panier moyen</div>
-                <div class="text-xs text-gray-500 mt-1">FCFA par réservation</div>
-            </div>
-            
-            <div class="text-center p-4 bg-orange-50 rounded-xl border border-orange-100">
-                <div class="text-3xl font-bold text-orange-600 mb-2">{{ metriques.taux_annulation }}%</div>
-                <div class="text-sm text-gray-700 font-medium">Taux d'annulation</div>
-                <div class="text-xs text-gray-500 mt-1">6 derniers mois</div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<script>
-// Graphiques réservations
-document.addEventListener('DOMContentLoaded', function() {
-    // Graphique répartition par statut
-    const statutCtx = document.getElementById('statutChart').getContext('2d');
-    new Chart(statutCtx, {
-        type: 'doughnut',
-        data: {
-            labels: [
-                {% for statut in repartition_statuts %}
-                    '{{ statut.statut|capfirst }}'{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ],
-            datasets: [{
-                data: [
-                    {% for statut in repartition_statuts %}
-                        {{ statut.count }}{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                ],
-                backgroundColor: [
-                    '#10B981', // vert pour confirmée
-                    '#F59E0B', // orange pour en_attente
-                    '#3B82F6', // bleu pour terminée
-                    '#EF4444'  // rouge pour annulée
-                ],
-                borderWidth: 3,
-                borderColor: '#ffffff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20,
-                        font: { 
-                            family: 'Inter',
-                            size: 13
-                        },
-                        color: '#4B5563'
-                    }
-                }
-            }
-        }
-    });
+<!-- Modals pour les fonctions AJAX -->
+<div id="disponibiliteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center h-full p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Vérifier Disponibilité</h3>
+                <button onclick="fermerModal('disponibiliteModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="disponibiliteForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Date début</label>
+                        <input type="date" id="dateDebut" class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Date fin</label>
+                        <input type="date" id="dateFin" class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Maison</label>
+                        <select id="maisonId" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Sélectionner une maison...</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg">
+                        Vérifier
+                    </button>
+                </div>
+            </form>
+            <div id="disponibiliteResultat" class="mt-4"></div>
+        </div>
+    </div>
+</div>
 
-    // Graphique évolution temporelle
-    const evolutionCtx = document.getElementById('evolutionChart').getContext('2d');
-    new Chart(evolutionCtx, {
-        type: 'line',
-        data: {
-            labels: [
-                {% for mois in evolution_mensuelle %}
-                    '{{ mois.mois }}'{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ],
-            datasets: [{
-                label: 'Réservations',
-                data: [
-                    {% for mois in evolution_mensuelle %}
-                        {{ mois.count }}{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                ],
-                borderColor: '#3B82F6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#3B82F6',
-                pointBorderColor: '#ffffff',
-                pointBorderWidth: 3,
-                pointRadius: 6
-            }]
+<div id="prixModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center h-full p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Calculer Prix</h3>
+                <button onclick="fermerModal('prixModal')" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="prixForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Maison</label>
+                        <select id="prixMaisonId" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Sélectionner une maison...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Date début</label>
+                        <input type="date" id="prixDateDebut" class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Date fin</label>
+                        <input type="date" id="prixDateFin" class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Nombre de personnes</label>
+                        <input type="number" id="prixNbPersonnes" min="1" max="20" value="2" class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg">
+                        Calculer
+                    </button>
+                </div>
+            </form>
+            <div id="prixResultat" class="mt-4"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fonctions JavaScript pour les interactions AJAX
+function verifierDisponibilite() {
+    document.getElementById('disponibiliteModal').classList.remove('hidden');
+}
+
+function calculerPrix() {
+    document.getElementById('prixModal').classList.remove('hidden');
+}
+
+function fermerModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+function gererDisponibilites() {
+    const maisonId = document.getElementById('maison-select').value;
+    if (maisonId) {
+        window.location.href = `{% url 'reservations:gerer_disponibilites' 0 %}`.replace('0', maisonId);
+    } else {
+        alert('Veuillez sélectionner une maison');
+    }
+}
+
+function ouvrirModificationRapide() {
+    // Ouvrir un modal pour modification rapide des disponibilités
+    alert('Fonction en développement - Modification rapide des disponibilités');
+}
+
+function afficherAide() {
+    // Redirection vers une page d'aide ou modal d'aide
+    alert('Guide d\'utilisation:\n\n1. Utilisez les boutons par catégorie\n2. Les actions urgentes sont en haut\n3. Les fonctions AJAX permettent des vérifications rapides\n4. Le calendrier donne une vue d\'ensemble\n5. L\'export permet de sauvegarder les données');
+}
+
+// Gestion des formulaires AJAX
+document.getElementById('disponibiliteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const dateDebut = document.getElementById('dateDebut').value;
+    const dateFin = document.getElementById('dateFin').value;
+    const maisonId = document.getElementById('maisonId').value;
+    
+    if (!dateDebut || !dateFin || !maisonId) {
+        alert('Veuillez remplir tous les champs');
+        return;
+    }
+    
+    // Appel AJAX vers l'URL de vérification
+    fetch('{% url "reservations:verifier_disponibilite_ajax" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { 
-                        stepSize: 1,
-                        color: '#6B7280',
-                        font: { family: 'Inter' }
-                    },
-                    grid: {
-                        color: '#F3F4F6'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: '#6B7280',
-                        font: { family: 'Inter' }
-                    },
-                    grid: {
-                        color: '#F3F4F6'
-                    }
-                }
-            }
+        body: `date_debut=${dateDebut}&date_fin=${dateFin}&maison_id=${maisonId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        let resultat = document.getElementById('disponibiliteResultat');
+        if (data.disponible) {
+            resultat.innerHTML = '<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">✅ Maison disponible pour ces dates</div>';
+        } else {
+            resultat.innerHTML = '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">❌ Maison non disponible pour ces dates</div>';
         }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        document.getElementById('disponibiliteResultat').innerHTML = '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">Erreur lors de la vérification</div>';
+    });
+});
+
+document.getElementById('prixForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const maisonId = document.getElementById('prixMaisonId').value;
+    const dateDebut = document.getElementById('prixDateDebut').value;
+    const dateFin = document.getElementById('prixDateFin').value;
+    const nbPersonnes = document.getElementById('prixNbPersonnes').value;
+    
+    if (!maisonId || !dateDebut || !dateFin || !nbPersonnes) {
+        alert('Veuillez remplir tous les champs');
+        return;
+    }
+    
+    // Appel AJAX vers l'URL de calcul de prix
+    fetch('{% url "reservations:calculer_prix_ajax" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `maison_id=${maisonId}&date_debut=${dateDebut}&date_fin=${dateFin}&nombre_personnes=${nbPersonnes}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        let resultat = document.getElementById('prixResultat');
+        if (data.success) {
+            resultat.innerHTML = `
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+                    <h4 class="font-bold">Estimation de prix</h4>
+                    <p>Prix par nuit: ${data.prix_par_nuit} FCFA</p>
+                    <p>Nombre de nuits: ${data.nombre_nuits}</p>
+                    <p><strong>Total: ${data.prix_total} FCFA</strong></p>
+                </div>
+            `;
+        } else {
+            resultat.innerHTML = '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">Erreur dans le calcul du prix</div>';
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        document.getElementById('prixResultat').innerHTML = '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">Erreur lors du calcul</div>';
+    });
+});
+
+// Fermer les modals en cliquant à l'extérieur
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('fixed')) {
+        e.target.classList.add('hidden');
+    }
+});
+
+// Animation des cartes au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.card-hover');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.classList.add('fade-in');
+        }, index * 100);
     });
 });
 </script>

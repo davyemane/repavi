@@ -395,249 +395,381 @@
 
 {% block extra_js %}
 <script>
-const rapportConfigs = {
-    inventaire: {
-        title: 'Inventaire Complet',
-        description: 'Liste complète de tous les meubles avec statistiques par état, pièce et type. Inclut les photos et observations.',
-        preview: 'Tous les meubles seront inclus avec leurs caractéristiques détaillées.',
-        dateRequired: false
-    },
-    defectueux: {
-        title: 'Meubles Défectueux',
-        description: 'Rapport détaillé sur tous les meubles défectueux ou hors service. Inclut les recommandations de réparation.',
-        preview: 'Seuls les meubles marqués comme "défectueux" seront inclus.',
-        dateRequired: false
-    },
-    verification: {
-        title: 'Vérifications Requises',
-        description: 'Liste des meubles nécessitant une vérification avec planning de maintenance recommandé.',
-        preview: 'Meubles non vérifiés depuis plus de 6 mois ou jamais vérifiés.',
-        dateRequired: false
-    },
-    valeur: {
-        title: 'Évaluation Financière',
-        description: 'Analyse financière complète avec valeurs d\'achat, actuelles, dépréciation et évolution du patrimoine.',
-        preview: 'Seuls les meubles avec une valeur renseignée seront inclus.',
-        dateRequired: true
-    },
-    historique: {
-        title: 'Historique des États',
-        description: 'Chronologie des changements d\'état avec analyses de tendances.',
-        preview: 'Tous les meubles avec leur historique de modifications.',
-        dateRequired: true
-    },
-    personnalise: {
-        title: 'Rapport Personnalisé',
-        description: 'Rapport configurable selon vos critères spécifiques.',
-        preview: 'Configuration personnalisée selon vos filtres.',
-        dateRequired: false
+/**
+ * Gestionnaire de rapports - JavaScript organisé
+ * Gestion de la sélection, configuration et génération de rapports
+ */
+
+class RapportManager {
+    constructor() {
+        this.currentPreviewTimeout = null;
+        this.rapportConfigs = {
+            inventaire: {
+                title: 'Inventaire Complet',
+                description: 'Liste complète de tous les meubles avec statistiques par état, pièce et type. Inclut les photos et observations.',
+                preview: 'Tous les meubles seront inclus avec leurs caractéristiques détaillées.',
+                dateRequired: false
+            },
+            defectueux: {
+                title: 'Meubles Défectueux',
+                description: 'Rapport détaillé sur tous les meubles défectueux ou hors service. Inclut les recommandations de réparation.',
+                preview: 'Seuls les meubles marqués comme "défectueux" seront inclus.',
+                dateRequired: false
+            },
+            verification: {
+                title: 'Vérifications Requises',
+                description: 'Liste des meubles nécessitant une vérification avec planning de maintenance recommandé.',
+                preview: 'Meubles non vérifiés depuis plus de 6 mois ou jamais vérifiés.',
+                dateRequired: false
+            },
+            valeur: {
+                title: 'Évaluation Financière',
+                description: 'Analyse financière complète avec valeurs d\'achat, actuelles, dépréciation et évolution du patrimoine.',
+                preview: 'Seuls les meubles avec une valeur renseignée seront inclus.',
+                dateRequired: true
+            },
+            historique: {
+                title: 'Historique des États',
+                description: 'Chronologie des changements d\'état avec analyses de tendances.',
+                preview: 'Tous les meubles avec leur historique de modifications.',
+                dateRequired: true
+            },
+            personnalise: {
+                title: 'Rapport Personnalisé',
+                description: 'Rapport configurable selon vos critères spécifiques.',
+                preview: 'Configuration personnalisée selon vos filtres.',
+                dateRequired: false
+            }
+        };
+        
+        this.elements = {
+            configForm: document.getElementById('configForm'),
+            rapportForm: document.getElementById('rapportForm'),
+            previewContainer: document.getElementById('previewContainer'),
+            previewDiv: document.getElementById('rapportPreview'),
+            rapportDescription: document.getElementById('rapportDescription'),
+            selectedRapportType: document.getElementById('selectedRapportType'),
+            dateFilters: document.getElementById('dateFilters'),
+            generateBtn: document.getElementById('generateBtn')
+        };
+        
+        this.init();
     }
-};
 
-let currentPreviewTimeout = null;
+    init() {
+        this.bindEvents();
+        this.validateElements();
+    }
 
-function selectRapport(type) {
-    // Mettre à jour les radio buttons
-    document.querySelectorAll('input[name="rapport_type"]').forEach(radio => {
-        radio.checked = radio.value === type;
-    });
-    
-    // Mettre à jour le style des cartes
-    document.querySelectorAll('.rapport-card').forEach(card => {
-        card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50');
-    });
-    
-    event.currentTarget.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50');
-    
-    // Configurer le formulaire
-    configureForm(type);
-    
-    // Afficher le formulaire de configuration
-    document.getElementById('configForm').style.display = 'block';
-    document.getElementById('configForm').scrollIntoView({ behavior: 'smooth' });
-}
+    validateElements() {
+        const missingElements = Object.entries(this.elements)
+            .filter(([key, element]) => !element)
+            .map(([key]) => key);
+        
+        if (missingElements.length > 0) {
+            console.warn('Éléments manquants:', missingElements);
+        }
+    }
 
-function configureForm(type) {
-    const config = rapportConfigs[type];
-    if (!config) return;
-    
-    // Définir le type de rapport
-    document.getElementById('selectedRapportType').value = type;
-    
-    // Mettre à jour la description
-    document.getElementById('rapportDescription').textContent = config.description;
-    
-    // Afficher/masquer les filtres de date selon le type
-    const dateFilters = document.getElementById('dateFilters');
-    if (config.dateRequired) {
-        dateFilters.style.display = 'grid';
-    } else {
-        dateFilters.style.display = 'none';
-        // Vider les champs de date
+    bindEvents() {
+        this.bindFormSubmission();
+        this.bindFieldChanges();
+        this.bindDateValidation();
+    }
+
+    bindFormSubmission() {
+        if (this.elements.rapportForm) {
+            this.elements.rapportForm.addEventListener('submit', (e) => {
+                this.handleFormSubmit(e);
+            });
+        }
+    }
+
+    bindFieldChanges() {
+        ['maison', 'date_debut', 'date_fin'].forEach(fieldName => {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+                field.addEventListener('change', () => this.updatePreview());
+            }
+        });
+    }
+
+    bindDateValidation() {
+        const dateDebut = document.querySelector('input[name="date_debut"]');
+        const dateFin = document.querySelector('input[name="date_fin"]');
+        
+        if (dateDebut && dateFin) {
+            dateDebut.addEventListener('change', () => {
+                dateFin.min = dateDebut.value;
+                this.updatePreview();
+            });
+            
+            dateFin.addEventListener('change', () => {
+                dateDebut.max = dateFin.value;
+                this.updatePreview();
+            });
+        }
+    }
+
+    selectRapport(type) {
+        if (!this.rapportConfigs[type]) {
+            console.error('Type de rapport invalide:', type);
+            return;
+        }
+
+        this.updateRadioButtons(type);
+        this.updateCardStyles(type);
+        this.configureForm(type);
+        this.showConfigForm();
+    }
+
+    updateRadioButtons(type) {
+        document.querySelectorAll('input[name="rapport_type"]').forEach(radio => {
+            radio.checked = radio.value === type;
+        });
+    }
+
+    updateCardStyles(type) {
+        // Réinitialiser tous les styles
+        document.querySelectorAll('.rapport-card').forEach(card => {
+            card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+        });
+        
+        // Appliquer le style à la carte sélectionnée
+        const selectedCard = document.querySelector(`[onclick="selectRapport('${type}')"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+        }
+    }
+
+    configureForm(type) {
+        const config = this.rapportConfigs[type];
+        
+        // Définir le type de rapport
+        if (this.elements.selectedRapportType) {
+            this.elements.selectedRapportType.value = type;
+        }
+        
+        // Mettre à jour la description
+        if (this.elements.rapportDescription) {
+            this.elements.rapportDescription.textContent = config.description;
+        }
+        
+        // Gérer l'affichage des filtres de date
+        this.toggleDateFilters(config.dateRequired);
+        
+        // Déclencher l'aperçu automatique
+        this.updatePreview();
+    }
+
+    toggleDateFilters(dateRequired) {
+        if (!this.elements.dateFilters) return;
+        
+        if (dateRequired) {
+            this.elements.dateFilters.style.display = 'grid';
+        } else {
+            this.elements.dateFilters.style.display = 'none';
+            this.clearDateFields();
+        }
+    }
+
+    clearDateFields() {
         const dateDebutField = document.querySelector('input[name="date_debut"]');
         const dateFinField = document.querySelector('input[name="date_fin"]');
+        
         if (dateDebutField) dateDebutField.value = '';
         if (dateFinField) dateFinField.value = '';
     }
-    
-    // Déclencher l'aperçu automatique
-    updatePreview();
-}
 
-function updatePreview() {
-    const previewContainer = document.getElementById('previewContainer');
-    const previewDiv = document.getElementById('rapportPreview');
-    
-    previewContainer.style.display = 'block';
-    previewDiv.innerHTML = '<div class="animate-pulse">Calcul en cours...</div>';
-    
-    // Annuler la requête précédente
-    if (currentPreviewTimeout) {
-        clearTimeout(currentPreviewTimeout);
+    showConfigForm() {
+        if (this.elements.configForm) {
+            this.elements.configForm.style.display = 'block';
+            this.elements.configForm.scrollIntoView({ behavior: 'smooth' });
+        }
     }
-    
-    // Délai pour éviter trop de requêtes
-    currentPreviewTimeout = setTimeout(() => {
-        const formData = new FormData(document.getElementById('rapportForm'));
-        const params = new URLSearchParams();
+
+    updatePreview() {
+        if (!this.elements.previewContainer || !this.elements.previewDiv) return;
         
-        for (let [key, value] of formData.entries()) {
-            if (value) params.append(key, value);
+        this.elements.previewContainer.style.display = 'block';
+        this.elements.previewDiv.innerHTML = '<div class="animate-pulse">Calcul en cours...</div>';
+        
+        // Annuler la requête précédente
+        if (this.currentPreviewTimeout) {
+            clearTimeout(this.currentPreviewTimeout);
         }
         
-        fetch(`{% url 'meubles:preview_rapport_ajax' %}?${params.toString()}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const stats = data.stats;
-                    const echantillon = data.echantillon;
-                    
-                    let previewHtml = `
-                        <div class="mb-3">
-                            <div class="font-medium mb-2">${data.message}</div>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                                <div><span class="font-medium">Total:</span> ${stats.total}</div>
-                                <div><span class="font-medium">Bon état:</span> ${stats.bon_etat}</div>
-                                <div><span class="font-medium">Défectueux:</span> ${stats.defectueux}</div>
-                                <div><span class="font-medium">Usagé:</span> ${stats.usage}</div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    if (echantillon.length > 0) {
-                        previewHtml += '<div class="text-xs"><strong>Échantillon:</strong><ul class="mt-1 space-y-1">';
-                        echantillon.forEach(meuble => {
-                            previewHtml += `<li>• ${meuble.nom} (${meuble.etat}) - ${meuble.maison__nom}</li>`;
-                        });
-                        previewHtml += '</ul></div>';
-                    }
-                    
-                    previewDiv.innerHTML = previewHtml;
-                } else {
-                    previewDiv.innerHTML = `<div class="text-red-600">Erreur: ${data.error}</div>`;
-                }
-            })
-            .catch(error => {
-                previewDiv.innerHTML = '<div class="text-red-600">Erreur de chargement de l\'aperçu</div>';
+        // Délai pour éviter trop de requêtes
+        this.currentPreviewTimeout = setTimeout(() => {
+            this.fetchPreview();
+        }, 500);
+    }
+
+    async fetchPreview() {
+        try {
+            const formData = new FormData(this.elements.rapportForm);
+            const params = new URLSearchParams();
+            
+            for (let [key, value] of formData.entries()) {
+                if (value) params.append(key, value);
+            }
+            
+            const response = await fetch(`{% url 'meubles:preview_rapport_ajax' %}?${params.toString()}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                this.renderPreview(data);
+            } else {
+                this.showPreviewError(data.error);
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement de l\'aperçu:', error);
+            this.showPreviewError('Erreur de chargement de l\'aperçu');
+        }
+    }
+
+    renderPreview(data) {
+        const { stats, echantillon, message } = data;
+        
+        let previewHtml = `
+            <div class="mb-3">
+                <div class="font-medium mb-2">${message}</div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                    <div><span class="font-medium">Total:</span> ${stats.total}</div>
+                    <div><span class="font-medium">Bon état:</span> ${stats.bon_etat}</div>
+                    <div><span class="font-medium">Défectueux:</span> ${stats.defectueux}</div>
+                    <div><span class="font-medium">Usagé:</span> ${stats.usage}</div>
+                </div>
+            </div>
+        `;
+        
+        if (echantillon.length > 0) {
+            previewHtml += '<div class="text-xs"><strong>Échantillon:</strong><ul class="mt-1 space-y-1">';
+            echantillon.forEach(meuble => {
+                previewHtml += `<li>• ${meuble.nom} (${meuble.etat}) - ${meuble.maison__nom}</li>`;
             });
-    }, 500);
+            previewHtml += '</ul></div>';
+        }
+        
+        this.elements.previewDiv.innerHTML = previewHtml;
+    }
+
+    showPreviewError(errorMessage) {
+        this.elements.previewDiv.innerHTML = `<div class="text-red-600">Erreur: ${errorMessage}</div>`;
+    }
+
+    resetForm() {
+        this.clearCardSelection();
+        this.hideConfigForm();
+        this.resetFormFields();
+    }
+
+    clearCardSelection() {
+        document.querySelectorAll('.rapport-card').forEach(card => {
+            card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50');
+        });
+        
+        document.querySelectorAll('input[name="rapport_type"]').forEach(radio => {
+            radio.checked = false;
+        });
+    }
+
+    hideConfigForm() {
+        if (this.elements.configForm) {
+            this.elements.configForm.style.display = 'none';
+        }
+        
+        if (this.elements.previewContainer) {
+            this.elements.previewContainer.style.display = 'none';
+        }
+    }
+
+    resetFormFields() {
+        if (this.elements.rapportForm) {
+            this.elements.rapportForm.reset();
+        }
+    }
+
+    previewRapport() {
+        const type = this.elements.selectedRapportType?.value;
+        if (!type) {
+            this.showAlert('Veuillez sélectionner un type de rapport');
+            return;
+        }
+        
+        const formatSelect = this.elements.rapportForm.querySelector('select[name="format_export"]');
+        if (!formatSelect) {
+            this.showAlert('Champ format d\'export non trouvé');
+            return;
+        }
+        
+        const originalFormat = formatSelect.value;
+        
+        // Soumettre avec format HTML dans un nouvel onglet
+        formatSelect.value = 'html';
+        this.elements.rapportForm.target = '_blank';
+        this.elements.rapportForm.submit();
+        
+        // Restaurer les valeurs originales
+        formatSelect.value = originalFormat;
+        this.elements.rapportForm.target = '';
+    }
+
+    handleFormSubmit(e) {
+        const type = this.elements.selectedRapportType?.value;
+        if (!type) {
+            e.preventDefault();
+            this.showAlert('Veuillez sélectionner un type de rapport');
+            return;
+        }
+        
+        this.showLoadingState();
+        
+        // Restaurer l'état normal en cas d'erreur
+        setTimeout(() => {
+            this.hideLoadingState();
+        }, 15000);
+    }
+
+    showLoadingState() {
+        if (this.elements.generateBtn) {
+            this.elements.generateBtn.originalText = this.elements.generateBtn.innerHTML;
+            this.elements.generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Génération en cours...';
+            this.elements.generateBtn.disabled = true;
+        }
+    }
+
+    hideLoadingState() {
+        if (this.elements.generateBtn && this.elements.generateBtn.originalText) {
+            this.elements.generateBtn.innerHTML = this.elements.generateBtn.originalText;
+            this.elements.generateBtn.disabled = false;
+        }
+    }
+
+    showAlert(message) {
+        alert(message);
+    }
+}
+
+// Instance globale du gestionnaire
+let rapportManager;
+
+// Fonctions globales pour maintenir la compatibilité avec le HTML
+function selectRapport(type) {
+    rapportManager.selectRapport(type);
 }
 
 function resetForm() {
-    // Désélectionner toutes les cartes
-    document.querySelectorAll('.rapport-card').forEach(card => {
-        card.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50');
-    });
-    
-    document.querySelectorAll('input[name="rapport_type"]').forEach(radio => {
-        radio.checked = false;
-    });
-    
-    // Masquer le formulaire
-    document.getElementById('configForm').style.display = 'none';
-    document.getElementById('previewContainer').style.display = 'none';
-    
-    // Réinitialiser les champs
-    document.getElementById('rapportForm').reset();
+    rapportManager.resetForm();
 }
 
 function previewRapport() {
-    const type = document.getElementById('selectedRapportType').value;
-    if (!type) {
-        alert('Veuillez sélectionner un type de rapport');
-        return;
-    }
-    
-    // Soumettre le formulaire avec format HTML
-    const form = document.getElementById('rapportForm');
-    const formatSelect = form.querySelector('select[name="format_export"]');
-    if (!formatSelect) {
-        alert('Champ format d\'export non trouvé');
-        return;
-    }
-    
-    const originalFormat = formatSelect.value;
-    
-    formatSelect.value = 'html';
-    form.target = '_blank';
-    form.submit();
-    
-    // Restaurer le format original
-    formatSelect.value = originalFormat;
-    form.target = '';
+    rapportManager.previewRapport();
 }
 
-// Animation de soumission
+// Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
-    const rapportForm = document.getElementById('rapportForm');
-    if (rapportForm) {
-        rapportForm.addEventListener('submit', function(e) {
-            const type = document.getElementById('selectedRapportType').value;
-            if (!type) {
-                e.preventDefault();
-                alert('Veuillez sélectionner un type de rapport');
-                return;
-            }
-            
-            const submitBtn = document.getElementById('generateBtn');
-            if (submitBtn) {
-                const originalText = submitBtn.innerHTML;
-                
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Génération en cours...';
-                submitBtn.disabled = true;
-                
-                // Restaurer en cas d'erreur (timeout)
-                setTimeout(() => {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }, 15000);
-            }
-        });
-    }
-    
-    // Aperçu automatique quand les filtres changent
-    ['maison', 'date_debut', 'date_fin'].forEach(fieldName => {
-        const field = document.querySelector(`[name="${fieldName}"]`);
-        if (field) {
-            field.addEventListener('change', updatePreview);
-        }
-    });
-    
-    // Validation des dates
-    const dateDebut = document.querySelector('input[name="date_debut"]');
-    const dateFin = document.querySelector('input[name="date_fin"]');
-    
-    if (dateDebut && dateFin) {
-        dateDebut.addEventListener('change', function() {
-            dateFin.min = this.value;
-            updatePreview();
-        });
-        
-        dateFin.addEventListener('change', function() {
-            dateDebut.max = this.value;
-            updatePreview();
-        });
-    }
+    rapportManager = new RapportManager();
 });
 </script>
 {% endblock %}

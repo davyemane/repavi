@@ -1,10 +1,10 @@
-# reservations/views.py - Vues pour les réservations
+# reservations/views.py - Système de réservations complet
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, Sum, Avg, Case, When, IntegerField, DecimalField
+from django.db.models import Q, Count, Sum, Avg, Case, When, IntegerField
 from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -12,10 +12,10 @@ from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta, date
-from decimal import Decimal
 import json
 import csv
 import calendar
+import traceback
 
 # Imports pour l'export
 try:
@@ -30,11 +30,10 @@ from .models import (
     Disponibilite
 )
 from .forms import (
-    ReservationForm, ReservationQuickForm, ReservationAdminForm,
-    ReservationFilterForm, PaiementForm, EvaluationReservationForm,
-    ReponseGestionnaireForm, DisponibiliteForm, DisponibiliteBulkForm,
-    AnnulationReservationForm, ModificationReservationForm,
-    StatutReservationForm, RechercheDisponibiliteForm, ExportReservationsForm
+    ReservationForm, ReservationFilterForm, PaiementForm, EvaluationReservationForm,
+    ReponseGestionnaireForm, DisponibiliteForm, AnnulationReservationForm, 
+    ModificationReservationForm, StatutReservationForm, RechercheDisponibiliteForm, 
+    ExportReservationsForm
 )
 from home.models import Maison
 
@@ -74,6 +73,7 @@ except ImportError:
                 return redirect('home:index')
             return func(request, *args, **kwargs)
         return wrapper
+
 
 # ======== VUES PUBLIQUES ET CLIENT ========
 
@@ -142,24 +142,23 @@ def recherche_disponibilite(request):
     return render(request, 'reservations/recherche_disponibilite.html', context)
 
 
-
 @login_required
-@super_admin_required
+@gestionnaire_required
 def reservations_dashboard(request):
-    """Dashboard principal des réservations"""
+    """Dashboard principal des réservations - ACCESSIBLE AUX GESTIONNAIRES"""
     try:
         # Déterminer les réservations accessibles à l'utilisateur
-        if request.user.is_client():
+        if hasattr(request.user, 'is_client') and request.user.is_client():
             reservations_base = Reservation.objects.filter(client=request.user)
-        elif request.user.is_gestionnaire():
+        elif hasattr(request.user, 'is_gestionnaire') and request.user.is_gestionnaire():
             reservations_base = Reservation.objects.filter(maison__gestionnaire=request.user)
-        elif request.user.is_super_admin():
+        elif hasattr(request.user, 'is_super_admin') and request.user.is_super_admin():
             reservations_base = Reservation.objects.all()
         else:
             messages.error(request, "Accès non autorisé.")
-            return redirect('home:index')
+            return redirect('home:index')        
         
-        # Calcul des statistiques principales
+        # Calcul des statistiques principales - MODIFIÉ POUR ENTIERS
         stats = reservations_base.aggregate(
             total=Count('id'),
             confirmees=Count(Case(When(statut='confirmee', then=1), output_field=IntegerField())),
@@ -169,7 +168,7 @@ def reservations_dashboard(request):
             ca_total=Sum(Case(
                 When(statut__in=['confirmee', 'terminee'], then='prix_total'),
                 default=0,
-                output_field=DecimalField()
+                output_field=IntegerField()  # CHANGÉ de DecimalField à IntegerField
             ))
         )
         
@@ -379,6 +378,7 @@ def reservations_dashboard(request):
         
         return render(request, 'reservations/dashboard.html', context)
 
+
 @login_required
 @client_required
 def reserver_maison(request, maison_slug):
@@ -411,28 +411,23 @@ def reserver_maison(request, maison_slug):
         if form.is_valid():
             try:
                 with transaction.atomic():
-                    # Le formulaire gère maintenant la sauvegarde complète
                     reservation = form.save()
                     
+                    # Messages de succès dans le bloc atomic
                     messages.success(
                         request, 
                         f'Votre réservation {reservation.numero} a été créée avec succès! '
                         'Vous allez recevoir un email de confirmation.'
                     )
-                    
-                    # TODO: Envoyer email de confirmation
-                    # TODO: Créer notification
-                    
-                    return redirect('reservations:detail', numero=reservation.numero)
-            except forms.ValidationError as e:
+                
+                # Redirection en dehors du bloc atomic
+                return redirect('reservations:detail', numero=reservation.numero)
+                
+            except ValidationError as e:
                 messages.error(request, str(e))
             except Exception as e:
                 messages.error(request, f'Erreur lors de la création de la réservation: {str(e)}')
-                import traceback
                 print(f"Erreur complète: {traceback.format_exc()}")
-        else:
-            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
-            print(f"Erreurs du formulaire: {form.errors}")
     else:
         form = ReservationForm(initial=initial_data, user=request.user, maison=maison)
     
@@ -460,14 +455,42 @@ def reserver_maison(request, maison_slug):
     except:
         types_paiement = []
     
+    # CORRECTION: Récupération des évaluations (remplacer Avis par EvaluationReservation)
+    try:
+        # Utiliser EvaluationReservation au lieu d'Avis non défini
+        evaluations = EvaluationReservation.objects.filter(
+            reservation__maison=maison,
+            approuve=True
+        ).select_related('reservation__client').order_by('-date_creation')[:10]
+    except Exception as e:
+        print(f"Erreur lors de la récupération des évaluations: {e}")
+        evaluations = []
+    
+    # Calcul de la note moyenne et du nombre d'évaluations
+    try:
+        if evaluations:
+            note_moyenne = sum(eval.note_globale for eval in evaluations) / len(evaluations)
+            note_moyenne = round(note_moyenne, 1)
+            nombre_evaluations = len(evaluations)
+        else:
+            note_moyenne = 0
+            nombre_evaluations = 0
+    except:
+        note_moyenne = 0
+        nombre_evaluations = 0
+    
     context = {
         'maison': maison,
         'form': form,
         'prix_estime': prix_estime,
-        'types_paiement': types_paiement
+        'types_paiement': types_paiement,
+        'evaluations': evaluations,  # CHANGÉ de 'avis' à 'evaluations'
+        'note_moyenne': note_moyenne,
+        'nombre_evaluations': nombre_evaluations,  # CHANGÉ de 'nombre_avis'
     }
     
     return render(request, 'reservations/reserver_maison.html', context)
+
 
 @login_required
 def mes_reservations(request):
@@ -547,7 +570,6 @@ def mes_reservations(request):
     }
     
     return render(request, 'reservations/mes_reservations.html', context)
-
 
 
 @login_required
@@ -775,38 +797,62 @@ def tableau_bord_reservations(request):
 @login_required
 @gestionnaire_required
 def gerer_reservation(request, numero):
-    """Gérer une réservation (gestionnaire)"""
+    """Gérer une réservation (gestionnaire) - AMÉLIORÉ"""
     reservation = get_object_or_404(
         Reservation.objects.select_related('maison', 'client'),
-        numero=numero,
-        maison__gestionnaire=request.user
+        numero=numero
     )
     
+    # Vérifier les permissions
+    if not reservation.can_be_managed_by(request.user):
+        messages.error(request, "Vous n'avez pas accès à cette réservation.")
+        return redirect('reservations:dashboard')
+    
     if request.method == 'POST':
-        form = StatutReservationForm(request.POST, reservation=reservation)
-        if form.is_valid():
-            nouveau_statut = form.cleaned_data['nouveau_statut']
-            commentaire = form.cleaned_data.get('commentaire', '')
-            
-            try:
+        nouveau_statut = request.POST.get('nouveau_statut')
+        commentaire = request.POST.get('commentaire', '')
+        
+        try:
+            with transaction.atomic():
+                ancien_statut = reservation.statut
+                
                 if nouveau_statut == 'confirmee':
                     reservation.confirmer(request.user)
+                    # OCCUPER LA MAISON
+                    if reservation.maison:
+                        reservation.maison.occuper_maison(
+                            locataire=reservation.client,
+                            date_fin=reservation.date_fin
+                        )
+                    messages.success(request, f'Réservation confirmée. Maison occupée par {reservation.client.get_full_name()}.')
+                    
                 elif nouveau_statut == 'terminee':
                     reservation.terminer()
+                    # LIBÉRER LA MAISON
+                    if reservation.maison:
+                        reservation.maison.liberer_maison()
+                    messages.success(request, f'Réservation terminée. Maison libérée.')
+                    
                 elif nouveau_statut == 'annulee':
                     reservation.annuler(commentaire or "Annulée par le gestionnaire", request.user)
+                    # LIBÉRER LA MAISON SI ELLE ÉTAIT OCCUPÉE
+                    if reservation.maison and reservation.maison.locataire_actuel == reservation.client:
+                        reservation.maison.liberer_maison()
+                    messages.success(request, f'Réservation annulée. Maison libérée.')
                 
                 if commentaire:
                     reservation.commentaire_gestionnaire = commentaire
                     reservation.save()
                 
-                messages.success(request, f'Statut de la réservation mis à jour: {reservation.get_statut_display()}')
-                
                 return redirect('reservations:detail', numero=numero)
-            except ValidationError as e:
-                messages.error(request, str(e))
-    else:
-        form = StatutReservationForm(reservation=reservation)
+                
+        except ValidationError as e:
+            messages.error(request, str(e))
+        except Exception as e:
+            messages.error(request, f'Erreur lors du traitement: {str(e)}')
+    
+    # Afficher le formulaire
+    form = StatutReservationForm(reservation=reservation)
     
     context = {
         'reservation': reservation,
@@ -882,6 +928,69 @@ def ajouter_paiement(request, numero):
     }
     
     return render(request, 'reservations/ajouter_paiement.html', context)
+
+
+@login_required
+@gestionnaire_required
+def dashboard_paiements(request):
+    """Vue dédiée aux paiements depuis le dashboard"""
+    # Récupérer les paiements selon les permissions
+    if hasattr(request.user, 'is_super_admin') and request.user.is_super_admin():
+        paiements = Paiement.objects.all()
+    elif hasattr(request.user, 'is_gestionnaire') and request.user.is_gestionnaire():
+        paiements = Paiement.objects.filter(reservation__maison__gestionnaire=request.user)
+    else:
+        paiements = Paiement.objects.filter(reservation__client=request.user)
+    
+    # Paiements en attente
+    paiements_en_attente = paiements.filter(statut='en_attente').select_related(
+        'reservation__maison', 'reservation__client', 'type_paiement'
+    ).order_by('-date_creation')
+    
+    # Paiements récents
+    paiements_recents = paiements.filter(statut='valide').select_related(
+        'reservation__maison', 'reservation__client', 'type_paiement'
+    ).order_by('-date_validation')[:10]
+    
+    context = {
+        'paiements_en_attente': paiements_en_attente,
+        'paiements_recents': paiements_recents,
+        'stats': {
+            'total_paiements': paiements.count(),
+            'en_attente': paiements_en_attente.count(),
+            'valides': paiements.filter(statut='valide').count(),
+            'echecs': paiements.filter(statut='echec').count(),
+        }
+    }
+    
+    return render(request, 'reservations/dashboard_paiements.html', context)
+
+
+@login_required
+@gestionnaire_required
+@require_http_methods(["POST"])
+def valider_paiement(request, paiement_id):
+    """Valider un paiement depuis le dashboard"""
+    paiement = get_object_or_404(Paiement, id=paiement_id)
+    
+    # Vérifier les permissions
+    if not paiement.reservation.can_be_managed_by(request.user):
+        return JsonResponse({'success': False, 'error': 'Permission refusée'})
+    
+    if paiement.statut != 'en_attente':
+        return JsonResponse({'success': False, 'error': 'Ce paiement ne peut pas être validé'})
+    
+    try:
+        notes = request.POST.get('notes', f'Validé par {request.user.get_full_name()}')
+        paiement.valider(notes=notes)
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Paiement de {paiement.montant:,} FCFA validé avec succès'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 # ======== VUES ÉVALUATIONS ========
@@ -960,6 +1069,81 @@ def repondre_evaluation(request, numero):
     }
     
     return render(request, 'reservations/repondre_evaluation.html', context)
+
+
+@login_required
+@gestionnaire_required
+def valider_reservation(request, numero):
+    """Valider une réservation directement depuis le dashboard"""
+    reservation = get_object_or_404(Reservation, numero=numero)
+    
+    # Vérifier les permissions
+    if not reservation.can_be_managed_by(request.user):
+        messages.error(request, "Vous n'avez pas accès à cette réservation.")
+        return redirect('reservations:dashboard')
+    
+    if reservation.statut != 'en_attente':
+        messages.error(request, "Seules les réservations en attente peuvent être validées.")
+        return redirect('reservations:detail', numero=numero)
+    
+    try:
+        with transaction.atomic():
+            # Confirmer la réservation
+            reservation.confirmer(request.user)
+            
+            # NOUVELLE LOGIQUE: Occuper automatiquement la maison
+            if reservation.maison:
+                reservation.maison.occuper_maison(
+                    locataire=reservation.client,
+                    date_fin=reservation.date_fin
+                )
+            
+            messages.success(request, f'Réservation {reservation.numero} validée avec succès. La maison est maintenant occupée.')
+            
+            # TODO: Envoyer notification au client
+            
+    except ValidationError as e:
+        messages.error(request, str(e))
+    except Exception as e:
+        messages.error(request, f'Erreur lors de la validation: {str(e)}')
+    
+    return redirect('reservations:detail', numero=numero)
+
+
+@login_required
+@gestionnaire_required
+def terminer_reservation(request, numero):
+    """Terminer une réservation et libérer la maison"""
+    reservation = get_object_or_404(Reservation, numero=numero)
+    
+    # Vérifier les permissions
+    if not reservation.can_be_managed_by(request.user):
+        messages.error(request, "Vous n'avez pas accès à cette réservation.")
+        return redirect('reservations:dashboard')
+    
+    if reservation.statut != 'confirmee':
+        messages.error(request, "Seules les réservations confirmées peuvent être terminées.")
+        return redirect('reservations:detail', numero=numero)
+    
+    try:
+        with transaction.atomic():
+            # Terminer la réservation
+            reservation.terminer()
+            
+            # NOUVELLE LOGIQUE: Libérer automatiquement la maison
+            if reservation.maison:
+                reservation.maison.liberer_maison()
+            
+            messages.success(request, f'Réservation {reservation.numero} terminée avec succès. La maison est maintenant libre.')
+            
+            # TODO: Demander évaluation au client
+            
+    except ValidationError as e:
+        messages.error(request, str(e))
+    except Exception as e:
+        messages.error(request, f'Erreur lors de la terminaison: {str(e)}')
+    
+    return redirect('reservations:detail', numero=numero)
 
 
 # ======== VUES CALENDRIER ET DISPONIBILITÉS ========
@@ -1118,8 +1302,8 @@ def verifier_disponibilite_ajax(request):
         return JsonResponse({
             'disponible': disponible,
             'nombre_nuits': nombre_nuits,
-            'prix_par_nuit': float(maison.prix_par_nuit),
-            'prix_total': float(prix_total)
+            'prix_par_nuit': maison.prix_par_nuit,
+            'prix_total': prix_total
         })
         
     except (Maison.DoesNotExist, ValueError) as e:
@@ -1130,7 +1314,7 @@ def verifier_disponibilite_ajax(request):
 @gestionnaire_required
 @require_http_methods(["POST"])
 def modifier_disponibilite_ajax(request):
-    """Modifier une disponibilité via AJAX"""
+    """Modifier une disponibilité via AJAX - MODIFIÉ POUR ENTIERS"""
     maison_id = request.POST.get('maison_id')
     date_str = request.POST.get('date')
     disponible = request.POST.get('disponible') == 'true'
@@ -1145,13 +1329,20 @@ def modifier_disponibilite_ajax(request):
         if date_obj < timezone.now().date():
             return JsonResponse({'error': 'Impossible de modifier le passé'}, status=400)
         
-        # Créer ou mettre à jour la disponibilité
+        # Créer ou mettre à jour la disponibilité - PRIX SPECIAL EN ENTIER
+        prix_special_int = None
+        if prix_special:
+            try:
+                prix_special_int = int(float(prix_special))  # Convertir en entier
+            except ValueError:
+                return JsonResponse({'error': 'Prix spécial invalide'}, status=400)
+        
         disponibilite, created = Disponibilite.objects.update_or_create(
             maison=maison,
             date=date_obj,
             defaults={
                 'disponible': disponible,
-                'prix_special': Decimal(prix_special) if prix_special else None,
+                'prix_special': prix_special_int,
                 'raison_indisponibilite': raison if not disponible else ''
             }
         )
@@ -1168,7 +1359,7 @@ def modifier_disponibilite_ajax(request):
 @login_required
 @require_http_methods(["POST"])
 def calculer_prix_ajax(request):
-    """Calculer le prix d'une réservation via AJAX"""
+    """Calculer le prix d'une réservation via AJAX - MODIFIÉ POUR ENTIERS"""
     maison_id = request.POST.get('maison_id')
     date_debut = request.POST.get('date_debut')
     date_fin = request.POST.get('date_fin')
@@ -1181,22 +1372,22 @@ def calculer_prix_ajax(request):
         
         nombre_nuits = (date_fin - date_debut).days
         
-        # Prix de base
+        # Prix de base (en entiers)
         sous_total = maison.prix_par_nuit * nombre_nuits
         
-        # Frais de service (exemple: 5%)
-        frais_service = sous_total * Decimal('0.05')
+        # Frais de service (exemple: 5% - CALCULÉ EN ENTIERS)
+        frais_service = int(sous_total * 0.05)
         
         # Total
         prix_total = sous_total + frais_service
         
         return JsonResponse({
             'nombre_nuits': nombre_nuits,
-            'prix_par_nuit': float(maison.prix_par_nuit),
-            'sous_total': float(sous_total),
-            'frais_service': float(frais_service),
-            'prix_total': float(prix_total),
-            'prix_par_personne': float(prix_total / nombre_personnes)
+            'prix_par_nuit': maison.prix_par_nuit,
+            'sous_total': sous_total,
+            'frais_service': frais_service,
+            'prix_total': prix_total,
+            'prix_par_personne': prix_total / nombre_personnes
         })
         
     except Exception as e:
@@ -1243,7 +1434,7 @@ def exporter_reservations(request):
 
 
 def _export_csv(reservations, inclure_paiements, inclure_evaluations):
-    """Export CSV des réservations"""
+    """Export CSV des réservations - MODIFIÉ POUR ENTIERS"""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="reservations_{timezone.now().strftime("%Y%m%d")}.csv"'
     
@@ -1276,7 +1467,7 @@ def _export_csv(reservations, inclure_paiements, inclure_evaluations):
             reservation.nombre_nuits,
             reservation.nombre_personnes,
             reservation.get_statut_display(),
-            reservation.prix_total,
+            reservation.prix_total,  # Déjà un entier
             reservation.get_mode_paiement_display(),
             reservation.date_creation.strftime('%Y-%m-%d %H:%M')
         ]
@@ -1300,7 +1491,7 @@ def _export_csv(reservations, inclure_paiements, inclure_evaluations):
 
 
 def _export_excel(reservations, inclure_paiements, inclure_evaluations):
-    """Export Excel des réservations"""
+    """Export Excel des réservations - MODIFIÉ POUR ENTIERS"""
     if not EXCEL_AVAILABLE:
         return HttpResponse("Export Excel non disponible", status=400)
     
@@ -1343,7 +1534,7 @@ def _export_excel(reservations, inclure_paiements, inclure_evaluations):
         ws.cell(row=row_num, column=7, value=reservation.nombre_nuits)
         ws.cell(row=row_num, column=8, value=reservation.nombre_personnes)
         ws.cell(row=row_num, column=9, value=reservation.get_statut_display())
-        ws.cell(row=row_num, column=10, value=float(reservation.prix_total))
+        ws.cell(row=row_num, column=10, value=reservation.prix_total)  # Entier
         ws.cell(row=row_num, column=11, value=reservation.get_mode_paiement_display())
         ws.cell(row=row_num, column=12, value=reservation.date_creation)
         
@@ -1353,8 +1544,8 @@ def _export_excel(reservations, inclure_paiements, inclure_evaluations):
             montant_paye = reservation.paiements.filter(statut='valide').aggregate(
                 total=Sum('montant')
             )['total'] or 0
-            ws.cell(row=row_num, column=col_offset + 1, value=float(montant_paye))
-            ws.cell(row=row_num, column=col_offset + 2, value=float(reservation.prix_total - montant_paye))
+            ws.cell(row=row_num, column=col_offset + 1, value=montant_paye)
+            ws.cell(row=row_num, column=col_offset + 2, value=reservation.prix_total - montant_paye)
             col_offset += 2
         
         if inclure_evaluations:
@@ -1394,3 +1585,269 @@ def _export_pdf(reservations, inclure_paiements, inclure_evaluations):
     # TODO: Implémenter l'export PDF avec ReportLab
     return HttpResponse("Export PDF en cours de développement", status=501)
 
+
+
+
+# Ajouter ces vues dans reservations/views.py
+
+@login_required
+@super_admin_required
+def gerer_reservation_admin(request, numero):
+    """Gestion administrative d'une réservation - SUPER ADMIN UNIQUEMENT"""
+    reservation = get_object_or_404(
+        Reservation.objects.select_related('maison', 'client'),
+        numero=numero
+    )
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        motif_admin = request.POST.get('motif_admin', '')
+        commentaire_interne = request.POST.get('commentaire_interne', '')
+        
+        try:
+            with transaction.atomic():
+                if action == 'valider_admin':
+                    # Validation administrative
+                    reservation.confirmer(request.user)
+                    
+                    # Occuper la maison
+                    if reservation.maison:
+                        reservation.maison.occuper_maison(
+                            locataire=reservation.client,
+                            date_fin=reservation.date_fin
+                        )
+                    
+                    # Enregistrer les commentaires admin
+                    reservation.commentaire_gestionnaire = f"[ADMIN] Validée: {motif_admin}"
+                    if commentaire_interne:
+                        reservation.commentaire_gestionnaire += f"\nCommentaire interne: {commentaire_interne}"
+                    reservation.save()
+                    
+                    messages.success(request, f'Réservation {reservation.numero} validée par administration.')
+                    
+                    # TODO: Envoyer notification au client et gestionnaire
+                    
+                elif action == 'rejeter_admin':
+                    # Rejet administratif
+                    motif_complet = f"[REJET ADMIN] {motif_admin}"
+                    if commentaire_interne:
+                        motif_complet += f" - Commentaire interne: {commentaire_interne}"
+                    
+                    reservation.annuler(motif_complet, request.user)
+                    
+                    # Libérer la maison si elle était occupée
+                    if reservation.maison and reservation.maison.locataire_actuel == reservation.client:
+                        reservation.maison.liberer_maison()
+                    
+                    messages.success(request, f'Réservation {reservation.numero} rejetée par administration.')
+                    
+                    # TODO: Envoyer notification au client et gestionnaire
+                    
+                elif action == 'suspendre_admin':
+                    # Suspension temporaire
+                    reservation.statut = 'suspendue'  # Nécessite d'ajouter ce statut au modèle
+                    reservation.commentaire_gestionnaire = f"[ADMIN] Suspendue: {motif_admin}"
+                    reservation.save()
+                    
+                    messages.warning(request, f'Réservation {reservation.numero} suspendue.')
+                
+                return redirect('reservations:detail', numero=numero)
+                
+        except ValidationError as e:
+            messages.error(request, str(e))
+        except Exception as e:
+            messages.error(request, f'Erreur lors du traitement administratif: {str(e)}')
+    
+    # Historique des actions admin sur cette réservation
+    historique_admin = []
+    if reservation.commentaire_gestionnaire:
+        for ligne in reservation.commentaire_gestionnaire.split('\n'):
+            if '[ADMIN]' in ligne:
+                historique_admin.append(ligne)
+    
+    context = {
+        'reservation': reservation,
+        'historique_admin': historique_admin,
+        'motifs_validation': [
+            'Conformité vérifiée',
+            'Documents validés',
+            'Paiement confirmé',
+            'Validation exceptionnelle',
+            'Autre (préciser)'
+        ],
+        'motifs_rejet': [
+            'Documents manquants',
+            'Paiement non conforme',
+            'Informations erronées',
+            'Non-respect des conditions',
+            'Fraude suspectée',
+            'Autre (préciser)'
+        ]
+    }
+    
+    return render(request, 'reservations/gerer_reservation_admin.html', context)
+
+
+@login_required
+@super_admin_required
+@require_http_methods(["POST"])
+def validation_rapide_admin(request, numero):
+    """Validation/rejet rapide via AJAX pour admin"""
+    reservation = get_object_or_404(Reservation, numero=numero)
+    
+    action = request.POST.get('action')
+    motif = request.POST.get('motif', 'Action administrative')
+    
+    try:
+        with transaction.atomic():
+            if action == 'valider':
+                if reservation.statut != 'en_attente':
+                    return JsonResponse({'success': False, 'error': 'Réservation non validable'})
+                
+                reservation.confirmer(request.user)
+                
+                # Occuper la maison
+                if reservation.maison:
+                    reservation.maison.occuper_maison(
+                        locataire=reservation.client,
+                        date_fin=reservation.date_fin
+                    )
+                
+                reservation.commentaire_gestionnaire = f"[ADMIN] Validation rapide: {motif}"
+                reservation.save()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Réservation {reservation.numero} validée',
+                    'nouveau_statut': 'confirmee'
+                })
+                
+            elif action == 'rejeter':
+                if reservation.statut == 'annulee':
+                    return JsonResponse({'success': False, 'error': 'Réservation déjà annulée'})
+                
+                reservation.annuler(f"[REJET ADMIN] {motif}", request.user)
+                
+                # Libérer la maison si nécessaire
+                if reservation.maison and reservation.maison.locataire_actuel == reservation.client:
+                    reservation.maison.liberer_maison()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': f'Réservation {reservation.numero} rejetée',
+                    'nouveau_statut': 'annulee'
+                })
+                
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Action non reconnue'})
+
+
+@login_required
+@super_admin_required
+def dashboard_admin_reservations(request):
+    """Dashboard spécial pour les administrateurs"""
+    # Réservations nécessitant une action admin
+    en_attente_validation = Reservation.objects.filter(
+        statut='en_attente'
+    ).select_related('maison', 'client').order_by('date_creation')
+    
+    # Réservations suspectes (critères à définir)
+    reservations_suspectes = Reservation.objects.filter(
+        Q(prix_total__gt=1000000) |  # Montant très élevé
+        Q(date_creation__gte=timezone.now() - timedelta(hours=1)) |  # Très récentes
+        Q(commentaire_client__icontains='urgent')  # Mentions urgentes
+    ).exclude(statut='annulee').select_related('maison', 'client')[:10]
+    
+    # Statistiques globales
+    stats_globales = Reservation.objects.aggregate(
+        total_reservations=Count('id'),
+        en_attente=Count(Case(When(statut='en_attente', then=1), output_field=IntegerField())),
+        confirmees=Count(Case(When(statut='confirmee', then=1), output_field=IntegerField())),
+        terminees=Count(Case(When(statut='terminee', then=1), output_field=IntegerField())),
+        annulees=Count(Case(When(statut='annulee', then=1), output_field=IntegerField())),
+        ca_total=Sum(Case(
+            When(statut__in=['confirmee', 'terminee'], then='prix_total'),
+            default=0,
+            output_field=IntegerField()
+        ))
+    )
+    
+    # Actions admin récentes
+    reservations_avec_actions_admin = Reservation.objects.filter(
+        commentaire_gestionnaire__icontains='[ADMIN]'
+    ).select_related('maison', 'client').order_by('-date_modification')[:15]
+    
+    # Réservations par gestionnaire
+    stats_par_gestionnaire = Reservation.objects.filter(
+        statut__in=['confirmee', 'terminee']
+    ).values(
+        'maison__gestionnaire__first_name',
+        'maison__gestionnaire__last_name'
+    ).annotate(
+        total_reservations=Count('id'),
+        ca_total=Sum('prix_total')
+    ).order_by('-ca_total')[:10]
+    
+    context = {
+        'en_attente_validation': en_attente_validation,
+        'reservations_suspectes': reservations_suspectes,
+        'stats_globales': stats_globales,
+        'reservations_avec_actions_admin': reservations_avec_actions_admin,
+        'stats_par_gestionnaire': stats_par_gestionnaire,
+        'actions_rapides_disponibles': True
+    }
+    
+    return render(request, 'reservations/dashboard_admin.html', context)
+
+
+@login_required
+@super_admin_required
+def historique_actions_admin(request):
+    """Historique des actions administratives"""
+    # Récupérer toutes les réservations avec actions admin
+    reservations_avec_actions = Reservation.objects.filter(
+        commentaire_gestionnaire__icontains='[ADMIN]'
+    ).select_related('maison', 'client', 'annulee_par').order_by('-date_modification')
+    
+    # Pagination
+    paginator = Paginator(reservations_avec_actions, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Filtres
+    type_action = request.GET.get('type_action', '')
+    date_debut = request.GET.get('date_debut', '')
+    date_fin = request.GET.get('date_fin', '')
+    
+    if type_action:
+        if type_action == 'validation':
+            page_obj.object_list = page_obj.object_list.filter(
+                commentaire_gestionnaire__icontains='[ADMIN] Validée'
+            )
+        elif type_action == 'rejet':
+            page_obj.object_list = page_obj.object_list.filter(
+                commentaire_gestionnaire__icontains='[REJET ADMIN]'
+            )
+    
+    # Statistiques des actions
+    stats_actions = {
+        'total_actions': reservations_avec_actions.count(),
+        'validations': reservations_avec_actions.filter(
+            commentaire_gestionnaire__icontains='[ADMIN] Validée'
+        ).count(),
+        'rejets': reservations_avec_actions.filter(
+            commentaire_gestionnaire__icontains='[REJET ADMIN]'
+        ).count(),
+    }
+    
+    context = {
+        'page_obj': page_obj,
+        'stats_actions': stats_actions,
+        'type_action': type_action,
+        'date_debut': date_debut,
+        'date_fin': date_fin,
+    }
+    
+    return render(request, 'reservations/historique_actions_admin.html', context)

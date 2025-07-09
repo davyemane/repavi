@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'reservations/base.html' %}
 {% load static %}
 
 {% block page_title %}Ajouter un Paiement{% endblock %}
@@ -7,6 +7,15 @@
 <p class="mt-1 text-sm text-gray-500">
     Ajouter un paiement pour la réservation {{ reservation.numero }}
 </p>
+{% endblock %}
+{% block breadcrumb %}
+    <nav class="text-sm text-gray-500">
+        <a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-blue-600">Accueil</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'reservations:dashboard' %}" class="hover:text-blue-600">Réservations</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-700">Liste</span>
+    </nav>
 {% endblock %}
 
 {% block header_actions %}
