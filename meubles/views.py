@@ -929,9 +929,12 @@ def generer_pdf_rapport(context, titre_rapport):
         meubles = context['meubles']
         total_meubles = meubles.count()
         
+        date_debut = context.get('date_debut', 'début')
+        date_fin = context.get('date_fin', "aujourd'hui")
+
         info_data.extend([
             ['Nombre total de meubles:', str(total_meubles)],
-            ['Période du rapport:', f"Du {context.get('date_debut', 'début')} au {context.get('date_fin', 'aujourd\'hui')}"],
+            ['Période du rapport:', f"Du {date_debut} au {date_fin}"],
         ])
         
         # Calculs financiers si disponibles
