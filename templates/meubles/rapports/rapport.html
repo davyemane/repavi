@@ -1,0 +1,412 @@
+{% extends 'meubles/base.html' %}
+
+{% block page_title %}{{ type_rapport }}{% endblock %}
+
+{% block page_description %}
+<p class="mt-1 text-sm text-gray-500">
+    {% if maison %}{{ maison.nom }} • {% endif %}Généré le {{ date_generation|date:"d/m/Y à H:i" }}
+</p>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <button onclick="window.print()" 
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors print:hidden">
+        <i class="fas fa-print mr-2"></i>
+        Imprimer
+    </button>
+    
+    <a href="{% url 'meubles:generer_rapport' %}?type_rapport={{ request.GET.type_rapport }}&format_export=pdf{% if maison %}&maison={{ maison.id }}{% endif %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors print:hidden">
+        <i class="fas fa-file-pdf mr-2"></i>
+        Télécharger PDF
+    </a>
+    
+    <a href="{% url 'meubles:generer_rapport' %}?type_rapport={{ request.GET.type_rapport }}&format_export=excel{% if maison %}&maison={{ maison.id }}{% endif %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors print:hidden">
+        <i class="fas fa-file-excel mr-2"></i>
+        Télécharger Excel
+    </a>
+    
+    <a href="{% url 'meubles:generer_rapport' %}" 
+       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors print:hidden">
+        <i class="fas fa-chart-bar mr-2"></i>
+        Nouveau Rapport
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 print:space-y-4">
+    <!-- En-tête du rapport -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden print:shadow-none print:border">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-blue-50 print:bg-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">{{ type_rapport }}</h1>
+                    {% if maison %}
+                    <p class="text-sm text-gray-600 mt-1">
+                        Maison: {{ maison.nom }} ({{ maison.numero }})
+                    </p>
+                    <p class="text-xs text-gray-500">
+                        {{ maison.adresse }}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-500">Généré le</div>
+                    <div class="text-lg font-semibold text-gray-900">{{ date_generation|date:"d/m/Y à H:i" }}</div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        Par {% if user %}{{ user.get_full_name|default:user.username }}{% else %}Système{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistiques du rapport -->
+        <div class="p-6 print:p-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 print:gap-4">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-indigo-600 print:text-2xl">{{ meubles.count }}</div>
+                    <div class="text-sm text-gray-500">Meubles</div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600 print:text-2xl">
+                        {% with bon_etat=0 %}
+                            {% for meuble in meubles %}
+                                {% if meuble.etat == 'bon' %}
+                                    {% with bon_etat=bon_etat|add:1 %}{% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                            {{ bon_etat }}
+                        {% endwith %}
+                    </div>
+                    <div class="text-sm text-gray-500">Bon État</div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-red-600 print:text-2xl">
+                        {% with defectueux=0 %}
+                            {% for meuble in meubles %}
+                                {% if meuble.etat == 'defectueux' %}
+                                    {% with defectueux=defectueux|add:1 %}{% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                            {{ defectueux }}
+                        {% endwith %}
+                    </div>
+                    <div class="text-sm text-gray-500">Défectueux</div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-gray-600 print:text-2xl">
+                        {% if maison %}1{% else %}
+                            {% regroup meubles by maison as meubles_par_maison %}
+                            {{ meubles_par_maison|length }}
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-gray-500">Maison{{ meubles_par_maison|length|pluralize }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tableau des meubles -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden print:shadow-none print:border">
+        <div class="px-6 py-4 border-b border-gray-200 print:px-4 print:py-2">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-list text-indigo-600 mr-2 print:hidden"></i>
+                Détail des Meubles ({{ meubles.count }})
+            </h3>
+        </div>
+        
+        {% if meubles %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 print:text-sm">
+                <thead class="bg-gray-50 print:bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:px-2 print:py-1">
+                            Meuble
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:px-2 print:py-1">
+                            Type
+                        </th>
+                        {% if not maison %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:px-2 print:py-1">
+                            Maison
+                        </th>
+                        {% endif %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:px-2 print:py-1">
+                            Pièce
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:px-2 print:py-1">
+                            État
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:px-2 print:py-1">
+                            Date entrée
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:px-2 print:py-1">
+                            Vérification
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:px-2 print:py-1">
+                            Valeur
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for meuble in meubles %}
+                    <tr class="{% cycle 'bg-white' 'bg-gray-50' %} print:border-b print:border-gray-200">
+                        <td class="px-6 py-4 whitespace-nowrap print:px-2 print:py-1">
+                            <div class="text-sm font-medium text-gray-900">{{ meuble.nom }}</div>
+                            <div class="text-sm text-gray-500">{{ meuble.numero_serie }}</div>
+                        </td>
+                        
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:px-2 print:py-1">
+                            {{ meuble.type_meuble.nom|default:"Non défini" }}
+                        </td>
+                        
+                        {% if not maison %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:px-2 print:py-1">
+                            {{ meuble.maison.nom }}
+                        </td>
+                        {% endif %}
+                        
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:px-2 print:py-1">
+                            {{ meuble.get_piece_display }}
+                        </td>
+                        
+                        <td class="px-6 py-4 whitespace-nowrap print:px-2 print:py-1">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {% if meuble.etat == 'bon' %}bg-green-100 text-green-800
+                                {% elif meuble.etat == 'usage' %}bg-yellow-100 text-yellow-800
+                                {% elif meuble.etat == 'defectueux' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %} print:bg-transparent print:border print:rounded-none">
+                                {{ meuble.get_etat_display }}
+                            </span>
+                        </td>
+                        
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:px-2 print:py-1">
+                            {{ meuble.date_entree|date:"d/m/Y" }}
+                        </td>
+                        
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:px-2 print:py-1">
+                            {% if meuble.date_derniere_verification %}
+                                {{ meuble.date_derniere_verification|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="text-orange-600 print:text-gray-800">Jamais</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:px-2 print:py-1">
+                            {% if meuble.valeur_actuelle %}
+                                {{ meuble.valeur_actuelle|floatformat:0 }} FCFA
+                            {% elif meuble.prix_achat %}
+                                {{ meuble.prix_achat|floatformat:0 }} FCFA
+                            {% else %}
+                                Non évaluée
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-6 text-center text-gray-500">
+            <i class="fas fa-inbox text-4xl mb-4 print:hidden"></i>
+            <p class="text-lg">Aucun meuble trouvé</p>
+            <p class="text-sm">Les critères du rapport n'ont retourné aucun résultat</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Résumé par pièce -->
+    {% if meubles %}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden print:shadow-none print:border print:break-inside-avoid">
+        <div class="px-6 py-4 border-b border-gray-200 print:px-4 print:py-2">
+            <h3 class="text-lg font-semibold text-gray-900">
+                <i class="fas fa-chart-pie text-indigo-600 mr-2 print:hidden"></i>
+                Répartition par Pièce
+            </h3>
+        </div>
+        
+        <div class="p-6 print:p-4">
+            {% regroup meubles by piece as meubles_par_piece %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 print:grid-cols-2">
+                {% for piece_group in meubles_par_piece %}
+                <div class="border border-gray-200 rounded-lg p-4 print:border-gray-400 print:rounded-none">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-900">{{ piece_group.grouper|capfirst }}</h4>
+                        <span class="text-sm font-medium text-gray-600">{{ piece_group.list|length }}</span>
+                    </div>
+                    
+                    <div class="space-y-1 text-xs">
+                        {% with bon=0 defectueux=0 %}
+                            {% for meuble in piece_group.list %}
+                                {% if meuble.etat == 'bon' %}
+                                    {% with bon=bon|add:1 %}{% endwith %}
+                                {% elif meuble.etat == 'defectueux' %}
+                                    {% with defectueux=defectueux|add:1 %}{% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                            <div class="flex justify-between text-gray-600">
+                                <span>Bon état:</span>
+                                <span>{{ bon }}</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>Défectueux:</span>
+                                <span>{{ defectueux }}</span>
+                            </div>
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Pied de page du rapport -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden print:shadow-none print:border print:break-inside-avoid">
+        <div class="p-6 border-t border-gray-200 print:p-4">
+            <div class="flex items-center justify-between text-sm text-gray-500 print:text-xs">
+                <div>
+                    <p><strong>RepAvi Lodges</strong> - Gestion des Meubles</p>
+                    <p>Rapport généré automatiquement le {{ date_generation|date:"d/m/Y à H:i" }}</p>
+                    {% if user %}
+                    <p>Par {{ user.get_full_name|default:user.username }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="text-right">
+                    <p><strong>{{ meubles.count }}</strong> meuble{{ meubles.count|pluralize }} répertorié{{ meubles.count|pluralize }}</p>
+                    <p>Page 1/1</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles pour l'impression -->
+<style media="print">
+    @page {
+        margin: 1cm;
+        size: A4;
+    }
+    
+    .print\\:hidden {
+        display: none !important;
+    }
+    
+    .print\\:block {
+        display: block !important;
+    }
+    
+    .print\\:border {
+        border: 1px solid #e5e7eb !important;
+    }
+    
+    .print\\:border-gray-200 {
+        border-color: #e5e7eb !important;
+    }
+    
+    .print\\:border-gray-400 {
+        border-color: #9ca3af !important;
+    }
+    
+    .print\\:bg-white {
+        background-color: white !important;
+    }
+    
+    .print\\:bg-gray-100 {
+        background-color: #f3f4f6 !important;
+    }
+    
+    .print\\:bg-transparent {
+        background-color: transparent !important;
+    }
+    
+    .print\\:text-gray-800 {
+        color: #1f2937 !important;
+    }
+    
+    .print\\:text-xs {
+        font-size: 0.75rem !important;
+    }
+    
+    .print\\:text-sm {
+        font-size: 0.875rem !important;
+    }
+    
+    .print\\:text-2xl {
+        font-size: 1.5rem !important;
+    }
+    
+    .print\\:p-2 {
+        padding: 0.5rem !important;
+    }
+    
+    .print\\:p-4 {
+        padding: 1rem !important;
+    }
+    
+    .print\\:px-2 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    
+    .print\\:py-1 {
+        padding-top: 0.25rem !important;
+        padding-bottom: 0.25rem !important;
+    }
+    
+    .print\\:py-2 {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+    
+    .print\\:space-y-4 > * + * {
+        margin-top: 1rem !important;
+    }
+    
+    .print\\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    
+    .print\\:gap-4 {
+        gap: 1rem !important;
+    }
+    
+    .print\\:rounded-none {
+        border-radius: 0 !important;
+    }
+    
+    .print\\:shadow-none {
+        box-shadow: none !important;
+    }
+    
+    .print\\:break-inside-avoid {
+        break-inside: avoid !important;
+    }
+    
+    /* Forcer les couleurs d'arrière-plan à s'imprimer */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Améliorer l'impression
+window.addEventListener('beforeprint', function() {
+    document.title = '{{ type_rapport }} - {{ maison.nom|default:"Tous" }} - {{ date_generation|date:"d-m-Y" }}';
+});
+
+window.addEventListener('afterprint', function() {
+    document.title = '{{ type_rapport }} - RepAvi Admin';
+});
+</script>
+{% endblock %}

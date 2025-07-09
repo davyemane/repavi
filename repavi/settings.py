@@ -13,11 +13,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('DJANGO_SECRET_KEY', default='django-insecure-change-me-in-production')
 
 # Mode debug et détection d'environnement
-DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
+DEBUG = config('DJANGO_DEBUG', default=True, cast=bool)  # Changé en True pour le développement
 IS_PRODUCTION = not DEBUG
 
 # Hôtes autorisés
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default=['localhost', '127.0.0.1', '*'])
 
 # === MODÈLE UTILISATEUR PERSONNALISÉ ===
 AUTH_USER_MODEL = 'users.User'
@@ -47,6 +47,7 @@ THIRD_PARTY_APPS = [
 if DEBUG:
     THIRD_PARTY_APPS.extend([
         'django_browser_reload',
+        # 'debug_toolbar',  # TEMPORAIREMENT DÉSACTIVÉ
     ])
 
 # Applications du projet
@@ -75,6 +76,7 @@ MIDDLEWARE = [
 # Middleware de développement
 if DEBUG:
     MIDDLEWARE.append('django_browser_reload.middleware.BrowserReloadMiddleware')
+    # MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')  # DÉSACTIVÉ
 
 # Middleware de production
 if IS_PRODUCTION:
@@ -96,12 +98,15 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
             ],
         },
     },
 ]
 
 # === BASE DE DONNÉES ===
+    # PostgreSQL en production
 DATABASES = {
     'default': {
         'ENGINE': config('DB_ENGINE', default='django.db.backends.postgresql'),
@@ -113,7 +118,7 @@ DATABASES = {
         'OPTIONS': {
             'sslmode': 'prefer',
         },
-        'CONN_MAX_AGE': 600 if IS_PRODUCTION else 0,
+        'CONN_MAX_AGE': 600,
     }
 }
 
@@ -167,14 +172,17 @@ STATICFILES_DIRS = [
     BASE_DIR / 'theme' / 'static',
 ]
 
-
 # Optimisation pour la production
 if IS_PRODUCTION:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
-# === FICHIERS MULTIMÉDIA ===
+# === FICHIERS MULTIMÉDIA - CONFIGURATION CORRIGÉE ===
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Créer les dossiers média s'ils n'existent pas
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+os.makedirs(MEDIA_ROOT / 'meubles' / 'photos', exist_ok=True)
 
 # === CONFIGURATION TAILWIND ===
 TAILWIND_APP_NAME = 'theme'
@@ -215,11 +223,15 @@ if IS_PRODUCTION:
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Protection des uploads
-FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  # 5MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+# === CONFIGURATION DES UPLOADS - IMPORTANTE POUR LES PHOTOS ===
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB pour les photos
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10MB
 FILE_UPLOAD_PERMISSIONS = 0o644
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+
+# Types de fichiers autorisés pour les uploads
+ALLOWED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB maximum par image
 
 # === CONFIGURATION EMAIL ===
 EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
@@ -328,17 +340,17 @@ ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf', '.doc', '.docx']
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # === DÉVELOPPEMENT UNIQUEMENT ===
-if DEBUG:
-    # Debug toolbar
-    try:
-        import debug_toolbar
-        INSTALLED_APPS.append('debug_toolbar')
-        MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-        DEBUG_TOOLBAR_CONFIG = {
-            'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
-        }
-    except ImportError:
-        pass
+# DEBUG TOOLBAR DÉSACTIVÉ TEMPORAIREMENT
+# if DEBUG:
+#     try:
+#         import debug_toolbar
+#         INSTALLED_APPS.append('debug_toolbar')
+#         MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+#         DEBUG_TOOLBAR_CONFIG = {
+#             'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
+#         }
+#     except ImportError:
+#         pass
 
 # === INTÉGRATIONS FUTURES ===
 # Google Maps

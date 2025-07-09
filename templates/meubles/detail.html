@@ -25,49 +25,114 @@
 {% endblock %}
 
 {% block content %}
+<!-- Token CSRF pour les requêtes AJAX -->
+{% csrf_token %}
+
 <div class="space-y-8">
     <!-- Informations principales -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Photos et informations de base -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Photos -->
+            <!-- Photos avec gestion d'erreurs améliorée -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-images text-indigo-600 mr-2"></i>
-                        Photos
-                    </h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            <i class="fas fa-images text-indigo-600 mr-2"></i>
+                            Photos ({{ photos|length }})
+                        </h3>
+                        <a href="{% url 'meubles:meuble_add_photo' meuble.pk %}" 
+                           class="text-sm text-indigo-600 hover:text-indigo-500">
+                            <i class="fas fa-plus mr-1"></i>Ajouter
+                        </a>
+                    </div>
                 </div>
                 
                 {% if photos %}
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="photoGallery">
                         {% for photo in photos %}
-                        <div class="relative group cursor-pointer" onclick="openLightbox('{{ photo.image.url }}', '{{ photo.titre|default:meuble.nom }}')">
-                            <img src="{{ photo.image.url }}" 
-                                 alt="{{ photo.titre|default:meuble.nom }}" 
-                                 class="w-full h-48 object-cover rounded-lg transition-transform group-hover:scale-105">
+                        <div class="relative group cursor-pointer photo-container" 
+                             onclick="openLightbox('{{ photo.image.url }}', '{{ photo.titre|default:meuble.nom|escapejs }}')">
                             
+                            <!-- Container pour l'image avec fallback -->
+                            <div class="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                                <!-- Image principale -->
+                                <img src="{{ photo.image.url }}" 
+                                     alt="{{ photo.titre|default:meuble.nom }}" 
+                                     class="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                     onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+                                
+                                <!-- Fallback en cas d'erreur de chargement -->
+                                <div class="absolute inset-0 flex items-center justify-center bg-gray-200" style="display: none;">
+                                    <div class="text-center text-gray-500">
+                                        <i class="fas fa-image text-4xl mb-2"></i>
+                                        <p class="text-sm">Image non disponible</p>
+                                        <p class="text-xs">{{ photo.image.url }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Overlay au survol -->
                             <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
                                 <i class="fas fa-search-plus text-white opacity-0 group-hover:opacity-100 text-2xl transition-opacity"></i>
                             </div>
                             
+                            <!-- Informations de la photo -->
                             <div class="absolute bottom-2 left-2 right-2">
                                 <div class="bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-                                    {{ photo.get_type_photo_display }}
-                                    {% if photo.titre %} • {{ photo.titre }}{% endif %}
+                                    <div class="flex items-center justify-between">
+                                        <span>{{ photo.get_type_photo_display }}</span>
+                                        <span>{{ photo.date_prise|date:"d/m/Y" }}</span>
+                                    </div>
+                                    {% if photo.titre %}
+                                    <div class="mt-1 truncate">{{ photo.titre }}</div>
+                                    {% endif %}
                                 </div>
+                            </div>
+                            
+                            <!-- Badge du type de photo -->
+                            <div class="absolute top-2 right-2">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                    {% if photo.type_photo == 'defaut' %}bg-red-100 text-red-800
+                                    {% elif photo.type_photo == 'reparation' %}bg-green-100 text-green-800
+                                    {% elif photo.type_photo == 'detail' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {% if photo.type_photo == 'defaut' %}<i class="fas fa-exclamation-triangle mr-1"></i>
+                                    {% elif photo.type_photo == 'reparation' %}<i class="fas fa-tools mr-1"></i>
+                                    {% elif photo.type_photo == 'detail' %}<i class="fas fa-search mr-1"></i>
+                                    {% else %}<i class="fas fa-camera mr-1"></i>{% endif %}
+                                    {{ photo.get_type_photo_display }}
+                                </span>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
+                    
+                    <!-- Informations techniques des photos -->
+                    <div class="mt-4 bg-gray-50 rounded-lg p-3">
+                        <div class="text-xs text-gray-600">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Cliquez sur une photo pour l'agrandir. 
+                            {% if photos %}
+                                Total: {{ photos|length }} photo{{ photos|length|pluralize }}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
                 {% else %}
                 <div class="p-6 text-center text-gray-500">
-                    <i class="fas fa-camera text-4xl mb-2"></i>
-                    <p>Aucune photo</p>
+                    <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-camera text-gray-400 text-3xl"></i>
+                    </div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">Aucune photo</h4>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Ajoutez des photos pour documenter l'état de ce meuble
+                    </p>
                     <a href="{% url 'meubles:meuble_add_photo' meuble.pk %}" 
-                       class="text-indigo-600 hover:text-indigo-500 text-sm font-medium">
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-camera mr-2"></i>
                         Ajouter la première photo
                     </a>
                 </div>
@@ -137,7 +202,12 @@
                             
                             <div>
                                 <dt class="text-sm font-medium text-gray-500">Âge</dt>
-                                <dd class="mt-1 text-sm text-gray-900">{{ meuble.age_en_mois }} mois</dd>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {{ meuble.age_en_mois }} mois
+                                    {% if meuble.age_en_annees > 0 %}
+                                        ({{ meuble.age_en_annees }} an{{ meuble.age_en_annees|pluralize }})
+                                    {% endif %}
+                                </dd>
                             </div>
                         </div>
                     </div>
@@ -145,7 +215,7 @@
                     {% if meuble.notes %}
                     <div class="mt-6 pt-6 border-t border-gray-200">
                         <dt class="text-sm font-medium text-gray-500 mb-2">Notes et observations</dt>
-                        <dd class="text-sm text-gray-900 whitespace-pre-line">{{ meuble.notes }}</dd>
+                        <dd class="text-sm text-gray-900 whitespace-pre-line bg-gray-50 p-3 rounded-lg">{{ meuble.notes }}</dd>
                     </div>
                     {% endif %}
                 </div>
@@ -180,8 +250,11 @@
                         <span class="text-sm text-gray-900">
                             {% if meuble.date_derniere_verification %}
                                 {{ meuble.date_derniere_verification|date:"d/m/Y" }}
+                                <div class="text-xs text-gray-500">
+                                    Il y a {{ meuble.jours_depuis_verification }} jour{{ meuble.jours_depuis_verification|pluralize }}
+                                </div>
                             {% else %}
-                                <span class="text-orange-600">Jamais</span>
+                                <span class="text-orange-600">Jamais vérifié</span>
                             {% endif %}
                         </span>
                     </div>
@@ -191,6 +264,9 @@
                         <div class="flex items-center">
                             <i class="fas fa-exclamation-triangle text-orange-600 mr-2"></i>
                             <span class="text-sm font-medium text-orange-800">Vérification requise</span>
+                        </div>
+                        <div class="text-xs text-orange-700 mt-1">
+                            Plus de 180 jours sans vérification
                         </div>
                     </div>
                     {% endif %}
@@ -210,6 +286,12 @@
                             Marquer comme vérifié
                         </button>
                         {% endif %}
+                        
+                        <a href="{% url 'meubles:meuble_add_photo' meuble.pk %}" 
+                           class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center justify-center">
+                            <i class="fas fa-camera mr-2"></i>
+                            Ajouter une photo
+                        </a>
                     </div>
                 </div>
             </div>
@@ -233,8 +315,9 @@
                         <dt class="text-sm font-medium text-gray-500">Maison</dt>
                         <dd class="mt-1 text-sm text-gray-900">
                             <a href="{% url 'meubles:maison_meubles_list' meuble.maison.id %}" 
-                               class="text-indigo-600 hover:text-indigo-500">
+                               class="text-indigo-600 hover:text-indigo-500 inline-flex items-center">
                                 {{ meuble.maison.nom }}
+                                <i class="fas fa-external-link-alt ml-1 text-xs"></i>
                             </a>
                         </dd>
                     </div>
@@ -249,12 +332,49 @@
                         <dd class="mt-1 text-sm text-gray-900">{{ meuble.date_entree|date:"d/m/Y" }}</dd>
                     </div>
                     
+                    {% if meuble.ajoute_par %}
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Ajouté par</dt>
                         <dd class="mt-1 text-sm text-gray-900">
                             {{ meuble.ajoute_par.get_full_name|default:meuble.ajoute_par.username }}
                         </dd>
                     </div>
+                    {% endif %}
+                    
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Numéro de série</dt>
+                        <dd class="mt-1 text-sm font-mono text-gray-900 bg-gray-50 px-2 py-1 rounded">{{ meuble.numero_serie }}</dd>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions rapides supplémentaires -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-bolt text-indigo-600 mr-2"></i>
+                        Actions Rapides
+                    </h3>
+                </div>
+                
+                <div class="p-6 space-y-3">
+                    <a href="{% url 'meubles:meuble_edit' meuble.pk %}" 
+                       class="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center justify-center">
+                        <i class="fas fa-edit mr-2"></i>
+                        Modifier le meuble
+                    </a>
+                    
+                    <a href="{% url 'meubles:meubles_list' %}" 
+                       class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors inline-flex items-center justify-center">
+                        <i class="fas fa-list mr-2"></i>
+                        Retour à la liste
+                    </a>
+                    
+                    <button onclick="if(confirm('Supprimer ce meuble ?')) window.location.href='{% url 'meubles:meuble_delete' meuble.pk %}'" 
+                            class="w-full bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors">
+                        <i class="fas fa-trash mr-2"></i>
+                        Supprimer
+                    </button>
                 </div>
             </div>
         </div>
@@ -265,7 +385,7 @@
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900">
                 <i class="fas fa-history text-indigo-600 mr-2"></i>
-                Historique des États
+                Historique des États ({{ historique|length }} entrée{{ historique|length|pluralize }})
             </h3>
         </div>
         
@@ -290,7 +410,9 @@
                                 {{ entry.get_ancien_etat_display }} → {{ entry.get_nouvel_etat_display }}
                             </div>
                             <div class="text-sm text-gray-500">
-                                Par {{ entry.modifie_par.get_full_name|default:entry.modifie_par.username }}
+                                {% if entry.modifie_par %}
+                                    Par {{ entry.modifie_par.get_full_name|default:entry.modifie_par.username }}
+                                {% endif %}
                                 {% if entry.motif %} • {{ entry.motif }}{% endif %}
                             </div>
                         </div>
@@ -314,20 +436,36 @@
         <div class="px-6 py-8 text-center text-gray-500">
             <i class="fas fa-clock text-4xl mb-2"></i>
             <p>Aucun historique disponible</p>
+            <p class="text-sm">L'historique se construira au fil des modifications</p>
         </div>
         {% endif %}
     </div>
 </div>
 
-<!-- Lightbox pour les photos -->
-<div id="lightbox" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-    <div class="relative max-w-4xl max-h-full">
+<!-- Lightbox amélioré pour les photos -->
+<div id="lightbox" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+    <div class="relative max-w-6xl max-h-full">
         <button onclick="closeLightbox()" 
-                class="absolute -top-10 right-0 text-white hover:text-gray-300 text-2xl">
+                class="absolute -top-12 right-0 text-white hover:text-gray-300 text-2xl z-10">
             <i class="fas fa-times"></i>
         </button>
         <img id="lightboxImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
-        <div id="lightboxCaption" class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white p-4 rounded-b-lg"></div>
+        <div id="lightboxCaption" class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white p-4 rounded-b-lg">
+            <div id="lightboxTitle" class="font-medium"></div>
+            <div id="lightboxDate" class="text-sm opacity-75"></div>
+        </div>
+        
+        <!-- Navigation entre photos si plusieurs -->
+        {% if photos|length > 1 %}
+        <button onclick="previousPhoto()" 
+                class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 text-3xl">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button onclick="nextPhoto()" 
+                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 text-3xl">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        {% endif %}
     </div>
 </div>
 
@@ -373,12 +511,56 @@
 
 {% block extra_js %}
 <script>
-// Lightbox pour les photos
+// Données des photos pour la navigation
+const photosData = [
+    {% for photo in photos %}
+    {
+        url: '{{ photo.image.url }}',
+        title: '{{ photo.titre|default:meuble.nom|escapejs }}',
+        date: '{{ photo.date_prise|date:"d/m/Y" }}',
+        type: '{{ photo.get_type_photo_display }}'
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+let currentPhotoIndex = 0;
+
+// Fonction pour obtenir le token CSRF
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+// Lightbox amélioré pour les photos
 function openLightbox(imageSrc, caption) {
-    document.getElementById('lightboxImage').src = imageSrc;
-    document.getElementById('lightboxCaption').textContent = caption;
+    // Trouver l'index de la photo
+    currentPhotoIndex = photosData.findIndex(photo => photo.url === imageSrc);
+    if (currentPhotoIndex === -1) currentPhotoIndex = 0;
+    
+    showPhoto(currentPhotoIndex);
     document.getElementById('lightbox').classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
+}
+
+function showPhoto(index) {
+    if (index < 0 || index >= photosData.length) return;
+    
+    const photo = photosData[index];
+    document.getElementById('lightboxImage').src = photo.url;
+    document.getElementById('lightboxTitle').textContent = photo.title + ' - ' + photo.type;
+    document.getElementById('lightboxDate').textContent = photo.date;
+    currentPhotoIndex = index;
+}
+
+function previousPhoto() {
+    if (currentPhotoIndex > 0) {
+        showPhoto(currentPhotoIndex - 1);
+    }
+}
+
+function nextPhoto() {
+    if (currentPhotoIndex < photosData.length - 1) {
+        showPhoto(currentPhotoIndex + 1);
+    }
 }
 
 function closeLightbox() {
@@ -386,11 +568,35 @@ function closeLightbox() {
     document.body.classList.remove('overflow-hidden');
 }
 
-// Fermer lightbox avec Escape
+// Gestion des erreurs d'images
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('.photo-container img');
+    images.forEach(img => {
+        img.addEventListener('error', function() {
+            console.log('Erreur de chargement pour:', this.src);
+            
+            // Afficher des informations de debug
+            const debugInfo = document.createElement('div');
+            debugInfo.className = 'text-xs text-red-600 mt-1 p-2 bg-red-50 rounded';
+            debugInfo.innerHTML = `
+                <strong>Erreur:</strong> Image non trouvée<br>
+                <strong>URL:</strong> ${this.src}<br>
+                <strong>Solution:</strong> Vérifiez que l'image existe
+            `;
+            this.parentElement.appendChild(debugInfo);
+        });
+    });
+});
+
+// Fermer lightbox avec Escape et navigation au clavier
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeLightbox();
         closeEtatModal();
+    } else if (e.key === 'ArrowLeft' && !document.getElementById('lightbox').classList.contains('hidden')) {
+        previousPhoto();
+    } else if (e.key === 'ArrowRight' && !document.getElementById('lightbox').classList.contains('hidden')) {
+        nextPhoto();
     }
 });
 
@@ -411,23 +617,30 @@ document.getElementById('etatForm').addEventListener('submit', function(e) {
     const formData = new FormData();
     formData.append('etat', document.getElementById('nouvelEtat').value);
     formData.append('motif', document.getElementById('motifEtat').value);
-    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    formData.append('csrfmiddlewaretoken', getCSRFToken());
     
     fetch('{% url "meubles:meuble_changer_etat" meuble.pk %}', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            location.reload();
+            closeEtatModal();
+            showMessage('success', data.message || 'État modifié avec succès');
+            setTimeout(() => location.reload(), 1000);
         } else {
-            alert('Erreur: ' + data.error);
+            showMessage('error', data.error || 'Erreur lors du changement d\'état');
         }
     })
     .catch(error => {
         console.error('Erreur:', error);
-        alert('Une erreur est survenue');
+        showMessage('error', 'Une erreur est survenue. Vérifiez votre connexion.');
     });
 });
 
@@ -437,23 +650,62 @@ function marquerVerifie() {
         fetch('{% url "meubles:meuble_marquer_verifie" meuble.pk %}', {
             method: 'POST',
             headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-CSRFToken': getCSRFToken(),
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
-                location.reload();
+                showMessage('success', data.message || 'Meuble marqué comme vérifié');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Erreur: ' + data.error);
+                showMessage('error', data.error || 'Erreur lors de la vérification');
             }
         })
         .catch(error => {
             console.error('Erreur:', error);
-            alert('Une erreur est survenue');
+            showMessage('error', 'Une erreur est survenue. Vérifiez votre connexion.');
         });
     }
+}
+
+// Fonction pour afficher des messages
+function showMessage(type, message) {
+    let messageDiv = document.getElementById('message-container');
+    if (!messageDiv) {
+        messageDiv = document.createElement('div');
+        messageDiv.id = 'message-container';
+        messageDiv.className = 'fixed top-4 right-4 z-50';
+        document.body.appendChild(messageDiv);
+    }
+    
+    const alertClass = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
+    const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+    
+    messageDiv.innerHTML = `
+        <div class="border-l-4 p-4 rounded-md ${alertClass} shadow-lg">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas ${iconClass}"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm">${message}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 5000);
 }
 </script>
 {% endblock %}
