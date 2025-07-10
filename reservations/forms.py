@@ -1163,6 +1163,17 @@ class AttributionEtape1Form(forms.Form):
         }),
         label="Email"
     )
+    password = forms.CharField(
+        max_length=128,
+        required=False,
+        initial='123456',  # Mot de passe par défaut
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Mot de passe temporaire'
+        }),
+        label="Mot de passe temporaire",
+        help_text="Mot de passe par défaut : 123456"
+    )
     
     telephone = forms.CharField(
         max_length=20,
@@ -1206,6 +1217,9 @@ class AttributionEtape1Form(forms.Form):
                 if not cleaned_data.get(field):
                     raise ValidationError(f"Le champ {field} est requis pour un nouveau client.")
             
+                if not cleaned_data.get('password'):
+                    cleaned_data['password'] = '123456'
+
             # Vérifier l'unicité de l'email et du username
             email = cleaned_data.get('email')
             username = cleaned_data.get('username')
@@ -1226,6 +1240,7 @@ class AttributionEtape1Form(forms.Form):
             return cleaned_data['client_existant']
         
         else:  # nouveau client
+            password = cleaned_data.get('password', '123456')
             client = User.objects.create_user(
                 username=cleaned_data['username'],
                 email=cleaned_data['email'],
@@ -1233,7 +1248,7 @@ class AttributionEtape1Form(forms.Form):
                 last_name=cleaned_data['nom'],
                 telephone=cleaned_data['telephone'],
                 role='CLIENT',
-                password='temp123456',  # Mot de passe temporaire
+                password=password,  # Mot de passe temporaire
                 is_active=True
             )
             
@@ -1252,6 +1267,44 @@ class AttributionEtape2Form(forms.ModelForm):
     Étape 2 : Attribuer une maison au client
     """
     
+    # Champs calculés automatiquement (lecture seule)
+    prix_par_nuit = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control bg-gray-100 text-gray-600',
+            'readonly': True,
+            'placeholder': 'Sélectionnez une maison'
+        }),
+        label="Prix par nuit (FCFA)",
+        help_text="Prix défini pour cette maison"
+    )
+    
+    nombre_nuits = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control bg-gray-100 text-gray-600',
+            'readonly': True,
+            'placeholder': 'Choisissez les dates'
+        }),
+        label="Nombre de nuits",
+        help_text="Calculé automatiquement selon les dates"
+    )
+    
+    total_automatique = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control bg-green-50 text-green-700 font-semibold',
+            'readonly': True,
+            'placeholder': '0'
+        }),
+        label="Total automatique (FCFA)",
+        help_text="Prix par nuit × Nombre de nuits"
+    )
+    
     class Meta:
         model = Attribution
         fields = [
@@ -1262,23 +1315,26 @@ class AttributionEtape2Form(forms.ModelForm):
         widgets = {
             'maison': forms.Select(attrs={
                 'class': 'form-control',
-                'data-placeholder': 'Sélectionner une maison...'
+                'data-placeholder': 'Sélectionner une maison...',
+                'onchange': 'onMaisonChange()'  # Ajouter event handler
             }),
             'date_entree': forms.DateInput(attrs={
                 'type': 'date',
                 'class': 'form-control',
-                'min': timezone.now().date().isoformat()
+                'min': timezone.now().date().isoformat(),
+                'onchange': 'calculateNightsAndTotal()'  # Ajouter event handler
             }),
             'date_sortie': forms.DateInput(attrs={
                 'type': 'date',
                 'class': 'form-control',
-                'min': (timezone.now().date() + timedelta(days=1)).isoformat()
+                'min': (timezone.now().date() + timedelta(days=1)).isoformat(),
+                'onchange': 'calculateNightsAndTotal()'  # Ajouter event handler
             }),
             'montant_total': forms.NumberInput(attrs={
-                'class': 'form-control',
+                'class': 'form-control border-blue-300 focus:border-blue-500',
                 'step': '1',
                 'min': '0',
-                'placeholder': 'Montant total en FCFA'
+                'placeholder': 'Sera rempli automatiquement'
             }),
             'montant_paye': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -1299,24 +1355,46 @@ class AttributionEtape2Form(forms.ModelForm):
         # Filtrer les maisons selon les permissions
         if gestionnaire:
             if hasattr(gestionnaire, 'is_super_admin') and gestionnaire.is_super_admin():
-                # Super admin voit toutes les maisons libres
-                self.fields['maison'].queryset = Maison.objects.filter(
+                maisons_queryset = Maison.objects.filter(
                     disponible=True,
                     statut_occupation='libre'
                 ).order_by('numero', 'nom')
             else:
-                # Gestionnaire voit seulement ses maisons libres
-                self.fields['maison'].queryset = Maison.objects.filter(
+                maisons_queryset = Maison.objects.filter(
                     gestionnaire=gestionnaire,
                     disponible=True,
                     statut_occupation='libre'
                 ).order_by('numero', 'nom')
+            
+            self.fields['maison'].queryset = maisons_queryset
+            
+            # Créer les choix avec prix pour JavaScript
+            choices = [('', 'Choisir une maison...')]
+            for maison in maisons_queryset:
+                label = f"{maison.nom} - {maison.ville.nom} ({maison.prix_par_nuit} FCFA/nuit)"
+                choices.append((maison.id, label))
+            
+            self.fields['maison'].choices = choices
+            self.fields['maison'].widget.attrs['data-prices'] = self._get_maisons_prices_json(maisons_queryset)
         
         # Ajouter l'aide contextuelle
         self.fields['date_entree'].help_text = "Date d'entrée prévue"
         self.fields['date_sortie'].help_text = "Date de sortie prévue"
-        self.fields['montant_total'].help_text = "Sera calculé automatiquement si vide"
+        self.fields['montant_total'].help_text = "Modifiable si besoin (remises, frais supplémentaires...)"
         self.fields['montant_paye'].help_text = "Montant déjà payé par le client"
+    
+    def _get_maisons_prices_json(self, maisons):
+        """Retourne les prix des maisons en JSON pour JavaScript"""
+        import json
+        prices = {}
+        for maison in maisons:
+            prices[str(maison.id)] = {
+                'prix_par_nuit': float(maison.prix_par_nuit),
+                'nom': maison.nom,
+                'ville': maison.ville.nom,
+                'capacite': maison.capacite_personnes
+            }
+        return json.dumps(prices)
     
     def clean(self):
         cleaned_data = super().clean()
@@ -1333,8 +1411,18 @@ class AttributionEtape2Form(forms.ModelForm):
             if date_entree < timezone.now().date():
                 raise ValidationError("La date d'entrée ne peut pas être dans le passé.")
             
-            # Vérifier la disponibilité de la maison pour ces dates
+            # Calculer automatiquement les valeurs
             if maison:
+                nombre_nuits = (date_sortie - date_entree).days
+                prix_par_nuit = maison.prix_par_nuit
+                total_automatique = prix_par_nuit * nombre_nuits
+                
+                # Mettre à jour les données nettoyées
+                cleaned_data['prix_par_nuit'] = prix_par_nuit
+                cleaned_data['nombre_nuits'] = nombre_nuits
+                cleaned_data['total_automatique'] = total_automatique
+                
+                # Vérifier la disponibilité de la maison pour ces dates
                 conflits = Attribution.objects.filter(
                     maison=maison,
                     statut='en_cours',
@@ -1364,11 +1452,10 @@ class AttributionEtape2Form(forms.ModelForm):
         
         return cleaned_data
 
-
 class AttributionDirecteForm(forms.ModelForm):
     """
     Formulaire complet pour créer une attribution directe
-    (combine les 2 étapes en une seule vue si préféré)
+    avec calculs automatiques comme AttributionEtape2Form
     """
     
     client = forms.ModelChoiceField(
@@ -1378,6 +1465,44 @@ class AttributionDirecteForm(forms.ModelForm):
             'data-placeholder': 'Rechercher un client...'
         }),
         label="Client"
+    )
+    
+    # Champs calculés automatiquement (lecture seule) - AJOUTÉS
+    prix_par_nuit = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control bg-gray-100 text-gray-600',
+            'readonly': True,
+            'placeholder': 'Sélectionnez une maison'
+        }),
+        label="Prix par nuit (FCFA)",
+        help_text="Prix défini pour cette maison"
+    )
+    
+    nombre_nuits = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control bg-gray-100 text-gray-600',
+            'readonly': True,
+            'placeholder': 'Choisissez les dates'
+        }),
+        label="Nombre de nuits",
+        help_text="Calculé automatiquement selon les dates"
+    )
+    
+    total_automatique = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control bg-green-50 text-green-700 font-semibold',
+            'readonly': True,
+            'placeholder': '0'
+        }),
+        label="Total automatique (FCFA)",
+        help_text="Prix par nuit × Nombre de nuits"
     )
     
     class Meta:
@@ -1390,29 +1515,37 @@ class AttributionDirecteForm(forms.ModelForm):
         widgets = {
             'maison': forms.Select(attrs={
                 'class': 'form-control',
-                'data-placeholder': 'Sélectionner une maison...'
+                'data-placeholder': 'Sélectionner une maison...',
+                'onchange': 'onMaisonChange()'  # AJOUTÉ - Event handler JavaScript
             }),
             'date_entree': forms.DateInput(attrs={
                 'type': 'date',
-                'class': 'form-control'
+                'class': 'form-control',
+                'min': timezone.now().date().isoformat(),
+                'onchange': 'calculateNightsAndTotal()'  # AJOUTÉ - Event handler JavaScript
             }),
             'date_sortie': forms.DateInput(attrs={
                 'type': 'date',
-                'class': 'form-control'
+                'class': 'form-control',
+                'min': (timezone.now().date() + timedelta(days=1)).isoformat(),
+                'onchange': 'calculateNightsAndTotal()'  # AJOUTÉ - Event handler JavaScript
             }),
             'montant_total': forms.NumberInput(attrs={
-                'class': 'form-control',
+                'class': 'form-control border-blue-300 focus:border-blue-500',
                 'step': '1',
-                'min': '0'
+                'min': '0',
+                'placeholder': 'Sera rempli automatiquement'
             }),
             'montant_paye': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'step': '1',
-                'min': '0'
+                'min': '0',
+                'placeholder': 'Montant déjà payé en FCFA'
             }),
             'notes_admin': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3
+                'rows': 3,
+                'placeholder': 'Notes internes sur cette attribution...'
             }),
         }
     
@@ -1427,17 +1560,105 @@ class AttributionDirecteForm(forms.ModelForm):
         # Filtrer les maisons selon les permissions
         if user:
             if hasattr(user, 'is_super_admin') and user.is_super_admin():
-                self.fields['maison'].queryset = Maison.objects.filter(
+                maisons_queryset = Maison.objects.filter(
                     disponible=True,
                     statut_occupation='libre'
                 ).order_by('numero', 'nom')
             else:
-                self.fields['maison'].queryset = Maison.objects.filter(
+                maisons_queryset = Maison.objects.filter(
                     gestionnaire=user,
                     disponible=True,
                     statut_occupation='libre'
                 ).order_by('numero', 'nom')
-
+            
+            self.fields['maison'].queryset = maisons_queryset
+            
+            # AJOUTÉ - Créer les choix avec prix pour JavaScript
+            choices = [('', 'Choisir une maison...')]
+            for maison in maisons_queryset:
+                label = f"{maison.nom} - {maison.ville.nom} ({maison.prix_par_nuit} FCFA/nuit)"
+                choices.append((maison.id, label))
+            
+            self.fields['maison'].choices = choices
+            # AJOUTÉ - Attribut data-prices pour JavaScript
+            self.fields['maison'].widget.attrs['data-prices'] = self._get_maisons_prices_json(maisons_queryset)
+        
+        # AJOUTÉ - Aide contextuelle
+        self.fields['date_entree'].help_text = "Date d'entrée prévue"
+        self.fields['date_sortie'].help_text = "Date de sortie prévue"
+        self.fields['montant_total'].help_text = "Modifiable si besoin (remises, frais supplémentaires...)"
+        self.fields['montant_paye'].help_text = "Montant déjà payé par le client"
+    
+    def _get_maisons_prices_json(self, maisons):
+        """AJOUTÉ - Retourne les prix des maisons en JSON pour JavaScript"""
+        import json
+        prices = {}
+        for maison in maisons:
+            prices[str(maison.id)] = {
+                'prix_par_nuit': float(maison.prix_par_nuit),
+                'nom': maison.nom,
+                'ville': maison.ville.nom,
+                'capacite': maison.capacite_personnes
+            }
+        return json.dumps(prices)
+    
+    def clean(self):
+        """AJOUTÉ - Même logique de validation que AttributionEtape2Form"""
+        cleaned_data = super().clean()
+        date_entree = cleaned_data.get('date_entree')
+        date_sortie = cleaned_data.get('date_sortie')
+        maison = cleaned_data.get('maison')
+        client = cleaned_data.get('client')
+        montant_paye = cleaned_data.get('montant_paye', 0)
+        
+        # Vérification des dates
+        if date_entree and date_sortie:
+            if date_entree >= date_sortie:
+                raise ValidationError("La date de sortie doit être après la date d'entrée.")
+            
+            if date_entree < timezone.now().date():
+                raise ValidationError("La date d'entrée ne peut pas être dans le passé.")
+            
+            # Calculer automatiquement les valeurs
+            if maison:
+                nombre_nuits = (date_sortie - date_entree).days
+                prix_par_nuit = maison.prix_par_nuit
+                total_automatique = prix_par_nuit * nombre_nuits
+                
+                # Mettre à jour les données nettoyées
+                cleaned_data['prix_par_nuit'] = prix_par_nuit
+                cleaned_data['nombre_nuits'] = nombre_nuits
+                cleaned_data['total_automatique'] = total_automatique
+                
+                # Vérifier la disponibilité de la maison pour ces dates
+                conflits = Attribution.objects.filter(
+                    maison=maison,
+                    statut='en_cours',
+                    date_entree__lt=date_sortie,
+                    date_sortie__gt=date_entree
+                )
+                
+                if self.instance.pk:
+                    conflits = conflits.exclude(pk=self.instance.pk)
+                
+                if conflits.exists():
+                    conflit = conflits.first()
+                    raise ValidationError(
+                        f"Cette maison est déjà attribuée à {conflit.client.first_name} "
+                        f"du {conflit.date_entree.strftime('%d/%m/%Y')} au {conflit.date_sortie.strftime('%d/%m/%Y')}"
+                    )
+        
+        # Calculer le montant total si pas fourni
+        if not cleaned_data.get('montant_total') and maison and date_entree and date_sortie:
+            duree = (date_sortie - date_entree).days
+            cleaned_data['montant_total'] = maison.prix_par_nuit * duree
+        
+        # Vérifier que le montant payé ne dépasse pas le total
+        montant_total = cleaned_data.get('montant_total', 0)
+        if montant_paye > montant_total:
+            raise ValidationError("Le montant payé ne peut pas dépasser le montant total.")
+        
+        return cleaned_data
 
 class AttributionFilterForm(forms.Form):
     """

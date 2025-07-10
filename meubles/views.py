@@ -1,18 +1,24 @@
+# Imports standard Python
 import json
 import csv
 import io
+from datetime import datetime, timedelta
+from decimal import Decimal
+
+# Imports Django core
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.db.models import Q, Count, Avg, Sum, Case, When, IntegerField
+from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from datetime import datetime, timedelta
+from django.core.paginator import Paginator
 from django.views.decorators.http import require_http_methods
 
-# Imports ReportLab complets
+# Imports ReportLab pour la génération PDF
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib import colors
@@ -24,18 +30,22 @@ from reportlab.platypus import (
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 
-# Import XlsxWriter
+# Import XlsxWriter pour l'export Excel
 import xlsxwriter
 
-# Imports pour vos modèles et formulaires
+# Imports locaux (modèles et formulaires)
 from .models import TypeMeuble, Meuble, HistoriqueEtatMeuble, PhotoMeuble, InventaireMaison
-from .forms import RapportMeublesForm
+from .forms import (
+    MeubleForm, TypeMeubleForm, MeubleFilterForm, InventaireForm, 
+    PhotoMeubleForm, MeubleImportForm, RapportMeublesForm
+)
 from home.models import Maison
 
-# Import sécurisé des décorateurs
+# Import sécurisé des décorateurs personnalisés
 try:
     from utils.decorators import gestionnaire_required, super_admin_required
 except ImportError:
+    # Décorateurs de fallback si le module utils n'est pas disponible
     def gestionnaire_required(func):
         def wrapper(request, *args, **kwargs):
             if not request.user.is_authenticated:
@@ -57,66 +67,6 @@ except ImportError:
                 return redirect('home:index')
             return func(request, *args, **kwargs)
         return wrapper
-
-from .models import TypeMeuble, Meuble, HistoriqueEtatMeuble, PhotoMeuble, InventaireMaison
-from .forms import (MeubleForm, TypeMeubleForm, MeubleFilterForm, InventaireForm, 
-                   PhotoMeubleForm, MeubleImportForm, RapportMeublesForm)
-from home.models import Maison
-
-
-def get_optimized_stats(user):
-    """Calcule les statistiques optimisées pour le dashboard"""
-    # Requête de base sécurisée
-    meubles_qs = Meuble.objects.select_related('maison', 'type_meuble')
-    
-    if hasattr(user, 'is_super_admin') and user.is_super_admin():
-        meubles = meubles_qs.all()
-        maisons = Maison.objects.all()
-    else:
-        meubles = meubles_qs.filter(maison__gestionnaire=user)
-        maisons = Maison.objects.filter(gestionnaire=user)
-    
-    # Statistiques en une seule requête
-    stats_agg = meubles.aggregate(
-        total=Count('id'),
-        bon_etat=Count(Case(When(etat='bon', then=1), output_field=IntegerField())),
-        defectueux=Count(Case(When(etat='defectueux', then=1), output_field=IntegerField())),
-        usage=Count(Case(When(etat='usage', then=1), output_field=IntegerField())),
-        hors_service=Count(Case(When(etat='hors_service', then=1), output_field=IntegerField())),
-    )
-    
-    # Valeurs par défaut pour éviter les erreurs
-    for key in ['total', 'bon_etat', 'defectueux', 'usage', 'hors_service']:
-        if stats_agg[key] is None:
-            stats_agg[key] = 0
-    
-    # Meubles nécessitant vérification (vérification des champs avant utilisation)
-    cutoff_date = timezone.now().date() - timedelta(days=180)
-    
-    # Vérifier si le champ date_derniere_verification existe
-    try:
-        verification_count = meubles.filter(
-            Q(date_derniere_verification__isnull=True) |
-            Q(date_derniere_verification__lt=cutoff_date)
-        ).count()
-    except Exception:
-        # Si le champ n'existe pas, on met 0
-        verification_count = 0
-    
-    stats_agg.update({
-        'meubles_a_verifier': verification_count,
-        'total_maisons': maisons.count(),
-        'total_types': TypeMeuble.objects.count(),
-    })
-    
-    # Calcul des pourcentages
-    total = stats_agg['total'] or 1  # Éviter division par zéro
-    stats_agg.update({
-        'pourcentage_bon_etat': round((stats_agg['bon_etat'] / total) * 100, 1),
-        'pourcentage_defectueux': round((stats_agg['defectueux'] / total) * 100, 1),
-    })
-    
-    return stats_agg
 
 
 # ======== MIXINS ET UTILITAIRES ========

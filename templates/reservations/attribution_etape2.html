@@ -66,6 +66,10 @@
         @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
     }
     
+    .form-field-readonly {
+        @apply w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed;
+    }
+    
     .btn-hover {
         transition: all 0.2s ease;
     }
@@ -80,7 +84,11 @@
     }
     
     .calculation-box {
-        @apply bg-gray-50 border border-gray-200 rounded-lg p-4;
+        @apply bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6;
+    }
+    
+    .calc-field {
+        @apply bg-white border-2 border-blue-100 rounded-lg p-3 text-center;
     }
 </style>
 {% endblock %}
@@ -223,6 +231,62 @@
                     </div>
                 </div>
 
+                <!-- Section calcul automatique des prix -->
+                <div class="space-y-4">
+                    <h4 class="text-md font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-calculator mr-2 text-blue-500"></i>
+                        Calcul automatique des prix
+                    </h4>
+                    
+                    <div class="calculation-box">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <!-- Prix par nuit (automatique) -->
+                            <div class="calc-field">
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Prix par nuit</label>
+                                {% if form.prix_par_nuit %}
+                                    {{ form.prix_par_nuit }}
+                                {% else %}
+                                    <input type="number" name="prix_par_nuit" readonly class="form-field-readonly" placeholder="Sélectionnez une maison">
+                                {% endif %}
+                                <div class="text-xs text-blue-600 mt-1">Prix de la maison</div>
+                            </div>
+                            
+                            <!-- Nombre de nuits (automatique) -->
+                            <div class="calc-field">
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Nombre de nuits</label>
+                                {% if form.nombre_nuits %}
+                                    {{ form.nombre_nuits }}
+                                {% else %}
+                                    <input type="number" name="nombre_nuits" readonly class="form-field-readonly" placeholder="Choisissez les dates">
+                                {% endif %}
+                                <div class="text-xs text-blue-600 mt-1">Calculé automatiquement</div>
+                            </div>
+                            
+                            <!-- Total automatique (calculé) -->
+                            <div class="calc-field">
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Total automatique</label>
+                                {% if form.total_automatique %}
+                                    {{ form.total_automatique }}
+                                {% else %}
+                                    <input type="number" name="total_automatique" readonly class="form-field-readonly bg-green-50 text-green-700 font-semibold" placeholder="0">
+                                {% endif %}
+                                <div class="text-xs text-blue-600 mt-1">Prix × Nuits</div>
+                            </div>
+                            
+                            <!-- Bouton recalcul -->
+                            <div class="calc-field">
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Action</label>
+                                <button type="button" onclick="forceRecalculate()" 
+                                        class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                    <i class="fas fa-sync mr-1"></i>
+                                    Recalculer
+                                </button>
+                                <div class="text-xs text-blue-600 mt-1">Forcer le calcul</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Informations financières -->
                 <div class="space-y-4">
                     <h4 class="text-md font-medium text-gray-900 flex items-center">
@@ -238,7 +302,7 @@
                             </label>
                             {{ form.montant_total }}
                             {% if form.montant_total.help_text %}
-                                <p class="mt-1 text-sm text-gray-500">{{ form.montant_total.help_text }}</p>
+                                <p class="mt-1 text-sm text-blue-600">{{ form.montant_total.help_text }}</p>
                             {% endif %}
                             {% if form.montant_total.errors %}
                                 <p class="mt-1 text-sm text-red-600">{{ form.montant_total.errors.0 }}</p>
@@ -260,27 +324,24 @@
                         </div>
                     </div>
                     
-                    <!-- Calcul automatique -->
-                    <div class="calculation-box">
-                        <h5 class="text-sm font-medium text-gray-800 mb-3">Calcul automatique</h5>
+                    <!-- Résumé financier -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <h5 class="text-sm font-medium text-yellow-800 mb-3 flex items-center">
+                            <i class="fas fa-receipt mr-2"></i>
+                            Résumé financier
+                        </h5>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div class="text-center">
-                                <div class="text-gray-500">Prix par nuit</div>
-                                <div id="prix-par-nuit" class="text-lg font-semibold text-gray-900">--</div>
+                                <div class="text-yellow-600">Montant total</div>
+                                <div id="resume-total" class="text-lg font-semibold text-yellow-800">-- FCFA</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-gray-500">Nombre de nuits</div>
-                                <div id="nombre-nuits" class="text-lg font-semibold text-gray-900">--</div>
+                                <div class="text-yellow-600">Montant payé</div>
+                                <div id="resume-paye" class="text-lg font-semibold text-green-700">-- FCFA</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-gray-500">Total calculé</div>
-                                <div id="total-calcule" class="text-lg font-semibold text-blue-600">--</div>
-                            </div>
-                        </div>
-                        <div class="mt-3 pt-3 border-t border-gray-300">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Montant restant à payer :</span>
-                                <span id="montant-restant" class="text-lg font-semibold text-orange-600">--</span>
+                                <div class="text-yellow-600">Montant restant</div>
+                                <div id="montant-restant" class="text-lg font-semibold text-orange-600">-- FCFA</div>
                             </div>
                         </div>
                     </div>
@@ -387,11 +448,12 @@
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-                <h5 class="text-sm font-medium text-gray-800 mb-2">Sélection de la maison</h5>
+                <h5 class="text-sm font-medium text-gray-800 mb-2">Calcul automatique</h5>
                 <ul class="text-sm text-gray-600 space-y-1">
-                    <li>• Seules les maisons libres sont affichées</li>
-                    <li>• Vérifiez la capacité selon le nombre de personnes</li>
-                    <li>• Prenez en compte l'emplacement préféré du client</li>
+                    <li>• Le prix par nuit provient de la maison sélectionnée</li>
+                    <li>• Le nombre de nuits est calculé automatiquement</li>
+                    <li>• Le total est calculé : Prix × Nuits</li>
+                    <li>• Vous pouvez ajuster le montant final si besoin</li>
                 </ul>
             </div>
             
@@ -407,9 +469,10 @@
             <div>
                 <h5 class="text-sm font-medium text-gray-800 mb-2">Montants</h5>
                 <ul class="text-sm text-gray-600 space-y-1">
-                    <li>• Le montant total sera calculé automatiquement</li>
+                    <li>• Le montant total sera pré-rempli automatiquement</li>
+                    <li>• Vous pouvez l'ajuster pour des remises ou frais</li>
                     <li>• Indiquez le montant déjà payé par le client</li>
-                    <li>• Le solde restant sera affiché</li>
+                    <li>• Le solde restant sera affiché automatiquement</li>
                 </ul>
             </div>
         </div>
@@ -419,6 +482,7 @@
 {% block extra_js %}
 <script>
     // Variables globales
+    let maisonsPrices = {};
     let maisonSelectionnee = null;
     let dateEntree = null;
     let dateSortie = null;
@@ -427,11 +491,52 @@
     // Initialisation
     function init() {
         try {
+            loadMaisonsPrices();
             initFormControls();
             initEventListeners();
-            console.log('✅ Étape 2 attribution initialisée');
+            console.log('✅ Étape 2 attribution initialisée avec calculs automatiques');
         } catch (error) {
             console.error('❌ Erreur init:', error);
+        }
+    }
+
+    // Charger les prix des maisons depuis l'attribut data
+    function loadMaisonsPrices() {
+        const maisonSelect = document.querySelector('select[name="maison"]');
+        if (maisonSelect && maisonSelect.dataset.prices) {
+            try {
+                maisonsPrices = JSON.parse(maisonSelect.dataset.prices);
+                console.log('Prix des maisons chargés:', maisonsPrices);
+            } catch (e) {
+                console.error('Erreur parsing prices:', e);
+                // Fallback : extraire les prix depuis les options
+                extractPricesFromOptions();
+            }
+        } else {
+            // Fallback : extraire les prix depuis les options
+            extractPricesFromOptions();
+        }
+    }
+
+    // Fallback : extraire les prix depuis le texte des options
+    function extractPricesFromOptions() {
+        const maisonSelect = document.querySelector('select[name="maison"]');
+        if (maisonSelect) {
+            maisonsPrices = {};
+            Array.from(maisonSelect.options).forEach(option => {
+                if (option.value) {
+                    // Essayer d'extraire le prix du texte (format: "Nom - Ville (XXXX FCFA/nuit)")
+                    const match = option.text.match(/\((\d+)\s+FCFA\/nuit\)/);
+                    if (match) {
+                        maisonsPrices[option.value] = {
+                            prix_par_nuit: parseInt(match[1]),
+                            nom: option.text.split(' - ')[0] || option.text,
+                            ville: option.text.split(' - ')[1]?.split(' (')[0] || ''
+                        };
+                    }
+                }
+            });
+            console.log('Prix extraits des options:', maisonsPrices);
         }
     }
 
@@ -439,7 +544,11 @@
     function initFormControls() {
         // Style des inputs
         document.querySelectorAll('input, select, textarea').forEach(input => {
-            input.className = input.className.replace(/form-control/g, '') + ' form-field';
+            if (input.readOnly) {
+                input.className = input.className.replace(/form-field/g, '') + ' form-field-readonly';
+            } else {
+                input.className = input.className.replace(/form-control/g, '') + ' form-field';
+            }
         });
     }
 
@@ -480,19 +589,20 @@
     // Changement de maison
     function onMaisonChange(event) {
         const select = event.target;
-        const selectedOption = select.options[select.selectedIndex];
+        const maisonId = select.value;
         
-        if (selectedOption.value) {
-            maisonSelectionnee = {
-                id: selectedOption.value,
-                nom: selectedOption.text,
-                prixParNuit: parseInt(selectedOption.dataset.prix) || 0
-            };
+        if (maisonId && maisonsPrices[maisonId]) {
+            const maisonData = maisonsPrices[maisonId];
+            maisonSelectionnee = maisonData;
+            prixParNuit = maisonData.prix_par_nuit;
             
-            prixParNuit = maisonSelectionnee.prixParNuit;
+            // Mettre à jour le champ prix par nuit
+            const prixParNuitInput = document.querySelector('input[name="prix_par_nuit"]');
+            if (prixParNuitInput) {
+                prixParNuitInput.value = prixParNuit;
+            }
             
-            // Mettre à jour l'affichage
-            document.getElementById('prix-par-nuit').textContent = prixParNuit.toLocaleString() + ' FCFA';
+            console.log('Maison sélectionnée:', maisonData);
             
             // Recalculer si les dates sont définies
             calculateTotal();
@@ -500,7 +610,14 @@
         } else {
             maisonSelectionnee = null;
             prixParNuit = 0;
-            document.getElementById('prix-par-nuit').textContent = '--';
+            
+            // Réinitialiser les champs
+            const prixParNuitInput = document.querySelector('input[name="prix_par_nuit"]');
+            if (prixParNuitInput) {
+                prixParNuitInput.value = '';
+            }
+            
+            resetCalculation();
         }
     }
 
@@ -523,35 +640,53 @@
             const diffTime = Math.abs(dateSortie - dateEntree);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            document.getElementById('nombre-nuits').textContent = diffDays;
+            // Mettre à jour l'affichage
             document.getElementById('duree-text').textContent = `${diffDays} nuit${diffDays > 1 ? 's' : ''}`;
             document.getElementById('duree-info').classList.remove('hidden');
             
+            // Mettre à jour le champ nombre de nuits
+            const nombreNuitsInput = document.querySelector('input[name="nombre_nuits"]');
+            if (nombreNuitsInput) {
+                nombreNuitsInput.value = diffDays;
+            }
+            
             return diffDays;
         } else {
-            document.getElementById('nombre-nuits').textContent = '--';
             document.getElementById('duree-info').classList.add('hidden');
+            
+            // Réinitialiser le champ nombre de nuits
+            const nombreNuitsInput = document.querySelector('input[name="nombre_nuits"]');
+            if (nombreNuitsInput) {
+                nombreNuitsInput.value = '';
+            }
+            
             return 0;
         }
     }
 
-    // Calcul du montant total
+    // Calcul du montant total automatique
     function calculateTotal() {
         const nuits = calculateDuration();
         
         if (nuits > 0 && prixParNuit > 0) {
-            const total = nuits * prixParNuit;
-            document.getElementById('total-calcule').textContent = total.toLocaleString() + ' FCFA';
+            const totalAutomatique = nuits * prixParNuit;
+            
+            // Mettre à jour le champ total automatique
+            const totalAutoInput = document.querySelector('input[name="total_automatique"]');
+            if (totalAutoInput) {
+                totalAutoInput.value = totalAutomatique;
+            }
             
             // Mettre à jour le champ montant total s'il est vide
             const montantTotalInput = document.querySelector('input[name="montant_total"]');
-            if (!montantTotalInput.value) {
-                montantTotalInput.value = total;
+            if (montantTotalInput && !montantTotalInput.value) {
+                montantTotalInput.value = totalAutomatique;
             }
             
             calculateRemaining();
+            console.log(`Calcul: ${nuits} nuits × ${prixParNuit} FCFA = ${totalAutomatique} FCFA`);
         } else {
-            document.getElementById('total-calcule').textContent = '--';
+            resetCalculation();
         }
     }
 
@@ -561,9 +696,46 @@
         const montantPaye = parseInt(document.querySelector('input[name="montant_paye"]').value) || 0;
         
         const restant = Math.max(0, montantTotal - montantPaye);
+        
+        // Mettre à jour l'affichage
+        document.getElementById('resume-total').textContent = montantTotal.toLocaleString() + ' FCFA';
+        document.getElementById('resume-paye').textContent = montantPaye.toLocaleString() + ' FCFA';
         document.getElementById('montant-restant').textContent = restant.toLocaleString() + ' FCFA';
         
         updateResume();
+    }
+
+    // Forcer le recalcul
+    function forceRecalculate() {
+        console.log('Recalcul forcé...');
+        onMaisonChange({ target: document.querySelector('select[name="maison"]') });
+        onDateChange();
+        
+        // Animation du bouton
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-sync fa-spin mr-1"></i>Calcul...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 1000);
+    }
+
+    // Réinitialiser les calculs
+    function resetCalculation() {
+        // Réinitialiser les champs calculés
+        const nombreNuitsInput = document.querySelector('input[name="nombre_nuits"]');
+        const totalAutoInput = document.querySelector('input[name="total_automatique"]');
+        
+        if (nombreNuitsInput) nombreNuitsInput.value = '';
+        if (totalAutoInput) totalAutoInput.value = '';
+        
+        // Réinitialiser l'affichage
+        document.getElementById('resume-total').textContent = '-- FCFA';
+        document.getElementById('resume-paye').textContent = '-- FCFA';
+        document.getElementById('montant-restant').textContent = '-- FCFA';
     }
 
     // Mise à jour du résumé
@@ -707,5 +879,10 @@
     } else {
         init();
     }
+
+    // Fonctions globales
+    window.forceRecalculate = forceRecalculate;
+    window.onMaisonChange = onMaisonChange;
+    window.calculateTotal = calculateTotal;
 </script>
 {% endblock %}

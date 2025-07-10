@@ -567,7 +567,17 @@ def mes_reservations(request):
             statut__in=['confirmee', 'terminee']
         ).aggregate(total=Sum('prix_total'))['total'] or 0
     
+    if request.user.is_authenticated:
+        if request.user.is_superuser or request.user.is_gestionnaire():
+            base_template = 'admin/base.html'
+        else:
+            base_template = 'client_base.html'
+    else:
+        base_template = 'base.html'
+
     context = {
+        'base_template': base_template,
+
         'page_obj': page_obj,
         'form': form,
         'sort_by': sort_by,
@@ -927,8 +937,18 @@ def ajouter_paiement(request, numero):
             return redirect('reservations:paiements', numero=numero)
     else:
         form = PaiementForm(reservation=reservation)
+
+    if request.user.is_authenticated:
+        if request.user.is_superuser or request.user.is_gestionnaire():
+            base_template = 'admin/base.html'
+        else:
+            base_template = 'client_base.html'
+    else:
+        base_template = 'base.html'
     
     context = {
+        'base_template': base_template,
+
         'reservation': reservation,
         'form': form
     }
@@ -972,6 +992,7 @@ def dashboard_paiements(request):
     return render(request, 'reservations/dashboard_paiements.html', context)
 
 
+
 @login_required
 @gestionnaire_required
 @require_http_methods(["POST"])
@@ -981,23 +1002,22 @@ def valider_paiement(request, paiement_id):
     
     # Vérifier les permissions
     if not paiement.reservation.can_be_managed_by(request.user):
-        return JsonResponse({'success': False, 'error': 'Permission refusée'})
+        messages.error(request, "Permission refusée")
+        return redirect('reservations:dashboard_paiements')  # Avec le namespace
     
     if paiement.statut != 'en_attente':
-        return JsonResponse({'success': False, 'error': 'Ce paiement ne peut pas être validé'})
+        messages.error(request, "Ce paiement ne peut pas être validé")
+        return redirect('reservations:dashboard_paiements')  # Avec le namespace
     
     try:
         notes = request.POST.get('notes', f'Validé par {request.user.get_full_name()}')
         paiement.valider(notes=notes)
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'Paiement de {paiement.montant:,} FCFA validé avec succès'
-        })
+        messages.success(request, f'Paiement de {paiement.montant:,} FCFA validé avec succès')
+        return redirect('reservations:dashboard_paiements')  # Avec le namespace
         
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
+        messages.error(request, str(e))
+        return redirect('reservations:dashboard_paiements')  # Avec le namespace
 
 # ======== VUES ÉVALUATIONS ========
 
