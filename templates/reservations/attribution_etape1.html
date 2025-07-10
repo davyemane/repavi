@@ -5,31 +5,32 @@
 {% block page_title %}Attribution en 2 étapes{% endblock %}
 
 {% block breadcrumb %}
-    <nav class="text-sm">
-        <ol class="flex items-center space-x-2 text-gray-500">
-            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
-            <li><i class="fas fa-chevron-right text-xs"></i></li>
-            <li><a href="{% url 'reservations:tableau_suivi_attributions' %}" class="hover:text-gray-700">Attributions</a></li>
-            <li><i class="fas fa-chevron-right text-xs"></i></li>
-            <li class="text-gray-900 font-medium">Nouvelle attribution</li>
-        </ol>
-    </nav>
+<nav class="text-sm">
+    <ol class="flex items-center space-x-2 text-gray-500">
+        <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+        <li><i class="fas fa-chevron-right text-xs"></i></li>
+        <li><a href="{% url 'reservations:tableau_suivi_attributions' %}" class="hover:text-gray-700">Attributions</a>
+        </li>
+        <li><i class="fas fa-chevron-right text-xs"></i></li>
+        <li class="text-gray-900 font-medium">Nouvelle attribution</li>
+    </ol>
+</nav>
 {% endblock %}
 
 {% block header_actions %}
-    <div class="flex items-center space-x-3">
-        <a href="{% url 'reservations:attribution_annuler_process' %}" 
-           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-            <i class="fas fa-times mr-2"></i>
-            Annuler
-        </a>
-        
-        <a href="{% url 'reservations:attribution_directe' %}" 
-           class="inline-flex items-center px-4 py-2 border border-blue-300 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">
-            <i class="fas fa-bolt mr-2"></i>
-            Attribution directe
-        </a>
-    </div>
+<div class="flex items-center space-x-3">
+    <a href="{% url 'reservations:attribution_annuler_process' %}"
+        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+        <i class="fas fa-times mr-2"></i>
+        Annuler
+    </a>
+
+    <a href="{% url 'reservations:attribution_directe' %}"
+        class="inline-flex items-center px-4 py-2 border border-blue-300 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">
+        <i class="fas fa-bolt mr-2"></i>
+        Attribution directe
+    </a>
+</div>
 {% endblock %}
 
 {% block extra_css %}
@@ -37,39 +38,39 @@
     .step-indicator {
         @apply flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium;
     }
-    
+
     .step-active {
         @apply bg-blue-600 text-white;
     }
-    
+
     .step-inactive {
         @apply bg-gray-200 text-gray-500;
     }
-    
+
     .step-line {
         @apply flex-1 h-0.5 bg-gray-200 mx-4;
     }
-    
+
     .step-line-active {
         @apply bg-blue-600;
     }
-    
+
     .option-card {
         @apply border-2 border-gray-200 rounded-xl p-6 cursor-pointer transition-all hover:border-blue-300 hover:shadow-md;
     }
-    
+
     .option-card.selected {
         @apply border-blue-500 bg-blue-50 shadow-md;
     }
-    
+
     .form-field {
         @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
     }
-    
+
     .btn-hover {
         transition: all 0.2s ease;
     }
-    
+
     .btn-hover:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -78,294 +79,312 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Indicateur d'étapes -->
-    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-        <div class="flex items-center justify-center">
-            <div class="flex items-center w-full max-w-md">
-                <!-- Étape 1 -->
-                <div class="flex flex-col items-center">
-                    <div class="step-indicator step-active">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="mt-2 text-sm font-medium text-blue-600">Étape 1</div>
-                    <div class="text-xs text-gray-500">Sélectionner le client</div>
+<!-- Indicateur d'étapes -->
+<div class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+    <div class="flex items-center justify-center">
+        <div class="flex items-center w-full max-w-md">
+            <!-- Étape 1 -->
+            <div class="flex flex-col items-center">
+                <div class="step-indicator step-active">
+                    <i class="fas fa-user"></i>
                 </div>
-                
-                <!-- Ligne de connexion -->
-                <div class="step-line"></div>
-                
-                <!-- Étape 2 -->
-                <div class="flex flex-col items-center">
-                    <div class="step-indicator step-inactive">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <div class="mt-2 text-sm font-medium text-gray-500">Étape 2</div>
-                    <div class="text-xs text-gray-500">Attribuer la maison</div>
+                <div class="mt-2 text-sm font-medium text-blue-600">Étape 1</div>
+                <div class="text-xs text-gray-500">Sélectionner le client</div>
+            </div>
+
+            <!-- Ligne de connexion -->
+            <div class="step-line"></div>
+
+            <!-- Étape 2 -->
+            <div class="flex flex-col items-center">
+                <div class="step-indicator step-inactive">
+                    <i class="fas fa-home"></i>
                 </div>
+                <div class="mt-2 text-sm font-medium text-gray-500">Étape 2</div>
+                <div class="text-xs text-gray-500">Attribuer la maison</div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Message d'introduction -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 mb-8">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                <i class="fas fa-user-plus text-white text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <h2 class="text-xl font-semibold text-gray-900">
-                    Étape 1 : Sélectionner le client
-                </h2>
-                <p class="text-gray-600">
-                    Choisissez un client existant ou créez un nouveau compte client
-                </p>
-            </div>
+<!-- Message d'introduction -->
+<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 mb-8">
+    <div class="flex items-center">
+        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+            <i class="fas fa-user-plus text-white text-xl"></i>
+        </div>
+        <div class="ml-4">
+            <h2 class="text-xl font-semibold text-gray-900">
+                Étape 1 : Sélectionner le client
+            </h2>
+            <p class="text-gray-600">
+                Choisissez un client existant ou créez un nouveau compte client
+            </p>
         </div>
     </div>
+</div>
 
-    <!-- Formulaire principal -->
-    <div class="bg-white shadow-sm rounded-xl border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
-                <i class="fas fa-users mr-2 text-blue-500"></i>
-                Choix du client
-            </h3>
-        </div>
-        
-        <div class="p-6">
-            <form method="post" class="space-y-8" id="clientForm">
-                {% csrf_token %}
-                
-                <!-- Sélection du type de client -->
-                <div class="space-y-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-4">
-                        {{ form.option_client.label }}
+<!-- Formulaire principal -->
+<div class="bg-white shadow-sm rounded-xl border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">
+            <i class="fas fa-users mr-2 text-blue-500"></i>
+            Choix du client
+        </h3>
+    </div>
+
+    <div class="p-6">
+        <form method="post" class="space-y-8" id="clientForm">
+            {% csrf_token %}
+
+            <!-- Sélection du type de client -->
+            <div class="space-y-4">
+                <label class="block text-sm font-medium text-gray-700 mb-4">
+                    {{ form.option_client.label }}
+                </label>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Option client existant -->
+                    <div class="option-card" id="option-existant" onclick="selectOption('existant')">
+                        <div class="flex items-center mb-4">
+                            <input type="radio" name="option_client" value="existant" id="id_option_client_0"
+                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                            <label for="id_option_client_0" class="ml-3 flex items-center cursor-pointer">
+                                <i class="fas fa-user-check text-2xl text-blue-500 mr-3"></i>
+                                <div>
+                                    <div class="text-lg font-medium text-gray-900">Client existant</div>
+                                    <div class="text-sm text-gray-500">Sélectionner dans la liste</div>
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-600">
+                            Choisissez un client déjà enregistré dans le système
+                        </p>
+                    </div>
+
+                    <!-- Option nouveau client -->
+                    <div class="option-card" id="option-nouveau" onclick="selectOption('nouveau')">
+                        <div class="flex items-center mb-4">
+                            <input type="radio" name="option_client" value="nouveau" id="id_option_client_1"
+                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                            <label for="id_option_client_1" class="ml-3 flex items-center cursor-pointer">
+                                <i class="fas fa-user-plus text-2xl text-green-500 mr-3"></i>
+                                <div>
+                                    <div class="text-lg font-medium text-gray-900">Nouveau client</div>
+                                    <div class="text-sm text-gray-500">Créer un nouveau compte</div>
+                                </div>
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-600">
+                            Créez un nouveau client avec ses informations
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section client existant -->
+            <div id="section-existant" class="space-y-4 hidden">
+                <h4 class="text-md font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-search mr-2 text-blue-500"></i>
+                    Rechercher un client existant
+                </h4>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        <p class="text-sm text-blue-700">
+                            Tapez le nom, prénom ou email du client pour le rechercher
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="{{ form.client_existant.id_for_label }}"
+                        class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.client_existant.label }}
                     </label>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Option client existant -->
-                        <div class="option-card" id="option-existant" onclick="selectOption('existant')">
-                            <div class="flex items-center mb-4">
-                                <input type="radio" name="option_client" value="existant" id="id_option_client_0" 
-                                       class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                <label for="id_option_client_0" class="ml-3 flex items-center cursor-pointer">
-                                    <i class="fas fa-user-check text-2xl text-blue-500 mr-3"></i>
-                                    <div>
-                                        <div class="text-lg font-medium text-gray-900">Client existant</div>
-                                        <div class="text-sm text-gray-500">Sélectionner dans la liste</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <p class="text-sm text-gray-600">
-                                Choisissez un client déjà enregistré dans le système
-                            </p>
-                        </div>
-                        
-                        <!-- Option nouveau client -->
-                        <div class="option-card" id="option-nouveau" onclick="selectOption('nouveau')">
-                            <div class="flex items-center mb-4">
-                                <input type="radio" name="option_client" value="nouveau" id="id_option_client_1"
-                                       class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                <label for="id_option_client_1" class="ml-3 flex items-center cursor-pointer">
-                                    <i class="fas fa-user-plus text-2xl text-green-500 mr-3"></i>
-                                    <div>
-                                        <div class="text-lg font-medium text-gray-900">Nouveau client</div>
-                                        <div class="text-sm text-gray-500">Créer un nouveau compte</div>
-                                    </div>
-                                </label>
-                            </div>
-                            <p class="text-sm text-gray-600">
-                                Créez un nouveau client avec ses informations
-                            </p>
-                        </div>
+                    {{ form.client_existant }}
+                    {% if form.client_existant.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.client_existant.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Section nouveau client -->
+            <div id="section-nouveau" class="space-y-6 hidden">
+                <h4 class="text-md font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-user-plus mr-2 text-green-500"></i>
+                    Informations du nouveau client
+                </h4>
+
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-green-500 mr-2"></i>
+                        <p class="text-sm text-green-700">
+                            Remplissez les informations ci-dessous pour créer un nouveau compte client
+                        </p>
                     </div>
                 </div>
 
-                <!-- Section client existant -->
-                <div id="section-existant" class="space-y-4 hidden">
-                    <h4 class="text-md font-medium text-gray-900 flex items-center">
-                        <i class="fas fa-search mr-2 text-blue-500"></i>
-                        Rechercher un client existant
-                    </h4>
-                    
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                            <p class="text-sm text-blue-700">
-                                Tapez le nom, prénom ou email du client pour le rechercher
-                            </p>
-                        </div>
-                    </div>
-                    
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Prénom -->
                     <div>
-                        <label for="{{ form.client_existant.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ form.client_existant.label }}
+                        <label for="{{ form.prenom.id_for_label }}"
+                            class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.prenom.label }} <span class="text-red-500">*</span>
                         </label>
-                        {{ form.client_existant }}
-                        {% if form.client_existant.help_text %}
-                            <p class="mt-1 text-sm text-gray-500">{{ form.client_existant.help_text }}</p>
+                        {{ form.prenom }}
+                        {% if form.prenom.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.prenom.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Nom -->
+                    <div>
+                        <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.nom.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.nom.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.email.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Téléphone -->
+                    <div>
+                        <label for="{{ form.telephone.id_for_label }}"
+                            class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.telephone.label }}
+                        </label>
+                        {{ form.telephone }}
+                        {% if form.telephone.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.telephone.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Nom d'utilisateur -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.username.id_for_label }}"
+                            class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.username.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.username }}
+                        <p class="mt-1 text-sm text-gray-500">
+                            Doit être unique. Le client l'utilisera pour se connecter.
+                        </p>
+                        {% if form.username.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Mot de passe -->
+                    <div>
+                        <label for="{{ form.password.id_for_label }}"
+                            class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.password.label }}
+                        </label>
+                        {{ form.password }}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.password.help_text }}</p>
+                        {% if form.password.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Section nouveau client -->
-                <div id="section-nouveau" class="space-y-6 hidden">
-                    <h4 class="text-md font-medium text-gray-900 flex items-center">
-                        <i class="fas fa-user-plus mr-2 text-green-500"></i>
-                        Informations du nouveau client
-                    </h4>
-                    
-                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <i class="fas fa-info-circle text-green-500 mr-2"></i>
-                            <p class="text-sm text-green-700">
-                                Remplissez les informations ci-dessous pour créer un nouveau compte client
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Prénom -->
-                        <div>
-                            <label for="{{ form.prenom.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ form.prenom.label }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.prenom }}
-                            {% if form.prenom.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ form.prenom.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Nom -->
-                        <div>
-                            <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ form.nom.label }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.nom }}
-                            {% if form.nom.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ form.nom.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Email -->
-                        <div>
-                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ form.email.label }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.email }}
-                            {% if form.email.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Téléphone -->
-                        <div>
-                            <label for="{{ form.telephone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ form.telephone.label }}
-                            </label>
-                            {{ form.telephone }}
-                            {% if form.telephone.help_text %}
-                                <p class="mt-1 text-sm text-gray-500">{{ form.telephone.help_text }}</p>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Nom d'utilisateur -->
-                        <div class="md:col-span-2">
-                            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ form.username.label }} <span class="text-red-500">*</span>
-                            </label>
-                            {{ form.username }}
-                            <p class="mt-1 text-sm text-gray-500">
-                                Doit être unique. Le client l'utilisera pour se connecter.
-                            </p>
-                            {% if form.username.errors %}
-                                <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Note sur le mot de passe -->
+                <!-- Note sur le mot de passe -->
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <div class="flex items-start">
                             <i class="fas fa-key text-yellow-500 mr-2 mt-0.5"></i>
                             <div>
-                                <p class="text-sm text-yellow-700 font-medium">Mot de passe automatique</p>
+                                <p class="text-sm text-yellow-700 font-medium">Mot de passe par défaut : 123456</p>
                                 <p class="text-sm text-yellow-600 mt-1">
-                                    Un mot de passe temporaire sera généré automatiquement. 
+                                    Vous pouvez modifier le mot de passe ou garder celui par défaut. 
                                     Le client pourra le changer lors de sa première connexion.
                                 </p>
                             </div>
                         </div>
                     </div>
+
+            </div>
+
+            <!-- Erreurs du formulaire -->
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                    <div>
+                        {% for error in form.non_field_errors %}
+                        <p class="text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Boutons d'action -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'reservations:tableau_suivi_attributions' %}"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Retour au tableau
+                    </a>
+
+                    <a href="{% url 'reservations:attribution_annuler_process' %}"
+                        class="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
+                        <i class="fas fa-times mr-2"></i>
+                        Annuler
+                    </a>
                 </div>
 
-                <!-- Erreurs du formulaire -->
-                {% if form.non_field_errors %}
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
-                            <div>
-                                {% for error in form.non_field_errors %}
-                                    <p class="text-sm text-red-700">{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
+                <button type="submit" id="submitBtn"
+                    class="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors btn-hover">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    Continuer vers l'étape 2
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
-                <!-- Boutons d'action -->
-                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-                    <div class="flex items-center space-x-3">
-                        <a href="{% url 'reservations:tableau_suivi_attributions' %}" 
-                           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            Retour au tableau
-                        </a>
-                        
-                        <a href="{% url 'reservations:attribution_annuler_process' %}" 
-                           class="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
-                            <i class="fas fa-times mr-2"></i>
-                            Annuler
-                        </a>
-                    </div>
-                    
-                    <button type="submit" id="submitBtn"
-                            class="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors btn-hover">
-                        <i class="fas fa-arrow-right mr-2"></i>
-                        Continuer vers l'étape 2
-                    </button>
-                </div>
-            </form>
+<!-- Aide et conseils -->
+<div class="mt-8 bg-gray-50 rounded-xl border border-gray-200 p-6">
+    <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center">
+        <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
+        Conseils et aide
+    </h4>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <h5 class="text-sm font-medium text-gray-800 mb-2">Client existant</h5>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>• Recherchez par nom, prénom ou email</li>
+                <li>• Utilisez la liste déroulante pour sélectionner</li>
+                <li>• Tous les clients enregistrés apparaissent</li>
+            </ul>
+        </div>
+
+        <div>
+            <h5 class="text-sm font-medium text-gray-800 mb-2">Nouveau client</h5>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>• Prénom, nom et email sont obligatoires</li>
+                <li>• Le nom d'utilisateur doit être unique</li>
+                <li>• Un mot de passe temporaire sera généré</li>
+            </ul>
         </div>
     </div>
-
-    <!-- Aide et conseils -->
-    <div class="mt-8 bg-gray-50 rounded-xl border border-gray-200 p-6">
-        <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center">
-            <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
-            Conseils et aide
-        </h4>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h5 class="text-sm font-medium text-gray-800 mb-2">Client existant</h5>
-                <ul class="text-sm text-gray-600 space-y-1">
-                    <li>• Recherchez par nom, prénom ou email</li>
-                    <li>• Utilisez la liste déroulante pour sélectionner</li>
-                    <li>• Tous les clients enregistrés apparaissent</li>
-                </ul>
-            </div>
-            
-            <div>
-                <h5 class="text-sm font-medium text-gray-800 mb-2">Nouveau client</h5>
-                <ul class="text-sm text-gray-600 space-y-1">
-                    <li>• Prénom, nom et email sont obligatoires</li>
-                    <li>• Le nom d'utilisateur doit être unique</li>
-                    <li>• Un mot de passe temporaire sera généré</li>
-                </ul>
-            </div>
-        </div>
-    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -396,19 +415,19 @@
     function initEventListeners() {
         // Form submit
         document.getElementById('clientForm').addEventListener('submit', handleFormSubmit);
-        
+
         // Radio button change
         document.querySelectorAll('input[name="option_client"]').forEach(radio => {
-            radio.addEventListener('change', function() {
+            radio.addEventListener('change', function () {
                 selectOption(this.value);
             });
         });
-        
+
         // Username auto-generation
         const prenomInput = document.querySelector('input[name="prenom"]');
         const nomInput = document.querySelector('input[name="nom"]');
         const usernameInput = document.querySelector('input[name="username"]');
-        
+
         if (prenomInput && nomInput && usernameInput) {
             prenomInput.addEventListener('input', generateUsername);
             nomInput.addEventListener('input', generateUsername);
@@ -418,23 +437,23 @@
     // Sélection d'option
     function selectOption(option) {
         selectedOption = option;
-        
+
         // Mettre à jour les cartes visuelles
         document.querySelectorAll('.option-card').forEach(card => {
             card.classList.remove('selected');
         });
-        
+
         document.getElementById(`option-${option}`).classList.add('selected');
-        
+
         // Cocher le bon radio button
         document.querySelector(`input[value="${option}"]`).checked = true;
-        
+
         // Afficher/masquer les sections
         document.getElementById('section-existant').classList.add('hidden');
         document.getElementById('section-nouveau').classList.add('hidden');
-        
+
         document.getElementById(`section-${option}`).classList.remove('hidden');
-        
+
         // Focus sur le premier champ
         setTimeout(() => {
             if (option === 'existant') {
@@ -450,7 +469,7 @@
         const prenom = document.querySelector('input[name="prenom"]').value.trim();
         const nom = document.querySelector('input[name="nom"]').value.trim();
         const usernameInput = document.querySelector('input[name="username"]');
-        
+
         if (prenom && nom && !usernameInput.value) {
             const username = (prenom.toLowerCase() + '.' + nom.toLowerCase())
                 .replace(/[^a-z.]/g, '')
@@ -462,17 +481,17 @@
     // Validation et soumission du formulaire
     function handleFormSubmit(event) {
         event.preventDefault();
-        
+
         const form = event.target;
         const submitBtn = document.getElementById('submitBtn');
         const originalText = submitBtn.innerHTML;
-        
+
         // Validation
         if (!selectedOption) {
             showError('Veuillez sélectionner un type de client');
             return;
         }
-        
+
         if (selectedOption === 'existant') {
             const clientSelect = document.querySelector('select[name="client_existant"]');
             if (!clientSelect.value) {
@@ -483,7 +502,7 @@
         } else if (selectedOption === 'nouveau') {
             const requiredFields = ['prenom', 'nom', 'email', 'username'];
             let isValid = true;
-            
+
             requiredFields.forEach(fieldName => {
                 const field = document.querySelector(`input[name="${fieldName}"]`);
                 if (!field.value.trim()) {
@@ -492,12 +511,12 @@
                     setTimeout(() => field.classList.remove('border-red-500'), 3000);
                 }
             });
-            
+
             if (!isValid) {
                 showError('Veuillez remplir tous les champs obligatoires');
                 return;
             }
-            
+
             // Validation email
             const emailField = document.querySelector('input[name="email"]');
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -507,11 +526,11 @@
                 return;
             }
         }
-        
+
         // Animation de chargement
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Traitement...';
         submitBtn.disabled = true;
-        
+
         // Soumission du formulaire
         setTimeout(() => {
             form.submit();
@@ -525,7 +544,7 @@
         if (existingError) {
             existingError.remove();
         }
-        
+
         // Créer le nouveau message
         const errorDiv = document.createElement('div');
         errorDiv.id = 'error-message';
@@ -536,14 +555,14 @@
                 <p class="text-sm text-red-700">${message}</p>
             </div>
         `;
-        
+
         // Insérer avant le formulaire
         const form = document.getElementById('clientForm');
         form.parentNode.insertBefore(errorDiv, form);
-        
+
         // Scroll vers l'erreur
         errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
+
         // Retirer automatiquement après 5 secondes
         setTimeout(() => {
             if (document.getElementById('error-message')) {

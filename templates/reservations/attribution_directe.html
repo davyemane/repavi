@@ -38,6 +38,10 @@
         @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
     }
     
+    .form-field-readonly {
+        @apply w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed;
+    }
+    
     .btn-hover {
         transition: all 0.2s ease;
     }
@@ -60,7 +64,11 @@
     }
     
     .calculation-box {
-        @apply bg-gray-50 border border-gray-200 rounded-lg p-4;
+        @apply bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6;
+    }
+    
+    .calc-field {
+        @apply bg-white border-2 border-blue-100 rounded-lg p-3 text-center;
     }
     
     .info-box {
@@ -99,7 +107,7 @@
             <div class="ml-4 flex-1">
                 <h2 class="text-xl font-semibold text-gray-900">Attribution Directe</h2>
                 <p class="text-gray-600">
-                    Attribuez directement une maison à un client en une seule étape
+                    Attribuez directement une maison à un client en une seule étape avec calculs automatiques
                 </p>
             </div>
             <div class="text-right">
@@ -128,6 +136,7 @@
                 </div>
                 <ul class="text-sm text-blue-800 space-y-1">
                     <li>• Toutes les informations en une seule page</li>
+                    <li>• Calculs automatiques des prix depuis la maison</li>
                     <li>• Plus rapide pour les utilisateurs expérimentés</li>
                     <li>• Client et maison sélectionnés simultanément</li>
                 </ul>
@@ -220,7 +229,7 @@
                         <div class="flex items-center">
                             <i class="fas fa-info-circle text-blue-500 mr-2"></i>
                             <p class="text-sm text-blue-700">
-                                Seules les maisons libres et disponibles que vous gérez apparaissent dans cette liste.
+                                Seules les maisons libres et disponibles que vous gérez apparaissent dans cette liste. Le prix par nuit sera chargé automatiquement.
                             </p>
                         </div>
                     </div>
@@ -280,13 +289,83 @@
                     </div>
                     
                     <!-- Durée calculée -->
-                    <div id="duree-info" class="hidden calculation-box">
+                    <div id="duree-info" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
                                 <i class="fas fa-clock text-gray-500 mr-2"></i>
                                 <span class="text-sm text-gray-700">Durée du séjour :</span>
                             </div>
                             <span id="duree-text" class="text-lg font-semibold text-blue-600"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Calculs Automatiques -->
+                <div class="space-y-6">
+                    <h4 class="text-md font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-calculator mr-2 text-blue-500"></i>
+                        Calculs automatiques des prix
+                    </h4>
+                    
+                    <div class="calculation-box">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <!-- Prix par nuit (automatique) -->
+                            <div class="calc-field">
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Prix par nuit</label>
+                                {% if form.prix_par_nuit %}
+                                    {{ form.prix_par_nuit }}
+                                {% else %}
+                                    <input type="number" name="prix_par_nuit" readonly class="form-field-readonly" placeholder="Sélectionnez une maison">
+                                {% endif %}
+                                <div class="text-xs text-blue-600 mt-1">Prix de la maison</div>
+                            </div>
+                            
+                            <!-- Nombre de nuits (automatique) -->
+                            <div class="calc-field">
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Nombre de nuits</label>
+                                {% if form.nombre_nuits %}
+                                    {{ form.nombre_nuits }}
+                                {% else %}
+                                    <input type="number" name="nombre_nuits" readonly class="form-field-readonly" placeholder="Choisissez les dates">
+                                {% endif %}
+                                <div class="text-xs text-blue-600 mt-1">Calculé automatiquement</div>
+                            </div>
+                            
+                            <!-- Total automatique (calculé) -->
+                            <div class="calc-field">
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Total automatique</label>
+                                {% if form.total_automatique %}
+                                    {{ form.total_automatique }}
+                                {% else %}
+                                    <input type="number" name="total_automatique" readonly class="form-field-readonly bg-green-50 text-green-700 font-semibold" placeholder="0">
+                                {% endif %}
+                                <div class="text-xs text-blue-600 mt-1">Prix × Nuits</div>
+                            </div>
+                            
+                            <!-- Bouton recalcul -->
+                            <div class="calc-field">
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Action</label>
+                                <button type="button" onclick="forceRecalculate()" 
+                                        class="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                    <i class="fas fa-sync mr-1"></i>
+                                    Recalculer
+                                </button>
+                                <div class="text-xs text-blue-600 mt-1">Forcer le calcul</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-yellow-700 font-medium">
+                                    <i class="fas fa-lightbulb mr-1"></i>
+                                    Les prix sont calculés automatiquement selon la maison sélectionnée
+                                </span>
+                                <button type="button" id="auto-calculate-btn" 
+                                        class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium hover:bg-yellow-200 transition-colors">
+                                    <i class="fas fa-calculator mr-1"></i>
+                                    Recalculer tout
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -308,7 +387,7 @@
                                 <i class="field-icon fas fa-money-bill-wave"></i>
                                 {{ form.montant_total }}
                             </div>
-                            <p class="mt-1 text-sm text-gray-500">Sera calculé automatiquement si vide</p>
+                            <p class="mt-1 text-sm text-blue-600">Pré-rempli automatiquement, modifiable pour ajustements</p>
                             {% if form.montant_total.errors %}
                                 <p class="mt-1 text-sm text-red-600">{{ form.montant_total.errors.0 }}</p>
                             {% endif %}
@@ -330,35 +409,25 @@
                         </div>
                     </div>
                     
-                    <!-- Calculs automatiques -->
-                    <div class="calculation-box">
-                        <h5 class="text-sm font-medium text-gray-800 mb-4">Calculs automatiques</h5>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                    <!-- Résumé financier -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <h5 class="text-sm font-medium text-yellow-800 mb-3 flex items-center">
+                            <i class="fas fa-receipt mr-2"></i>
+                            Résumé financier en temps réel
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div class="text-center">
-                                <div class="text-gray-500 mb-1">Prix par nuit</div>
-                                <div id="prix-par-nuit" class="text-lg font-semibold text-gray-900">--</div>
+                                <div class="text-yellow-600">Montant total</div>
+                                <div id="resume-total" class="text-lg font-semibold text-yellow-800">-- FCFA</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-gray-500 mb-1">Nombre de nuits</div>
-                                <div id="nombre-nuits" class="text-lg font-semibold text-gray-900">--</div>
+                                <div class="text-yellow-600">Montant payé</div>
+                                <div id="resume-paye" class="text-lg font-semibold text-green-700">-- FCFA</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-gray-500 mb-1">Total calculé</div>
-                                <div id="total-calcule" class="text-lg font-semibold text-blue-600">--</div>
+                                <div class="text-yellow-600">Montant restant</div>
+                                <div id="montant-restant" class="text-lg font-semibold text-orange-600">-- FCFA</div>
                             </div>
-                            <div class="text-center">
-                                <div class="text-gray-500 mb-1">Montant restant</div>
-                                <div id="montant-restant" class="text-lg font-semibold text-orange-600">--</div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4 pt-4 border-t border-gray-300">
-                            <button type="button" id="auto-calculate-btn" 
-                                    class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium hover:bg-blue-200 transition-colors">
-                                <i class="fas fa-calculator mr-1"></i>
-                                Calculer automatiquement
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -463,11 +532,12 @@
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-                <h5 class="text-sm font-medium text-gray-800 mb-2">Sélection du client</h5>
+                <h5 class="text-sm font-medium text-gray-800 mb-2">Calculs automatiques</h5>
                 <ul class="text-sm text-gray-600 space-y-1">
-                    <li>• Utilisez la barre de recherche pour trouver rapidement</li>
-                    <li>• Seuls les clients actifs apparaissent</li>
-                    <li>• Pour créer un nouveau client, utilisez l'attribution en 2 étapes</li>
+                    <li>• Le prix par nuit provient de la maison sélectionnée</li>
+                    <li>• Le nombre de nuits est calculé automatiquement</li>
+                    <li>• Le total est calculé : Prix × Nuits</li>
+                    <li>• Vous pouvez ajuster le montant final si besoin</li>
                 </ul>
             </div>
             
@@ -477,13 +547,15 @@
                     <li>• Seules vos maisons libres sont affichées</li>
                     <li>• Vérifiez la capacité selon le nombre de personnes</li>
                     <li>• Le prix par nuit est affiché automatiquement</li>
+                    <li>• Les conflits de dates sont vérifiés automatiquement</li>
                 </ul>
             </div>
             
             <div>
-                <h5 class="text-sm font-medium text-gray-800 mb-2">Calculs automatiques</h5>
+                <h5 class="text-sm font-medium text-gray-800 mb-2">Gestion financière</h5>
                 <ul class="text-sm text-gray-600 space-y-1">
-                    <li>• Le montant total est calculé automatiquement</li>
+                    <li>• Le montant total sera pré-rempli automatiquement</li>
+                    <li>• Vous pouvez l'ajuster pour des remises ou frais</li>
                     <li>• Indiquez le montant déjà payé par le client</li>
                     <li>• Le solde restant est calculé en temps réel</li>
                 </ul>
@@ -495,137 +567,189 @@
 {% block extra_js %}
 <script>
     // Variables globales
-    let clientSelectionne = null;
-    let maisonSelectionnee = null;
-    let dateEntree = null;
-    let dateSortie = null;
-    let prixParNuit = 0;
+let maisonsPrices = {};
+let maisonSelectionnee = null;
+let dateEntree = null;
+let dateSortie = null;
+let prixParNuit = 0;
 
-    // Initialisation
-    function init() {
-        try {
-            initFormControls();
-            initEventListeners();
-            initSelect2();
-            console.log('✅ Attribution directe initialisée');
-        } catch (error) {
-            console.error('❌ Erreur init:', error);
-        }
+// Initialisation
+function init() {
+    try {
+        loadMaisonsPrices();
+        initFormControls();
+        initEventListeners();
+        initSelect2(); // Pour attribution directe
+        console.log('✅ Attribution initialisée avec calculs automatiques');
+    } catch (error) {
+        console.error('❌ Erreur init:', error);
     }
+}
 
-    // Contrôles de formulaire
-    function initFormControls() {
-        // Style des inputs
-        document.querySelectorAll('input, select, textarea').forEach(input => {
-            if (!input.classList.contains('select2-search__field')) {
-                input.className = input.className.replace(/form-control/g, '') + ' form-field';
+// Charger les prix des maisons depuis l'attribut data
+function loadMaisonsPrices() {
+    const maisonSelect = document.querySelector('select[name="maison"]');
+    if (maisonSelect && maisonSelect.dataset.prices) {
+        try {
+            maisonsPrices = JSON.parse(maisonSelect.dataset.prices);
+            console.log('Prix des maisons chargés:', maisonsPrices);
+        } catch (e) {
+            console.error('Erreur parsing prices:', e);
+            // Fallback : extraire les prix depuis les options
+            extractPricesFromOptions();
+        }
+    } else {
+        // Fallback : extraire les prix depuis les options
+        extractPricesFromOptions();
+    }
+}
+
+// Fallback : extraire les prix depuis le texte des options
+function extractPricesFromOptions() {
+    const maisonSelect = document.querySelector('select[name="maison"]');
+    if (maisonSelect) {
+        maisonsPrices = {};
+        Array.from(maisonSelect.options).forEach(option => {
+            if (option.value) {
+                // Essayer d'extraire le prix du texte (format: "Nom - Ville (XXXX FCFA/nuit)")
+                const match = option.text.match(/\((\d+)\s+FCFA\/nuit\)/);
+                if (match) {
+                    maisonsPrices[option.value] = {
+                        prix_par_nuit: parseInt(match[1]),
+                        nom: option.text.split(' - ')[0] || option.text,
+                        ville: option.text.split(' - ')[1]?.split(' (')[0] || ''
+                    };
+                }
             }
         });
+        console.log('Prix extraits des options:', maisonsPrices);
     }
+}
 
-    // Event listeners
-    function initEventListeners() {
-        // Form submit
-        document.getElementById('attributionDirecteForm').addEventListener('submit', handleFormSubmit);
-        
-        // Client selection
-        const clientSelect = document.querySelector('select[name="client"]');
-        if (clientSelect) {
-            clientSelect.addEventListener('change', onClientChange);
+// Contrôles de formulaire
+function initFormControls() {
+    // Style des inputs
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        if (!input.classList.contains('select2-search__field')) {
+            if (input.readOnly) {
+                input.className = input.className.replace(/form-field/g, '') + ' form-field-readonly';
+            } else {
+                input.className = input.className.replace(/form-control/g, '') + ' form-field';
+            }
         }
-        
-        // Maison selection
-        const maisonSelect = document.querySelector('select[name="maison"]');
-        if (maisonSelect) {
-            maisonSelect.addEventListener('change', onMaisonChange);
-        }
-        
-        // Dates
-        const dateEntreeInput = document.querySelector('input[name="date_entree"]');
-        const dateSortieInput = document.querySelector('input[name="date_sortie"]');
-        
-        if (dateEntreeInput) {
-            dateEntreeInput.addEventListener('change', onDateChange);
-        }
-        if (dateSortieInput) {
-            dateSortieInput.addEventListener('change', onDateChange);
-        }
-        
-        // Montants
-        const montantTotalInput = document.querySelector('input[name="montant_total"]');
-        const montantPayeInput = document.querySelector('input[name="montant_paye"]');
-        
-        if (montantTotalInput) {
-            montantTotalInput.addEventListener('input', calculateRemaining);
-        }
-        if (montantPayeInput) {
-            montantPayeInput.addEventListener('input', calculateRemaining);
-        }
-        
-        // Boutons
-        const refreshBtn = document.getElementById('refreshClientsBtn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', refreshClients);
-        }
-        
-        const autoCalculateBtn = document.getElementById('auto-calculate-btn');
-        if (autoCalculateBtn) {
-            autoCalculateBtn.addEventListener('click', autoCalculate);
-        }
-        
-        const previewBtn = document.getElementById('preview-btn');
-        if (previewBtn) {
-            previewBtn.addEventListener('click', showPreview);
-        }
-    }
+    });
+}
 
-    // Initialisation Select2
-    function initSelect2() {
-        try {
-            // Client select
-            $('#id_client').select2({
-                placeholder: 'Rechercher un client...',
-                allowClear: true,
-                language: {
-                    noResults: function() {
-                        return "Aucun client trouvé";
-                    },
-                    searching: function() {
-                        return "Recherche en cours...";
-                    }
+// Initialisation Select2 (pour attribution directe)
+function initSelect2() {
+    try {
+        // Client select
+        $('#id_client').select2({
+            placeholder: 'Rechercher un client...',
+            allowClear: true,
+            language: {
+                noResults: function() {
+                    return "Aucun client trouvé";
+                },
+                searching: function() {
+                    return "Recherche en cours...";
                 }
-            });
-            
-            // Maison select
-            $('#id_maison').select2({
-                placeholder: 'Sélectionner une maison...',
-                allowClear: true,
-                language: {
-                    noResults: function() {
-                        return "Aucune maison disponible";
-                    }
-                }
-            });
-        } catch (error) {
-            console.log('Select2 non disponible, utilisation des selects standards');
-        }
-    }
-
-    // Changement de client
-    function onClientChange(event) {
-        const select = event.target;
-        const selectedOption = select.options[select.selectedIndex];
+            }
+        });
         
-        if (selectedOption.value) {
-            clientSelectionne = {
-                id: selectedOption.value,
-                nom: selectedOption.text,
-                email: selectedOption.dataset.email || '',
-                telephone: selectedOption.dataset.telephone || ''
-            };
-            
-            // Afficher les infos client
-            document.getElementById('client-details').innerHTML = `
+        // Maison select
+        $('#id_maison').select2({
+            placeholder: 'Sélectionner une maison...',
+            allowClear: true,
+            language: {
+                noResults: function() {
+                    return "Aucune maison disponible";
+                }
+            }
+        });
+    } catch (error) {
+        console.log('Select2 non disponible, utilisation des selects standards');
+    }
+}
+
+// Event listeners
+function initEventListeners() {
+    // Form submit
+    const form = document.getElementById('attributionDirecteForm') || document.getElementById('attributionForm');
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+    }
+    
+    // Client selection (pour attribution directe)
+    const clientSelect = document.querySelector('select[name="client"]');
+    if (clientSelect) {
+        clientSelect.addEventListener('change', onClientChange);
+    }
+    
+    // Sélection de maison
+    const maisonSelect = document.querySelector('select[name="maison"]');
+    if (maisonSelect) {
+        maisonSelect.addEventListener('change', onMaisonChange);
+    }
+    
+    // Dates
+    const dateEntreeInput = document.querySelector('input[name="date_entree"]');
+    const dateSortieInput = document.querySelector('input[name="date_sortie"]');
+    
+    if (dateEntreeInput) {
+        dateEntreeInput.addEventListener('change', onDateChange);
+    }
+    if (dateSortieInput) {
+        dateSortieInput.addEventListener('change', onDateChange);
+    }
+    
+    // Montants
+    const montantTotalInput = document.querySelector('input[name="montant_total"]');
+    const montantPayeInput = document.querySelector('input[name="montant_paye"]');
+    
+    if (montantTotalInput) {
+        montantTotalInput.addEventListener('input', calculateRemaining);
+    }
+    if (montantPayeInput) {
+        montantPayeInput.addEventListener('input', calculateRemaining);
+    }
+    
+    // Boutons
+    const refreshBtn = document.getElementById('refreshClientsBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', refreshClients);
+    }
+    
+    const autoCalculateBtn = document.getElementById('auto-calculate-btn');
+    if (autoCalculateBtn) {
+        autoCalculateBtn.addEventListener('click', autoCalculate);
+    }
+    
+    const previewBtn = document.getElementById('preview-btn');
+    if (previewBtn) {
+        previewBtn.addEventListener('click', showPreview);
+    }
+}
+
+// Changement de client (pour attribution directe)
+function onClientChange(event) {
+    const select = event.target;
+    const selectedOption = select.options[select.selectedIndex];
+    
+    if (selectedOption.value) {
+        const clientSelectionne = {
+            id: selectedOption.value,
+            nom: selectedOption.text,
+            email: selectedOption.dataset.email || '',
+            telephone: selectedOption.dataset.telephone || ''
+        };
+        
+        // Afficher les infos client
+        const clientInfo = document.getElementById('client-info');
+        const clientDetails = document.getElementById('client-details');
+        
+        if (clientDetails) {
+            clientDetails.innerHTML = `
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="font-medium">${clientSelectionne.nom}</div>
@@ -634,353 +758,521 @@
                     <div class="text-xs">${clientSelectionne.telephone}</div>
                 </div>
             `;
-            document.getElementById('client-info').classList.remove('hidden');
-        } else {
-            clientSelectionne = null;
-            document.getElementById('client-info').classList.add('hidden');
         }
         
-        updateResume();
+        if (clientInfo) {
+            clientInfo.classList.remove('hidden');
+        }
+    } else {
+        const clientInfo = document.getElementById('client-info');
+        if (clientInfo) {
+            clientInfo.classList.add('hidden');
+        }
     }
+    
+    updateResume();
+}
 
-    // Changement de maison
-    function onMaisonChange(event) {
-        const select = event.target;
-        const selectedOption = select.options[select.selectedIndex];
+// Changement de maison
+function onMaisonChange(event) {
+    const select = event.target;
+    const maisonId = select.value;
+    
+    if (maisonId && maisonsPrices[maisonId]) {
+        const maisonData = maisonsPrices[maisonId];
+        maisonSelectionnee = maisonData;
+        prixParNuit = maisonData.prix_par_nuit;
         
-        if (selectedOption.value) {
-            maisonSelectionnee = {
-                id: selectedOption.value,
-                nom: selectedOption.text,
-                prixParNuit: parseInt(selectedOption.dataset.prix) || 0,
-                capacite: selectedOption.dataset.capacite || '',
-                ville: selectedOption.dataset.ville || ''
-            };
-            
-            prixParNuit = maisonSelectionnee.prixParNuit;
-            
-            // Afficher les infos maison
-            document.getElementById('maison-details').innerHTML = `
+        // Mettre à jour le champ prix par nuit
+        const prixParNuitInput = document.querySelector('input[name="prix_par_nuit"]');
+        if (prixParNuitInput) {
+            prixParNuitInput.value = prixParNuit;
+        }
+        
+        // Mettre à jour l'affichage du prix par nuit
+        const prixDisplay = document.getElementById('prix-par-nuit');
+        if (prixDisplay) {
+            prixDisplay.textContent = prixParNuit.toLocaleString() + ' FCFA';
+        }
+        
+        // Afficher les infos maison (pour attribution directe)
+        const maisonInfo = document.getElementById('maison-info');
+        const maisonDetails = document.getElementById('maison-details');
+        
+        if (maisonDetails) {
+            const selectedOption = select.options[select.selectedIndex];
+            maisonDetails.innerHTML = `
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <div class="font-medium">${maisonSelectionnee.nom}</div>
-                        <div class="text-xs">${maisonSelectionnee.ville}</div>
+                        <div class="font-medium">${maisonData.nom}</div>
+                        <div class="text-xs">${maisonData.ville}</div>
                     </div>
                     <div class="text-right">
                         <div class="font-medium">${prixParNuit.toLocaleString()} FCFA/nuit</div>
-                        <div class="text-xs">${maisonSelectionnee.capacite}</div>
+                        <div class="text-xs">Capacité: ${selectedOption.dataset.capacite || 'N/A'}</div>
                     </div>
                 </div>
             `;
-            document.getElementById('maison-info').classList.remove('hidden');
-            
-            // Mettre à jour l'affichage
-            document.getElementById('prix-par-nuit').textContent = prixParNuit.toLocaleString() + ' FCFA';
-            
-            // Recalculer
-            calculateTotal();
-        } else {
-            maisonSelectionnee = null;
-            prixParNuit = 0;
-            document.getElementById('maison-info').classList.add('hidden');
-            document.getElementById('prix-par-nuit').textContent = '--';
         }
         
-        updateResume();
-    }
-
-    // Changement de dates
-    function onDateChange() {
-        const dateEntreeInput = document.querySelector('input[name="date_entree"]');
-        const dateSortieInput = document.querySelector('input[name="date_sortie"]');
+        if (maisonInfo) {
+            maisonInfo.classList.remove('hidden');
+        }
         
-        dateEntree = dateEntreeInput.value ? new Date(dateEntreeInput.value) : null;
-        dateSortie = dateSortieInput.value ? new Date(dateSortieInput.value) : null;
+        console.log('Maison sélectionnée:', maisonData);
         
-        calculateDuration();
+        // Recalculer si les dates sont définies
         calculateTotal();
         updateResume();
-    }
-
-    // Calcul de la durée
-    function calculateDuration() {
-        if (dateEntree && dateSortie && dateSortie > dateEntree) {
-            const diffTime = Math.abs(dateSortie - dateEntree);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            document.getElementById('nombre-nuits').textContent = diffDays;
-            document.getElementById('duree-text').textContent = `${diffDays} nuit${diffDays > 1 ? 's' : ''}`;
-            document.getElementById('duree-info').classList.remove('hidden');
-            
-            return diffDays;
-        } else {
-            document.getElementById('nombre-nuits').textContent = '--';
-            document.getElementById('duree-info').classList.add('hidden');
-            return 0;
+    } else {
+        maisonSelectionnee = null;
+        prixParNuit = 0;
+        
+        // Réinitialiser les champs
+        const prixParNuitInput = document.querySelector('input[name="prix_par_nuit"]');
+        if (prixParNuitInput) {
+            prixParNuitInput.value = '';
         }
-    }
-
-    // Calcul du montant total
-    function calculateTotal() {
-        const nuits = calculateDuration();
         
-        if (nuits > 0 && prixParNuit > 0) {
-            const total = nuits * prixParNuit;
-            document.getElementById('total-calcule').textContent = total.toLocaleString() + ' FCFA';
-            
-            // Mettre à jour le champ montant total s'il est vide
-            const montantTotalInput = document.querySelector('input[name="montant_total"]');
-            if (!montantTotalInput.value) {
-                montantTotalInput.value = total;
-            }
-            
-            calculateRemaining();
-        } else {
-            document.getElementById('total-calcule').textContent = '--';
+        const prixDisplay = document.getElementById('prix-par-nuit');
+        if (prixDisplay) {
+            prixDisplay.textContent = '--';
         }
-    }
-
-    // Calcul du montant restant
-    function calculateRemaining() {
-        const montantTotal = parseInt(document.querySelector('input[name="montant_total"]').value) || 0;
-        const montantPaye = parseInt(document.querySelector('input[name="montant_paye"]').value) || 0;
         
-        const restant = Math.max(0, montantTotal - montantPaye);
-        document.getElementById('montant-restant').textContent = restant.toLocaleString() + ' FCFA';
+        const maisonInfo = document.getElementById('maison-info');
+        if (maisonInfo) {
+            maisonInfo.classList.add('hidden');
+        }
         
-        updateResume();
+        resetCalculation();
     }
+}
 
-    // Calcul automatique
-    function autoCalculate() {
-        calculateTotal();
-        showSuccess('Calculs mis à jour automatiquement');
+// Changement de dates
+function onDateChange() {
+    const dateEntreeInput = document.querySelector('input[name="date_entree"]');
+    const dateSortieInput = document.querySelector('input[name="date_sortie"]');
+    
+    dateEntree = dateEntreeInput.value ? new Date(dateEntreeInput.value) : null;
+    dateSortie = dateSortieInput.value ? new Date(dateSortieInput.value) : null;
+    
+    calculateDuration();
+    calculateTotal();
+    updateResume();
+}
+
+// Calcul de la durée
+function calculateDuration() {
+    if (dateEntree && dateSortie && dateSortie > dateEntree) {
+        const diffTime = Math.abs(dateSortie - dateEntree);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Mettre à jour l'affichage
+        const dureeText = document.getElementById('duree-text');
+        const dureeInfo = document.getElementById('duree-info');
+        const nombreNuitsDisplay = document.getElementById('nombre-nuits');
+        
+        if (dureeText) {
+            dureeText.textContent = `${diffDays} nuit${diffDays > 1 ? 's' : ''}`;
+        }
+        
+        if (dureeInfo) {
+            dureeInfo.classList.remove('hidden');
+        }
+        
+        if (nombreNuitsDisplay) {
+            nombreNuitsDisplay.textContent = diffDays;
+        }
+        
+        // Mettre à jour le champ nombre de nuits
+        const nombreNuitsInput = document.querySelector('input[name="nombre_nuits"]');
+        if (nombreNuitsInput) {
+            nombreNuitsInput.value = diffDays;
+        }
+        
+        return diffDays;
+    } else {
+        const dureeInfo = document.getElementById('duree-info');
+        const nombreNuitsDisplay = document.getElementById('nombre-nuits');
+        
+        if (dureeInfo) {
+            dureeInfo.classList.add('hidden');
+        }
+        
+        if (nombreNuitsDisplay) {
+            nombreNuitsDisplay.textContent = '--';
+        }
+        
+        // Réinitialiser le champ nombre de nuits
+        const nombreNuitsInput = document.querySelector('input[name="nombre_nuits"]');
+        if (nombreNuitsInput) {
+            nombreNuitsInput.value = '';
+        }
+        
+        return 0;
     }
+}
 
-    // Actualiser les clients
-    function refreshClients() {
-        showInfo('Actualisation des clients...');
-        // Ici vous pourriez recharger la liste via AJAX
+// Calcul du montant total automatique
+function calculateTotal() {
+    const nuits = calculateDuration();
+    
+    if (nuits > 0 && prixParNuit > 0) {
+        const totalAutomatique = nuits * prixParNuit;
+        
+        // Mettre à jour le champ total automatique
+        const totalAutoInput = document.querySelector('input[name="total_automatique"]');
+        if (totalAutoInput) {
+            totalAutoInput.value = totalAutomatique;
+        }
+        
+        // Mettre à jour l'affichage du total calculé
+        const totalCalculeDisplay = document.getElementById('total-calcule');
+        if (totalCalculeDisplay) {
+            totalCalculeDisplay.textContent = totalAutomatique.toLocaleString() + ' FCFA';
+        }
+        
+        // Mettre à jour le champ montant total s'il est vide
+        const montantTotalInput = document.querySelector('input[name="montant_total"]');
+        if (montantTotalInput && !montantTotalInput.value) {
+            montantTotalInput.value = totalAutomatique;
+        }
+        
+        calculateRemaining();
+        console.log(`Calcul: ${nuits} nuits × ${prixParNuit} FCFA = ${totalAutomatique} FCFA`);
+    } else {
+        resetCalculation();
+    }
+}
+
+// Calcul du montant restant
+function calculateRemaining() {
+    const montantTotal = parseInt(document.querySelector('input[name="montant_total"]').value) || 0;
+    const montantPaye = parseInt(document.querySelector('input[name="montant_paye"]').value) || 0;
+    
+    const restant = Math.max(0, montantTotal - montantPaye);
+    
+    // Mettre à jour l'affichage
+    const resumeTotal = document.getElementById('resume-total');
+    const resumePaye = document.getElementById('resume-paye');
+    const montantRestant = document.getElementById('montant-restant');
+    
+    if (resumeTotal) {
+        resumeTotal.textContent = montantTotal.toLocaleString() + ' FCFA';
+    }
+    
+    if (resumePaye) {
+        resumePaye.textContent = montantPaye.toLocaleString() + ' FCFA';
+    }
+    
+    if (montantRestant) {
+        montantRestant.textContent = restant.toLocaleString() + ' FCFA';
+    }
+    
+    updateResume();
+}
+
+// Forcer le recalcul
+function forceRecalculate() {
+    console.log('Recalcul forcé...');
+    onMaisonChange({ target: document.querySelector('select[name="maison"]') });
+    onDateChange();
+    
+    // Animation du bouton
+    const btn = event.target;
+    if (btn) {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-sync fa-spin mr-1"></i>Calcul...';
+        btn.disabled = true;
+        
         setTimeout(() => {
-            showSuccess('Liste des clients actualisée');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }, 1000);
     }
+}
 
-    // Aperçu
-    function showPreview() {
-        if (validateForm(false)) {
-            updateResume();
-            document.getElementById('resume-final').classList.remove('hidden');
-            document.getElementById('resume-final').scrollIntoView({ behavior: 'smooth' });
-            showSuccess('Aperçu généré avec succès');
+// Calcul automatique
+function autoCalculate() {
+    calculateTotal();
+    showSuccess('Calculs mis à jour automatiquement');
+}
+
+// Actualiser les clients
+function refreshClients() {
+    showInfo('Actualisation des clients...');
+    // Ici vous pourriez recharger la liste via AJAX
+    setTimeout(() => {
+        showSuccess('Liste des clients actualisée');
+    }, 1000);
+}
+
+// Aperçu
+function showPreview() {
+    if (validateForm(false)) {
+        updateResume();
+        const resumeFinal = document.getElementById('resume-final') || document.getElementById('resume-attribution');
+        if (resumeFinal) {
+            resumeFinal.classList.remove('hidden');
+            resumeFinal.scrollIntoView({ behavior: 'smooth' });
         }
+        showSuccess('Aperçu généré avec succès');
     }
+}
 
-    // Mise à jour du résumé
-    function updateResume() {
-        const clientSelect = document.querySelector('select[name="client"]');
-        const maisonSelect = document.querySelector('select[name="maison"]');
-        const dateEntreeInput = document.querySelector('input[name="date_entree"]');
-        const dateSortieInput = document.querySelector('input[name="date_sortie"]');
-        const montantTotalInput = document.querySelector('input[name="montant_total"]');
-        const montantPayeInput = document.querySelector('input[name="montant_paye"]');
-        
-        // Vérifier si tous les champs principaux sont remplis
-        if (clientSelect.value && maisonSelect.value && dateEntreeInput.value && dateSortieInput.value && montantTotalInput.value) {
-            // Client
+// Réinitialiser les calculs
+function resetCalculation() {
+    // Réinitialiser les champs calculés
+    const nombreNuitsInput = document.querySelector('input[name="nombre_nuits"]');
+    const totalAutoInput = document.querySelector('input[name="total_automatique"]');
+    
+    if (nombreNuitsInput) nombreNuitsInput.value = '';
+    if (totalAutoInput) totalAutoInput.value = '';
+    
+    // Réinitialiser l'affichage
+    const totalCalculeDisplay = document.getElementById('total-calcule');
+    const resumeTotal = document.getElementById('resume-total');
+    const resumePaye = document.getElementById('resume-paye');
+    const montantRestant = document.getElementById('montant-restant');
+    
+    if (totalCalculeDisplay) totalCalculeDisplay.textContent = '--';
+    if (resumeTotal) resumeTotal.textContent = '-- FCFA';
+    if (resumePaye) resumePaye.textContent = '-- FCFA';
+    if (montantRestant) montantRestant.textContent = '-- FCFA';
+}
+
+// Mise à jour du résumé
+function updateResume() {
+    const clientSelect = document.querySelector('select[name="client"]');
+    const maisonSelect = document.querySelector('select[name="maison"]');
+    const dateEntreeInput = document.querySelector('input[name="date_entree"]');
+    const dateSortieInput = document.querySelector('input[name="date_sortie"]');
+    const montantTotalInput = document.querySelector('input[name="montant_total"]');
+    const montantPayeInput = document.querySelector('input[name="montant_paye"]');
+    
+    // Vérifier si tous les champs principaux sont remplis
+    const hasClient = !clientSelect || clientSelect.value; // Pour attribution directe
+    const hasMaison = maisonSelect && maisonSelect.value;
+    const hasDateEntree = dateEntreeInput && dateEntreeInput.value;
+    const hasDateSortie = dateSortieInput && dateSortieInput.value;
+    const hasMontantTotal = montantTotalInput && montantTotalInput.value;
+    
+    if (hasClient && hasMaison && hasDateEntree && hasDateSortie && hasMontantTotal) {
+        // Client (pour attribution directe)
+        const resumeClient = document.getElementById('resume-client');
+        if (resumeClient && clientSelect) {
             const clientOption = clientSelect.options[clientSelect.selectedIndex];
-            document.getElementById('resume-client').innerHTML = `
+            resumeClient.innerHTML = `
                 <div class="font-medium">${clientOption.text}</div>
                 <div class="text-xs">${clientOption.dataset.email || ''}</div>
             `;
-            
-            // Maison
-            const maisonOption = maisonSelect.options[maisonSelect.selectedIndex];
-            document.getElementById('resume-maison').innerHTML = `
-                <div class="font-medium">${maisonOption.text}</div>
+        }
+        
+        // Maison
+        const resumeMaison = document.getElementById('resume-maison');
+        if (resumeMaison) {
+            const selectedOption = maisonSelect.options[maisonSelect.selectedIndex];
+            resumeMaison.innerHTML = `
+                <div class="font-medium">${selectedOption.text}</div>
                 <div class="text-xs">${prixParNuit.toLocaleString()} FCFA par nuit</div>
             `;
-            
-            // Période
+        }
+        
+        // Période
+        const resumePeriode = document.getElementById('resume-periode');
+        if (resumePeriode) {
             const entree = new Date(dateEntreeInput.value).toLocaleDateString('fr-FR');
             const sortie = new Date(dateSortieInput.value).toLocaleDateString('fr-FR');
             const nuits = calculateDuration();
-            document.getElementById('resume-periode').innerHTML = `
+            resumePeriode.innerHTML = `
                 <div class="font-medium">${entree} au ${sortie}</div>
                 <div class="text-xs">${nuits} nuit${nuits > 1 ? 's' : ''}</div>
             `;
-            
-            // Financier
+        }
+        
+        // Financier
+        const resumeFinancier = document.getElementById('resume-financier');
+        if (resumeFinancier) {
             const montantTotal = parseInt(montantTotalInput.value);
             const montantPaye = parseInt(montantPayeInput.value) || 0;
             const restant = montantTotal - montantPaye;
-            document.getElementById('resume-financier').innerHTML = `
+            resumeFinancier.innerHTML = `
                 <div class="font-medium">Total: ${montantTotal.toLocaleString()} FCFA</div>
                 <div class="text-xs">Payé: ${montantPaye.toLocaleString()} • Restant: ${restant.toLocaleString()}</div>
             `;
-            
-            // Afficher le résumé si preview activé
-            const resumeDiv = document.getElementById('resume-final');
-            if (!resumeDiv.classList.contains('hidden')) {
-                // Le résumé est déjà visible, le garder
-            }
         }
     }
+}
 
-    // Validation du formulaire
-    function validateForm(showErrors = true) {
-        const requiredFields = [
-            { name: 'client', label: 'Client' },
-            { name: 'maison', label: 'Maison' },
-            { name: 'date_entree', label: 'Date d\'entrée' },
-            { name: 'date_sortie', label: 'Date de sortie' },
-            { name: 'montant_total', label: 'Montant total' }
-        ];
-        
-        let isValid = true;
-        let firstErrorField = null;
-        
-        requiredFields.forEach(field => {
-            const input = document.querySelector(`[name="${field.name}"]`);
-            if (!input.value.trim()) {
-                isValid = false;
-                if (showErrors) {
-                    input.classList.add('border-red-500');
-                    if (!firstErrorField) {
-                        firstErrorField = input;
-                    }
-                    setTimeout(() => input.classList.remove('border-red-500'), 3000);
+// Validation du formulaire
+function validateForm(showErrors = true) {
+    const requiredFields = [
+        { name: 'maison', label: 'Maison' },
+        { name: 'date_entree', label: 'Date d\'entrée' },
+        { name: 'date_sortie', label: 'Date de sortie' },
+        { name: 'montant_total', label: 'Montant total' }
+    ];
+    
+    // Ajouter client si c'est l'attribution directe
+    const clientSelect = document.querySelector('select[name="client"]');
+    if (clientSelect) {
+        requiredFields.unshift({ name: 'client', label: 'Client' });
+    }
+    
+    let isValid = true;
+    let firstErrorField = null;
+    
+    requiredFields.forEach(field => {
+        const input = document.querySelector(`[name="${field.name}"]`);
+        if (!input.value.trim()) {
+            isValid = false;
+            if (showErrors) {
+                input.classList.add('border-red-500');
+                if (!firstErrorField) {
+                    firstErrorField = input;
                 }
-            }
-        });
-        
-        // Validation des dates
-        if (dateEntree && dateSortie && dateSortie <= dateEntree) {
-            isValid = false;
-            if (showErrors) {
-                showError('La date de sortie doit être après la date d\'entrée');
+                setTimeout(() => input.classList.remove('border-red-500'), 3000);
             }
         }
-        
-        // Validation du montant payé
-        const montantTotal = parseInt(document.querySelector('input[name="montant_total"]').value) || 0;
-        const montantPaye = parseInt(document.querySelector('input[name="montant_paye"]').value) || 0;
-        
-        if (montantPaye > montantTotal) {
-            isValid = false;
-            if (showErrors) {
-                showError('Le montant payé ne peut pas dépasser le montant total');
-            }
+    });
+    
+    // Validation des dates
+    if (dateEntree && dateSortie && dateSortie <= dateEntree) {
+        isValid = false;
+        if (showErrors) {
+            showError('La date de sortie doit être après la date d\'entrée');
         }
-        
-        if (!isValid && showErrors && firstErrorField) {
-            firstErrorField.focus();
-        }
-        
-        return isValid;
     }
+    
+    // Validation du montant payé
+    const montantTotal = parseInt(document.querySelector('input[name="montant_total"]').value) || 0;
+    const montantPaye = parseInt(document.querySelector('input[name="montant_paye"]').value) || 0;
+    
+    if (montantPaye > montantTotal) {
+        isValid = false;
+        if (showErrors) {
+            showError('Le montant payé ne peut pas dépasser le montant total');
+        }
+    }
+    
+    if (!isValid && showErrors && firstErrorField) {
+        firstErrorField.focus();
+    }
+    
+    return isValid;
+}
 
+// Soumission du formulaire
+function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    if (!validateForm()) {
+        showError('Veuillez corriger les erreurs avant de continuer');
+        return;
+    }
+    
+    const form = event.target;
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
+    
+    // Animation de chargement
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Création en cours...';
+    submitBtn.disabled = true;
+    
     // Soumission du formulaire
-    function handleFormSubmit(event) {
-        event.preventDefault();
-        
-        if (!validateForm()) {
-            showError('Veuillez corriger les erreurs avant de continuer');
-            return;
-        }
-        
-        const form = event.target;
-        const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.innerHTML;
-        
-        // Animation de chargement
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Création en cours...';
-        submitBtn.disabled = true;
-        
-        // Soumission
-        setTimeout(() => {
-            form.submit();
-        }, 1000);
-    }
+    setTimeout(() => {
+        form.submit();
+    }, 1000);
+}
 
-    // Messages d'alerte
-    function showError(message) {
-        showAlert(message, 'error');
-    }
+// Messages d'alerte
+function showError(message) {
+    showAlert(message, 'error');
+}
 
-    function showSuccess(message) {
-        showAlert(message, 'success');
-    }
+function showSuccess(message) {
+    showAlert(message, 'success');
+}
 
-    function showInfo(message) {
-        showAlert(message, 'info');
-    }
+function showInfo(message) {
+    showAlert(message, 'info');
+}
 
-    function showAlert(message, type) {
-        // Retirer les anciens messages
-        const existingAlert = document.getElementById('alert-message');
-        if (existingAlert) {
-            existingAlert.remove();
-        }
-        
-        // Couleurs selon le type
-        let bgColor, borderColor, textColor, icon;
-        switch(type) {
-            case 'error':
-                bgColor = 'bg-red-50';
-                borderColor = 'border-red-200';
-                textColor = 'text-red-700';
-                icon = 'fas fa-exclamation-triangle text-red-500';
-                break;
-            case 'success':
-                bgColor = 'bg-green-50';
-                borderColor = 'border-green-200';
-                textColor = 'text-green-700';
-                icon = 'fas fa-check-circle text-green-500';
-                break;
-            case 'info':
-                bgColor = 'bg-blue-50';
-                borderColor = 'border-blue-200';
-                textColor = 'text-blue-700';
-                icon = 'fas fa-info-circle text-blue-500';
-                break;
-        }
-        
-        // Créer le message
-        const alertDiv = document.createElement('div');
-        alertDiv.id = 'alert-message';
-        alertDiv.className = `${bgColor} border ${borderColor} rounded-lg p-4 mb-6`;
-        alertDiv.innerHTML = `
-            <div class="flex items-center">
-                <i class="${icon} mr-2"></i>
-                <p class="text-sm ${textColor}">${message}</p>
-            </div>
-        `;
-        
-        // Insérer avant le formulaire
-        const form = document.getElementById('attributionDirecteForm');
+function showAlert(message, type) {
+    // Retirer les anciens messages
+    const existingAlert = document.getElementById('alert-message');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+    
+    // Couleurs selon le type
+    let bgColor, borderColor, textColor, icon;
+    switch(type) {
+        case 'error':
+            bgColor = 'bg-red-50';
+            borderColor = 'border-red-200';
+            textColor = 'text-red-700';
+            icon = 'fas fa-exclamation-triangle text-red-500';
+            break;
+        case 'success':
+            bgColor = 'bg-green-50';
+            borderColor = 'border-green-200';
+            textColor = 'text-green-700';
+            icon = 'fas fa-check-circle text-green-500';
+            break;
+        case 'info':
+            bgColor = 'bg-blue-50';
+            borderColor = 'border-blue-200';
+            textColor = 'text-blue-700';
+            icon = 'fas fa-info-circle text-blue-500';
+            break;
+    }
+    
+    // Créer le message
+    const alertDiv = document.createElement('div');
+    alertDiv.id = 'alert-message';
+    alertDiv.className = `${bgColor} border ${borderColor} rounded-lg p-4 mb-6`;
+    alertDiv.innerHTML = `
+        <div class="flex items-center">
+            <i class="${icon} mr-2"></i>
+            <p class="text-sm ${textColor}">${message}</p>
+        </div>
+    `;
+    
+    // Insérer avant le formulaire
+    const form = document.getElementById('attributionDirecteForm') || document.getElementById('attributionForm');
+    if (form) {
         form.parentNode.insertBefore(alertDiv, form);
         
         // Scroll vers le message
         alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Retirer après 5 secondes
-        setTimeout(() => {
-            if (document.getElementById('alert-message')) {
-                alertDiv.remove();
-            }
-        }, 5000);
     }
+    
+    // Retirer après 5 secondes
+    setTimeout(() => {
+        if (document.getElementById('alert-message')) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
 
-    // Initialisation au chargement
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+// Initialisation au chargement
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// Fonctions globales compatibles avec les event handlers Django
+window.forceRecalculate = forceRecalculate;
+window.onMaisonChange = onMaisonChange;
+window.calculateTotal = calculateTotal;
+window.calculateNightsAndTotal = function() {
+    // Alias pour compatibilité avec les event handlers Django
+    onDateChange();
+};
+window.autoCalculate = autoCalculate;
+window.showPreview = showPreview;
 </script>
-
-<!-- Select2 CSS et JS (si disponible) -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 {% endblock %}
+
