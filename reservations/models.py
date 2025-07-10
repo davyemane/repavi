@@ -593,7 +593,7 @@ class Reservation(models.Model):
     
     # Méthodes d'action
     def confirmer(self, user=None):
-        """Confirme la réservation et occupe automatiquement la maison"""
+        """Confirme la réservation et occupe automatiquement la maison + crée l'attribution"""
         if self.statut != 'en_attente':
             raise ValidationError("Seules les réservations en attente peuvent être confirmées.")
         
@@ -609,7 +609,7 @@ class Reservation(models.Model):
         self.statut = 'confirmee'
         self.save()
         
-        # NOUVELLE LOGIQUE: Occuper automatiquement la maison
+        # LOGIQUE EXISTANTE: Occuper automatiquement la maison
         try:
             self.maison.occuper_maison(self.client, self.date_fin)
             print(f"✅ Maison {self.maison.nom} occupée par {self.client.get_full_name()}")
@@ -617,10 +617,38 @@ class Reservation(models.Model):
             print(f"⚠️ Erreur lors de l'occupation de la maison: {e}")
             # Ne pas lever d'exception pour ne pas bloquer la confirmation
         
-        return True    
-    
+        # NOUVELLE LOGIQUE: Créer automatiquement l'attribution
+        try:
+            from .models import Attribution
+            
+            # Vérifier qu'il n'y a pas déjà une attribution
+            if not hasattr(self, 'attribution') or not self.attribution:
+                attribution = Attribution.objects.create(
+                    client=self.client,
+                    maison=self.maison,
+                    reservation=self,
+                    date_entree=self.date_debut,
+                    date_sortie=self.date_fin,
+                    montant_total=self.prix_total,
+                    montant_paye=self.montant_paye,  # Montant déjà payé
+                    type_attribution='reservation',
+                    statut='en_cours',
+                    notes_admin=f"Attribution automatique depuis la réservation {self.numero}",
+                    creee_par=user
+                )
+                print(f"✅ Attribution créée automatiquement: {attribution}")
+            else:
+                print(f"ℹ️ Attribution déjà existante pour cette réservation")
+                
+        except Exception as e:
+            print(f"⚠️ Erreur lors de la création d'attribution automatique: {e}")
+            # Ne pas lever d'exception pour ne pas bloquer la confirmation
+        
+        return True
+
+
     def terminer(self):
-        """Termine la réservation et libère automatiquement la maison"""
+        """Termine la réservation et libère automatiquement la maison + termine l'attribution"""
         if self.statut != 'confirmee':
             raise ValidationError("Seules les réservations confirmées peuvent être terminées.")
         
@@ -633,7 +661,7 @@ class Reservation(models.Model):
         self.statut = 'terminee'
         self.save()
         
-        # NOUVELLE LOGIQUE: Libérer automatiquement la maison
+        # LOGIQUE EXISTANTE: Libérer automatiquement la maison
         try:
             # Vérifier que c'est bien ce client qui occupe la maison
             if (self.maison.locataire_actuel == self.client and 
@@ -643,10 +671,19 @@ class Reservation(models.Model):
         except Exception as e:
             print(f"⚠️ Erreur lors de la libération de la maison: {e}")
         
+        # NOUVELLE LOGIQUE: Terminer automatiquement l'attribution
+        try:
+            if hasattr(self, 'attribution') and self.attribution:
+                if self.attribution.statut == 'en_cours':
+                    self.attribution.terminer_attribution(today)
+                    print(f"✅ Attribution terminée automatiquement")
+        except Exception as e:
+            print(f"⚠️ Erreur lors de la terminaison d'attribution automatique: {e}")
+        
         return True
 
     def annuler(self, raison, user=None):
-        """Annule la réservation et libère la maison si nécessaire"""
+        """Annule la réservation et libère la maison si nécessaire + annule l'attribution"""
         if not self.est_annulable:
             raise ValidationError("Cette réservation ne peut pas être annulée.")
         
@@ -658,7 +695,7 @@ class Reservation(models.Model):
         self.annulee_par = user
         self.save()
         
-        # NOUVELLE LOGIQUE: Libérer la maison si elle était occupée par ce client
+        # LOGIQUE EXISTANTE: Libérer la maison si elle était occupée par ce client
         try:
             if (ancien_statut == 'confirmee' and 
                 self.maison.locataire_actuel == self.client and 
@@ -667,6 +704,15 @@ class Reservation(models.Model):
                 print(f"✅ Maison {self.maison.nom} libérée après annulation")
         except Exception as e:
             print(f"⚠️ Erreur lors de la libération de la maison: {e}")
+        
+        # NOUVELLE LOGIQUE: Annuler automatiquement l'attribution
+        try:
+            if hasattr(self, 'attribution') and self.attribution:
+                if self.attribution.statut == 'en_cours':
+                    self.attribution.annuler_attribution(f"Annulation de la réservation: {raison}")
+                    print(f"✅ Attribution annulée automatiquement")
+        except Exception as e:
+            print(f"⚠️ Erreur lors de l'annulation d'attribution automatique: {e}")
         
         return True
 
@@ -949,6 +995,225 @@ class Disponibilite(models.Model):
         ]
 
 
+# reservations/models.py - Ajouter ce nouveau modèle
+
+class Attribution(models.Model):
+    """
+    Modèle centralisant les attributions de maisons aux clients
+    Utilisé pour :
+    1. Attribution directe par admin
+    2. Attribution automatique via réservation validée
+    """
+    
+    STATUT_CHOICES = [
+        ('en_cours', 'En cours'),
+        ('terminee', 'Terminée'), 
+        ('annulee', 'Annulée'),
+    ]
+    
+    TYPE_ATTRIBUTION_CHOICES = [
+        ('directe', 'Attribution directe'),
+        ('reservation', 'Via réservation'),
+    ]
+    
+    # Relations
+    client = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='attributions',
+        limit_choices_to={'role': 'CLIENT'},
+        verbose_name="Client"
+    )
+    
+    maison = models.ForeignKey(
+        'home.Maison',
+        on_delete=models.CASCADE,
+        related_name='attributions',
+        verbose_name="Maison"
+    )
+    
+    # Optionnel : lien vers la réservation si c'est via réservation
+    reservation = models.OneToOneField(
+        'reservations.Reservation',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='attribution',
+        verbose_name="Réservation liée"
+    )
+    
+    # Informations de séjour
+    date_entree = models.DateField(verbose_name="Date d'entrée")
+    date_sortie = models.DateField(verbose_name="Date de sortie")
+    date_entree_reelle = models.DateField(
+        null=True, blank=True,
+        verbose_name="Date d'entrée réelle"
+    )
+    date_sortie_reelle = models.DateField(
+        null=True, blank=True,
+        verbose_name="Date de sortie réelle"
+    )
+    
+    # Informations financières
+    montant_paye = models.PositiveIntegerField(
+        verbose_name="Montant payé (FCFA)",
+        default=0
+    )
+    montant_restant = models.PositiveIntegerField(
+        verbose_name="Montant restant (FCFA)",
+        default=0
+    )
+    montant_total = models.PositiveIntegerField(
+        verbose_name="Montant total (FCFA)"
+    )
+    
+    # Statut et type
+    statut = models.CharField(
+        max_length=20,
+        choices=STATUT_CHOICES,
+        default='en_cours',
+        verbose_name="Statut"
+    )
+    
+    type_attribution = models.CharField(
+        max_length=20,
+        choices=TYPE_ATTRIBUTION_CHOICES,
+        default='directe',
+        verbose_name="Type d'attribution"
+    )
+    
+    # Informations administratives
+    notes_admin = models.TextField(
+        blank=True,
+        verbose_name="Notes administratives"
+    )
+    
+    creee_par = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='attributions_creees',
+        verbose_name="Créée par"
+    )
+    
+    # Métadonnées
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.client.first_name} {self.client.last_name} - {self.maison.nom} ({self.date_entree} au {self.date_sortie})"
+    
+    @property
+    def duree_sejour(self):
+        """Durée du séjour en jours"""
+        return (self.date_sortie - self.date_entree).days
+    
+    @property
+    def est_en_cours(self):
+        """Vérifie si l'attribution est actuellement en cours"""
+        aujourd_hui = timezone.now().date()
+        return (
+            self.statut == 'en_cours' and 
+            self.date_entree <= aujourd_hui <= self.date_sortie
+        )
+    
+    @property
+    def jours_restants(self):
+        """Nombre de jours restants"""
+        if self.statut != 'en_cours':
+            return 0
+        
+        aujourd_hui = timezone.now().date()
+        if self.date_sortie > aujourd_hui:
+            return (self.date_sortie - aujourd_hui).days
+        return 0
+    
+    def clean(self):
+        """Validation personnalisée"""
+        from django.core.exceptions import ValidationError
+        
+        # Vérifier les dates
+        if self.date_entree and self.date_sortie:
+            if self.date_entree >= self.date_sortie:
+                raise ValidationError("La date de sortie doit être après la date d'entrée.")
+        
+        # Vérifier qu'il n'y a pas de conflit avec d'autres attributions
+        if self.maison and self.date_entree and self.date_sortie:
+            conflits = Attribution.objects.filter(
+                maison=self.maison,
+                statut='en_cours',
+                date_entree__lt=self.date_sortie,
+                date_sortie__gt=self.date_entree
+            )
+            
+            if self.pk:
+                conflits = conflits.exclude(pk=self.pk)
+            
+            if conflits.exists():
+                conflit = conflits.first()
+                raise ValidationError(
+                    f"Conflit avec l'attribution de {conflit.client.first_name} "
+                    f"du {conflit.date_entree} au {conflit.date_sortie}"
+                )
+    
+    def save(self, *args, **kwargs):
+        # Calculer le montant total si pas défini
+        if not self.montant_total and self.maison:
+            self.montant_total = self.maison.prix_par_nuit * self.duree_sejour
+        
+        # Calculer le montant restant
+        self.montant_restant = max(0, self.montant_total - self.montant_paye)
+        
+        super().save(*args, **kwargs)
+        
+        # Synchroniser avec le statut de la maison
+        self._synchroniser_maison()
+    
+    def _synchroniser_maison(self):
+        """Synchronise le statut de la maison avec cette attribution"""
+        if self.statut == 'en_cours' and self.est_en_cours:
+            # Occuper la maison
+            self.maison.statut_occupation = 'occupe'
+            self.maison.locataire_actuel = self.client
+            self.maison.date_fin_location = self.date_sortie
+            self.maison.save()
+        elif self.statut in ['terminee', 'annulee']:
+            # Libérer la maison si c'est le locataire actuel
+            if self.maison.locataire_actuel == self.client:
+                self.maison.statut_occupation = 'libre'
+                self.maison.locataire_actuel = None
+                self.maison.date_fin_location = None
+                self.maison.save()
+    
+    def terminer_attribution(self, date_sortie_reelle=None):
+        """Termine l'attribution"""
+        self.statut = 'terminee'
+        if date_sortie_reelle:
+            self.date_sortie_reelle = date_sortie_reelle
+        else:
+            self.date_sortie_reelle = timezone.now().date()
+        self.save()
+    
+    def annuler_attribution(self, raison=""):
+        """Annule l'attribution"""
+        self.statut = 'annulee'
+        if raison:
+            self.notes_admin = f"{self.notes_admin}\nAnnulation: {raison}"
+        self.save()
+    
+    class Meta:
+        verbose_name = 'Attribution'
+        verbose_name_plural = 'Attributions'
+        ordering = ['-date_creation']
+        
+        indexes = [
+            models.Index(fields=['client']),
+            models.Index(fields=['maison']),
+            models.Index(fields=['statut']),
+            models.Index(fields=['date_entree', 'date_sortie']),
+        ]
+
+
 class EvaluationReservation(models.Model):
     """Évaluations des réservations par les clients"""
     
@@ -1063,3 +1328,59 @@ class EvaluationReservation(models.Model):
         verbose_name = 'Évaluation de réservation'
         verbose_name_plural = 'Évaluations de réservations'
         ordering = ['-date_creation']
+
+
+
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+
+@receiver(post_save, sender=Reservation)
+def sync_attribution_on_reservation_save(sender, instance, created, **kwargs):
+    """
+    Signal pour synchroniser l'attribution quand une réservation est modifiée
+    """
+    if instance.statut == 'confirmee':
+        try:
+            # Créer l'attribution si elle n'existe pas
+            if not hasattr(instance, 'attribution') or not instance.attribution:
+                from .models import Attribution
+                attribution = Attribution.objects.create(
+                    client=instance.client,
+                    maison=instance.maison,
+                    reservation=instance,
+                    date_entree=instance.date_debut,
+                    date_sortie=instance.date_fin,
+                    montant_total=instance.prix_total,
+                    montant_paye=instance.montant_paye,
+                    type_attribution='reservation',
+                    statut='en_cours',
+                    notes_admin=f"Attribution automatique depuis la réservation {instance.numero}",
+                )
+                print(f"🔄 Attribution créée via signal: {attribution}")
+        except Exception as e:
+            print(f"⚠️ Erreur signal création attribution: {e}")
+
+
+@receiver(post_save, sender='reservations.Attribution')
+def sync_maison_on_attribution_save(sender, instance, created, **kwargs):
+    """
+    Signal pour synchroniser la maison quand une attribution est modifiée
+    """
+    try:
+        if instance.statut == 'en_cours' and instance.est_en_cours:
+            # S'assurer que la maison est bien occupée
+            if instance.maison.locataire_actuel != instance.client:
+                instance.maison.occuper_maison(instance.client, instance.date_sortie)
+                print(f"🔄 Maison occupée via signal: {instance.maison.nom}")
+        
+        elif instance.statut in ['terminee', 'annulee']:
+            # Libérer la maison si c'est le bon locataire
+            if instance.maison.locataire_actuel == instance.client:
+                instance.maison.liberer_maison()
+                print(f"🔄 Maison libérée via signal: {instance.maison.nom}")
+                
+    except Exception as e:
+        print(f"⚠️ Erreur signal synchronisation maison: {e}")
+
+

@@ -1,0 +1,711 @@
+<!-- templates/reservations/attribution_etape2.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}Attribution - Étape 2 - RepAvi{% endblock %}
+{% block page_title %}Attribution en 2 étapes{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'reservations:tableau_suivi_attributions' %}" class="hover:text-gray-700">Attributions</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Nouvelle attribution</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block header_actions %}
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'reservations:attribution_etape1' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Retour étape 1
+        </a>
+        
+        <a href="{% url 'reservations:attribution_annuler_process' %}" 
+           class="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
+            <i class="fas fa-times mr-2"></i>
+            Annuler
+        </a>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .step-indicator {
+        @apply flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium;
+    }
+    
+    .step-active {
+        @apply bg-blue-600 text-white;
+    }
+    
+    .step-completed {
+        @apply bg-green-600 text-white;
+    }
+    
+    .step-inactive {
+        @apply bg-gray-200 text-gray-500;
+    }
+    
+    .step-line {
+        @apply flex-1 h-0.5 bg-gray-200 mx-4;
+    }
+    
+    .step-line-active {
+        @apply bg-blue-600;
+    }
+    
+    .step-line-completed {
+        @apply bg-green-600;
+    }
+    
+    .form-field {
+        @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+    }
+    
+    .btn-hover {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .client-info {
+        @apply bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6;
+    }
+    
+    .calculation-box {
+        @apply bg-gray-50 border border-gray-200 rounded-lg p-4;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Indicateur d'étapes -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-center">
+            <div class="flex items-center w-full max-w-md">
+                <!-- Étape 1 -->
+                <div class="flex flex-col items-center">
+                    <div class="step-indicator step-completed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="mt-2 text-sm font-medium text-green-600">Étape 1</div>
+                    <div class="text-xs text-gray-500">Client sélectionné</div>
+                </div>
+                
+                <!-- Ligne de connexion -->
+                <div class="step-line step-line-completed"></div>
+                
+                <!-- Étape 2 -->
+                <div class="flex flex-col items-center">
+                    <div class="step-indicator step-active">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="mt-2 text-sm font-medium text-blue-600">Étape 2</div>
+                    <div class="text-xs text-gray-500">Attribuer la maison</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Information client sélectionné -->
+    <div class="client-info mb-8">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                <i class="fas fa-user-check text-white text-xl"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <h2 class="text-xl font-semibold text-gray-900">
+                    Client sélectionné : {{ client.first_name }} {{ client.last_name }}
+                </h2>
+                <p class="text-gray-600">
+                    {{ client.email }}{% if client.telephone %} • {{ client.telephone }}{% endif %}
+                </p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-500">Étape 2 sur 2</p>
+                <p class="text-lg font-semibold text-green-600">Attribution de la maison</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulaire d'attribution -->
+    <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">
+                <i class="fas fa-home mr-2 text-blue-500"></i>
+                Attribution d'une maison
+            </h3>
+        </div>
+        
+        <div class="p-6">
+            <form method="post" class="space-y-8" id="attributionForm">
+                {% csrf_token %}
+                
+                <!-- Sélection de la maison -->
+                <div class="space-y-4">
+                    <h4 class="text-md font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-search mr-2 text-blue-500"></i>
+                        Sélection de la maison
+                    </h4>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                            <p class="text-sm text-blue-700">
+                                Seules les maisons libres et disponibles apparaissent dans la liste
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.maison.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.maison.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.maison }}
+                        {% if form.maison.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.maison.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Période de séjour -->
+                <div class="space-y-4">
+                    <h4 class="text-md font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-calendar mr-2 text-green-500"></i>
+                        Période de séjour
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Date d'entrée -->
+                        <div>
+                            <label for="{{ form.date_entree.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.date_entree.label }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.date_entree }}
+                            {% if form.date_entree.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.date_entree.help_text }}</p>
+                            {% endif %}
+                            {% if form.date_entree.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.date_entree.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Date de sortie -->
+                        <div>
+                            <label for="{{ form.date_sortie.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.date_sortie.label }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.date_sortie }}
+                            {% if form.date_sortie.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.date_sortie.help_text }}</p>
+                            {% endif %}
+                            {% if form.date_sortie.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.date_sortie.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Durée calculée -->
+                    <div id="duree-info" class="bg-gray-50 border border-gray-200 rounded-lg p-4 hidden">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-gray-500 mr-2"></i>
+                            <span class="text-sm text-gray-700">
+                                Durée du séjour : <span id="duree-text" class="font-medium"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations financières -->
+                <div class="space-y-4">
+                    <h4 class="text-md font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-euro-sign mr-2 text-yellow-500"></i>
+                        Informations financières
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Montant total -->
+                        <div>
+                            <label for="{{ form.montant_total.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.montant_total.label }} <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.montant_total }}
+                            {% if form.montant_total.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.montant_total.help_text }}</p>
+                            {% endif %}
+                            {% if form.montant_total.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.montant_total.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Montant déjà payé -->
+                        <div>
+                            <label for="{{ form.montant_paye.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.montant_paye.label }}
+                            </label>
+                            {{ form.montant_paye }}
+                            {% if form.montant_paye.help_text %}
+                                <p class="mt-1 text-sm text-gray-500">{{ form.montant_paye.help_text }}</p>
+                            {% endif %}
+                            {% if form.montant_paye.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.montant_paye.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Calcul automatique -->
+                    <div class="calculation-box">
+                        <h5 class="text-sm font-medium text-gray-800 mb-3">Calcul automatique</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="text-gray-500">Prix par nuit</div>
+                                <div id="prix-par-nuit" class="text-lg font-semibold text-gray-900">--</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-gray-500">Nombre de nuits</div>
+                                <div id="nombre-nuits" class="text-lg font-semibold text-gray-900">--</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-gray-500">Total calculé</div>
+                                <div id="total-calcule" class="text-lg font-semibold text-blue-600">--</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-gray-300">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Montant restant à payer :</span>
+                                <span id="montant-restant" class="text-lg font-semibold text-orange-600">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes administratives -->
+                <div class="space-y-4">
+                    <h4 class="text-md font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-sticky-note mr-2 text-purple-500"></i>
+                        Notes administratives
+                    </h4>
+                    
+                    <div>
+                        <label for="{{ form.notes_admin.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.notes_admin.label }}
+                        </label>
+                        {{ form.notes_admin }}
+                        <p class="mt-1 text-sm text-gray-500">
+                            Notes internes sur cette attribution (visible uniquement par les gestionnaires)
+                        </p>
+                        {% if form.notes_admin.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.notes_admin.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Erreurs du formulaire -->
+                {% if form.non_field_errors %}
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                            <div>
+                                {% for error in form.non_field_errors %}
+                                    <p class="text-sm text-red-700">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Résumé avant validation -->
+                <div id="resume-attribution" class="bg-green-50 border border-green-200 rounded-lg p-6 hidden">
+                    <h4 class="text-md font-medium text-green-800 mb-4 flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Résumé de l'attribution
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="text-sm font-medium text-green-700 mb-2">Client</h5>
+                            <p class="text-sm text-green-800">{{ client.first_name }} {{ client.last_name }}</p>
+                            <p class="text-sm text-green-600">{{ client.email }}</p>
+                        </div>
+                        
+                        <div>
+                            <h5 class="text-sm font-medium text-green-700 mb-2">Maison</h5>
+                            <p id="resume-maison" class="text-sm text-green-800">--</p>
+                        </div>
+                        
+                        <div>
+                            <h5 class="text-sm font-medium text-green-700 mb-2">Période</h5>
+                            <p id="resume-periode" class="text-sm text-green-800">--</p>
+                        </div>
+                        
+                        <div>
+                            <h5 class="text-sm font-medium text-green-700 mb-2">Financier</h5>
+                            <p id="resume-financier" class="text-sm text-green-800">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <div class="flex items-center space-x-3">
+                        <a href="{% url 'reservations:attribution_etape1' %}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Retour étape 1
+                        </a>
+                        
+                        <a href="{% url 'reservations:attribution_annuler_process' %}" 
+                           class="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
+                            <i class="fas fa-times mr-2"></i>
+                            Annuler
+                        </a>
+                    </div>
+                    
+                    <button type="submit" id="submitBtn"
+                            class="inline-flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors btn-hover">
+                        <i class="fas fa-check mr-2"></i>
+                        Créer l'attribution
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Aide et conseils -->
+    <div class="mt-8 bg-gray-50 rounded-xl border border-gray-200 p-6">
+        <h4 class="text-md font-medium text-gray-900 mb-4 flex items-center">
+            <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
+            Conseils pour l'attribution
+        </h4>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <h5 class="text-sm font-medium text-gray-800 mb-2">Sélection de la maison</h5>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• Seules les maisons libres sont affichées</li>
+                    <li>• Vérifiez la capacité selon le nombre de personnes</li>
+                    <li>• Prenez en compte l'emplacement préféré du client</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h5 class="text-sm font-medium text-gray-800 mb-2">Dates de séjour</h5>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• La date d'entrée doit être future</li>
+                    <li>• Vérifiez qu'il n'y a pas de conflit avec d'autres réservations</li>
+                    <li>• La durée minimale est de 1 nuit</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h5 class="text-sm font-medium text-gray-800 mb-2">Montants</h5>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• Le montant total sera calculé automatiquement</li>
+                    <li>• Indiquez le montant déjà payé par le client</li>
+                    <li>• Le solde restant sera affiché</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Variables globales
+    let maisonSelectionnee = null;
+    let dateEntree = null;
+    let dateSortie = null;
+    let prixParNuit = 0;
+
+    // Initialisation
+    function init() {
+        try {
+            initFormControls();
+            initEventListeners();
+            console.log('✅ Étape 2 attribution initialisée');
+        } catch (error) {
+            console.error('❌ Erreur init:', error);
+        }
+    }
+
+    // Contrôles de formulaire
+    function initFormControls() {
+        // Style des inputs
+        document.querySelectorAll('input, select, textarea').forEach(input => {
+            input.className = input.className.replace(/form-control/g, '') + ' form-field';
+        });
+    }
+
+    // Event listeners
+    function initEventListeners() {
+        // Form submit
+        document.getElementById('attributionForm').addEventListener('submit', handleFormSubmit);
+        
+        // Sélection de maison
+        const maisonSelect = document.querySelector('select[name="maison"]');
+        if (maisonSelect) {
+            maisonSelect.addEventListener('change', onMaisonChange);
+        }
+        
+        // Dates
+        const dateEntreeInput = document.querySelector('input[name="date_entree"]');
+        const dateSortieInput = document.querySelector('input[name="date_sortie"]');
+        
+        if (dateEntreeInput) {
+            dateEntreeInput.addEventListener('change', onDateChange);
+        }
+        if (dateSortieInput) {
+            dateSortieInput.addEventListener('change', onDateChange);
+        }
+        
+        // Montants
+        const montantTotalInput = document.querySelector('input[name="montant_total"]');
+        const montantPayeInput = document.querySelector('input[name="montant_paye"]');
+        
+        if (montantTotalInput) {
+            montantTotalInput.addEventListener('input', calculateRemaining);
+        }
+        if (montantPayeInput) {
+            montantPayeInput.addEventListener('input', calculateRemaining);
+        }
+    }
+
+    // Changement de maison
+    function onMaisonChange(event) {
+        const select = event.target;
+        const selectedOption = select.options[select.selectedIndex];
+        
+        if (selectedOption.value) {
+            maisonSelectionnee = {
+                id: selectedOption.value,
+                nom: selectedOption.text,
+                prixParNuit: parseInt(selectedOption.dataset.prix) || 0
+            };
+            
+            prixParNuit = maisonSelectionnee.prixParNuit;
+            
+            // Mettre à jour l'affichage
+            document.getElementById('prix-par-nuit').textContent = prixParNuit.toLocaleString() + ' FCFA';
+            
+            // Recalculer si les dates sont définies
+            calculateTotal();
+            updateResume();
+        } else {
+            maisonSelectionnee = null;
+            prixParNuit = 0;
+            document.getElementById('prix-par-nuit').textContent = '--';
+        }
+    }
+
+    // Changement de dates
+    function onDateChange() {
+        const dateEntreeInput = document.querySelector('input[name="date_entree"]');
+        const dateSortieInput = document.querySelector('input[name="date_sortie"]');
+        
+        dateEntree = dateEntreeInput.value ? new Date(dateEntreeInput.value) : null;
+        dateSortie = dateSortieInput.value ? new Date(dateSortieInput.value) : null;
+        
+        calculateDuration();
+        calculateTotal();
+        updateResume();
+    }
+
+    // Calcul de la durée
+    function calculateDuration() {
+        if (dateEntree && dateSortie && dateSortie > dateEntree) {
+            const diffTime = Math.abs(dateSortie - dateEntree);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('nombre-nuits').textContent = diffDays;
+            document.getElementById('duree-text').textContent = `${diffDays} nuit${diffDays > 1 ? 's' : ''}`;
+            document.getElementById('duree-info').classList.remove('hidden');
+            
+            return diffDays;
+        } else {
+            document.getElementById('nombre-nuits').textContent = '--';
+            document.getElementById('duree-info').classList.add('hidden');
+            return 0;
+        }
+    }
+
+    // Calcul du montant total
+    function calculateTotal() {
+        const nuits = calculateDuration();
+        
+        if (nuits > 0 && prixParNuit > 0) {
+            const total = nuits * prixParNuit;
+            document.getElementById('total-calcule').textContent = total.toLocaleString() + ' FCFA';
+            
+            // Mettre à jour le champ montant total s'il est vide
+            const montantTotalInput = document.querySelector('input[name="montant_total"]');
+            if (!montantTotalInput.value) {
+                montantTotalInput.value = total;
+            }
+            
+            calculateRemaining();
+        } else {
+            document.getElementById('total-calcule').textContent = '--';
+        }
+    }
+
+    // Calcul du montant restant
+    function calculateRemaining() {
+        const montantTotal = parseInt(document.querySelector('input[name="montant_total"]').value) || 0;
+        const montantPaye = parseInt(document.querySelector('input[name="montant_paye"]').value) || 0;
+        
+        const restant = Math.max(0, montantTotal - montantPaye);
+        document.getElementById('montant-restant').textContent = restant.toLocaleString() + ' FCFA';
+        
+        updateResume();
+    }
+
+    // Mise à jour du résumé
+    function updateResume() {
+        const maisonSelect = document.querySelector('select[name="maison"]');
+        const dateEntreeInput = document.querySelector('input[name="date_entree"]');
+        const dateSortieInput = document.querySelector('input[name="date_sortie"]');
+        const montantTotalInput = document.querySelector('input[name="montant_total"]');
+        const montantPayeInput = document.querySelector('input[name="montant_paye"]');
+        
+        // Vérifier si tous les champs principaux sont remplis
+        if (maisonSelect.value && dateEntreeInput.value && dateSortieInput.value && montantTotalInput.value) {
+            const selectedOption = maisonSelect.options[maisonSelect.selectedIndex];
+            
+            // Maison
+            document.getElementById('resume-maison').textContent = selectedOption.text;
+            
+            // Période
+            const entree = new Date(dateEntreeInput.value).toLocaleDateString('fr-FR');
+            const sortie = new Date(dateSortieInput.value).toLocaleDateString('fr-FR');
+            const nuits = calculateDuration();
+            document.getElementById('resume-periode').textContent = `${entree} au ${sortie} (${nuits} nuit${nuits > 1 ? 's' : ''})`;
+            
+            // Financier
+            const montantTotal = parseInt(montantTotalInput.value);
+            const montantPaye = parseInt(montantPayeInput.value) || 0;
+            const restant = montantTotal - montantPaye;
+            document.getElementById('resume-financier').textContent = `Total: ${montantTotal.toLocaleString()} FCFA • Payé: ${montantPaye.toLocaleString()} FCFA • Restant: ${restant.toLocaleString()} FCFA`;
+            
+            // Afficher le résumé
+            document.getElementById('resume-attribution').classList.remove('hidden');
+        } else {
+            // Masquer le résumé
+            document.getElementById('resume-attribution').classList.add('hidden');
+        }
+    }
+
+    // Validation et soumission du formulaire
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        const form = event.target;
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Validation
+        const requiredFields = [
+            { name: 'maison', label: 'Maison' },
+            { name: 'date_entree', label: 'Date d\'entrée' },
+            { name: 'date_sortie', label: 'Date de sortie' },
+            { name: 'montant_total', label: 'Montant total' }
+        ];
+        
+        let isValid = true;
+        let firstErrorField = null;
+        
+        requiredFields.forEach(field => {
+            const input = document.querySelector(`[name="${field.name}"]`);
+            if (!input.value.trim()) {
+                isValid = false;
+                input.classList.add('border-red-500');
+                if (!firstErrorField) {
+                    firstErrorField = input;
+                }
+                setTimeout(() => input.classList.remove('border-red-500'), 3000);
+            }
+        });
+        
+        if (!isValid) {
+            showError('Veuillez remplir tous les champs obligatoires');
+            if (firstErrorField) {
+                firstErrorField.focus();
+            }
+            return;
+        }
+        
+        // Validation des dates
+        if (dateEntree && dateSortie && dateSortie <= dateEntree) {
+            showError('La date de sortie doit être après la date d\'entrée');
+            document.querySelector('input[name="date_sortie"]').focus();
+            return;
+        }
+        
+        // Validation du montant payé
+        const montantTotal = parseInt(document.querySelector('input[name="montant_total"]').value);
+        const montantPaye = parseInt(document.querySelector('input[name="montant_paye"]').value) || 0;
+        
+        if (montantPaye > montantTotal) {
+            showError('Le montant payé ne peut pas dépasser le montant total');
+            document.querySelector('input[name="montant_paye"]').focus();
+            return;
+        }
+        
+        // Animation de chargement
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Création en cours...';
+        submitBtn.disabled = true;
+        
+        // Soumission du formulaire
+        setTimeout(() => {
+            form.submit();
+        }, 500);
+    }
+
+    // Affichage des erreurs
+    function showError(message) {
+        // Retirer les anciens messages d'erreur
+        const existingError = document.getElementById('error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Créer le nouveau message
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'error-message';
+        errorDiv.className = 'bg-red-50 border border-red-200 rounded-lg p-4 mb-4';
+        errorDiv.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                <p class="text-sm text-red-700">${message}</p>
+            </div>
+        `;
+        
+        // Insérer avant le formulaire
+        const form = document.getElementById('attributionForm');
+        form.parentNode.insertBefore(errorDiv, form);
+        
+        // Scroll vers l'erreur
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Retirer automatiquement après 5 secondes
+        setTimeout(() => {
+            if (document.getElementById('error-message')) {
+                errorDiv.remove();
+            }
+        }, 5000);
+    }
+
+    // Initialisation au chargement
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+</script>
+{% endblock %}

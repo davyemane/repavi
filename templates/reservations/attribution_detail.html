@@ -1,0 +1,530 @@
+<!-- templates/reservations/attribution_detail.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}Attribution #{{ attribution.id }} - RepAvi{% endblock %}
+{% block page_title %}Détail de l'attribution{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'reservations:tableau_suivi_attributions' %}" class="hover:text-gray-700">Attributions</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Attribution #{{ attribution.id }}</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block header_actions %}
+    <div class="flex items-center space-x-3">
+        {% if actions_possibles.peut_terminer %}
+        <a href="{% url 'reservations:attribution_terminer' attribution.pk %}" 
+           class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <i class="fas fa-check mr-2"></i>
+            Terminer
+        </a>
+        {% endif %}
+        
+        {% if actions_possibles.peut_annuler %}
+        <a href="{% url 'reservations:attribution_annuler' attribution.pk %}" 
+           class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+            <i class="fas fa-times mr-2"></i>
+            Annuler
+        </a>
+        {% endif %}
+        
+        <a href="{% url 'reservations:tableau_suivi_attributions' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Retour au tableau
+        </a>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-card {
+        @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+    }
+    
+    .info-header {
+        @apply px-6 py-4 border-b border-gray-200 bg-gray-50;
+    }
+    
+    .info-content {
+        @apply p-6;
+    }
+    
+    .status-badge {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    }
+    
+    .status-en-cours {
+        @apply bg-green-100 text-green-800;
+    }
+    
+    .status-terminee {
+        @apply bg-blue-100 text-blue-800;
+    }
+    
+    .status-annulee {
+        @apply bg-red-100 text-red-800;
+    }
+    
+    .timeline-item {
+        @apply relative pb-8;
+    }
+    
+    .timeline-line {
+        @apply absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200;
+    }
+    
+    .timeline-icon {
+        @apply h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- En-tête avec statut -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-home-heart text-white text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h2 class="text-xl font-semibold text-gray-900">
+                        Attribution #{{ attribution.id }}
+                    </h2>
+                    <p class="text-gray-600">
+                        {{ attribution.client.first_name }} {{ attribution.client.last_name }} 
+                        → {{ attribution.maison.nom }}
+                    </p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="status-badge status-{{ attribution.statut }}">
+                    {% if attribution.statut == 'en_cours' %}
+                        <i class="fas fa-clock mr-1"></i>En cours
+                    {% elif attribution.statut == 'terminee' %}
+                        <i class="fas fa-check mr-1"></i>Terminée
+                    {% else %}
+                        <i class="fas fa-times mr-1"></i>Annulée
+                    {% endif %}
+                </span>
+                <div class="text-sm text-gray-500 mt-1">
+                    Créée le {{ attribution.date_creation|date:"d/m/Y à H:i" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations principales -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Informations client -->
+        <div class="info-card">
+            <div class="info-header">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-user mr-2 text-blue-500"></i>
+                    Client
+                </h3>
+            </div>
+            <div class="info-content">
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        {% if attribution.client.photo_profil %}
+                            <img src="{{ attribution.client.photo_profil.url }}" alt="Client" class="w-12 h-12 rounded-full object-cover mr-4">
+                        {% else %}
+                            <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-gray-500"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <p class="font-medium text-gray-900">
+                                {{ attribution.client.first_name }} {{ attribution.client.last_name }}
+                            </p>
+                            <p class="text-sm text-gray-500">{{ attribution.client.email }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if attribution.client.telephone %}
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-phone mr-2 text-gray-400"></i>
+                        <span class="text-gray-600">{{ attribution.client.telephone }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-user-tag mr-2 text-gray-400"></i>
+                        <span class="text-gray-600">{{ attribution.client.get_role_display|default:"Client" }}</span>
+                    </div>
+                    
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-calendar mr-2 text-gray-400"></i>
+                        <span class="text-gray-600">Client depuis {{ attribution.client.date_joined|date:"M Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations maison -->
+        <div class="info-card">
+            <div class="info-header">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-home mr-2 text-green-500"></i>
+                    Maison
+                </h3>
+            </div>
+            <div class="info-content">
+                <div class="space-y-4">
+                    {% if attribution.maison.photo_principale %}
+                        <img src="{{ attribution.maison.photo_principale.url }}" alt="{{ attribution.maison.nom }}" class="w-full h-32 object-cover rounded-lg">
+                    {% else %}
+                        <div class="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-home text-gray-400 text-2xl"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-900">{{ attribution.maison.nom }}</h4>
+                        <p class="text-sm text-gray-500">N° {{ attribution.maison.numero }}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <div class="text-gray-500">Ville</div>
+                            <div class="font-medium">{{ attribution.maison.ville.nom }}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">Catégorie</div>
+                            <div class="font-medium">{{ attribution.maison.categorie.nom }}</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">Capacité</div>
+                            <div class="font-medium">{{ attribution.maison.capacite_personnes }} pers.</div>
+                        </div>
+                        <div>
+                            <div class="text-gray-500">Prix/nuit</div>
+                            <div class="font-medium">{{ attribution.maison.prix_par_nuit }} FCFA</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Statut actuel :</span>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                            {% if attribution.maison.statut_occupation == 'libre' %}bg-green-100 text-green-800
+                            {% elif attribution.maison.statut_occupation == 'occupe' %}bg-red-100 text-red-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ attribution.maison.get_statut_occupation_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations séjour -->
+        <div class="info-card">
+            <div class="info-header">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-calendar mr-2 text-purple-500"></i>
+                    Séjour
+                </h3>
+            </div>
+            <div class="info-content">
+                <div class="space-y-4">
+                    <div>
+                        <div class="text-sm text-gray-500">Période prévue</div>
+                        <div class="font-medium text-gray-900">
+                            Du {{ attribution.date_entree|date:"d/m/Y" }} au {{ attribution.date_sortie|date:"d/m/Y" }}
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            {{ attribution.duree_sejour }} nuit{{ attribution.duree_sejour|pluralize }}
+                        </div>
+                    </div>
+                    
+                    {% if attribution.date_entree_reelle or attribution.date_sortie_reelle %}
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="text-sm text-gray-500">Période réelle</div>
+                        {% if attribution.date_entree_reelle %}
+                            <div class="text-sm">Entrée : {{ attribution.date_entree_reelle|date:"d/m/Y" }}</div>
+                        {% endif %}
+                        {% if attribution.date_sortie_reelle %}
+                            <div class="text-sm">Sortie : {{ attribution.date_sortie_reelle|date:"d/m/Y" }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if attribution.statut == 'en_cours' and attribution.est_en_cours %}
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-green-500 mr-2"></i>
+                            <div>
+                                <div class="text-sm font-medium text-green-800">Séjour en cours</div>
+                                <div class="text-xs text-green-600">
+                                    {% if attribution.jours_restants > 0 %}
+                                        {{ attribution.jours_restants }} jour{{ attribution.jours_restants|pluralize }} restant{{ attribution.jours_restants|pluralize }}
+                                    {% else %}
+                                        Fin de séjour aujourd'hui
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-xs text-gray-500">
+                        Type : {{ attribution.get_type_attribution_display }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations financières -->
+    <div class="info-card mb-8">
+        <div class="info-header">
+            <h3 class="text-lg font-medium text-gray-900">
+                <i class="fas fa-euro-sign mr-2 text-yellow-500"></i>
+                Informations financières
+            </h3>
+        </div>
+        <div class="info-content">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div class="text-2xl font-bold text-blue-600">{{ attribution.montant_total|floatformat:0 }} FCFA</div>
+                    <div class="text-sm text-blue-700">Montant total</div>
+                </div>
+                
+                <div class="text-center p-4 bg-green-50 rounded-lg border border-green-100">
+                    <div class="text-2xl font-bold text-green-600">{{ attribution.montant_paye|floatformat:0 }} FCFA</div>
+                    <div class="text-sm text-green-700">Montant payé</div>
+                </div>
+                
+                <div class="text-center p-4 bg-orange-50 rounded-lg border border-orange-100">
+                    <div class="text-2xl font-bold text-orange-600">{{ attribution.montant_restant|floatformat:0 }} FCFA</div>
+                    <div class="text-sm text-orange-700">Montant restant</div>
+                </div>
+                
+                <div class="text-center p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <div class="text-2xl font-bold text-purple-600">
+                        {% if attribution.montant_total > 0 %}
+                            {% widthratio attribution.montant_paye attribution.montant_total 100 %}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="text-sm text-purple-700">Pourcentage payé</div>
+                </div>
+            </div>
+            
+            {% if attribution.montant_restant > 0 %}
+            <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                    <span class="text-sm text-yellow-800">
+                        Il reste {{ attribution.montant_restant|floatformat:0 }} FCFA à encaisser
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Réservation liée et notes -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Réservation liée -->
+        {% if attribution.reservation %}
+        <div class="info-card">
+            <div class="info-header">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-link mr-2 text-indigo-500"></i>
+                    Réservation liée
+                </h3>
+            </div>
+            <div class="info-content">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Numéro :</span>
+                        <span class="font-medium">{{ attribution.reservation.numero }}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Statut :</span>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                            {% if attribution.reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                            {% elif attribution.reservation.statut == 'en_attente' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ attribution.reservation.get_statut_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-500">Date création :</span>
+                        <span class="text-sm">{{ attribution.reservation.date_creation|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    
+                    {% if actions_possibles.peut_voir_reservation %}
+                    <div class="pt-3 border-t border-gray-200">
+                        <a href="{% url 'reservations:detail' attribution.reservation.numero %}" 
+                           class="inline-flex items-center px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors text-sm">
+                            <i class="fas fa-eye mr-2"></i>
+                            Voir la réservation
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Notes administratives -->
+        <div class="info-card">
+            <div class="info-header">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-sticky-note mr-2 text-gray-500"></i>
+                    Notes administratives
+                </h3>
+            </div>
+            <div class="info-content">
+                {% if attribution.notes_admin %}
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <div class="text-sm text-gray-800 whitespace-pre-line">{{ attribution.notes_admin }}</div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-sticky-note text-gray-300 text-2xl mb-2"></i>
+                        <p class="text-sm">Aucune note administrative</p>
+                    </div>
+                {% endif %}
+                
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>Créée par : {{ attribution.creee_par.first_name|default:attribution.creee_par.username|default:"Système" }}</span>
+                        <span>{{ attribution.date_creation|date:"d/m/Y à H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline des actions -->
+    <div class="info-card mt-8">
+        <div class="info-header">
+            <h3 class="text-lg font-medium text-gray-900">
+                <i class="fas fa-history mr-2 text-green-500"></i>
+                Historique
+            </h3>
+        </div>
+        <div class="info-content">
+            <div class="flow-root">
+                <ul class="-mb-8">
+                    <!-- Création -->
+                    <li class="timeline-item">
+                        <span class="timeline-line"></span>
+                        <div class="relative flex space-x-3">
+                            <div class="timeline-icon bg-blue-500">
+                                <i class="fas fa-plus text-white text-sm"></i>
+                            </div>
+                            <div class="min-w-0 flex-1 pt-1.5">
+                                <div>
+                                    <p class="text-sm text-gray-500">
+                                        Attribution créée 
+                                        {% if attribution.type_attribution == 'directe' %}
+                                            par attribution directe
+                                        {% else %}
+                                            depuis la réservation {{ attribution.reservation.numero }}
+                                        {% endif %}
+                                    </p>
+                                    <div class="mt-2 text-sm text-gray-700">
+                                        <p>{{ attribution.client.first_name }} {{ attribution.client.last_name }} → {{ attribution.maison.nom }}</p>
+                                        <p class="text-xs text-gray-500">{{ attribution.date_creation|date:"d/m/Y à H:i" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <!-- Événements selon le statut -->
+                    {% if attribution.statut == 'terminee' %}
+                    <li class="timeline-item">
+                        <div class="relative flex space-x-3">
+                            <div class="timeline-icon bg-green-500">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div class="min-w-0 flex-1 pt-1.5">
+                                <div>
+                                    <p class="text-sm text-gray-500">Attribution terminée</p>
+                                    <div class="mt-2 text-sm text-gray-700">
+                                        {% if attribution.date_sortie_reelle %}
+                                            <p>Sortie réelle : {{ attribution.date_sortie_reelle|date:"d/m/Y" }}</p>
+                                        {% endif %}
+                                        <p class="text-xs text-gray-500">{{ attribution.date_modification|date:"d/m/Y à H:i" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% elif attribution.statut == 'annulee' %}
+                    <li class="timeline-item">
+                        <div class="relative flex space-x-3">
+                            <div class="timeline-icon bg-red-500">
+                                <i class="fas fa-times text-white text-sm"></i>
+                            </div>
+                            <div class="min-w-0 flex-1 pt-1.5">
+                                <div>
+                                    <p class="text-sm text-gray-500">Attribution annulée</p>
+                                    <div class="mt-2 text-sm text-gray-700">
+                                        <p class="text-xs text-gray-500">{{ attribution.date_modification|date:"d/m/Y à H:i" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions disponibles -->
+    {% if actions_possibles.peut_terminer or actions_possibles.peut_annuler %}
+    <div class="mt-8 bg-gray-50 rounded-xl border border-gray-200 p-6">
+        <h4 class="text-md font-medium text-gray-900 mb-4">Actions disponibles</h4>
+        <div class="flex flex-wrap gap-3">
+            {% if actions_possibles.peut_terminer %}
+            <a href="{% url 'reservations:attribution_terminer' attribution.pk %}" 
+               class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                <i class="fas fa-check mr-2"></i>
+                Terminer l'attribution
+            </a>
+            {% endif %}
+            
+            {% if actions_possibles.peut_annuler %}
+            <a href="{% url 'reservations:attribution_annuler' attribution.pk %}" 
+               class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                <i class="fas fa-times mr-2"></i>
+                Annuler l'attribution
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Confirmer les actions destructives
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteLinks = document.querySelectorAll('a[href*="annuler"]');
+        deleteLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (!confirm('Êtes-vous sûr de vouloir annuler cette attribution ?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

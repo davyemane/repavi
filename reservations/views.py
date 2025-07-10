@@ -17,6 +17,12 @@ import csv
 import calendar
 import traceback
 
+from .models import Attribution, Reservation
+from .forms import (
+    AttributionEtape1Form, AttributionEtape2Form, 
+    AttributionDirecteForm, AttributionFilterForm
+)
+
 # Imports pour l'export
 try:
     import openpyxl
@@ -1851,3 +1857,493 @@ def historique_actions_admin(request):
     }
     
     return render(request, 'reservations/historique_actions_admin.html', context)
+
+
+@login_required
+@gestionnaire_required
+def attribution_etape1(request):
+    """
+    Étape 1 : Sélectionner ou créer un client
+    """
+    if request.method == 'POST':
+        form = AttributionEtape1Form(request.POST)
+        if form.is_valid():
+            try:
+                # Créer ou récupérer le client
+                client = form.get_or_create_client()
+                
+                # Stocker l'ID du client en session pour l'étape 2
+                request.session['attribution_client_id'] = client.id
+                
+                if form.cleaned_data['option_client'] == 'nouveau':
+                    messages.success(
+                        request, 
+                        f'Nouveau client {client.first_name} {client.last_name} créé avec succès!'
+                    )
+                else:
+                    messages.success(
+                        request,
+                        f'Client {client.first_name} {client.last_name} sélectionné.'
+                    )
+                
+                return redirect('reservations:attribution_etape2')
+                
+            except Exception as e:
+                messages.error(request, f'Erreur lors de la création du client : {str(e)}')
+    else:
+        form = AttributionEtape1Form()
+    
+    context = {
+        'form': form,
+        'etape': 1,
+        'title': 'Étape 1 : Sélectionner le client',
+    }
+    
+    return render(request, 'reservations/attribution_etape1.html', context)
+
+
+
+@login_required
+@gestionnaire_required
+def attribution_etape2(request):
+    """
+    Étape 2 : Attribuer une maison au client sélectionné
+    """
+    # Récupérer le client depuis la session
+    client_id = request.session.get('attribution_client_id')
+    if not client_id:
+        messages.error(request, 'Aucun client sélectionné. Veuillez recommencer.')
+        return redirect('reservations:attribution_etape1')
+    
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    try:
+        client = User.objects.get(id=client_id, role='CLIENT')
+    except User.DoesNotExist:
+        messages.error(request, 'Client introuvable. Veuillez recommencer.')
+        del request.session['attribution_client_id']
+        return redirect('reservations:attribution_etape1')
+    
+    if request.method == 'POST':
+        form = AttributionEtape2Form(request.POST, gestionnaire=request.user)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    # Créer l'attribution
+                    attribution = form.save(commit=False)
+                    attribution.client = client
+                    attribution.type_attribution = 'directe'
+                    attribution.creee_par = request.user
+                    attribution.save()
+                    
+                    # Nettoyer la session
+                    del request.session['attribution_client_id']
+                    
+                    messages.success(
+                        request,
+                        f'Attribution créée avec succès ! '
+                        f'{client.first_name} {client.last_name} → {attribution.maison.nom} '
+                        f'du {attribution.date_entree.strftime("%d/%m/%Y")} au {attribution.date_sortie.strftime("%d/%m/%Y")}'
+                    )
+                    
+                    return redirect('reservations:attribution_detail', pk=attribution.pk)
+                    
+            except Exception as e:
+                messages.error(request, f'Erreur lors de la création de l\'attribution : {str(e)}')
+    else:
+        form = AttributionEtape2Form(gestionnaire=request.user)
+    
+    context = {
+        'form': form,
+        'client': client,
+        'etape': 2,
+        'title': f'Étape 2 : Attribuer une maison à {client.first_name} {client.last_name}',
+    }
+    
+    return render(request, 'reservations/attribution_etape2.html', context)
+
+
+@login_required
+@gestionnaire_required
+def attribution_annuler_process(request):
+    """Annuler le processus d'attribution en cours"""
+    if 'attribution_client_id' in request.session:
+        del request.session['attribution_client_id']
+    
+    messages.info(request, 'Processus d\'attribution annulé.')
+    return redirect('reservations:tableau_suivi_attributions')
+
+
+# ======== ATTRIBUTION DIRECTE (FORMULAIRE UNIQUE) ========
+
+@login_required
+@gestionnaire_required
+def attribution_directe(request):
+    """
+    Attribution directe en une seule étape (alternative)
+    """
+    if request.method == 'POST':
+        form = AttributionDirecteForm(request.POST, user=request.user)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    attribution = form.save(commit=False)
+                    attribution.type_attribution = 'directe'
+                    attribution.creee_par = request.user
+                    attribution.save()
+                    
+                    messages.success(
+                        request,
+                        f'Attribution créée avec succès ! '
+                        f'{attribution.client.first_name} {attribution.client.last_name} → {attribution.maison.nom}'
+                    )
+                    
+                    return redirect('reservations:attribution_detail', pk=attribution.pk)
+                    
+            except Exception as e:
+                messages.error(request, f'Erreur lors de la création : {str(e)}')
+    else:
+        form = AttributionDirecteForm(user=request.user)
+    
+    context = {
+        'form': form,
+        'title': 'Attribution directe',
+    }
+    
+    return render(request, 'reservations/attribution_directe.html', context)
+
+
+# ======== TABLEAU DE SUIVI ========
+
+@login_required
+@gestionnaire_required
+def tableau_suivi_attributions(request):
+    """
+    Tableau de bord pour suivre toutes les attributions
+    """
+    # Récupérer les attributions selon les permissions
+    if hasattr(request.user, 'is_super_admin') and request.user.is_super_admin():
+        attributions = Attribution.objects.all()
+    else:
+        attributions = Attribution.objects.filter(maison__gestionnaire=request.user)
+    
+    # Appliquer les filtres
+    form = AttributionFilterForm(request.GET, user=request.user)
+    if form.is_valid():
+        client = form.cleaned_data.get('client')
+        maison = form.cleaned_data.get('maison')
+        statut = form.cleaned_data.get('statut')
+        type_attribution = form.cleaned_data.get('type_attribution')
+        date_debut = form.cleaned_data.get('date_debut')
+        date_fin = form.cleaned_data.get('date_fin')
+        search = form.cleaned_data.get('search')
+        
+        if client:
+            attributions = attributions.filter(client=client)
+        if maison:
+            attributions = attributions.filter(maison=maison)
+        if statut:
+            attributions = attributions.filter(statut=statut)
+        if type_attribution:
+            attributions = attributions.filter(type_attribution=type_attribution)
+        if date_debut:
+            attributions = attributions.filter(date_entree__gte=date_debut)
+        if date_fin:
+            attributions = attributions.filter(date_entree__lte=date_fin)
+        if search:
+            attributions = attributions.filter(
+                Q(client__first_name__icontains=search) |
+                Q(client__last_name__icontains=search) |
+                Q(maison__nom__icontains=search) |
+                Q(maison__numero__icontains=search) |
+                Q(notes_admin__icontains=search)
+            )
+    
+    # Tri
+    sort_by = request.GET.get('sort', '-date_creation')
+    valid_sorts = [
+        '-date_creation', 'date_creation',
+        'date_entree', '-date_entree',
+        'date_sortie', '-date_sortie',
+        'montant_total', '-montant_total',
+        'statut'
+    ]
+    if sort_by in valid_sorts:
+        attributions = attributions.order_by(sort_by)
+    
+    # Pagination
+    attributions = attributions.select_related('client', 'maison', 'creee_par', 'reservation')
+    paginator = Paginator(attributions, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistiques générales
+    stats = {
+        'total_attributions': attributions.count(),
+        'en_cours': attributions.filter(statut='en_cours').count(),
+        'terminees': attributions.filter(statut='terminee').count(),
+        'annulees': attributions.filter(statut='annulee').count(),
+        'ca_total': attributions.filter(statut__in=['en_cours', 'terminee']).aggregate(
+            total=Sum('montant_paye')
+        )['total'] or 0,
+        'ca_restant': attributions.filter(statut='en_cours').aggregate(
+            total=Sum('montant_restant')
+        )['total'] or 0,
+    }
+    
+    # Attributions en cours par maison
+    attributions_en_cours = attributions.filter(statut='en_cours').values(
+        'maison__numero', 'maison__nom'
+    ).annotate(
+        count=Count('id'),
+        revenus=Sum('montant_paye')
+    ).order_by('-count')[:10]
+    
+    # Clients les plus fréquents
+    top_clients = attributions.values(
+        'client__first_name', 'client__last_name'
+    ).annotate(
+        count=Count('id'),
+        total_paye=Sum('montant_paye')
+    ).order_by('-count')[:10]
+    
+    context = {
+        'page_obj': page_obj,
+        'form': form,
+        'stats': stats,
+        'attributions_en_cours': attributions_en_cours,
+        'top_clients': top_clients,
+        'sort_by': sort_by,
+        'total_results': attributions.count(),
+    }
+    
+    return render(request, 'reservations/tableau_suivi_attributions.html', context)
+
+
+@login_required
+@gestionnaire_required
+def attribution_detail(request, pk):
+    """
+    Détail d'une attribution
+    """
+    attribution = get_object_or_404(Attribution, pk=pk)
+    
+    # Vérifier les permissions
+    if not hasattr(request.user, 'is_super_admin') or not request.user.is_super_admin():
+        if attribution.maison.gestionnaire != request.user:
+            messages.error(request, "Vous n'avez pas accès à cette attribution.")
+            return redirect('reservations:tableau_suivi_attributions')
+    
+    # Actions possibles
+    actions_possibles = {
+        'peut_modifier': attribution.statut == 'en_cours',
+        'peut_terminer': attribution.statut == 'en_cours' and attribution.date_sortie <= timezone.now().date(),
+        'peut_annuler': attribution.statut == 'en_cours',
+        'peut_voir_reservation': attribution.reservation is not None,
+    }
+    
+    context = {
+        'attribution': attribution,
+        'actions_possibles': actions_possibles,
+    }
+    
+    return render(request, 'reservations/attribution_detail.html', context)
+
+
+@login_required
+@gestionnaire_required
+def attribution_terminer(request, pk):
+    """
+    Terminer une attribution
+    """
+    attribution = get_object_or_404(Attribution, pk=pk)
+    
+    # Vérifier les permissions
+    if not hasattr(request.user, 'is_super_admin') or not request.user.is_super_admin():
+        if attribution.maison.gestionnaire != request.user:
+            messages.error(request, "Vous n'avez pas accès à cette attribution.")
+            return redirect('reservations:tableau_suivi_attributions')
+    
+    if attribution.statut != 'en_cours':
+        messages.error(request, "Cette attribution ne peut pas être terminée.")
+        return redirect('reservations:attribution_detail', pk=pk)
+    
+    if request.method == 'POST':
+        date_sortie_reelle = request.POST.get('date_sortie_reelle')
+        notes_completer = request.POST.get('notes_completer', '')
+        
+        try:
+            with transaction.atomic():
+                if date_sortie_reelle:
+                    from datetime import datetime
+                    date_obj = datetime.strptime(date_sortie_reelle, '%Y-%m-%d').date()
+                    attribution.terminer_attribution(date_obj)
+                else:
+                    attribution.terminer_attribution()
+                
+                if notes_completer:
+                    attribution.notes_admin = f"{attribution.notes_admin}\nTerminaison: {notes_completer}"
+                    attribution.save()
+                
+                messages.success(request, f'Attribution terminée avec succès.')
+                return redirect('reservations:attribution_detail', pk=pk)
+                
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la terminaison : {str(e)}')
+    
+    context = {
+        'attribution': attribution,
+    }
+    
+    return render(request, 'reservations/attribution_terminer.html', context)
+
+
+@login_required
+@gestionnaire_required
+def attribution_annuler(request, pk):
+    """
+    Annuler une attribution
+    """
+    attribution = get_object_or_404(Attribution, pk=pk)
+    
+    # Vérifier les permissions
+    if not hasattr(request.user, 'is_super_admin') or not request.user.is_super_admin():
+        if attribution.maison.gestionnaire != request.user:
+            messages.error(request, "Vous n'avez pas accès à cette attribution.")
+            return redirect('reservations:tableau_suivi_attributions')
+    
+    if attribution.statut != 'en_cours':
+        messages.error(request, "Cette attribution ne peut pas être annulée.")
+        return redirect('reservations:attribution_detail', pk=pk)
+    
+    if request.method == 'POST':
+        raison = request.POST.get('raison', '')
+        
+        try:
+            with transaction.atomic():
+                attribution.annuler_attribution(raison)
+                
+                messages.success(request, f'Attribution annulée avec succès.')
+                return redirect('reservations:attribution_detail', pk=pk)
+                
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'annulation : {str(e)}')
+    
+    context = {
+        'attribution': attribution,
+    }
+    
+    return render(request, 'reservations/attribution_annuler.html', context)
+
+
+# ======== INTÉGRATION AVEC LES RÉSERVATIONS ========
+
+def creer_attribution_depuis_reservation(reservation):
+    """
+    Fonction utilitaire pour créer automatiquement une attribution
+    quand une réservation est validée
+    """
+    try:
+        # Vérifier qu'il n'y a pas déjà une attribution pour cette réservation
+        if hasattr(reservation, 'attribution') and reservation.attribution:
+            return reservation.attribution
+        
+        # Créer l'attribution
+        attribution = Attribution.objects.create(
+            client=reservation.client,
+            maison=reservation.maison,
+            reservation=reservation,
+            date_entree=reservation.date_debut,
+            date_sortie=reservation.date_fin,
+            montant_total=reservation.prix_total,
+            montant_paye=reservation.montant_paye,
+            type_attribution='reservation',
+            notes_admin=f"Attribution automatique depuis la réservation {reservation.numero}",
+            creee_par=None  # Système
+        )
+        
+        print(f"✅ Attribution créée automatiquement : {attribution}")
+        return attribution
+        
+    except Exception as e:
+        print(f"❌ Erreur lors de la création d'attribution automatique : {e}")
+        return None
+
+
+# Modifier la méthode confirmer() du modèle Reservation pour créer l'attribution
+# Ceci doit être ajouté dans reservations/models.py dans la méthode confirmer()
+"""
+def confirmer(self, user=None):
+    # ... code existant ...
+    
+    # NOUVEAU : Créer automatiquement une attribution
+    try:
+        from .views import creer_attribution_depuis_reservation
+        creer_attribution_depuis_reservation(self)
+    except Exception as e:
+        print(f"Erreur création attribution auto: {e}")
+    
+    return True
+"""
+
+
+# ======== APIS ET AJAX ========
+
+@login_required
+@gestionnaire_required
+def api_attributions_maison(request, maison_id):
+    """
+    API pour récupérer les attributions d'une maison
+    """
+    from home.models import Maison
+    maison = get_object_or_404(Maison, id=maison_id)
+    
+    # Vérifier les permissions
+    if not hasattr(request.user, 'is_super_admin') or not request.user.is_super_admin():
+        if maison.gestionnaire != request.user:
+            return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    attributions = Attribution.objects.filter(maison=maison).select_related('client')
+    
+    data = []
+    for attr in attributions:
+        data.append({
+            'id': attr.id,
+            'client_nom': f"{attr.client.first_name} {attr.client.last_name}",
+            'date_entree': attr.date_entree.isoformat(),
+            'date_sortie': attr.date_sortie.isoformat(),
+            'statut': attr.statut,
+            'montant_total': attr.montant_total,
+            'montant_paye': attr.montant_paye,
+            'montant_restant': attr.montant_restant,
+            'est_en_cours': attr.est_en_cours,
+            'jours_restants': attr.jours_restants,
+        })
+    
+    return JsonResponse({'attributions': data})
+
+
+@login_required
+@gestionnaire_required
+def api_stats_attributions(request):
+    """
+    API pour les statistiques en temps réel
+    """
+    # Récupérer selon les permissions
+    if hasattr(request.user, 'is_super_admin') and request.user.is_super_admin():
+        attributions = Attribution.objects.all()
+    else:
+        attributions = Attribution.objects.filter(maison__gestionnaire=request.user)
+    
+    stats = {
+        'total': attributions.count(),
+        'en_cours': attributions.filter(statut='en_cours').count(),
+        'terminees': attributions.filter(statut='terminee').count(),
+        'ca_total': attributions.filter(statut__in=['en_cours', 'terminee']).aggregate(
+            total=Sum('montant_paye')
+        )['total'] or 0,
+        'maisons_occupees': attributions.filter(statut='en_cours').values('maison').distinct().count(),
+    }
+    
+    return JsonResponse(stats)

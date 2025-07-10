@@ -49,6 +49,25 @@ urlpatterns = [
     # ======== CALENDRIER ET DISPONIBILITÉS ========
     path('calendrier/', views.calendrier_reservations, name='calendrier'),
     path('maison/<int:maison_id>/disponibilites/', views.gerer_disponibilites, name='gerer_disponibilites'),
+
+
+        # ======== ATTRIBUTION EN 2 ÉTAPES ========
+    path('attribution/etape1/', views.attribution_etape1, name='attribution_etape1'),
+    path('attribution/etape2/', views.attribution_etape2, name='attribution_etape2'),
+    path('attribution/annuler-process/', views.attribution_annuler_process, name='attribution_annuler_process'),
+    
+    # ======== ATTRIBUTION DIRECTE ========
+    path('attribution/directe/', views.attribution_directe, name='attribution_directe'),
+    
+    # ======== TABLEAU DE SUIVI ========
+    path('attributions/', views.tableau_suivi_attributions, name='tableau_suivi_attributions'),
+    path('attribution/<int:pk>/', views.attribution_detail, name='attribution_detail'),
+    path('attribution/<int:pk>/terminer/', views.attribution_terminer, name='attribution_terminer'),
+    path('attribution/<int:pk>/annuler/', views.attribution_annuler, name='attribution_annuler'),
+    
+    # ======== API ENDPOINTS ========
+    path('api/attributions/maison/<int:maison_id>/', views.api_attributions_maison, name='api_attributions_maison'),
+    path('api/attributions/stats/', views.api_stats_attributions, name='api_stats_attributions'),
     
     # ======== AJAX ========
     path('ajax/verifier-disponibilite/', views.verifier_disponibilite_ajax, name='verifier_disponibilite_ajax'),

@@ -8,7 +8,11 @@ from decimal import Decimal
 
 from .models import Reservation, Paiement, TypePaiement, EvaluationReservation, Disponibilite
 from home.models import Maison
+from django.contrib.auth import get_user_model
 
+from .models import Attribution
+
+User = get_user_model()
 
 
 class ReservationForm(forms.ModelForm):
@@ -1101,3 +1105,415 @@ class DisponibiliteBulkForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         date_debut = cleaned_data
+
+
+
+class AttributionEtape1Form(forms.Form):
+    """
+    Étape 1 : Sélectionner ou créer un client
+    """
+    OPTION_CHOICES = [
+        ('existant', 'Client existant'),
+        ('nouveau', 'Nouveau client'),
+    ]
+    
+    option_client = forms.ChoiceField(
+        choices=OPTION_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'form-radio'}),
+        label="Type de client"
+    )
+    
+    # Pour client existant
+    client_existant = forms.ModelChoiceField(
+        queryset=None,  # Défini dans __init__
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'data-placeholder': 'Rechercher un client...'
+        }),
+        label="Sélectionner un client"
+    )
+    
+    # Pour nouveau client
+    prenom = forms.CharField(
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Prénom'
+        }),
+        label="Prénom"
+    )
+    
+    nom = forms.CharField(
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nom de famille'
+        }),
+        label="Nom"
+    )
+    
+    email = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'email@exemple.com'
+        }),
+        label="Email"
+    )
+    
+    telephone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '+237 6XX XXX XXX'
+        }),
+        label="Téléphone"
+    )
+    
+    username = forms.CharField(
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nom d\'utilisateur unique'
+        }),
+        label="Nom d'utilisateur"
+    )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrer seulement les clients
+        self.fields['client_existant'].queryset = User.objects.filter(
+            role='CLIENT'
+        ).order_by('first_name', 'last_name')
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        option = cleaned_data.get('option_client')
+        
+        if option == 'existant':
+            if not cleaned_data.get('client_existant'):
+                raise ValidationError("Veuillez sélectionner un client existant.")
+        
+        elif option == 'nouveau':
+            # Vérifier que tous les champs requis sont remplis
+            required_fields = ['prenom', 'nom', 'email', 'telephone', 'username']
+            for field in required_fields:
+                if not cleaned_data.get(field):
+                    raise ValidationError(f"Le champ {field} est requis pour un nouveau client.")
+            
+            # Vérifier l'unicité de l'email et du username
+            email = cleaned_data.get('email')
+            username = cleaned_data.get('username')
+            
+            if email and User.objects.filter(email=email).exists():
+                raise ValidationError("Un utilisateur avec cet email existe déjà.")
+            
+            if username and User.objects.filter(username=username).exists():
+                raise ValidationError("Ce nom d'utilisateur est déjà pris.")
+        
+        return cleaned_data
+    
+    def get_or_create_client(self):
+        """Retourne le client sélectionné ou crée un nouveau client"""
+        cleaned_data = self.cleaned_data
+        
+        if cleaned_data['option_client'] == 'existant':
+            return cleaned_data['client_existant']
+        
+        else:  # nouveau client
+            client = User.objects.create_user(
+                username=cleaned_data['username'],
+                email=cleaned_data['email'],
+                first_name=cleaned_data['prenom'],
+                last_name=cleaned_data['nom'],
+                telephone=cleaned_data['telephone'],
+                role='CLIENT',
+                password='temp123456',  # Mot de passe temporaire
+                is_active=True
+            )
+            
+            # Créer le profil client si disponible
+            try:
+                from users.models import ProfilClient
+                ProfilClient.objects.create(user=client)
+            except ImportError:
+                pass
+            
+            return client
+
+
+class AttributionEtape2Form(forms.ModelForm):
+    """
+    Étape 2 : Attribuer une maison au client
+    """
+    
+    class Meta:
+        model = Attribution
+        fields = [
+            'maison', 'date_entree', 'date_sortie', 
+            'montant_total', 'montant_paye', 'notes_admin'
+        ]
+        
+        widgets = {
+            'maison': forms.Select(attrs={
+                'class': 'form-control',
+                'data-placeholder': 'Sélectionner une maison...'
+            }),
+            'date_entree': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'min': timezone.now().date().isoformat()
+            }),
+            'date_sortie': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'min': (timezone.now().date() + timedelta(days=1)).isoformat()
+            }),
+            'montant_total': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '1',
+                'min': '0',
+                'placeholder': 'Montant total en FCFA'
+            }),
+            'montant_paye': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '1',
+                'min': '0',
+                'placeholder': 'Montant déjà payé en FCFA'
+            }),
+            'notes_admin': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Notes internes sur cette attribution...'
+            }),
+        }
+    
+    def __init__(self, *args, gestionnaire=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Filtrer les maisons selon les permissions
+        if gestionnaire:
+            if hasattr(gestionnaire, 'is_super_admin') and gestionnaire.is_super_admin():
+                # Super admin voit toutes les maisons libres
+                self.fields['maison'].queryset = Maison.objects.filter(
+                    disponible=True,
+                    statut_occupation='libre'
+                ).order_by('numero', 'nom')
+            else:
+                # Gestionnaire voit seulement ses maisons libres
+                self.fields['maison'].queryset = Maison.objects.filter(
+                    gestionnaire=gestionnaire,
+                    disponible=True,
+                    statut_occupation='libre'
+                ).order_by('numero', 'nom')
+        
+        # Ajouter l'aide contextuelle
+        self.fields['date_entree'].help_text = "Date d'entrée prévue"
+        self.fields['date_sortie'].help_text = "Date de sortie prévue"
+        self.fields['montant_total'].help_text = "Sera calculé automatiquement si vide"
+        self.fields['montant_paye'].help_text = "Montant déjà payé par le client"
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        date_entree = cleaned_data.get('date_entree')
+        date_sortie = cleaned_data.get('date_sortie')
+        maison = cleaned_data.get('maison')
+        montant_paye = cleaned_data.get('montant_paye', 0)
+        
+        # Vérification des dates
+        if date_entree and date_sortie:
+            if date_entree >= date_sortie:
+                raise ValidationError("La date de sortie doit être après la date d'entrée.")
+            
+            if date_entree < timezone.now().date():
+                raise ValidationError("La date d'entrée ne peut pas être dans le passé.")
+            
+            # Vérifier la disponibilité de la maison pour ces dates
+            if maison:
+                conflits = Attribution.objects.filter(
+                    maison=maison,
+                    statut='en_cours',
+                    date_entree__lt=date_sortie,
+                    date_sortie__gt=date_entree
+                )
+                
+                if self.instance.pk:
+                    conflits = conflits.exclude(pk=self.instance.pk)
+                
+                if conflits.exists():
+                    conflit = conflits.first()
+                    raise ValidationError(
+                        f"Cette maison est déjà attribuée à {conflit.client.first_name} "
+                        f"du {conflit.date_entree.strftime('%d/%m/%Y')} au {conflit.date_sortie.strftime('%d/%m/%Y')}"
+                    )
+        
+        # Calculer le montant total si pas fourni
+        if not cleaned_data.get('montant_total') and maison and date_entree and date_sortie:
+            duree = (date_sortie - date_entree).days
+            cleaned_data['montant_total'] = maison.prix_par_nuit * duree
+        
+        # Vérifier que le montant payé ne dépasse pas le total
+        montant_total = cleaned_data.get('montant_total', 0)
+        if montant_paye > montant_total:
+            raise ValidationError("Le montant payé ne peut pas dépasser le montant total.")
+        
+        return cleaned_data
+
+
+class AttributionDirecteForm(forms.ModelForm):
+    """
+    Formulaire complet pour créer une attribution directe
+    (combine les 2 étapes en une seule vue si préféré)
+    """
+    
+    client = forms.ModelChoiceField(
+        queryset=None,  # Défini dans __init__
+        widget=forms.Select(attrs={
+            'class': 'form-control select2',
+            'data-placeholder': 'Rechercher un client...'
+        }),
+        label="Client"
+    )
+    
+    class Meta:
+        model = Attribution
+        fields = [
+            'client', 'maison', 'date_entree', 'date_sortie',
+            'montant_total', 'montant_paye', 'notes_admin'
+        ]
+        
+        widgets = {
+            'maison': forms.Select(attrs={
+                'class': 'form-control',
+                'data-placeholder': 'Sélectionner une maison...'
+            }),
+            'date_entree': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }),
+            'date_sortie': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }),
+            'montant_total': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '1',
+                'min': '0'
+            }),
+            'montant_paye': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '1',
+                'min': '0'
+            }),
+            'notes_admin': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3
+            }),
+        }
+    
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Filtrer les clients
+        self.fields['client'].queryset = User.objects.filter(
+            role='CLIENT'
+        ).order_by('first_name', 'last_name')
+        
+        # Filtrer les maisons selon les permissions
+        if user:
+            if hasattr(user, 'is_super_admin') and user.is_super_admin():
+                self.fields['maison'].queryset = Maison.objects.filter(
+                    disponible=True,
+                    statut_occupation='libre'
+                ).order_by('numero', 'nom')
+            else:
+                self.fields['maison'].queryset = Maison.objects.filter(
+                    gestionnaire=user,
+                    disponible=True,
+                    statut_occupation='libre'
+                ).order_by('numero', 'nom')
+
+
+class AttributionFilterForm(forms.Form):
+    """
+    Formulaire de filtrage pour le tableau de suivi
+    """
+    client = forms.ModelChoiceField(
+        queryset=None,  # Défini dans __init__
+        required=False,
+        empty_label="Tous les clients",
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Client"
+    )
+    
+    maison = forms.ModelChoiceField(
+        queryset=None,  # Défini dans __init__
+        required=False,
+        empty_label="Toutes les maisons",
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Maison"
+    )
+    
+    statut = forms.ChoiceField(
+        choices=[('', 'Tous les statuts')] + Attribution.STATUT_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Statut"
+    )
+    
+    type_attribution = forms.ChoiceField(
+        choices=[('', 'Tous les types')] + Attribution.TYPE_ATTRIBUTION_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Type"
+    )
+    
+    date_debut = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        }),
+        label="Date d'entrée à partir du"
+    )
+    
+    date_fin = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        }),
+        label="Date d'entrée jusqu'au"
+    )
+    
+    search = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Rechercher par nom, prénom, maison...'
+        }),
+        label="Recherche"
+    )
+    
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        if user:
+            # Filtrer selon les permissions
+            if hasattr(user, 'is_super_admin') and user.is_super_admin():
+                clients_qs = User.objects.filter(role='CLIENT').order_by('first_name', 'last_name')
+                maisons_qs = Maison.objects.all().order_by('numero', 'nom')
+            else:
+                # Pour les gestionnaires, filtrer les clients qui ont des attributions dans leurs maisons
+                attributions_user = Attribution.objects.filter(maison__gestionnaire=user)
+                clients_ids = attributions_user.values_list('client', flat=True).distinct()
+                clients_qs = User.objects.filter(id__in=clients_ids).order_by('first_name', 'last_name')
+                maisons_qs = Maison.objects.filter(gestionnaire=user).order_by('numero', 'nom')
+            
+            self.fields['client'].queryset = clients_qs
+            self.fields['maison'].queryset = maisons_qs

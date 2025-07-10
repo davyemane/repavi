@@ -1,0 +1,861 @@
+<!-- templates/reservations/tableau_suivi_attributions.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}Suivi des Attributions - RepAvi{% endblock %}
+{% block page_title %}Tableau de suivi des attributions{% endblock %}
+
+{% block breadcrumb %}
+    <nav class="text-sm">
+        <ol class="flex items-center space-x-2 text-gray-500">
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li class="text-gray-900 font-medium">Attributions</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block header_actions %}
+    <div class="flex items-center space-x-3">
+        <!-- Actions rapides -->
+        <div class="relative">
+            <button id="quickActionsBtn" type="button" 
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <i class="fas fa-bolt mr-2"></i>
+                Actions rapides
+                <i class="fas fa-chevron-down ml-2 transform transition-transform duration-200" id="quickActionsIcon"></i>
+            </button>
+            
+            <!-- Menu déroulant -->
+            <div id="quickActionsMenu" class="dropdown-menu absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <div class="p-2">
+                    <a href="{% url 'reservations:attribution_etape1' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-users mr-3 text-blue-500"></i>
+                        Attribution en 2 étapes
+                    </a>
+                    <a href="{% url 'reservations:attribution_directe' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-bolt mr-3 text-green-500"></i>
+                        Attribution directe
+                    </a>
+                    <div class="border-t border-gray-100 my-1"></div>
+                    <button onclick="refreshStats()" 
+                           class="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-sync mr-3 text-purple-500"></i>
+                        Actualiser les stats
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Boutons principaux -->
+        <a href="{% url 'reservations:attribution_etape1' %}" 
+           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i>
+            Nouvelle attribution
+        </a>
+        
+        <a href="{% url 'reservations:attribution_directe' %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-bolt mr-2"></i>
+            Attribution rapide
+        </a>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+    }
+    
+    .modal-content {
+        transform: scale(0.9);
+        opacity: 0;
+        transition: all 0.3s ease-out;
+    }
+    
+    .modal-content.show {
+        transform: scale(1);
+        opacity: 1;
+    }
+    
+    .btn-hover {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dropdown-menu {
+        transform: translateY(-10px);
+        opacity: 0;
+        transition: all 0.2s ease-out;
+        pointer-events: none;
+    }
+    
+    .dropdown-menu.show {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .status-badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+    
+    .progress-bar {
+        transition: width 0.3s ease;
+    }
+    
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Message de bienvenue -->
+    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200 p-6 mb-8">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <i class="fas fa-users text-white text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <h2 class="text-xl font-semibold text-gray-900">
+                    Suivi des attributions
+                </h2>
+                <p class="text-gray-600">
+                    Gérez et suivez toutes les attributions de maisons à vos clients
+                </p>
+            </div>
+            <div class="ml-auto text-right">
+                <p class="text-sm text-gray-500">Total attributions</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_results }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total attributions -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-list text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Total attributions</dt>
+                            <dd class="text-3xl font-semibold text-gray-900">{{ stats.total_attributions|default:0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-blue-600 font-medium">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            Toutes périodes
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- En cours -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">En cours</dt>
+                            <dd class="text-3xl font-semibold text-gray-900">{{ stats.en_cours|default:0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-green-600 font-medium">
+                            <i class="fas fa-home mr-1"></i>
+                            Maisons occupées
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CA Encaissé -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-money-bill text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">CA Encaissé</dt>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ stats.ca_total|floatformat:0 }}</dd>
+                            <dd class="text-xs text-gray-500">FCFA</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-yellow-600 font-medium">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            Paiements validés
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CA Restant -->
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 hover:shadow-md transition-shadow btn-hover">
+            <div class="p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hourglass-half text-white text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">CA Restant</dt>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ stats.ca_restant|floatformat:0 }}</dd>
+                            <dd class="text-xs text-gray-500">FCFA</dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-orange-600 font-medium">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            À encaisser
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Section principale -->
+        <div class="lg:col-span-3 space-y-8">
+            <!-- Filtres -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-filter mr-2 text-purple-500"></i>
+                        Filtres et recherche
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <form method="get" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.client.label }}</label>
+                                {{ form.client }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.maison.label }}</label>
+                                {{ form.maison }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.statut.label }}</label>
+                                {{ form.statut }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.type_attribution.label }}</label>
+                                {{ form.type_attribution }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.date_debut.label }}</label>
+                                {{ form.date_debut }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.date_fin.label }}</label>
+                                {{ form.date_fin }}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.search.label }}</label>
+                                {{ form.search }}
+                            </div>
+                            <div class="flex items-end space-x-3">
+                                <button type="submit" 
+                                        class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors btn-hover">
+                                    <i class="fas fa-search mr-2"></i>
+                                    Filtrer
+                                </button>
+                                <a href="{% url 'reservations:tableau_suivi_attributions' %}" 
+                                   class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors btn-hover">
+                                    <i class="fas fa-times mr-2"></i>
+                                    Réinitialiser
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tableau principal -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-table mr-2 text-blue-500"></i>
+                            Attributions ({{ total_results }} résultat{{ total_results|pluralize }})
+                        </h3>
+                        
+                        <div class="flex items-center space-x-2">
+                            <div class="relative">
+                                <select onchange="changeSorting(this.value)" 
+                                        class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="-date_creation" {% if sort_by == '-date_creation' %}selected{% endif %}>Plus récentes</option>
+                                    <option value="date_creation" {% if sort_by == 'date_creation' %}selected{% endif %}>Plus anciennes</option>
+                                    <option value="date_entree" {% if sort_by == 'date_entree' %}selected{% endif %}>Date entrée ↑</option>
+                                    <option value="-date_entree" {% if sort_by == '-date_entree' %}selected{% endif %}>Date entrée ↓</option>
+                                    <option value="-montant_total" {% if sort_by == '-montant_total' %}selected{% endif %}>Montant ↓</option>
+                                    <option value="montant_total" {% if sort_by == 'montant_total' %}selected{% endif %}>Montant ↑</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    {% if page_obj %}
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Maison</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Période</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Financier</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for attribution in page_obj %}
+                                        <tr class="hover:bg-gray-50 transition-colors {% if attribution.est_en_cours %}bg-green-50{% elif attribution.statut == 'annulee' %}bg-red-50{% endif %}">
+                                            <!-- Client -->
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
+                                                            <span class="text-sm font-medium text-white">
+                                                                {{ attribution.client.first_name.0 }}{{ attribution.client.last_name.0 }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">
+                                                            {{ attribution.client.first_name }} {{ attribution.client.last_name }}
+                                                        </div>
+                                                        <div class="text-sm text-gray-500">{{ attribution.client.email }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Maison -->
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">{{ attribution.maison.numero }}</div>
+                                                <div class="text-sm text-gray-500">{{ attribution.maison.nom }}</div>
+                                                <div class="text-xs text-gray-400">{{ attribution.maison.ville }}</div>
+                                            </td>
+                                            
+                                            <!-- Période -->
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">
+                                                    <i class="fas fa-sign-in-alt text-green-500 mr-1"></i>
+                                                    {{ attribution.date_entree|date:"d/m/Y" }}
+                                                </div>
+                                                <div class="text-sm text-gray-900">
+                                                    <i class="fas fa-sign-out-alt text-red-500 mr-1"></i>
+                                                    {{ attribution.date_sortie|date:"d/m/Y" }}
+                                                </div>
+                                                <div class="text-xs text-gray-500">{{ attribution.duree_sejour }} jour{{ attribution.duree_sejour|pluralize }}</div>
+                                                {% if attribution.est_en_cours and attribution.jours_restants > 0 %}
+                                                    <div class="mt-1">
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            {{ attribution.jours_restants }} jour{{ attribution.jours_restants|pluralize }} restant{{ attribution.jours_restants|pluralize }}
+                                                        </span>
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                            
+                                            <!-- Statut -->
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                {% if attribution.statut == 'en_cours' %}
+                                                    <span class="status-badge bg-green-100 text-green-800">
+                                                        <i class="fas fa-clock mr-1"></i>
+                                                        En cours
+                                                    </span>
+                                                {% elif attribution.statut == 'terminee' %}
+                                                    <span class="status-badge bg-gray-100 text-gray-800">
+                                                        <i class="fas fa-check mr-1"></i>
+                                                        Terminée
+                                                    </span>
+                                                {% elif attribution.statut == 'annulee' %}
+                                                    <span class="status-badge bg-red-100 text-red-800">
+                                                        <i class="fas fa-times mr-1"></i>
+                                                        Annulée
+                                                    </span>
+                                                {% endif %}
+                                                
+                                                <div class="mt-1">
+                                                    {% if attribution.type_attribution == 'directe' %}
+                                                        <span class="status-badge bg-blue-100 text-blue-800">
+                                                            <i class="fas fa-user-cog mr-1"></i>
+                                                            Directe
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="status-badge bg-purple-100 text-purple-800">
+                                                            <i class="fas fa-calendar-check mr-1"></i>
+                                                            Réservation
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Financier -->
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900">{{ attribution.montant_total|floatformat:0 }} FCFA</div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                                    {% widthratio attribution.montant_paye attribution.montant_total 100 as progress_pct %}
+                                                    <div class="bg-green-500 h-2 rounded-full progress-bar" style="width: {{ progress_pct }}%"></div>
+                                                </div>
+                                                <div class="text-xs text-gray-500 mt-1">
+                                                    <span class="text-green-600">{{ attribution.montant_paye|floatformat:0 }}</span>
+                                                    /
+                                                    <span class="text-orange-600">{{ attribution.montant_restant|floatformat:0 }}</span>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Actions -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <div class="flex items-center space-x-2">
+                                                    <a href="{% url 'reservations:attribution_detail' attribution.pk %}" 
+                                                       class="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                                                       title="Voir détails">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    
+                                                    {% if attribution.statut == 'en_cours' %}
+                                                        {% if attribution.date_sortie <= today %}
+                                                            <a href="{% url 'reservations:attribution_terminer' attribution.pk %}" 
+                                                               class="text-green-600 hover:text-green-900 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                                                               title="Terminer">
+                                                                <i class="fas fa-check"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        
+                                                        <a href="{% url 'reservations:attribution_annuler' attribution.pk %}" 
+                                                           class="text-red-600 hover:text-red-900 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                                                           title="Annuler"
+                                                           onclick="return confirm('Êtes-vous sûr de vouloir annuler cette attribution ?')">
+                                                            <i class="fas fa-times"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                    
+                                                    {% if attribution.reservation %}
+                                                        <a href="{% url 'reservations:detail' attribution.reservation.numero %}" 
+                                                           class="text-purple-600 hover:text-purple-900 p-2 rounded-lg hover:bg-purple-50 transition-colors"
+                                                           title="Voir réservation">
+                                                            <i class="fas fa-calendar"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                            <div class="mt-6 flex items-center justify-between border-t border-gray-200 pt-6">
+                                <div class="flex-1 flex justify-between sm:hidden">
+                                    {% if page_obj.has_previous %}
+                                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}"
+                                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                            Précédent
+                                        </a>
+                                    {% endif %}
+                                    {% if page_obj.has_next %}
+                                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}"
+                                           class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                            Suivant
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-700">
+                                            Affichage de 
+                                            <span class="font-medium">{{ page_obj.start_index }}</span>
+                                            à 
+                                            <span class="font-medium">{{ page_obj.end_index }}</span>
+                                            sur 
+                                            <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                                            résultats
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                            {% if page_obj.has_previous %}
+                                                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}"
+                                                   class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                </a>
+                                            {% endif %}
+                                            
+                                            {% for num in page_obj.paginator.page_range %}
+                                                {% if page_obj.number == num %}
+                                                    <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                                                        {{ num }}
+                                                    </span>
+                                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                    <a href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}"
+                                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                                        {{ num }}
+                                                    </a>
+                                                {% endif %}
+                                            {% endfor %}
+                                            
+                                            {% if page_obj.has_next %}
+                                                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}"
+                                                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </a>
+                                            {% endif %}
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                    {% else %}
+                        <div class="text-center py-12">
+                            <i class="fas fa-inbox text-gray-300 text-6xl mb-4"></i>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune attribution trouvée</h3>
+                            <p class="text-gray-500 mb-6">
+                                {% if request.GET %}
+                                    Aucun résultat ne correspond à vos critères de recherche.
+                                {% else %}
+                                    Commencez par créer votre première attribution.
+                                {% endif %}
+                            </p>
+                            <div class="flex justify-center space-x-3">
+                                <a href="{% url 'reservations:attribution_etape1' %}" 
+                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors btn-hover">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Créer une attribution
+                                </a>
+                                {% if request.GET %}
+                                    <a href="{% url 'reservations:tableau_suivi_attributions' %}" 
+                                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors btn-hover">
+                                        <i class="fas fa-times mr-2"></i>
+                                        Effacer les filtres
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-8">
+            <!-- Maisons actuellement occupées -->
+            {% if attributions_en_cours %}
+                <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-home mr-2 text-green-500"></i>
+                            Maisons occupées
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            {% for maison in attributions_en_cours %}
+                                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ maison.maison__numero }}</div>
+                                        <div class="text-xs text-gray-500">{{ maison.maison__nom }}</div>
+                                        <div class="text-xs text-green-600 mt-1">{{ maison.count }} attribution{{ maison.count|pluralize }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-green-700">{{ maison.revenus|floatformat:0 }}</div>
+                                        <div class="text-xs text-gray-500">FCFA</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Top clients -->
+            {% if top_clients %}
+                <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-star mr-2 text-yellow-500"></i>
+                            Clients fréquents
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            {% for client in top_clients %}
+                                <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ client.client__first_name }} {{ client.client__last_name }}</div>
+                                        <div class="text-xs text-yellow-600 mt-1">{{ client.count }} séjour{{ client.count|pluralize }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-yellow-700">{{ client.total_paye|floatformat:0 }}</div>
+                                        <div class="text-xs text-gray-500">FCFA</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Actions rapides -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-rocket mr-2 text-purple-500"></i>
+                        Actions rapides
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        <a href="{% url 'reservations:attribution_etape1' %}" 
+                           class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-blue-50 border border-gray-200 hover:border-blue-200 transition-colors group btn-hover">
+                            <i class="fas fa-users mr-3 text-blue-500 group-hover:text-blue-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-blue-600">Attribution en 2 étapes</div>
+                                <div class="text-gray-500 text-xs">Processus guidé</div>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'reservations:attribution_directe' %}" 
+                           class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-green-50 border border-gray-200 hover:border-green-200 transition-colors group btn-hover">
+                            <i class="fas fa-bolt mr-3 text-green-500 group-hover:text-green-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-green-600">Attribution directe</div>
+                                <div class="text-gray-500 text-xs">Création rapide</div>
+                            </div>
+                        </a>
+                        
+                        <button onclick="refreshStats()" 
+                                class="w-full flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-purple-50 border border-gray-200 hover:border-purple-200 transition-colors group btn-hover">
+                            <i class="fas fa-sync mr-3 text-purple-500 group-hover:text-purple-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-purple-600">Actualiser</div>
+                                <div class="text-gray-500 text-xs">Rafraîchir les données</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="fixed top-4 right-4 transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="toastMessage">Action réussie !</span>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Variables globales
+    let currentFilters = new URLSearchParams(window.location.search);
+
+    // Initialisation
+    function init() {
+        try {
+            initDropdownMenu();
+            initFormControls();
+            console.log('✅ Tableau des attributions initialisé');
+        } catch (error) {
+            console.error('❌ Erreur init:', error);
+        }
+    }
+
+    // Menu déroulant
+    function initDropdownMenu() {
+        const btn = document.getElementById('quickActionsBtn');
+        const menu = document.getElementById('quickActionsMenu');
+        const icon = document.getElementById('quickActionsIcon');
+        
+        if (!btn || !menu || !icon) return;
+        
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleDropdown();
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDropdown();
+            }
+        });
+    }
+    
+    function toggleDropdown() {
+        const menu = document.getElementById('quickActionsMenu');
+        const icon = document.getElementById('quickActionsIcon');
+        
+        if (menu.classList.contains('show')) {
+            closeDropdown();
+        } else {
+            menu.classList.add('show');
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }
+    
+    function closeDropdown() {
+        const menu = document.getElementById('quickActionsMenu');
+        const icon = document.getElementById('quickActionsIcon');
+        
+        menu.classList.remove('show');
+        icon.style.transform = 'rotate(0deg)';
+    }
+
+    // Contrôles de formulaire
+    function initFormControls() {
+        // Style des selects
+        document.querySelectorAll('select').forEach(select => {
+            select.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors';
+        });
+        
+        // Style des inputs
+        document.querySelectorAll('input[type="text"], input[type="date"]').forEach(input => {
+            input.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors';
+        });
+    }
+
+    // Changement de tri
+    function changeSorting(sortValue) {
+        currentFilters.set('sort', sortValue);
+        window.location.href = '?' + currentFilters.toString();
+    }
+
+    // Rafraîchir les statistiques
+    function refreshStats() {
+        showToast('Actualisation des statistiques...', 'info');
+        
+        fetch('{% url "reservations:api_stats_attributions" %}')
+            .then(response => response.json())
+            .then(data => {
+                // Mettre à jour les statistiques
+                updateStatsDisplay(data);
+                showToast('Statistiques mises à jour', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Erreur lors de l\'actualisation', 'error');
+            });
+    }
+
+    // Mettre à jour l'affichage des stats
+    function updateStatsDisplay(data) {
+        // Mise à jour des cartes de statistiques
+        const stats = {
+            'total_attributions': data.total,
+            'en_cours': data.en_cours,
+            'ca_total': data.ca_total,
+            'maisons_occupees': data.maisons_occupees
+        };
+
+        Object.entries(stats).forEach(([key, value]) => {
+            const element = document.querySelector(`[data-stat="${key}"]`);
+            if (element) {
+                element.textContent = value.toLocaleString();
+            }
+        });
+    }
+
+    // Notifications toast
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        
+        if (!toast || !toastMessage) return;
+        
+        const toastContent = toast.querySelector('div');
+        toastMessage.textContent = message;
+        
+        if (type === 'success') {
+            toastContent.className = 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg flex items-center';
+            toastContent.querySelector('i').className = 'fas fa-check-circle mr-2';
+        } else if (type === 'error') {
+            toastContent.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg flex items-center';
+            toastContent.querySelector('i').className = 'fas fa-exclamation-circle mr-2';
+        } else if (type === 'info') {
+            toastContent.className = 'bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg shadow-lg flex items-center';
+            toastContent.querySelector('i').className = 'fas fa-info-circle mr-2';
+        }
+        
+        toast.style.transform = 'translateX(0)';
+        setTimeout(() => toast.style.transform = 'translateX(100%)', 4000);
+    }
+
+    // Auto-refresh toutes les 30 secondes
+    setInterval(function() {
+        refreshStats();
+    }, 30000);
+
+    // Initialisation au chargement
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // Fonctions globales
+    window.changeSorting = changeSorting;
+    window.refreshStats = refreshStats;
+    window.showToast = showToast;
+</script>
+{% endblock %}

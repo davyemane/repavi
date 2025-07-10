@@ -31,6 +31,17 @@
                         <i class="fas fa-home mr-3 text-blue-500"></i>
                         Nouvelle maison
                     </a>
+                    <!-- NOUVEAU : Liens attributions -->
+                    <a href="{% url 'reservations:attribution_etape1' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-user-home mr-3 text-green-500"></i>
+                        Attribution guidée
+                    </a>
+                    <a href="{% url 'reservations:attribution_directe' %}" 
+                       class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                        <i class="fas fa-bolt mr-3 text-yellow-500"></i>
+                        Attribution rapide
+                    </a>
                     <a href="{% url 'repavi_admin:photo_create' %}" 
                        class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
                         <i class="fas fa-image mr-3 text-purple-500"></i>
@@ -64,6 +75,12 @@
         </div>
         
         <!-- Boutons principaux -->
+        <a href="{% url 'reservations:attribution_etape1' %}" 
+           class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <i class="fas fa-user-home mr-2"></i>
+            Nouvelle attribution
+        </a>
+        
         <a href="{% url 'repavi_admin:maison_create' %}" 
            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             <i class="fas fa-plus mr-2"></i>
@@ -135,7 +152,7 @@
                     {% if is_super_admin %}
                         Vue d'ensemble de votre plateforme RepAvi.
                     {% elif is_gestionnaire %}
-                        Gestion de vos maisons et réservations.
+                        Gestion de vos maisons et attributions.
                     {% else %}
                         Bienvenue dans votre espace RepAvi.
                     {% endif %}
@@ -157,7 +174,9 @@
             </div>
             <i class="fas fa-rocket text-3xl text-blue-500"></i>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Actions principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <a href="{% url 'repavi_admin:maison_create' %}" 
                class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all btn-hover">
                 <div class="w-10 h-10 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center mr-3">
@@ -169,25 +188,27 @@
                 </div>
             </a>
             
-            <a href="{% url 'repavi_admin:ville_create' %}" 
-               class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-red-300 hover:shadow-md transition-all btn-hover">
-                <div class="w-10 h-10 bg-red-100 group-hover:bg-red-200 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-map-marker-alt text-red-600"></i>
+            <!-- NOUVEAU : Attribution en 2 étapes -->
+            <a href="{% url 'reservations:attribution_etape1' %}" 
+               class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all btn-hover">
+                <div class="w-10 h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-user-home text-green-600"></i>
                 </div>
                 <div>
-                    <div class="font-medium text-gray-900 group-hover:text-red-600">Nouvelle ville</div>
-                    <div class="text-sm text-gray-500">Ajouter une localisation</div>
+                    <div class="font-medium text-gray-900 group-hover:text-green-600">Attribution guidée</div>
+                    <div class="text-sm text-gray-500">Attribuer en 2 étapes</div>
                 </div>
             </a>
             
-            <a href="{% url 'repavi_admin:categorie_create' %}" 
-               class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all btn-hover">
-                <div class="w-10 h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-tags text-green-600"></i>
+            <!-- NOUVEAU : Attribution directe -->
+            <a href="{% url 'reservations:attribution_directe' %}" 
+               class="group flex items-center p-4 bg-white rounded-lg border border-gray-200 hover:border-yellow-300 hover:shadow-md transition-all btn-hover">
+                <div class="w-10 h-10 bg-yellow-100 group-hover:bg-yellow-200 rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-bolt text-yellow-600"></i>
                 </div>
                 <div>
-                    <div class="font-medium text-gray-900 group-hover:text-green-600">Nouvelle catégorie</div>
-                    <div class="text-sm text-gray-500">Organiser les maisons</div>
+                    <div class="font-medium text-gray-900 group-hover:text-yellow-600">Attribution rapide</div>
+                    <div class="text-sm text-gray-500">Attribution directe</div>
                 </div>
             </a>
             
@@ -203,6 +224,49 @@
             </a>
         </div>
         
+        <!-- Section Attributions -->
+        <div class="border-t border-blue-200 pt-4">
+            <p class="text-sm text-gray-600 mb-3 flex items-center">
+                <i class="fas fa-home-heart mr-2 text-green-500"></i>
+                Gestion des attributions :
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{% url 'reservations:tableau_suivi_attributions' %}" 
+                   class="group flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all btn-hover">
+                    <div class="w-8 h-8 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-list text-blue-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-900 group-hover:text-blue-600">Tableau de suivi</div>
+                        <div class="text-sm text-gray-500">Voir toutes les attributions</div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'reservations:attribution_etape1' %}" 
+                   class="group flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all btn-hover">
+                    <div class="w-8 h-8 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-layers text-green-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-900 group-hover:text-green-600">Attribution guidée</div>
+                        <div class="text-sm text-gray-500">Processus en 2 étapes</div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'reservations:attribution_directe' %}" 
+                   class="group flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-yellow-300 hover:shadow-md transition-all btn-hover">
+                    <div class="w-8 h-8 bg-yellow-100 group-hover:bg-yellow-200 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-bolt text-yellow-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-900 group-hover:text-yellow-600">Attribution rapide</div>
+                        <div class="text-sm text-gray-500">Tout en une fois</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Section Super Admin reste identique -->
         {% if is_super_admin %}
         <div class="border-t border-blue-200 mt-4 pt-4">
             <p class="text-sm text-gray-600 mb-3">Actions super administrateurs :</p>
@@ -231,6 +295,73 @@
             </div>
         </div>
         {% endif %}
+    </div>
+
+    <!-- NOUVELLE SECTION : État des attributions -->
+    <div class="bg-white shadow-sm rounded-xl border border-gray-200 mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-home-heart mr-2 text-green-500"></i>
+                    État des attributions
+                </h3>
+                <a href="{% url 'reservations:tableau_suivi_attributions' %}" class="text-sm text-blue-600 hover:text-blue-500">
+                    Tableau complet <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <!-- Maisons occupées -->
+                <div class="text-center p-4 bg-green-50 rounded-lg border border-green-100">
+                    <div class="text-2xl font-bold text-green-600">{{ stats.maisons_occupees|default:0 }}</div>
+                    <div class="text-sm text-green-700">Maisons occupées</div>
+                    <div class="text-xs text-green-600 mt-1">En cours</div>
+                </div>
+                
+                <!-- Maisons libres -->
+                <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div class="text-2xl font-bold text-blue-600">{{ stats.maisons_libres|default:0 }}</div>
+                    <div class="text-sm text-blue-700">Maisons libres</div>
+                    <div class="text-xs text-blue-600 mt-1">Disponibles</div>
+                </div>
+                
+                <!-- CA attributions -->
+                <div class="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                    <div class="text-lg font-bold text-yellow-600">{{ stats.ca_mensuel|default:0|floatformat:0 }} FCFA</div>
+                    <div class="text-sm text-yellow-700">CA Mensuel</div>
+                    <div class="text-xs text-yellow-600 mt-1">Ce mois</div>
+                </div>
+                
+                <!-- Taux d'occupation -->
+                <div class="text-center p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <div class="text-2xl font-bold text-purple-600">
+                        {{ stats.taux_occupation|default:0 }}%
+                    </div>
+                    <div class="text-sm text-purple-700">Taux occupation</div>
+                    <div class="text-xs text-purple-600 mt-1">Actuel</div>
+                </div>
+            </div>
+            
+            <!-- Actions rapides pour attributions -->
+            <div class="flex flex-wrap gap-3">
+                <a href="{% url 'reservations:attribution_etape1' %}" 
+                   class="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors btn-hover">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Nouvelle attribution
+                </a>
+                <a href="{% url 'reservations:tableau_suivi_attributions' %}" 
+                   class="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors btn-hover">
+                    <i class="fas fa-list mr-2"></i>
+                    Voir toutes les attributions
+                </a>
+                <a href="{% url 'reservations:attribution_directe' %}" 
+                   class="flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors btn-hover">
+                    <i class="fas fa-bolt mr-2"></i>
+                    Attribution rapide
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Statistiques principales -->
@@ -502,13 +633,21 @@
                                     {% endif %}
                                 </div>
                                 <div class="flex items-center space-x-2">
+                                    <!-- Icône d'occupation -->
+                                    {% if maison.statut_occupation == 'occupe' %}
+                                        <span class="w-3 h-3 bg-red-500 rounded-full" title="Occupée"></span>
+                                    {% elif maison.statut_occupation == 'libre' %}
+                                        <span class="w-3 h-3 bg-green-500 rounded-full" title="Libre"></span>
+                                    {% else %}
+                                        <span class="w-3 h-3 bg-yellow-500 rounded-full" title="{{ maison.get_statut_occupation_display }}"></span>
+                                    {% endif %}
+                                    
                                     {% if maison.featured %}
                                         <span class="text-yellow-500" title="Maison featured">
                                             <i class="fas fa-star"></i>
                                         </span>
                                     {% endif %}
-                                    <span class="w-3 h-3 {% if maison.disponible %}bg-green-500{% else %}bg-red-500{% endif %} rounded-full" 
-                                          title="{% if maison.disponible %}Disponible{% else %}Indisponible{% endif %}"></span>
+                                    
                                     <a href="{% url 'repavi_admin:maison_edit' maison.pk %}" 
                                        class="text-blue-600 hover:text-blue-800 p-1 rounded" title="Modifier">
                                         <i class="fas fa-edit"></i>
@@ -684,6 +823,26 @@
                             </div>
                         </a>
                         
+                        <!-- NOUVEAU : Attribution guidée -->
+                        <a href="{% url 'reservations:attribution_etape1' %}" 
+                           class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-green-50 border border-gray-200 hover:border-green-200 transition-colors group btn-hover">
+                            <i class="fas fa-user-home mr-3 text-green-500 group-hover:text-green-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-green-600">Attribution guidée</div>
+                                <div class="text-gray-500 text-xs">Processus en 2 étapes</div>
+                            </div>
+                        </a>
+                        
+                        <!-- NOUVEAU : Attribution rapide -->
+                        <a href="{% url 'reservations:attribution_directe' %}" 
+                           class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-yellow-50 border border-gray-200 hover:border-yellow-200 transition-colors group btn-hover">
+                            <i class="fas fa-bolt mr-3 text-yellow-500 group-hover:text-yellow-600"></i>
+                            <div>
+                                <div class="font-medium group-hover:text-yellow-600">Attribution rapide</div>
+                                <div class="text-gray-500 text-xs">Tout en une fois</div>
+                            </div>
+                        </a>
+                        
                         <a href="{% url 'repavi_admin:photo_create' %}" 
                            class="flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-purple-50 border border-gray-200 hover:border-purple-200 transition-colors group btn-hover">
                             <i class="fas fa-camera mr-3 text-purple-500 group-hover:text-purple-600"></i>
@@ -732,6 +891,12 @@
                             Admin Django
                         </a>
                         {% endif %}
+                        <!-- NOUVEAU : Lien vers tableau des attributions -->
+                        <a href="{% url 'reservations:tableau_suivi_attributions' %}" 
+                           class="flex items-center p-2 text-sm text-gray-700 rounded hover:bg-gray-50">
+                            <i class="fas fa-home-heart mr-3 text-gray-500"></i>
+                            Tableau des attributions
+                        </a>
                         <a href="{% url 'repavi_admin:villes_list' %}" 
                            class="flex items-center p-2 text-sm text-gray-700 rounded hover:bg-gray-50">
                             <i class="fas fa-map-marker-alt mr-3 text-gray-500"></i>
@@ -1025,7 +1190,7 @@
             const form = document.getElementById('createUserForm');
             if (form) form.addEventListener('submit', handleFormSubmit);
             
-            console.log('✅ Dashboard initialisé');
+            console.log('✅ Dashboard initialisé avec fonctionnalités d\'attribution');
         } catch (error) {
             console.error('❌ Erreur init:', error);
         }
