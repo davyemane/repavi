@@ -6,48 +6,66 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50">
     <!-- Header avec navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
+    <nav class="bg-white shadow-sm border-b border-gray-200" role="navigation" aria-label="Navigation principale">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="{% url 'home:index' %}" class="text-2xl font-bold text-indigo-600">RepAvi</a>
-                    <span class="ml-3 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full font-medium">
+                    <a href="{% url 'home:index' %}" 
+                       class="text-xl sm:text-2xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-2 py-1">
+                        RepAvi
+                    </a>
+                    <span class="ml-2 sm:ml-3 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full font-medium">
                         Dashboard
                     </span>
                 </div>
                 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 sm:space-x-4">
                     <a href="{% url 'home:index' %}" 
-                       class="text-gray-500 hover:text-gray-700 transition-colors">
-                        <i class="fas fa-home mr-1"></i>Accueil
+                       class="hidden sm:flex items-center text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded px-2 py-1 transition-colors">
+                        <i class="fas fa-home mr-1" aria-hidden="true"></i>Accueil
                     </a>
                     
                     <!-- Menu utilisateur -->
-                    <div class="relative group">
-                        <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors">
+                    <div class="relative">
+                        <button id="userMenuButton"
+                                class="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg px-2 py-1 transition-colors"
+                                aria-expanded="false"
+                                aria-haspopup="true"
+                                aria-label="Menu utilisateur">
                             {% if user.photo_profil %}
-                                <img src="{{ user.photo_profil.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                                <img src="{{ user.photo_profil.url }}" 
+                                     alt="Photo de profil de {{ user.first_name|default:user.username }}" 
+                                     class="w-8 h-8 rounded-full object-cover">
                             {% else %}
                                 <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-user text-gray-500"></i>
+                                    <i class="fas fa-user text-gray-500" aria-hidden="true"></i>
                                 </div>
                             {% endif %}
-                            <span class="font-medium">{{ user.first_name|default:user.username }}</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
+                            <span class="hidden sm:block font-medium">{{ user.first_name|default:user.username }}</span>
+                            <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="userMenuIcon" aria-hidden="true"></i>
                         </button>
                         
                         <!-- Dropdown -->
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div id="userMenuDropdown"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible transition-all duration-200 z-50"
+                             role="menu"
+                             aria-labelledby="userMenuButton">
                             <div class="py-2">
-                                <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-user mr-2"></i>Mon profil
+                                <a href="{% url 'users:profile' %}" 
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors"
+                                   role="menuitem">
+                                    <i class="fas fa-user mr-2" aria-hidden="true"></i>Mon profil
                                 </a>
-                                <a href="{% url 'users:account_settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-cog mr-2"></i>Paramètres
+                                <a href="{% url 'users:account_settings' %}" 
+                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors"
+                                   role="menuitem">
+                                    <i class="fas fa-cog mr-2" aria-hidden="true"></i>Paramètres
                                 </a>
-                                <hr class="my-1">
-                                <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                    <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                                <div class="border-t border-gray-100 my-1" role="separator"></div>
+                                <a href="{% url 'users:logout' %}" 
+                                   class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50 transition-colors"
+                                   role="menuitem">
+                                    <i class="fas fa-sign-out-alt mr-2" aria-hidden="true"></i>Déconnexion
                                 </a>
                             </div>
                         </div>
@@ -58,184 +76,372 @@
     </nav>
 
     <!-- Contenu principal basé sur le type d'utilisateur -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8" role="main">
         
         {% if user.est_admin %}
             <!-- Dashboard Admin -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Dashboard Administrateur</h1>
+            <header class="mb-6 sm:mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard Administrateur</h1>
                 <p class="text-gray-600 mt-2">Gérez votre plateforme RepAvi</p>
-            </div>
+            </header>
 
             <!-- Statistiques Admin -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8" aria-labelledby="admin-stats-title">
+                <h2 id="admin-stats-title" class="sr-only">Statistiques de la plateforme</h2>
+                
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
                     <div class="flex items-center">
-                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
-                            <i class="fas fa-home text-blue-600 text-xl"></i>
+                        <div class="w-10 sm:w-12 h-10 sm:h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                            <i class="fas fa-home text-blue-600 text-lg sm:text-xl" aria-hidden="true"></i>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-600">Total Maisons</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ stats.total_maisons|default:0 }}</p>
+                            <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ stats.total_maisons|default:0 }}</p>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
                     <div class="flex items-center">
-                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4">
-                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        <div class="w-10 sm:w-12 h-10 sm:h-12 bg-green-100 rounded-xl flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                            <i class="fas fa-users text-green-600 text-lg sm:text-xl" aria-hidden="true"></i>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-600">Utilisateurs</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ stats.total_users|default:0 }}</p>
+                            <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ stats.total_users|default:0 }}</p>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
                     <div class="flex items-center">
-                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4">
-                            <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+                        <div class="w-10 sm:w-12 h-10 sm:h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                            <i class="fas fa-calendar-check text-purple-600 text-lg sm:text-xl" aria-hidden="true"></i>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-600">Réservations</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ stats.total_reservations|default:0 }}</p>
+                            <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ stats.total_reservations|default:0 }}</p>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <article class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
                     <div class="flex items-center">
-                        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-4">
-                            <i class="fas fa-euro-sign text-yellow-600 text-xl"></i>
+                        <div class="w-10 sm:w-12 h-10 sm:h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                            <i class="fas fa-euro-sign text-yellow-600 text-lg sm:text-xl" aria-hidden="true"></i>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-600">CA ce mois</p>
-                            <p class="text-2xl font-bold text-gray-900">{{ stats.revenus_mois|default:0 }}€</p>
+                            <p class="text-lg sm:text-2xl font-bold text-gray-900">{{ stats.revenus_mois|default:0 }}€</p>
                         </div>
                     </div>
-                </div>
-            </div>
+                </article>
+            </section>
 
             <!-- Actions rapides Admin -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-6">Actions rapides</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 sm:mb-8" aria-labelledby="admin-actions-title">
+                <h3 id="admin-actions-title" class="text-lg font-semibold text-gray-900 mb-4 sm:mb-6">Actions rapides</h3>
+                <nav class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Actions d'administration">
                     <a href="{% url 'repavi_admin:dashboard' %}" 
-                       class="flex flex-col items-center p-6 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors group">
-                        <i class="fas fa-tachometer-alt text-blue-600 text-2xl mb-3 group-hover:scale-110 transition-transform"></i>
-                        <span class="font-medium text-gray-900">Interface Admin</span>
+                       class="flex flex-col items-center p-4 sm:p-6 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                       aria-label="Accéder à l'interface d'administration">
+                        <i class="fas fa-tachometer-alt text-blue-600 text-xl sm:text-2xl mb-3 group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+                        <span class="font-medium text-gray-900 text-center">Interface Admin</span>
                     </a>
                     
                     <a href="{% url 'repavi_admin:maisons_list' %}" 
-                       class="flex flex-col items-center p-6 bg-green-50 hover:bg-green-100 rounded-xl transition-colors group">
-                        <i class="fas fa-home text-green-600 text-2xl mb-3 group-hover:scale-110 transition-transform"></i>
-                        <span class="font-medium text-gray-900">Gérer Maisons</span>
+                       class="flex flex-col items-center p-4 sm:p-6 bg-green-50 hover:bg-green-100 rounded-xl transition-all group focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                       aria-label="Gérer les maisons">
+                        <i class="fas fa-home text-green-600 text-xl sm:text-2xl mb-3 group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+                        <span class="font-medium text-gray-900 text-center">Gérer Maisons</span>
                     </a>
                     
                     <a href="{% url 'repavi_admin:reservations_list' %}" 
-                       class="flex flex-col items-center p-6 bg-purple-50 hover:bg-purple-100 rounded-xl transition-colors group">
-                        <i class="fas fa-calendar text-purple-600 text-2xl mb-3 group-hover:scale-110 transition-transform"></i>
-                        <span class="font-medium text-gray-900">Réservations</span>
+                       class="flex flex-col items-center p-4 sm:p-6 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all group focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                       aria-label="Gérer les réservations">
+                        <i class="fas fa-calendar text-purple-600 text-xl sm:text-2xl mb-3 group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+                        <span class="font-medium text-gray-900 text-center">Réservations</span>
                     </a>
                     
                     <a href="{% url 'users:account_settings' %}" 
-                       class="flex flex-col items-center p-6 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors group">
-                        <i class="fas fa-cog text-orange-600 text-2xl mb-3 group-hover:scale-110 transition-transform"></i>
-                        <span class="font-medium text-gray-900">Paramètres</span>
+                       class="flex flex-col items-center p-4 sm:p-6 bg-orange-50 hover:bg-orange-100 rounded-xl transition-all group focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                       aria-label="Accéder aux paramètres">
+                        <i class="fas fa-cog text-orange-600 text-xl sm:text-2xl mb-3 group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+                        <span class="font-medium text-gray-900 text-center">Paramètres</span>
                     </a>
-                </div>
-            </div>
+                </nav>
+            </section>
 
         {% elif user.est_proprietaire %}
             <!-- Redirection vers dashboard propriétaire -->
-            <div class="text-center py-16">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-home text-blue-600 text-2xl"></i>
+            <section class="text-center py-12 sm:py-16" aria-labelledby="proprietaire-redirect-title">
+                <div class="w-12 sm:w-16 h-12 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-home text-blue-600 text-xl sm:text-2xl" aria-hidden="true"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Redirection vers votre espace propriétaire</h2>
-                <p class="text-gray-600 mb-6">Vous allez être redirigé vers votre tableau de bord propriétaire...</p>
+                <h2 id="proprietaire-redirect-title" class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                    Redirection vers votre espace propriétaire
+                </h2>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                    Vous allez être redirigé vers votre tableau de bord propriétaire...
+                </p>
+                
+                <!-- Indicateur de chargement -->
+                <div class="flex justify-center mb-6">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+                
                 <a href="{% url 'users:dashboard_proprietaire' %}" 
-                   class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-arrow-right mr-2"></i>
+                   class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent rounded-xl text-sm sm:text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    <i class="fas fa-arrow-right mr-2" aria-hidden="true"></i>
                     Accéder au dashboard propriétaire
                 </a>
-            </div>
+            </section>
             
             <script>
-                // Redirection automatique après 2 secondes
+                // Redirection automatique après 2 secondes avec gestion d'erreur
                 setTimeout(function() {
-                    window.location.href = "{% url 'users:dashboard_proprietaire' %}";
+                    try {
+                        window.location.href = "{% url 'users:dashboard_proprietaire' %}";
+                    } catch (error) {
+                        console.error('Erreur de redirection:', error);
+                        // Afficher un message d'erreur si la redirection échoue
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-4';
+                        errorMsg.textContent = 'Erreur de redirection. Veuillez cliquer sur le bouton ci-dessus.';
+                        document.querySelector('section').appendChild(errorMsg);
+                    }
                 }, 2000);
             </script>
 
         {% elif user.est_locataire %}
             <!-- Redirection vers dashboard locataire -->
-            <div class="text-center py-16">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-user text-green-600 text-2xl"></i>
+            <section class="text-center py-12 sm:py-16" aria-labelledby="locataire-redirect-title">
+                <div class="w-12 sm:w-16 h-12 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user text-green-600 text-xl sm:text-2xl" aria-hidden="true"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Redirection vers votre espace locataire</h2>
-                <p class="text-gray-600 mb-6">Vous allez être redirigé vers votre tableau de bord locataire...</p>
+                <h2 id="locataire-redirect-title" class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                    Redirection vers votre espace locataire
+                </h2>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                    Vous allez être redirigé vers votre tableau de bord locataire...
+                </p>
+                
+                <!-- Indicateur de chargement -->
+                <div class="flex justify-center mb-6">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                </div>
+                
                 <a href="{% url 'users:dashboard_locataire' %}" 
-                   class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
-                    <i class="fas fa-arrow-right mr-2"></i>
+                   class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent rounded-xl text-sm sm:text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                    <i class="fas fa-arrow-right mr-2" aria-hidden="true"></i>
                     Accéder au dashboard locataire
                 </a>
-            </div>
+            </section>
             
             <script>
-                // Redirection automatique après 2 secondes
+                // Redirection automatique après 2 secondes avec gestion d'erreur
                 setTimeout(function() {
-                    window.location.href = "{% url 'users:dashboard_locataire' %}";
+                    try {
+                        window.location.href = "{% url 'users:dashboard_locataire' %}";
+                    } catch (error) {
+                        console.error('Erreur de redirection:', error);
+                        // Afficher un message d'erreur si la redirection échoue
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-4';
+                        errorMsg.textContent = 'Erreur de redirection. Veuillez cliquer sur le bouton ci-dessus.';
+                        document.querySelector('section').appendChild(errorMsg);
+                    }
                 }, 2000);
             </script>
 
         {% else %}
             <!-- Utilisateur sans type défini -->
-            <div class="text-center py-16">
-                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-question text-gray-400 text-2xl"></i>
+            <section class="text-center py-12 sm:py-16" aria-labelledby="undefined-user-title">
+                <div class="w-12 sm:w-16 h-12 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-question text-gray-400 text-xl sm:text-2xl" aria-hidden="true"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Configuration de compte nécessaire</h2>
-                <p class="text-gray-600 mb-6">Votre type de compte n'est pas défini. Veuillez contacter l'administrateur.</p>
-                <div class="space-x-4">
+                <h2 id="undefined-user-title" class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                    Configuration de compte nécessaire
+                </h2>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                    Votre type de compte n'est pas défini. Veuillez contacter l'administrateur.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="{% url 'users:profile' %}" 
-                       class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-user mr-2"></i>
+                       class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-xl text-sm sm:text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                        <i class="fas fa-user mr-2" aria-hidden="true"></i>
                         Mon profil
                     </a>
                     <a href="{% url 'home:contact' %}" 
-                       class="inline-flex items-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
-                        <i class="fas fa-headset mr-2"></i>
+                       class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent rounded-xl text-sm sm:text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+                        <i class="fas fa-headset mr-2" aria-hidden="true"></i>
                         Contacter le support
                     </a>
                 </div>
-            </div>
+            </section>
         {% endif %}
 
         <!-- Section aide commune -->
-        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white">
+        <section class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 sm:p-8 text-white" aria-labelledby="help-section-title">
             <div class="max-w-3xl">
-                <h3 class="text-2xl font-bold mb-4">Besoin d'aide ?</h3>
+                <h3 id="help-section-title" class="text-xl sm:text-2xl font-bold mb-4">Besoin d'aide ?</h3>
                 <p class="text-indigo-100 mb-6">
                     Notre équipe support est disponible pour vous accompagner dans l'utilisation de RepAvi.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4">
+                <nav class="flex flex-col sm:flex-row gap-4" aria-label="Liens d'aide">
                     <a href="{% url 'home:contact' %}" 
-                       class="inline-flex items-center px-6 py-3 bg-white text-indigo-600 rounded-xl font-medium hover:bg-gray-100 transition-colors">
-                        <i class="fas fa-envelope mr-2"></i>
+                       class="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-white text-indigo-600 rounded-xl font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 transition-colors">
+                        <i class="fas fa-envelope mr-2" aria-hidden="true"></i>
                         Nous contacter
                     </a>
                     <a href="{% url 'home:apropos' %}" 
-                       class="inline-flex items-center px-6 py-3 border-2 border-white text-white rounded-xl font-medium hover:bg-white hover:text-indigo-600 transition-colors">
-                        <i class="fas fa-info-circle mr-2"></i>
+                       class="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 border-2 border-white text-white rounded-xl font-medium hover:bg-white hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 transition-colors">
+                        <i class="fas fa-info-circle mr-2" aria-hidden="true"></i>
                         En savoir plus
                     </a>
-                </div>
+                </nav>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 </div>
+
+<script>
+    // Gestion du menu utilisateur
+    document.addEventListener('DOMContentLoaded', function() {
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenuDropdown = document.getElementById('userMenuDropdown');
+        const userMenuIcon = document.getElementById('userMenuIcon');
+        
+        if (!userMenuButton || !userMenuDropdown || !userMenuIcon) return;
+        
+        let isMenuOpen = false;
+        
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            
+            if (isMenuOpen) {
+                userMenuDropdown.classList.remove('opacity-0', 'invisible');
+                userMenuDropdown.classList.add('opacity-100', 'visible');
+                userMenuIcon.style.transform = 'rotate(180deg)';
+                userMenuButton.setAttribute('aria-expanded', 'true');
+            } else {
+                userMenuDropdown.classList.add('opacity-0', 'invisible');
+                userMenuDropdown.classList.remove('opacity-100', 'visible');
+                userMenuIcon.style.transform = 'rotate(0deg)';
+                userMenuButton.setAttribute('aria-expanded', 'false');
+            }
+        }
+        
+        function closeMenu() {
+            if (isMenuOpen) {
+                toggleMenu();
+            }
+        }
+        
+        // Toggle menu on button click
+        userMenuButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMenu();
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                closeMenu();
+            }
+        });
+        
+        // Handle keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMenu();
+                userMenuButton.focus();
+            }
+        });
+        
+        // Handle menu item keyboard navigation
+        const menuItems = userMenuDropdown.querySelectorAll('[role="menuitem"]');
+        menuItems.forEach((item, index) => {
+            item.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const nextIndex = (index + 1) % menuItems.length;
+                    menuItems[nextIndex].focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const prevIndex = (index - 1 + menuItems.length) % menuItems.length;
+                    menuItems[prevIndex].focus();
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    item.click();
+                }
+            });
+        });
+        
+        // Focus first menu item when menu opens with keyboard
+        userMenuButton.addEventListener('keydown', function(e) {
+            if ((e.key === 'Enter' || e.key === ' ') && isMenuOpen) {
+                e.preventDefault();
+                menuItems[0].focus();
+            }
+        });
+    });
+    
+    // Animation au chargement pour les cartes
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('article, .group');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(10px)';
+                card.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                
+                requestAnimationFrame(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                });
+            }, index * 100);
+        });
+    });
+</script>
+
+<style>
+    /* Améliorer l'indicateur de focus pour une meilleure accessibilité */
+    .focus\:ring-2:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+    }
+    
+    /* Animation pour les cartes au survol */
+    @media (hover: hover) {
+        .group:hover {
+            transform: translateY(-2px);
+        }
+    }
+    
+    /* Support pour les utilisateurs préférant moins d'animations */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+        
+        .group:hover {
+            transform: none;
+        }
+        
+        .group-hover\:scale-110:hover {
+            transform: none;
+        }
+    }
+    
+    /* Amélioration de la lisibilité sur les petits écrans */
+    @media (max-width: 640px) {
+        .text-2xl {
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+    }
+</style>
 {% endblock %}
