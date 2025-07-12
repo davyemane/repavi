@@ -1,3 +1,4 @@
+<!-- templates/admin/confirm_delete.html -->
 {% extends 'admin/base.html' %}
 
 {% block title %}Supprimer {{ type }} - RepAvi Admin{% endblock %}
@@ -6,40 +7,38 @@
 {% block breadcrumb %}
     <nav class="text-sm">
         <ol class="flex items-center space-x-2 text-gray-500">
-            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
-            <li class="text-gray-400">/</li>
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700 transition-colors">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
             <li>
                 {% if type == 'ville' %}
-                    <a href="{% url 'repavi_admin:villes_list' %}" class="hover:text-gray-700">Villes</a>
+                    <a href="{% url 'repavi_admin:villes_list' %}" class="hover:text-gray-700 transition-colors">Villes</a>
                 {% elif type == 'catégorie' %}
-                    <a href="{% url 'repavi_admin:categories_list' %}" class="hover:text-gray-700">Catégories</a>
+                    <a href="{% url 'repavi_admin:categories_list' %}" class="hover:text-gray-700 transition-colors">Catégories</a>
                 {% elif type == 'maison' %}
-                    <a href="{% url 'repavi_admin:maisons_list' %}" class="hover:text-gray-700">Maisons</a>
+                    <a href="{% url 'repavi_admin:maisons_list' %}" class="hover:text-gray-700 transition-colors">Maisons</a>
                 {% elif type == 'photo' %}
-                    <a href="{% url 'repavi_admin:photos_list' %}" class="hover:text-gray-700">Photos</a>
-                {% elif type == 'réservation' %}
-                    <a href="{% url 'repavi_admin:reservations_list' %}" class="hover:text-gray-700">Réservations</a>
+                    <a href="{% url 'repavi_admin:photos_list' %}" class="hover:text-gray-700 transition-colors">Photos</a>
                 {% else %}
                     <span class="text-gray-700">Retour</span>
                 {% endif %}
             </li>
-            <li class="text-gray-400">/</li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
             <li class="text-gray-900 font-medium">Supprimer</li>
         </ol>
     </nav>
 {% endblock %}
 
 {% block content %}
-    <div class="max-w-2xl mx-auto">
-        <!-- Avertissement principal -->
-        <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
-            <div class="flex items-center mb-4">
+    <div class="max-w-2xl mx-auto space-y-6">
+        <!-- Warning banner -->
+        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+            <div class="flex items-center">
                 <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
                 </div>
                 <div class="ml-4">
                     <h2 class="text-xl font-semibold text-red-900">
-                        Attention - Suppression définitive
+                        Suppression définitive
                     </h2>
                     <p class="text-red-700">
                         Cette action est irréversible et ne peut pas être annulée.
@@ -48,86 +47,65 @@
             </div>
         </div>
 
-        <!-- Informations sur l'objet à supprimer -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+        <!-- Object details -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">
                     <i class="fas fa-info-circle mr-2 text-blue-500"></i>
-                    Vous êtes sur le point de supprimer 
-                    {% if type == 'ville' %}la {{ type }}
-                    {% elif type == 'catégorie' %}la {{ type }}
-                    {% elif type == 'maison' %}la {{ type }}
-                    {% elif type == 'photo' %}la {{ type }}
-                    {% elif type == 'réservation' %}la {{ type }}
-                    {% else %}{{ type }}{% endif %}
+                    Élément à supprimer
                 </h3>
             </div>
             
             <div class="p-6">
                 <div class="flex items-start space-x-4">
-                    <!-- Icône selon le type -->
+                    <!-- Icon based on type -->
                     <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
                         {% if type == 'ville' %}
                             <i class="fas fa-map-marker-alt text-red-500 text-2xl"></i>
                         {% elif type == 'catégorie' %}
-                            <i class="fas fa-tags text-green-500 text-2xl"></i>
+                            <i class="fas fa-tags text-emerald-500 text-2xl"></i>
                         {% elif type == 'maison' %}
                             <i class="fas fa-home text-blue-500 text-2xl"></i>
                         {% elif type == 'photo' %}
                             <i class="fas fa-camera text-purple-500 text-2xl"></i>
-                        {% elif type == 'réservation' %}
-                            <i class="fas fa-calendar-check text-orange-500 text-2xl"></i>
                         {% else %}
                             <i class="fas fa-question text-gray-500 text-2xl"></i>
                         {% endif %}
                     </div>
                     
-                    <!-- Informations de l'objet -->
+                    <!-- Object information -->
                     <div class="flex-1">
                         <h4 class="text-lg font-semibold text-gray-900 mb-2">
                             {% if type == 'ville' %}
-                                {{ objet.nom }}, {{ objet.departement }}
+                                {{ objet.nom }}{% if objet.departement %}, {{ objet.departement }}{% endif %}
                             {% elif type == 'catégorie' %}
                                 {{ objet.nom }}
                             {% elif type == 'maison' %}
                                 {{ objet.nom }}
                             {% elif type == 'photo' %}
                                 Photo de {{ objet.maison.nom }}
-                            {% elif type == 'réservation' %}
-                                Réservation de {{ objet.client.nom_complet|default:objet.client.username }}
                             {% else %}
                                 {{ objet }}
                             {% endif %}
                         </h4>
                         
-                        <div class="space-y-2 text-sm text-gray-600">
+                        <div class="space-y-1 text-sm text-gray-600">
                             {% if type == 'ville' %}
-                                <p><strong>Code postal :</strong> {{ objet.code_postal|default:"Non renseigné" }}</p>
-                                <p><strong>Maisons associées :</strong> {{ objet.maison_set.count }}</p>
+                                <p><strong>Code postal:</strong> {{ objet.code_postal|default:"Non renseigné" }}</p>
+                                <p><strong>Maisons associées:</strong> {{ objet.maison_set.count }}</p>
                             {% elif type == 'catégorie' %}
-                                <p><strong>Description :</strong> {{ objet.description|default:"Aucune description" }}</p>
-                                <p><strong>Maisons dans cette catégorie :</strong> {{ objet.maison_set.count }}</p>
-                                <p><strong>Couleur :</strong> {{ objet.couleur|capfirst|default:"Non définie" }}</p>
+                                <p><strong>Description:</strong> {{ objet.description|default:"Aucune description" }}</p>
+                                <p><strong>Maisons dans cette catégorie:</strong> {{ objet.maison_set.count }}</p>
                             {% elif type == 'maison' %}
-                                <p><strong>Ville :</strong> {{ objet.ville }}</p>
-                                <p><strong>Capacité :</strong> {{ objet.capacite_personnes }} personnes</p>
-                                <p><strong>Prix :</strong> {{ objet.prix_par_nuit }}€ par nuit</p>
-                                <p><strong>Photos :</strong> {{ objet.photos.count }}</p>
+                                <p><strong>Ville:</strong> {{ objet.ville }}</p>
+                                <p><strong>Capacité:</strong> {{ objet.capacite_personnes }} personnes</p>
+                                <p><strong>Photos:</strong> {{ objet.photos.count }}</p>
                                 {% if objet.reservations %}
-                                    <p><strong>Réservations :</strong> {{ objet.reservations.count }}</p>
+                                    <p><strong>Réservations:</strong> {{ objet.reservations.count }}</p>
                                 {% endif %}
-                                <p><strong>Gestionnaire :</strong> {{ objet.gestionnaire.nom_complet|default:objet.gestionnaire.username }}</p>
                             {% elif type == 'photo' %}
-                                <p><strong>Maison :</strong> {{ objet.maison.nom }}</p>
-                                <p><strong>Titre :</strong> {{ objet.titre|default:"Sans titre" }}</p>
-                                <p><strong>Photo principale :</strong> {% if objet.principale %}Oui{% else %}Non{% endif %}</p>
-                                <p><strong>Ordre :</strong> {{ objet.ordre }}</p>
-                            {% elif type == 'réservation' %}
-                                <p><strong>Maison :</strong> {{ objet.maison.nom }}</p>
-                                <p><strong>Client :</strong> {{ objet.client.nom_complet|default:objet.client.username }}</p>
-                                <p><strong>Période :</strong> du {{ objet.date_debut|date:"d/m/Y" }} au {{ objet.date_fin|date:"d/m/Y" }}</p>
-                                <p><strong>Statut :</strong> {{ objet.get_statut_display }}</p>
-                                <p><strong>Prix total :</strong> {{ objet.prix_total }}€</p>
+                                <p><strong>Maison:</strong> {{ objet.maison.nom }}</p>
+                                <p><strong>Photo principale:</strong> {% if objet.principale %}Oui{% else %}Non{% endif %}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -135,8 +113,9 @@
             </div>
         </div>
 
-        <!-- Conséquences de la suppression -->
-        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-6">
+        <!-- Impact warning -->
+        {% if type == 'ville' and objet.maison_set.count > 0 or type == 'catégorie' and objet.maison_set.count > 0 or type == 'maison' %}
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
             <div class="flex items-start">
                 <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mt-1">
                     <i class="fas fa-exclamation text-yellow-600"></i>
@@ -146,46 +125,25 @@
                         Conséquences de cette suppression
                     </h4>
                     <div class="text-yellow-800 space-y-1">
-                        {% if type == 'ville' %}
-                            {% if objet.maison_set.count > 0 %}
-                                <p>⚠️ <strong>{{ objet.maison_set.count }} maison{{ objet.maison_set.count|pluralize }}</strong> perdront leur localisation</p>
-                                <p>🏠 Ces maisons devront être réassignées à une autre ville</p>
-                            {% else %}
-                                <p>✅ Aucune maison n'est associée à cette ville</p>
-                            {% endif %}
-                        {% elif type == 'catégorie' %}
-                            {% if objet.maison_set.count > 0 %}
-                                <p>⚠️ <strong>{{ objet.maison_set.count }} maison{{ objet.maison_set.count|pluralize }}</strong> perdront leur catégorie</p>
-                                <p>🏷️ Ces maisons redeviendront "non catégorisées"</p>
-                            {% else %}
-                                <p>✅ Aucune maison n'utilise cette catégorie</p>
-                            {% endif %}
+                        {% if type == 'ville' and objet.maison_set.count > 0 %}
+                            <p>⚠️ <strong>{{ objet.maison_set.count }} maison{{ objet.maison_set.count|pluralize }}</strong> perdront leur localisation</p>
+                        {% elif type == 'catégorie' and objet.maison_set.count > 0 %}
+                            <p>⚠️ <strong>{{ objet.maison_set.count }} maison{{ objet.maison_set.count|pluralize }}</strong> perdront leur catégorie</p>
                         {% elif type == 'maison' %}
                             <p>🖼️ <strong>{{ objet.photos.count }} photo{{ objet.photos.count|pluralize }}</strong> sera{{ objet.photos.count|pluralize:"nt" }} supprimée{{ objet.photos.count|pluralize:"s" }}</p>
                             {% if objet.reservations and objet.reservations.count > 0 %}
                                 <p>📅 <strong>{{ objet.reservations.count }} réservation{{ objet.reservations.count|pluralize }}</strong> sera{{ objet.reservations.count|pluralize:"nt" }} supprimée{{ objet.reservations.count|pluralize:"s" }}</p>
-                                <p>👥 Les clients concernés perdront leurs réservations</p>
                             {% endif %}
-                            <p>🌐 La page publique de cette maison ne sera plus accessible</p>
-                        {% elif type == 'photo' %}
-                            <p>🗑️ Le fichier image sera définitivement supprimé du serveur</p>
-                            {% if objet.principale %}
-                                <p>⚠️ C'est la photo principale de la maison "{{ objet.maison.nom }}"</p>
-                                <p>🖼️ Une autre photo devra être définie comme principale</p>
-                            {% endif %}
-                        {% elif type == 'réservation' %}
-                            <p>📧 Le client ne recevra pas de notification automatique</p>
-                            <p>💰 Les données de facturation seront perdues</p>
-                            <p>📊 Cette réservation n'apparaîtra plus dans les statistiques</p>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
+        {% endif %}
 
-        <!-- Alternatives suggérées -->
+        <!-- Alternative suggestion for houses with reservations -->
         {% if type == 'maison' and objet.reservations and objet.reservations.count > 0 %}
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
             <div class="flex items-start">
                 <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mt-1">
                     <i class="fas fa-lightbulb text-blue-600"></i>
@@ -195,7 +153,7 @@
                         Alternative recommandée
                     </h4>
                     <p class="text-blue-800 mb-3">
-                        Au lieu de supprimer cette maison, vous pourriez la rendre indisponible pour préserver l'historique des réservations.
+                        Rendez cette maison indisponible pour préserver l'historique des réservations.
                     </p>
                     <a href="{% url 'repavi_admin:maison_edit' objet.pk %}" 
                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
@@ -207,7 +165,7 @@
         </div>
         {% endif %}
 
-        <!-- Formulaire de confirmation -->
+        <!-- Confirmation form -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">
@@ -216,10 +174,10 @@
             </div>
             
             <div class="p-6">
-                <form method="post" onsubmit="return confirmDeletion()">
+                <form method="post" id="deleteForm">
                     {% csrf_token %}
                     
-                    <!-- Checkbox de confirmation -->
+                    <!-- Checkbox confirmation -->
                     <div class="mb-6">
                         <label class="flex items-start space-x-3 cursor-pointer">
                             <input type="checkbox" id="confirmDelete" required
@@ -230,23 +188,17 @@
                                 </div>
                                 <div class="text-gray-500 mt-1">
                                     Je confirme que je souhaite supprimer définitivement 
-                                    {% if type == 'ville' %}la {{ type }}
-                                    {% elif type == 'catégorie' %}la {{ type }}
-                                    {% elif type == 'maison' %}la {{ type }}
-                                    {% elif type == 'photo' %}la {{ type }}
-                                    {% elif type == 'réservation' %}la {{ type }}
-                                    {% else %}{{ type }}{% endif %}
                                     <strong>
                                         {% if type == 'ville' %}
-                                            "{{ objet.nom }}"
+                                            la ville "{{ objet.nom }}"
                                         {% elif type == 'catégorie' %}
-                                            "{{ objet.nom }}"
+                                            la catégorie "{{ objet.nom }}"
                                         {% elif type == 'maison' %}
-                                            "{{ objet.nom }}"
+                                            la maison "{{ objet.nom }}"
                                         {% elif type == 'photo' %}
-                                            de "{{ objet.maison.nom }}"
-                                        {% elif type == 'réservation' %}
-                                            de {{ objet.client.nom_complet|default:objet.client.username }}
+                                            cette photo
+                                        {% else %}
+                                            cet élément
                                         {% endif %}
                                     </strong>
                                 </div>
@@ -254,31 +206,31 @@
                         </label>
                     </div>
 
-                    <!-- Zone de saisie du nom pour confirmation supplémentaire -->
-                    {% if type == 'maison' %}
+                    <!-- Name verification for critical items -->
+                    {% if type == 'maison' or type == 'ville' and objet.maison_set.count > 5 %}
                     <div class="mb-6">
                         <label for="confirmName" class="block text-sm font-medium text-gray-700 mb-2">
-                            Pour confirmer, tapez le nom de la maison : <strong>{{ objet.nom }}</strong>
+                            Pour confirmer, tapez le nom : <strong>{{ objet.nom }}</strong>
                         </label>
                         <input type="text" id="confirmName" 
-                               placeholder="Tapez le nom exact de la maison"
+                               placeholder="Tapez le nom exact"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                                data-expected="{{ objet.nom }}">
                         <p class="mt-1 text-sm text-gray-500">
-                            Cette vérification supplémentaire est requise pour les maisons.
+                            Cette vérification supplémentaire est requise.
                         </p>
                     </div>
                     {% endif %}
 
-                    <!-- Boutons d'action -->
+                    <!-- Action buttons -->
                     <div class="flex justify-end space-x-3">
-                        <a href="{% if type == 'ville' %}{% url 'repavi_admin:villes_list' %}{% elif type == 'catégorie' %}{% url 'repavi_admin:categories_list' %}{% elif type == 'maison' %}{% url 'repavi_admin:maisons_list' %}{% elif type == 'photo' %}{% url 'repavi_admin:photos_list' %}{% elif type == 'réservation' %}{% url 'repavi_admin:reservations_list' %}{% else %}{% url 'repavi_admin:dashboard' %}{% endif %}" 
-                           class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        <a href="{% if type == 'ville' %}{% url 'repavi_admin:villes_list' %}{% elif type == 'catégorie' %}{% url 'repavi_admin:categories_list' %}{% elif type == 'maison' %}{% url 'repavi_admin:maisons_list' %}{% elif type == 'photo' %}{% url 'repavi_admin:photos_list' %}{% else %}{% url 'repavi_admin:dashboard' %}{% endif %}" 
+                           class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
                             <i class="fas fa-times mr-2"></i>
                             Annuler
                         </a>
                         <button type="submit" id="deleteBtn"
-                                class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled>
                             <i class="fas fa-trash mr-2"></i>
                             Supprimer définitivement
@@ -288,60 +240,69 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-    // Variables pour la validation
-    const confirmCheckbox = document.getElementById('confirmDelete');
-    const deleteBtn = document.getElementById('deleteBtn');
-    const confirmNameInput = document.getElementById('confirmName');
-    const expectedName = confirmNameInput ? confirmNameInput.dataset.expected : null;
-
-    // Fonction de validation
-    function validateForm() {
-        let isValid = confirmCheckbox.checked;
-        
-        // Vérification supplémentaire du nom pour les maisons
-        if (confirmNameInput && expectedName) {
-            isValid = isValid && confirmNameInput.value.trim() === expectedName;
-        }
-        
-        deleteBtn.disabled = !isValid;
-        
-        // Changer l'apparence du bouton
-        if (isValid) {
-            deleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            deleteBtn.classList.add('hover:bg-red-700');
-        } else {
-            deleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            deleteBtn.classList.remove('hover:bg-red-700');
-        }
-    }
-
-    // Événements de validation
-    confirmCheckbox.addEventListener('change', validateForm);
-    if (confirmNameInput) {
-        confirmNameInput.addEventListener('input', validateForm);
-    }
-
-    // Confirmation finale
-    function confirmDeletion() {
-        if (!confirmCheckbox.checked) {
-            alert('Veuillez confirmer que vous comprenez les conséquences de cette action.');
-            return false;
-        }
-        
-        if (confirmNameInput && confirmNameInput.value.trim() !== expectedName) {
-            alert('Le nom saisi ne correspond pas. Veuillez taper exactement : ' + expectedName);
-            confirmNameInput.focus();
-            return false;
-        }
-        
-        // Dernière confirmation
-        const message = `Êtes-vous absolument certain de vouloir supprimer {% if type == 'ville' %}la {{ type }}{% elif type == 'catégorie' %}la {{ type }}{% elif type == 'maison' %}la {{ type }}{% elif type == 'photo' %}la {{ type }}{% elif type == 'réservation' %}la {{ type }}{% else %}{{ type }}{% endif %} ?\n\nCette action est IRRÉVERSIBLE !`;
-        return confirm(message);
-    }
-
-    // Animation d'entrée
     document.addEventListener('DOMContentLoaded', function() {
+        const confirmCheckbox = document.getElementById('confirmDelete');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const confirmNameInput = document.getElementById('confirmName');
+        const expectedName = confirmNameInput ? confirmNameInput.dataset.expected : null;
+        const form = document.getElementById('deleteForm');
+
+        // Validation function
+        function validateForm() {
+            let isValid = confirmCheckbox.checked;
+            
+            if (confirmNameInput && expectedName) {
+                isValid = isValid && confirmNameInput.value.trim() === expectedName;
+            }
+            
+            deleteBtn.disabled = !isValid;
+            deleteBtn.classList.toggle('opacity-50', !isValid);
+            deleteBtn.classList.toggle('cursor-not-allowed', !isValid);
+        }
+
+        // Event listeners
+        confirmCheckbox.addEventListener('change', validateForm);
+        if (confirmNameInput) {
+            confirmNameInput.addEventListener('input', validateForm);
+        }
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            if (!confirmCheckbox.checked) {
+                e.preventDefault();
+                alert('Veuillez confirmer que vous comprenez les conséquences de cette action.');
+                return;
+            }
+            
+            if (confirmNameInput && confirmNameInput.value.trim() !== expectedName) {
+                e.preventDefault();
+                alert('Le nom saisi ne correspond pas. Veuillez taper exactement : ' + expectedName);
+                confirmNameInput.focus();
+                return;
+            }
+            
+            // Final confirmation
+            const confirmMessage = `Êtes-vous absolument certain de vouloir supprimer cet élément ?\n\nCette action est IRRÉVERSIBLE !`;
+            if (!confirm(confirmMessage)) {
+                e.preventDefault();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const cancelBtn = document.querySelector('a[href*="list"]');
+                if (cancelBtn) {
+                    window.location.href = cancelBtn.href;
+                }
+            }
+        });
+
+        // Animation
         const sections = document.querySelectorAll('.bg-white, .bg-red-50, .bg-yellow-50, .bg-blue-50');
         sections.forEach((section, index) => {
             section.style.opacity = '0';
@@ -353,35 +314,22 @@
                 section.style.transform = 'translateY(0)';
             }, index * 100);
         });
-        
-        // Focus sur la checkbox après l'animation
+
+        // Focus management
         setTimeout(() => {
             confirmCheckbox.focus();
         }, 500);
-    });
 
-    // Prévenir la fermeture accidentelle
-    let formSubmitted = false;
-    
-    document.querySelector('form').addEventListener('submit', function() {
-        formSubmitted = true;
-    });
-    
-    window.addEventListener('beforeunload', function(e) {
-        if (confirmCheckbox.checked && !formSubmitted) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
-
-    // Raccourci clavier pour annuler (Échap)
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const cancelBtn = document.querySelector('a[href*="list"]');
-            if (cancelBtn) {
-                window.location.href = cancelBtn.href;
+        // Prevent accidental navigation
+        let formSubmitted = false;
+        form.addEventListener('submit', () => formSubmitted = true);
+        
+        window.addEventListener('beforeunload', function(e) {
+            if (confirmCheckbox.checked && !formSubmitted) {
+                e.preventDefault();
+                e.returnValue = '';
             }
-        }
+        });
     });
 </script>
 {% endblock %}

@@ -1,14 +1,15 @@
+<!-- templates/admin/villes/form.html -->
 {% extends 'admin/base.html' %}
 
-{% block title %}{{ action }} une ville - Administration RepAvi{% endblock %}
+{% block title %}{{ action }} une ville - RepAvi Admin{% endblock %}
 {% block page_title %}{{ action }} une ville{% endblock %}
 
 {% block breadcrumb %}
     <nav class="text-sm">
         <ol class="flex items-center space-x-2 text-gray-500">
-            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700 transition-colors">Tableau de bord</a></li>
             <li><i class="fas fa-chevron-right text-xs"></i></li>
-            <li><a href="{% url 'repavi_admin:villes_list' %}" class="hover:text-gray-700">Villes</a></li>
+            <li><a href="{% url 'repavi_admin:villes_list' %}" class="hover:text-gray-700 transition-colors">Villes</a></li>
             <li><i class="fas fa-chevron-right text-xs"></i></li>
             <li class="text-gray-900 font-medium">{{ action }}</li>
         </ol>
@@ -16,67 +17,311 @@
 {% endblock %}
 
 {% block content %}
-    <div class="max-w-2xl">
-        <form method="post" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <div class="max-w-2xl mx-auto">
+        <form method="post" class="space-y-6">
             {% csrf_token %}
             
-            <div class="space-y-6">
-                <div>
-                    <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        Nom de la ville *
-                    </label>
-                    {{ form.nom }}
-                    {% if form.nom.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.nom.errors.0 }}</p>
-                    {% endif %}
+            <!-- Main form card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>
+                        Informations de la ville
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600">
+                        Renseignez les informations géographiques de la ville.
+                    </p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-6 space-y-6">
+                    <!-- City name -->
                     <div>
-                        <label for="{{ form.code_postal.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Code postal *
+                        <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nom de la ville <span class="text-red-500">*</span>
                         </label>
-                        {{ form.code_postal }}
-                        {% if form.code_postal.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.code_postal.errors.0 }}</p>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.nom.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">
+                            Le nom officiel de la ville
+                        </p>
+                    </div>
+
+                    <!-- Location details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.code_postal.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Code postal <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.code_postal }}
+                            {% if form.code_postal.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.code_postal.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.departement.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Département <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.departement }}
+                            {% if form.departement.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.departement.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Country and region -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.pays.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Pays <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.pays }}
+                            {% if form.pays.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.pays.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.region %}
+                        <div>
+                            <label for="{{ form.region.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Région
+                            </label>
+                            {{ form.region }}
+                            {% if form.region.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.region.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </div>
-                    
-                    <div>
-                        <label for="{{ form.departement.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            Département *
-                        </label>
-                        {{ form.departement }}
-                        {% if form.departement.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.departement.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div>
-                    <label for="{{ form.pays.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                        Pays *
-                    </label>
-                    {{ form.pays }}
-                    {% if form.pays.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.pays.errors.0 }}</p>
-                    {% endif %}
                 </div>
             </div>
-            
-            <div class="flex items-center justify-between pt-8 border-t border-gray-200 mt-8">
+
+            <!-- Form errors -->
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Erreurs dans le formulaire
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Action buttons -->
+            <div class="flex items-center justify-between">
                 <a href="{% url 'repavi_admin:villes_list' %}" 
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                   class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Retour à la liste
                 </a>
                 
                 <button type="submit" 
-                        class="inline-flex items-center px-6 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
                     <i class="fas fa-save mr-2"></i>
-                    {% if objet %}Mettre à jour{% else %}Créer la ville{% endif %}
+                    {% if objet %}
+                        Mettre à jour la ville
+                    {% else %}
+                        Créer la ville
+                    {% endif %}
                 </button>
             </div>
         </form>
+
+        <!-- Additional info for existing cities -->
+        {% if objet and action == "Modifier" %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mt-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Informations supplémentaires</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="text-center p-4 bg-gray-50 rounded-xl">
+                        <div class="text-2xl font-bold text-gray-900">{{ objet.maison_set.count|default:0 }}</div>
+                        <div class="text-sm text-gray-600 mb-2">Maisons</div>
+                        {% if objet.maison_set.count > 0 %}
+                            <a href="{% url 'repavi_admin:maisons_list' %}?ville={{ objet.pk }}" 
+                               class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                Voir les maisons <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        {% else %}
+                            <span class="text-sm text-gray-500">Aucune maison</span>
+                        {% endif %}
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-xl">
+                        <div class="text-sm text-gray-600 mb-2">Date de création</div>
+                        <div class="text-lg font-medium text-gray-900">
+                            {% if objet.date_creation %}
+                                {{ objet.date_creation|date:"d/m/Y" }}
+                            {% else %}
+                                Non renseignée
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Form field styling */
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        background-color: white;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .form-control.is-invalid {
+        border-color: #ef4444;
+    }
+    
+    /* Select styling */
+    select.form-control {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        function validateForm() {
+            const requiredFields = document.querySelectorAll('input[required], select[required]');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                }
+            });
+
+            if (submitBtn) {
+                submitBtn.disabled = !isValid;
+                if (!isValid) {
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        // Real-time validation
+        document.querySelectorAll('input, select').forEach(field => {
+            field.addEventListener('input', validateForm);
+            field.addEventListener('change', validateForm);
+        });
+
+        // Postal code formatting (for French postal codes)
+        const codePostalField = document.querySelector('input[name*="code_postal"]');
+        if (codePostalField) {
+            codePostalField.addEventListener('input', function() {
+                // Remove non-digits and limit to 5 characters
+                this.value = this.value.replace(/\D/g, '').substring(0, 5);
+                
+                // Basic French postal code validation
+                const value = this.value;
+                if (value.length === 5 && !/^(0[1-9]|[1-8][0-9]|9[0-8])[0-9]{3}$/.test(value)) {
+                    this.setCustomValidity('Code postal français invalide');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        }
+
+        // Auto-capitalize city name
+        const nomField = document.querySelector('input[name*="nom"]');
+        if (nomField) {
+            nomField.addEventListener('blur', function() {
+                // Capitalize first letter of each word
+                this.value = this.value.replace(/\b\w/g, l => l.toUpperCase());
+            });
+        }
+
+        // Initial validation
+        validateForm();
+
+        // Unsaved changes warning
+        let formChanged = false;
+        
+        document.querySelectorAll('input, select').forEach(field => {
+            field.addEventListener('input', () => {
+                formChanged = true;
+            });
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', () => {
+            formChanged = false;
+        });
+
+        // Animation on load
+        const formCard = document.querySelector('.bg-white');
+        if (formCard) {
+            formCard.style.opacity = '0';
+            formCard.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                formCard.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                formCard.style.opacity = '1';
+                formCard.style.transform = 'translateY(0)';
+            }, 100);
+        }
+    });
+</script>
 {% endblock %}

@@ -7,10 +7,10 @@
 {% block breadcrumb %}
     <nav class="text-sm">
         <ol class="flex items-center space-x-2 text-gray-500">
-            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
-            <li class="text-gray-400">/</li>
-            <li><a href="{% url 'repavi_admin:maisons_list' %}" class="hover:text-gray-700">Maisons</a></li>
-            <li class="text-gray-400">/</li>
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700 transition-colors">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
+            <li><a href="{% url 'repavi_admin:maisons_list' %}" class="hover:text-gray-700 transition-colors">Maisons</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
             <li class="text-gray-900 font-medium">{{ action }}</li>
         </ol>
     </nav>
@@ -71,12 +71,19 @@
                         </div>
                     </div>
 
-                    <!-- Slug -->
+                    <!-- Slug with regenerate button -->
                     <div>
                         <label for="{{ form.slug.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
                             URL slug
                         </label>
-                        {{ form.slug }}
+                        <div class="flex space-x-2">
+                            {{ form.slug }}
+                            <button type="button" id="regenerate-slug" 
+                                    class="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                    title="Régénérer le slug depuis le nom">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
                         {% if form.slug.errors %}
                             <div class="mt-1 text-sm text-red-600">
                                 {% for error in form.slug.errors %}
@@ -85,7 +92,7 @@
                             </div>
                         {% endif %}
                         <p class="mt-1 text-sm text-gray-500">
-                            URL de la maison (auto-généré si vide)
+                            URL de la maison (auto-généré depuis le nom)
                         </p>
                     </div>
 
@@ -107,7 +114,7 @@
                         </p>
                     </div>
 
-                    <!-- Localisation -->
+                    <!-- Localisation with quick action links -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="{{ form.ville.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
@@ -121,6 +128,15 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
+                            <!-- Quick action link -->
+                            <div class="mt-2">
+                                <a href="{% url 'repavi_admin:ville_create' %}" target="_blank"
+                                   class="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 transition-colors">
+                                    <i class="fas fa-plus mr-1"></i>
+                                    Ajouter une nouvelle ville
+                                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
+                            </div>
                         </div>
                         
                         <div>
@@ -138,7 +154,7 @@
                         </div>
                     </div>
 
-                    <!-- Catégorie et statut -->
+                    <!-- Catégorie et statut with quick action link -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="{{ form.categorie.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
@@ -152,6 +168,15 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
+                            <!-- Quick action link -->
+                            <div class="mt-2">
+                                <a href="{% url 'repavi_admin:categorie_create' %}" target="_blank"
+                                   class="inline-flex items-center text-sm text-emerald-600 hover:text-emerald-700 transition-colors">
+                                    <i class="fas fa-plus mr-1"></i>
+                                    Créer une nouvelle catégorie
+                                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
+                            </div>
                         </div>
                         
                         <div>
@@ -195,7 +220,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">
-                        <i class="fas fa-ruler-combined mr-2 text-green-500"></i>
+                        <i class="fas fa-ruler-combined mr-2 text-emerald-500"></i>
                         Caractéristiques
                     </h3>
                     <p class="mt-1 text-sm text-gray-600">
@@ -274,7 +299,7 @@
                             <div class="relative">
                                 {{ form.prix_par_nuit }}
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">FCFA</span>
+                                    <span class="text-gray-500 text-sm">FCFA</span>
                                 </div>
                             </div>
                             {% if form.prix_par_nuit.errors %}
@@ -343,7 +368,7 @@
                         <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                             {{ form.jardin }}
                             <label for="{{ form.jardin.id_for_label }}" class="ml-3 flex items-center cursor-pointer">
-                                <i class="fas fa-tree text-green-500 mr-2"></i>
+                                <i class="fas fa-tree text-emerald-500 mr-2"></i>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">Jardin</div>
                                     <div class="text-xs text-gray-500">Espace extérieur</div>
@@ -391,7 +416,7 @@
                         <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                             {{ form.balcon }}
                             <label for="{{ form.balcon.id_for_label }}" class="ml-3 flex items-center cursor-pointer">
-                                <i class="fas fa-building text-orange-500 mr-2"></i>
+                                <i class="fas fa-building text-amber-500 mr-2"></i>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">Balcon</div>
                                     <div class="text-xs text-gray-500">Espace extérieur couvert</div>
@@ -403,7 +428,7 @@
                         <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                             {{ form.terrasse }}
                             <label for="{{ form.terrasse.id_for_label }}" class="ml-3 flex items-center cursor-pointer">
-                                <i class="fas fa-home text-green-600 mr-2"></i>
+                                <i class="fas fa-home text-emerald-600 mr-2"></i>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">Terrasse</div>
                                     <div class="text-xs text-gray-500">Espace extérieur ouvert</div>
@@ -418,7 +443,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">
-                        <i class="fas fa-toggle-on mr-2 text-orange-500"></i>
+                        <i class="fas fa-toggle-on mr-2 text-amber-500"></i>
                         Options de publication
                     </h3>
                     <p class="mt-1 text-sm text-gray-600">
@@ -432,7 +457,7 @@
                         <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                             {{ form.disponible }}
                             <label for="{{ form.disponible.id_for_label }}" class="ml-3 flex items-center cursor-pointer">
-                                <i class="fas fa-eye text-green-500 mr-2"></i>
+                                <i class="fas fa-eye text-emerald-500 mr-2"></i>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">Disponible</div>
                                     <div class="text-xs text-gray-500">Visible sur le site et réservable</div>
@@ -444,7 +469,7 @@
                         <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                             {{ form.featured }}
                             <label for="{{ form.featured.id_for_label }}" class="ml-3 flex items-center cursor-pointer">
-                                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                <i class="fas fa-star text-amber-500 mr-2"></i>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">Featured</div>
                                     <div class="text-xs text-gray-500">Mise en avant sur la page d'accueil</div>
@@ -457,10 +482,10 @@
 
             <!-- Messages d'erreur généraux -->
             {% if form.non_field_errors %}
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-6">
                     <div class="flex">
                         <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-circle text-red-400"></i>
+                            <i class="fas fa-exclamation-circle text-red-400 text-xl"></i>
                         </div>
                         <div class="ml-3">
                             <h3 class="text-sm font-medium text-red-800">
@@ -477,14 +502,15 @@
             {% endif %}
 
             <!-- Boutons d'action -->
-            <div class="flex justify-end space-x-3">
+            <div class="flex items-center justify-between">
                 <a href="{% url 'repavi_admin:maisons_list' %}" 
-                   class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fas fa-times mr-2"></i>
-                    Annuler
+                   class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour à la liste
                 </a>
+                
                 <button type="submit" 
-                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm hover:shadow-md">
                     <i class="fas fa-save mr-2"></i>
                     {% if action == "Créer" %}
                         Créer la maison
@@ -496,53 +522,47 @@
         </form>
 
         <!-- Informations supplémentaires pour modification -->
-<!-- Informations supplémentaires pour modification -->
         {% if action == "Modifier" and objet %}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 mt-8">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">Informations supplémentaires</h3>
             </div>
             <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <p class="text-sm text-gray-500">Photos</p>
-                        <p class="text-lg font-medium text-gray-900">{{ objet.photos.count }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center p-4 bg-gray-50 rounded-xl">
+                        <div class="text-2xl font-bold text-gray-900">{{ objet.photos.count }}</div>
+                        <div class="text-sm text-gray-600 mb-2">Photos</div>
                         {% url 'repavi_admin:photos_list' as photos_url %}
                         {% if photos_url %}
                             <a href="{{ photos_url }}?maison={{ objet.pk }}" 
-                               class="text-sm text-blue-600 hover:text-blue-800">
+                               class="text-sm text-blue-600 hover:text-blue-700 font-medium">
                                 Gérer les photos <i class="fas fa-arrow-right ml-1"></i>
                             </a>
                         {% else %}
                             <span class="text-sm text-gray-500">Gestion des photos</span>
                         {% endif %}
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Réservations</p>
-                        {% if objet.reservations.count %}
-                            <p class="text-lg font-medium text-gray-900">{{ objet.reservations.count }}</p>
-                        {% else %}
-                            <p class="text-lg font-medium text-gray-900">0</p>
-                        {% endif %}
-                        
-                        {% if reservations_available %}
+                    <div class="text-center p-4 bg-gray-50 rounded-xl">
+                        <div class="text-2xl font-bold text-gray-900">{{ objet.reservations.count|default:0 }}</div>
+                        <div class="text-sm text-gray-600 mb-2">Réservations</div>
+                        {% if reservations_available and objet.reservations.count %}
                             {% url 'reservations:mes_reservations' as reservations_url %}
                             {% if reservations_url %}
                                 <a href="{{ reservations_url }}?maison={{ objet.pk }}" 
-                                   class="text-sm text-blue-600 hover:text-blue-800">
+                                   class="text-sm text-blue-600 hover:text-blue-700 font-medium">
                                     Voir les réservations <i class="fas fa-arrow-right ml-1"></i>
                                 </a>
                             {% else %}
                                 <span class="text-sm text-gray-500">Voir les réservations</span>
                             {% endif %}
                         {% else %}
-                            <span class="text-sm text-gray-500">Module réservations indisponible</span>
+                            <span class="text-sm text-gray-500">Aucune réservation</span>
                         {% endif %}
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Page publique</p>
+                    <div class="text-center p-4 bg-gray-50 rounded-xl">
+                        <div class="text-sm text-gray-600 mb-2">Page publique</div>
                         <a href="{{ objet.get_absolute_url }}" target="_blank"
-                           class="text-lg font-medium text-blue-600 hover:text-blue-800">
+                           class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
                             Voir sur le site <i class="fas fa-external-link-alt ml-1"></i>
                         </a>
                     </div>
@@ -550,12 +570,12 @@
             </div>
         </div>
         {% endif %}
-        </div>
+    </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Styles pour les champs de formulaire */
+    /* Custom form styling */
     .form-control {
         width: 100%;
         padding: 0.5rem 0.75rem;
@@ -572,26 +592,23 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
     
-    .form-control.is-invalid {
-        border-color: #ef4444;
-    }
-    
     textarea.form-control {
         min-height: 100px;
         resize: vertical;
     }
 
-    /* Checkbox styling */
+    /* Enhanced checkbox styling */
     input[type="checkbox"] {
         appearance: none;
         width: 1.25rem;
         height: 1.25rem;
         border: 2px solid #d1d5db;
-        border-radius: 0.25rem;
+        border-radius: 0.375rem;
         background-color: white;
         cursor: pointer;
         position: relative;
         transition: all 0.15s ease-in-out;
+        flex-shrink: 0;
     }
 
     input[type="checkbox"]:checked {
@@ -609,74 +626,122 @@
         font-size: 0.875rem;
         font-weight: bold;
     }
+
+    input[type="checkbox"]:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+    }
+
+    /* Button animations */
+    @keyframes pulse {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(180deg); }
+    }
+    
+    .animate-pulse-rotate {
+        animation: pulse 1s ease-in-out;
+    }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Auto-génération du slug à partir du nom
-    document.querySelector('input[name*="nom"]').addEventListener('input', function() {
-        const slugField = document.querySelector('input[name*="slug"]');
-        if (slugField && !slugField.value) {
-            const slug = this.value
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.querySelector('input[name*="nom"]');
+        const slugInput = document.querySelector('input[name*="slug"]');
+        const numeroInput = document.querySelector('input[name*="numero"]');
+        const regenerateBtn = document.getElementById('regenerate-slug');
+        
+        // Enhanced slug generation function
+        function generateSlug(text) {
+            return text
                 .toLowerCase()
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^a-z0-9]/g, '-')
+                .replace(/[^a-z0-9\s]/g, '')
+                .trim()
+                .replace(/\s+/g, '-')
                 .replace(/-+/g, '-')
                 .replace(/^-|-$/g, '');
-            slugField.value = slug;
         }
-    });
-
-    // Auto-génération du numéro à partir du nom (optionnel)
-    document.querySelector('input[name*="nom"]').addEventListener('input', function() {
-        const numeroField = document.querySelector('input[name*="numero"]');
-        if (numeroField && !numeroField.value) {
-            // Générer un numéro simple basé sur les premières lettres + timestamp
-            const nom = this.value.trim();
-            if (nom.length >= 2) {
-                const prefix = nom.substring(0, 2).toUpperCase();
-                const timestamp = Date.now().toString().slice(-3);
-                numeroField.value = `${prefix}${timestamp}`;
+        
+        // Auto-generate slug from name
+        nameInput.addEventListener('input', function() {
+            if (slugInput && !slugInput.value) {
+                const slug = generateSlug(this.value);
+                slugInput.value = slug;
             }
-        }
-    });
-
-    // Validation en temps réel
-    function validateForm() {
-        const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
-        const submitBtn = document.querySelector('button[type="submit"]');
-        let isValid = true;
-
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                isValid = false;
+        });
+        
+        // Regenerate slug button functionality
+        regenerateBtn.addEventListener('click', function() {
+            if (nameInput.value) {
+                const slug = generateSlug(nameInput.value);
+                slugInput.value = slug;
+                
+                // Add visual feedback
+                this.classList.add('animate-pulse-rotate');
+                setTimeout(() => {
+                    this.classList.remove('animate-pulse-rotate');
+                }, 1000);
+                
+                // Show brief success message
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check text-green-600"></i>';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 1000);
+            } else {
+                // Show warning if no name
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-exclamation text-red-600"></i>';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 1000);
             }
         });
 
-        if (submitBtn) {
-            if (isValid) {
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        // Auto-generate number from name
+        nameInput.addEventListener('input', function() {
+            if (numeroInput && !numeroInput.value) {
+                const nom = this.value.trim();
+                if (nom.length >= 2) {
+                    const prefix = nom.substring(0, 2).toUpperCase();
+                    const timestamp = Date.now().toString().slice(-3);
+                    numeroInput.value = `${prefix}${timestamp}`;
+                }
+            }
+        });
+
+        // Form validation with enhanced UX
+        function validateForm() {
+            const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                }
+            });
+
+            if (submitBtn) {
+                submitBtn.disabled = !isValid;
+                if (!isValid) {
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
             }
         }
-    }
 
-    // Validation initiale
-    document.addEventListener('DOMContentLoaded', function() {
-        validateForm();
-
-        // Validation à chaque changement
+        // Real-time validation
         document.querySelectorAll('input, select, textarea').forEach(field => {
             field.addEventListener('input', validateForm);
             field.addEventListener('change', validateForm);
         });
 
-        // Formatage des prix
+        // Price formatting
         const prixField = document.querySelector('input[name*="prix_par_nuit"]');
         if (prixField) {
             prixField.addEventListener('blur', function() {
@@ -687,7 +752,7 @@
             });
         }
 
-        // Validation de la superficie
+        // Enhanced validation rules
         const superficieField = document.querySelector('input[name*="superficie"]');
         if (superficieField) {
             superficieField.addEventListener('input', function() {
@@ -700,11 +765,11 @@
             });
         }
 
-        // Validation de la capacité
+        // Capacity vs rooms validation
         const capaciteField = document.querySelector('input[name*="capacite_personnes"]');
         const chambresField = document.querySelector('input[name*="nombre_chambres"]');
         
-        function validateCapacite() {
+        function validateCapacity() {
             if (capaciteField && chambresField) {
                 const capacite = parseInt(capaciteField.value);
                 const chambres = parseInt(chambresField.value);
@@ -717,15 +782,14 @@
             }
         }
 
-        if (capaciteField) capaciteField.addEventListener('input', validateCapacite);
-        if (chambresField) chambresField.addEventListener('input', validateCapacite);
+        if (capaciteField) capaciteField.addEventListener('input', validateCapacity);
+        if (chambresField) chambresField.addEventListener('input', validateCapacity);
 
-        // Validation du numéro de maison (format)
+        // Number format validation
         const numeroField = document.querySelector('input[name*="numero"]');
         if (numeroField) {
             numeroField.addEventListener('input', function() {
                 const value = this.value.trim();
-                // Permettre lettres, chiffres et tirets
                 const validFormat = /^[A-Za-z0-9-]+$/.test(value);
                 
                 if (value && !validFormat) {
@@ -735,39 +799,47 @@
                 }
             });
         }
-    });
 
-    // Animation des sections
-    document.querySelectorAll('.bg-white.rounded-xl').forEach((section, index) => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(20px)';
+        // Initial validation
+        validateForm();
+
+        // Handle new window creation notifications for quick actions
+        let newWindowOpened = false;
         
-        setTimeout(() => {
-            section.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
-            section.style.opacity = '1';
-            section.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-
-    // Confirmation avant de quitter si le formulaire est modifié
-    let formChanged = false;
-    
-    document.querySelectorAll('input, select, textarea').forEach(field => {
-        field.addEventListener('input', () => {
-            formChanged = true;
+        window.addEventListener('focus', function() {
+            if (newWindowOpened) {
+                setTimeout(() => {
+                    location.reload(); // Reload to update select options
+                }, 1000);
+                newWindowOpened = false;
+            }
         });
-    });
+        
+        document.querySelectorAll('a[target="_blank"]').forEach(link => {
+            link.addEventListener('click', function() {
+                newWindowOpened = true;
+            });
+        });
 
-    window.addEventListener('beforeunload', function(e) {
-        if (formChanged) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
+        // Unsaved changes warning
+        let formChanged = false;
+        
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('input', () => {
+                formChanged = true;
+            });
+        });
 
-    // Désactiver l'alerte de sortie lors de la soumission
-    document.querySelector('form').addEventListener('submit', () => {
-        formChanged = false;
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', () => {
+            formChanged = false;
+        });
     });
 </script>
 {% endblock %}

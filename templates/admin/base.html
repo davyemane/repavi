@@ -35,9 +35,9 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
-        /* Sidebar animations and states */
+        /* Clean Sidebar System */
         .sidebar {
-            transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease;
         }
 
         .sidebar.collapsed {
@@ -45,7 +45,7 @@
         }
 
         .sidebar-content {
-            transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease;
             opacity: 1;
         }
 
@@ -59,35 +59,36 @@
 
         .sidebar-icon-only {
             opacity: 0;
-            transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease;
         }
 
         /* Submenu animations */
         .submenu {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-in-out;
+            transition: max-height 0.3s ease;
         }
 
         .submenu.active {
             max-height: 500px;
         }
 
-        /* Tooltip for collapsed sidebar */
+        /* Clean tooltip */
         .tooltip {
             position: absolute;
             left: 4.5rem;
             background-color: #1f2937;
             color: white;
             padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
             font-size: 0.875rem;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease;
             z-index: 1000;
             white-space: nowrap;
             pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .sidebar.collapsed .sidebar-link:hover .tooltip {
@@ -95,9 +96,9 @@
             visibility: visible;
         }
 
-        /* Animations */
+        /* Simple animations */
         .fade-in {
-            animation: fadeIn 0.5s ease-in;
+            animation: fadeIn 0.5s ease;
         }
 
         @keyframes fadeIn {
@@ -115,7 +116,7 @@
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
+                transition: transform 0.3s ease;
             }
 
             .sidebar.mobile-open {
@@ -123,12 +124,22 @@
             }
         }
 
-        /* Focus styles for accessibility */
+        /* Enhanced focus styles */
         .sidebar-link:focus,
         button:focus,
         a:focus {
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
+        }
+
+        /* Clean hover effects */
+        .stat-card {
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
         /* Reduced motion support */
@@ -139,111 +150,129 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* Custom scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-30">
-    <div class="mx-auto px-3 sm:px-4 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-            <div class="flex items-center min-w-0 flex-1">
-                <!-- Desktop Sidebar Toggle -->
-                <button
-                    id="sidebar-toggle"
-                    class="hidden md:block mr-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    aria-label="Toggle sidebar">
-                    <i class="fas fa-bars text-lg" aria-hidden="true"></i>
-                </button>
-                
-                <!-- Mobile Menu Toggle -->
-                <button
-                    id="mobile-menu-toggle"
-                    class="md:hidden mr-2 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    aria-label="Open mobile menu">
-                    <i class="fas fa-bars text-lg" aria-hidden="true"></i>
-                </button>
+        <div class="mx-auto px-3 sm:px-4 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center min-w-0 flex-1">
+                    <!-- Desktop Sidebar Toggle -->
+                    <button
+                        id="sidebar-toggle"
+                        class="hidden md:block mr-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        aria-label="Toggle sidebar">
+                        <i class="fas fa-bars text-lg" aria-hidden="true"></i>
+                    </button>
+                    
+                    <!-- Mobile Menu Toggle -->
+                    <button
+                        id="mobile-menu-toggle"
+                        class="md:hidden mr-2 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        aria-label="Open mobile menu">
+                        <i class="fas fa-bars text-lg" aria-hidden="true"></i>
+                    </button>
 
-                <!-- Logo -->
-                <a href="{% url 'repavi_admin:dashboard' %}" class="flex items-center space-x-2 hover:opacity-80 transition-opacity min-w-0">
-                    <img src="{% static 'images/repavi_lodge_dark_1.png' %}" alt="RepAvi" class="h-6 sm:h-8 w-6 sm:w-8 object-contain flex-shrink-0" />
-                    <!-- Full text on desktop, short on mobile -->
-                    <span class="hidden sm:block text-xl font-bold text-blue-600">RepAvi Admin</span>
-                    <span class="sm:hidden text-lg font-bold text-blue-600">RepAvi</span>
-                </a>
-            </div>
-
-            <!-- Desktop User Menu -->
-            <div class="hidden md:flex items-center space-x-4">
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-blue-600 text-sm" aria-hidden="true"></i>
-                    </div>
-                    <span class="text-gray-700 font-medium truncate max-w-32">{{ user.first_name|default:user.username }}</span>
-                </div>
-                <div class="border-l border-gray-300 pl-4">
-                    <a href="{% url 'home:index' %}"
-                        class="text-gray-500 hover:text-gray-700 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
-                        <i class="fas fa-external-link-alt mr-1" aria-hidden="true"></i>Voir le site
+                    <!-- Logo -->
+                    <a href="{% url 'repavi_admin:dashboard' %}" class="flex items-center space-x-2 hover:opacity-80 transition-opacity min-w-0">
+                        <img src="{% static 'images/repavi_lodge_dark_1.png' %}" alt="RepAvi" class="h-6 sm:h-8 w-6 sm:w-8 object-contain flex-shrink-0" />
+                        <!-- Full text on desktop, short on mobile -->
+                        <span class="hidden sm:block text-xl font-bold text-blue-600">RepAvi Admin</span>
+                        <span class="sm:hidden text-lg font-bold text-blue-600">RepAvi</span>
                     </a>
                 </div>
-                <div class="border-l border-gray-300 pl-4">
-                    <a href="{% url 'users:logout' %}"
-                        class="text-red-500 hover:text-red-700 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-2 py-1">
-                        <i class="fas fa-sign-out-alt mr-1" aria-hidden="true"></i>Déconnexion
-                    </a>
-                </div>
-            </div>
 
-            <!-- Mobile User Menu -->
-            <div class="md:hidden relative">
-                <button
-                    id="mobile-user-menu-toggle"
-                    class="flex items-center space-x-2 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    aria-label="User menu"
-                    aria-expanded="false"
-                    aria-haspopup="true">
-                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-blue-600 text-sm" aria-hidden="true"></i>
-                    </div>
-                    <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="mobile-user-menu-icon" aria-hidden="true"></i>
-                </button>
-
-                <!-- Mobile Dropdown Menu -->
-                <div
-                    id="mobile-user-menu"
-                    class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible transition-all duration-200 z-50"
-                    role="menu"
-                    aria-labelledby="mobile-user-menu-toggle">
-                    <div class="py-2">
-                        <div class="px-4 py-2 border-b border-gray-100">
-                            <p class="text-sm font-medium text-gray-900 truncate">{{ user.first_name|default:user.username }}</p>
-                            <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                <!-- Desktop User Menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600 text-sm" aria-hidden="true"></i>
                         </div>
+                        <span class="text-gray-700 font-medium truncate max-w-32">{{ user.first_name|default:user.username }}</span>
+                    </div>
+                    <div class="border-l border-gray-300 pl-4">
                         <a href="{% url 'home:index' %}"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors"
-                            role="menuitem">
-                            <i class="fas fa-external-link-alt mr-2 w-4" aria-hidden="true"></i>Voir le site
+                            class="text-gray-500 hover:text-gray-700 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1">
+                            <i class="fas fa-external-link-alt mr-1" aria-hidden="true"></i>Voir le site
                         </a>
-                        <a href="{% url 'users:profile' %}"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors"
-                            role="menuitem">
-                            <i class="fas fa-user mr-2 w-4" aria-hidden="true"></i>Mon profil
-                        </a>
-                        <div class="border-t border-gray-100 my-1"></div>
+                    </div>
+                    <div class="border-l border-gray-300 pl-4">
                         <a href="{% url 'users:logout' %}"
-                            class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50 transition-colors"
-                            role="menuitem">
-                            <i class="fas fa-sign-out-alt mr-2 w-4" aria-hidden="true"></i>Déconnexion
+                            class="text-red-500 hover:text-red-700 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-2 py-1">
+                            <i class="fas fa-sign-out-alt mr-1" aria-hidden="true"></i>Déconnexion
                         </a>
+                    </div>
+                </div>
+
+                <!-- Mobile User Menu -->
+                <div class="md:hidden relative">
+                    <button
+                        id="mobile-user-menu-toggle"
+                        class="flex items-center space-x-2 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        aria-label="User menu"
+                        aria-expanded="false"
+                        aria-haspopup="true">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600 text-sm" aria-hidden="true"></i>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="mobile-user-menu-icon" aria-hidden="true"></i>
+                    </button>
+
+                    <!-- Mobile Dropdown Menu -->
+                    <div
+                        id="mobile-user-menu"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible transition-all duration-200 z-50"
+                        role="menu"
+                        aria-labelledby="mobile-user-menu-toggle">
+                        <div class="py-2">
+                            <div class="px-4 py-2 border-b border-gray-100">
+                                <p class="text-sm font-medium text-gray-900 truncate">{{ user.first_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                            </div>
+                            <a href="{% url 'home:index' %}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors"
+                                role="menuitem">
+                                <i class="fas fa-external-link-alt mr-2 w-4" aria-hidden="true"></i>Voir le site
+                            </a>
+                            <a href="{% url 'users:profile' %}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition-colors"
+                                role="menuitem">
+                                <i class="fas fa-user mr-2 w-4" aria-hidden="true"></i>Mon profil
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="{% url 'users:logout' %}"
+                                class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none focus:bg-red-50 transition-colors"
+                                role="menuitem">
+                                <i class="fas fa-sign-out-alt mr-2 w-4" aria-hidden="true"></i>Déconnexion
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <!-- Mobile Overlay -->
     <div id="mobile-overlay" 
@@ -252,7 +281,7 @@
 
     <!-- Sidebar -->
     <aside id="sidebar" 
-           class="sidebar fixed top-16 left-0 w-72 h-screen bg-white shadow-sm border-r border-gray-200 z-20 overflow-y-auto md:translate-x-0"
+           class="sidebar fixed top-16 left-0 w-72 h-screen bg-white shadow-sm border-r border-gray-200 z-20 overflow-y-auto custom-scroll md:translate-x-0"
            role="navigation" 
            aria-label="Main navigation">
         <nav class="mt-5 px-2 space-y-1">
@@ -542,7 +571,7 @@
                 <!-- Statistics Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Meubles Widget -->
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="stat-card bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-couch text-3xl opacity-80" aria-hidden="true"></i>
@@ -559,7 +588,7 @@
                     </div>
 
                     <!-- Maisons Widget -->
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="stat-card bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-home text-3xl opacity-80" aria-hidden="true"></i>
@@ -576,7 +605,7 @@
                     </div>
 
                     <!-- Réservations Widget -->
-                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="stat-card bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-calendar-check text-3xl opacity-80" aria-hidden="true"></i>
@@ -593,7 +622,7 @@
                     </div>
 
                     <!-- Villes Widget -->
-                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <div class="stat-card bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <i class="fas fa-map-marker-alt text-3xl opacity-80" aria-hidden="true"></i>
@@ -991,7 +1020,7 @@
                 handleResize();
                 
                 // Add fade-in animation to cards
-                const cards = document.querySelectorAll('[class*="hover:shadow-lg"]');
+                const cards = document.querySelectorAll('[class*="stat-card"]');
                 cards.forEach((card, index) => {
                     setTimeout(() => {
                         card.classList.add('fade-in');
@@ -1032,32 +1061,6 @@
 
         })();
     </script>
-    <style>
-/* Ensure proper spacing and prevent overflow */
-.max-w-32 {
-    max-width: 8rem;
-}
-
-/* Better focus styles for mobile */
-@media (max-width: 768px) {
-    .focus\:ring-2:focus {
-        outline: 2px solid #3b82f6;
-        outline-offset: 2px;
-    }
-}
-
-/* Prevent horizontal scroll on very small screens */
-@media (max-width: 320px) {
-    .h-16 {
-        height: 3.5rem;
-    }
-    
-    .text-lg {
-        font-size: 1rem;
-        line-height: 1.5rem;
-    }
-}
-</style>
 
     {% block extra_js %}{% endblock %}
 </body>

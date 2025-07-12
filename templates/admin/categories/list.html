@@ -6,408 +6,341 @@
 {% block breadcrumb %}
     <nav class="text-sm">
         <ol class="flex items-center space-x-2 text-gray-500">
-            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700">Tableau de bord</a></li>
-            <li class="text-gray-400">/</li>
+            <li><a href="{% url 'repavi_admin:dashboard' %}" class="hover:text-gray-700 transition-colors">Tableau de bord</a></li>
+            <li><i class="fas fa-chevron-right text-xs"></i></li>
             <li class="text-gray-900 font-medium">Catégories</li>
         </ol>
     </nav>
 {% endblock %}
 
 {% block header_actions %}
-    <div class="flex items-center space-x-3">
-        {% if can_create %}
+    <div class="flex items-center space-x-3 ">
+      
         <a href="{% url 'repavi_admin:categorie_create' %}" 
-           class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+           class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200 shadow-sm hover:shadow-md">
             <i class="fas fa-plus mr-2"></i>
             Nouvelle catégorie
         </a>
-        {% endif %}
+     
     </div>
 {% endblock %}
 
 {% block content %}
-    <!-- Statistiques rapides -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
             <div class="flex items-center">
-                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-tags text-green-600"></i>
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-tags text-emerald-600 text-xl"></i>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm text-gray-500">Total catégories</p>
-                    <p class="text-lg font-semibold text-gray-900">{{ categories|length }}</p>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">{{ categories|length }}</div>
+                    <div class="text-sm text-gray-600">Catégories créées</div>
                 </div>
             </div>
         </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
             <div class="flex items-center">
-                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-home text-blue-600"></i>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-home text-blue-600 text-xl"></i>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm text-gray-500">Maisons catégorisées</p>
-                    <p class="text-lg font-semibold text-gray-900">
-                        {% with total=0 %}
-                            {% for cat in categories %}
-                                {% if cat.nb_maisons %}{{ cat.nb_maisons|add:total }}{% endif %}
-                            {% endfor %}
-                        {% endwith %}
-                    </p>
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">
+                        {% if total_maisons_categorisees %}{{ total_maisons_categorisees }}{% else %}0{% endif %}
+                    </div>
+                    <div class="text-sm text-gray-600">Maisons catégorisées</div>
                 </div>
             </div>
         </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
             <div class="flex items-center">
-                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-chart-bar text-purple-600"></i>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-purple-600 text-xl"></i>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm text-gray-500">Moyenne par catégorie</p>
-                    <p class="text-lg font-semibold text-gray-900">
-                        {% if categories %}
-                            {% widthratio categories|length 1 1 %}
+                <div class="ml-4">
+                    <div class="text-2xl font-bold text-gray-900">
+                        {% if categories and total_maisons_categorisees %}
+                            {{ total_maisons_categorisees|floatformat:0 }}
                         {% else %}
                             0
                         {% endif %}
-                    </p>
+                    </div>
+                    <div class="text-sm text-gray-600">Moyenne par catégorie</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Liste des catégories -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <!-- Quick Action Banner -->
+    {% if categories and can_create %}
+    <div class="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-2xl border border-emerald-200 p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-plus text-emerald-600 text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Ajouter une nouvelle catégorie</h3>
+                    <p class="text-gray-600">Organisez vos maisons avec des catégories personnalisées</p>
+                </div>
+            </div>
+            <a href="{% url 'repavi_admin:categorie_create' %}" 
+               class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200 shadow-md hover:shadow-lg">
+                <i class="fas fa-plus mr-2"></i>
+                Créer une catégorie
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Categories List -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-medium text-gray-900">
-                    Toutes les catégories
-                    <span class="text-sm text-gray-500 font-normal">({{ categories|length }} au total)</span>
-                </h3>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Toutes les catégories</h3>
+                    <p class="text-sm text-gray-600">{{ categories|length }} catégorie{{ categories|length|pluralize }} au total</p>
+                </div>
+                {% if can_create %}
+                <a href="{% url 'repavi_admin:categorie_create' %}" 
+                   class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                    <i class="fas fa-plus mr-2"></i>
+                    <span class="hidden sm:inline">Nouvelle catégorie</span>
+                    <span class="sm:hidden">Nouveau</span>
+                </a>
+                {% endif %}
             </div>
         </div>
         
         {% if categories %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-            {% for categorie in categories %}
-            <div class="border border-gray-200 rounded-lg hover:shadow-lg transition-all duration-300 group bg-white">
-                <!-- En-tête de la carte -->
-                <div class="p-4 border-b border-gray-100">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-{{ categorie.couleur|default:'blue' }}-100 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-tag text-{{ categorie.couleur|default:'blue' }}-600"></i>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for categorie in categories %}
+                <div class="group bg-white border border-gray-200 rounded-xl hover:shadow-lg transition-all duration-200">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 {{ categorie.couleur|default:'bg-blue-100' }} rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-tag {{ categorie.couleur|default:'text-blue-600' }} text-lg"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="text-lg font-semibold text-gray-900">{{ categorie.nom }}</h4>
+                                    <p class="text-sm text-gray-500">{{ categorie.nb_maisons|default:0 }} maison{{ categorie.nb_maisons|pluralize }}</p>
+                                </div>
                             </div>
-                            <div class="ml-3">
-                                <h4 class="text-lg font-medium text-gray-900 group-hover:text-{{ categorie.couleur|default:'blue' }}-600 transition-colors">
-                                    {{ categorie.nom }}
-                                </h4>
-                                <p class="text-sm text-gray-500">
-                                    {{ categorie.nb_maisons|default:0 }} maison{{ categorie.nb_maisons|pluralize }}
-                                </p>
+                            
+                            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <a href="{% url 'repavi_admin:categorie_edit' categorie.pk %}" 
+                                   class="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                   title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if user.is_superuser or user.is_staff %}
+                                <button onclick="confirmDelete('{{ categorie.nom|escapejs }}', {{ categorie.nb_maisons|default:0 }}, '{% url 'repavi_admin:categorie_delete' categorie.pk %}')"
+                                        class="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                        title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
                             </div>
                         </div>
                         
-                        <!-- Actions rapides en hover -->
-                        <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <a href="{% url 'repavi_admin:categorie_edit' categorie.pk %}" 
-                               class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" 
-                               title="Modifier">
-                                <i class="fas fa-edit"></i>
+                        {% if categorie.description %}
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ categorie.description }}</p>
+                        {% else %}
+                        <p class="text-sm text-gray-400 italic mb-4">Aucune description</p>
+                        {% endif %}
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-medium {{ categorie.couleur|default:'bg-blue-100 text-blue-800' }} rounded-full">
+                                <i class="fas fa-palette mr-1"></i>
+                                {{ categorie.get_couleur_display|default:categorie.couleur|capfirst }}
+                            </span>
+                            {% if categorie.nb_maisons > 0 %}
+                            <a href="{% url 'repavi_admin:maisons_list' %}?categorie={{ categorie.pk }}" 
+                               class="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
+                                Voir les maisons <i class="fas fa-arrow-right ml-1"></i>
                             </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 px-6 py-3 flex items-center justify-between rounded-b-xl">
+                        <a href="{% url 'repavi_admin:categorie_edit' categorie.pk %}" 
+                           class="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                            <i class="fas fa-edit mr-1"></i>Modifier
+                        </a>
+                        
+                        <div class="flex items-center space-x-4">
+                            {% if categorie.nb_maisons > 0 %}
+                            <a href="{% url 'repavi_admin:maisons_list' %}?categorie={{ categorie.pk }}" 
+                               class="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
+                                <i class="fas fa-external-link-alt mr-1"></i>Voir
+                            </a>
+                            {% endif %}
                             {% if user.is_superuser or user.is_staff %}
-                            <button onclick="confirmDeleteCategorie('{{ categorie.nom }}', {{ categorie.nb_maisons|default:0 }}, '{% url 'repavi_admin:categorie_delete' categorie.pk %}')"
-                                    class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors" 
-                                    title="Supprimer">
-                                <i class="fas fa-trash"></i>
+                            <button onclick="confirmDelete('{{ categorie.nom|escapejs }}', {{ categorie.nb_maisons|default:0 }}, '{% url 'repavi_admin:categorie_delete' categorie.pk %}')"
+                                    class="text-sm text-red-600 hover:text-red-700 font-medium transition-colors">
+                                <i class="fas fa-trash mr-1"></i>Supprimer
                             </button>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-                
-                <!-- Contenu de la carte -->
-                <div class="p-4">
-                    {% if categorie.description %}
-                    <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ categorie.description|truncatewords:20 }}</p>
-                    {% else %}
-                    <p class="text-sm text-gray-400 italic mb-4">Aucune description</p>
-                    {% endif %}
-                    
-                    <div class="flex items-center justify-between">
-                        <span class="inline-flex px-3 py-1 text-xs font-medium bg-{{ categorie.couleur|default:'blue' }}-100 text-{{ categorie.couleur|default:'blue' }}-800 rounded-full border border-{{ categorie.couleur|default:'blue' }}-200">
-                            <i class="fas fa-palette mr-1"></i>
-                            {{ categorie.couleur|default:'blue'|capfirst }}
-                        </span>
-                        {% if categorie.nb_maisons > 0 %}
-                        <a href="{% url 'repavi_admin:maisons_list' %}?categorie={{ categorie.pk }}" 
-                           class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                            Voir les maisons <i class="fas fa-arrow-right ml-1"></i>
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <!-- Actions en bas -->
-                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between rounded-b-lg">
-                    <div class="flex items-center space-x-3">
-                        <a href="{% url 'repavi_admin:categorie_edit' categorie.pk %}" 
-                           class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium">
-                            <i class="fas fa-edit mr-1"></i>Modifier
-                        </a>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        {% if user.is_superuser or user.is_staff %}
-                        <button onclick="confirmDeleteCategorie('{{ categorie.nom }}', {{ categorie.nb_maisons|default:0 }}, '{% url 'repavi_admin:categorie_delete' categorie.pk %}')"
-                                class="inline-flex items-center text-sm text-red-600 hover:text-red-800 font-medium"
-                                title="Supprimer la catégorie">
-                            <i class="fas fa-trash mr-1"></i>Supprimer
-                        </button>
-                        {% endif %}
-                        {% if categorie.nb_maisons > 0 %}
-                        <a href="{% url 'repavi_admin:maisons_list' %}?categorie={{ categorie.pk }}" 
-                           class="inline-flex items-center text-sm text-green-600 hover:text-green-800 font-medium">
-                            <i class="fas fa-external-link-alt mr-1"></i>Voir
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
         {% else %}
+        <!-- Empty State -->
         <div class="p-12 text-center">
-            <i class="fas fa-tags text-gray-300 text-5xl mb-4"></i>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune catégorie</h3>
-            <p class="text-gray-500 mb-6">
-                Les catégories vous permettent d'organiser et de classer vos maisons.
+            <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-tags text-gray-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Aucune catégorie</h3>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                Les catégories vous permettent d'organiser et de classer vos maisons par type ou caractéristiques.
             </p>
             {% if can_create %}
             <a href="{% url 'repavi_admin:categorie_create' %}" 
-               class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+               class="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md">
                 <i class="fas fa-plus mr-2"></i>
                 Créer la première catégorie
             </a>
             {% endif %}
         </div>
-        {% endif %}
-    </div>
-
-    <!-- Suggestions de catégories populaires -->
-    {% if not categories %}
-    <div class="bg-blue-50 rounded-xl border border-blue-200 p-6 mt-6">
-        <div class="flex items-start">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mt-1">
-                <i class="fas fa-lightbulb text-blue-600"></i>
-            </div>
-            <div class="ml-4 flex-1">
-                <h3 class="text-lg font-medium text-blue-900 mb-2">Suggestions de catégories</h3>
-                <p class="text-blue-700 mb-4">Voici quelques catégories populaires que vous pourriez créer :</p>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="bg-white p-3 rounded-lg border border-blue-200 hover:shadow-md transition-shadow cursor-pointer"
-                         onclick="createSuggestedCategory('Villa', 'blue')">
-                        <div class="flex items-center">
-                            <div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-                                <i class="fas fa-home text-blue-600 text-xs"></i>
-                            </div>
-                            <span class="ml-2 text-sm font-medium text-gray-900">Villa</span>
-                        </div>
+        
+        <!-- Quick Suggestions -->
+        {% if can_create %}
+        <div class="border-t border-gray-200 p-6">
+            <h4 class="text-sm font-medium text-gray-900 mb-4">Suggestions populaires :</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="createQuick('Villa', 'blue')" 
+                        class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-home text-blue-600"></i>
                     </div>
-                    <div class="bg-white p-3 rounded-lg border border-blue-200 hover:shadow-md transition-shadow cursor-pointer"
-                         onclick="createSuggestedCategory('Appartement', 'green')">
-                        <div class="flex items-center">
-                            <div class="w-6 h-6 bg-green-100 rounded flex items-center justify-center">
-                                <i class="fas fa-building text-green-600 text-xs"></i>
-                            </div>
-                            <span class="ml-2 text-sm font-medium text-gray-900">Appartement</span>
-                        </div>
+                    <span class="text-sm font-medium text-gray-900">Villa</span>
+                </button>
+                <button onclick="createQuick('Appartement', 'emerald')" 
+                        class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-emerald-300 hover:bg-emerald-50 transition-colors">
+                    <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-building text-emerald-600"></i>
                     </div>
-                    <div class="bg-white p-3 rounded-lg border border-blue-200 hover:shadow-md transition-shadow cursor-pointer"
-                         onclick="createSuggestedCategory('Chalet', 'yellow')">
-                        <div class="flex items-center">
-                            <div class="w-6 h-6 bg-yellow-100 rounded flex items-center justify-center">
-                                <i class="fas fa-tree text-yellow-600 text-xs"></i>
-                            </div>
-                            <span class="ml-2 text-sm font-medium text-gray-900">Chalet</span>
-                        </div>
+                    <span class="text-sm font-medium text-gray-900">Appartement</span>
+                </button>
+                <button onclick="createQuick('Chalet', 'amber')" 
+                        class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50 transition-colors">
+                    <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-tree text-amber-600"></i>
                     </div>
-                    <div class="bg-white p-3 rounded-lg border border-blue-200 hover:shadow-md transition-shadow cursor-pointer"
-                         onclick="createSuggestedCategory('Loft', 'purple')">
-                        <div class="flex items-center">
-                            <div class="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
-                                <i class="fas fa-warehouse text-purple-600 text-xs"></i>
-                            </div>
-                            <span class="ml-2 text-sm font-medium text-gray-900">Loft</span>
-                        </div>
+                    <span class="text-sm font-medium text-gray-900">Chalet</span>
+                </button>
+                <button onclick="createQuick('Loft', 'purple')" 
+                        class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-warehouse text-purple-600"></i>
                     </div>
-                </div>
-                <p class="text-xs text-blue-600 mt-3">💡 Cliquez sur une suggestion pour la créer rapidement</p>
+                    <span class="text-sm font-medium text-gray-900">Loft</span>
+                </button>
             </div>
         </div>
+        {% endif %}
+        {% endif %}
     </div>
-    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Fonction de confirmation de suppression spécialisée pour les catégories
-    function confirmDeleteCategorie(categorieNom, nbMaisons, deleteUrl) {
+    function confirmDelete(categoryName, houseCount, deleteUrl) {
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
         
-        let warningMessage = '';
-        let warningIcon = '';
-        
-        if (nbMaisons > 0) {
-            warningMessage = `
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+        let warningHTML = '';
+        if (houseCount > 0) {
+            warningHTML = `
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
                     <div class="flex items-center">
-                        <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
-                        <span class="text-yellow-800 text-sm">
-                            <strong>Attention :</strong> Cette catégorie contient <strong>${nbMaisons} maison${nbMaisons > 1 ? 's' : ''}</strong>. 
-                            ${nbMaisons > 1 ? 'Elles' : 'Elle'} deviendront "non catégorisées".
+                        <i class="fas fa-exclamation-triangle text-amber-600 mr-2"></i>
+                        <span class="text-amber-800 text-sm">
+                            <strong>Attention :</strong> Cette catégorie contient <strong>${houseCount} maison${houseCount > 1 ? 's' : ''}</strong>. 
+                            ${houseCount > 1 ? 'Elles' : 'Elle'} deviendront "non catégorisées".
                         </span>
                     </div>
                 </div>
             `;
-            warningIcon = '<i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>';
-        } else {
-            warningIcon = '<i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>';
         }
         
         modal.innerHTML = `
-            <div class="bg-white rounded-xl p-6 max-w-md mx-4">
+            <div class="bg-white rounded-2xl p-6 max-w-md mx-4 shadow-2xl">
                 <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                        ${warningIcon}
+                    <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <h3 class="text-lg font-semibold text-gray-900">Confirmer la suppression</h3>
                     </div>
                 </div>
                 
-                ${warningMessage}
+                ${warningHTML}
                 
                 <p class="text-gray-600 mb-6">
-                    Êtes-vous sûr de vouloir supprimer la catégorie <strong>"${categorieNom}"</strong> ?
+                    Êtes-vous sûr de vouloir supprimer la catégorie <strong>"${categoryName}"</strong> ?
                     <br><br>
-                    <span class="text-red-600 text-sm">⚠️ Cette action est irréversible !</span>
+                    <span class="text-red-600 text-sm font-medium">⚠️ Cette action est irréversible !</span>
                 </p>
                 <div class="flex justify-end space-x-3">
                     <button onclick="this.closest('.fixed').remove()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
                         Annuler
                     </button>
                     <a href="${deleteUrl}" 
-                       class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                       class="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">
                         <i class="fas fa-trash mr-2"></i>Supprimer
                     </a>
                 </div>
             </div>
         `;
+        
         document.body.appendChild(modal);
         
-        // Fermer avec échap
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                modal.remove();
-            }
-        });
-        
-        // Fermer en cliquant à côté
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
+        // Close handlers
+        modal.addEventListener('click', e => e.target === modal && modal.remove());
+        document.addEventListener('keydown', e => e.key === 'Escape' && modal.remove());
     }
 
-    // Fonction pour créer rapidement une catégorie suggérée
-    function createSuggestedCategory(nom, couleur) {
-        // Créer un formulaire pour pré-remplir les données
+    function createQuick(name, color) {
         const form = document.createElement('form');
         form.method = 'GET';
         form.action = '{% url "repavi_admin:categorie_create" %}';
         
-        const nomField = document.createElement('input');
-        nomField.type = 'hidden';
-        nomField.name = 'nom_suggere';
-        nomField.value = nom;
+        const nameField = document.createElement('input');
+        nameField.type = 'hidden';
+        nameField.name = 'nom_suggere';
+        nameField.value = name;
         
-        const couleurField = document.createElement('input');
-        couleurField.type = 'hidden';
-        couleurField.name = 'couleur_suggeree';
-        couleurField.value = couleur;
+        const colorField = document.createElement('input');
+        colorField.type = 'hidden';
+        colorField.name = 'couleur_suggeree';
+        colorField.value = color;
         
-        form.appendChild(nomField);
-        form.appendChild(couleurField);
+        form.appendChild(nameField);
+        form.appendChild(colorField);
         document.body.appendChild(form);
         form.submit();
     }
-
-    // Animation des cartes
-    document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.grid .group');
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                card.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
-    });
-
-    // Animation hover améliorée pour les cartes
-    document.querySelectorAll('.group').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-4px) scale(1.02)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
-        });
-    });
-
-    // Animation pour les suggestions
-    document.querySelectorAll('.cursor-pointer').forEach(suggestion => {
-        suggestion.addEventListener('click', function() {
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 150);
-        });
-    });
-
-    // Effet parallax léger sur les statistiques
-    window.addEventListener('scroll', function() {
-        const stats = document.querySelectorAll('.grid .bg-white');
-        const scrolled = window.pageYOffset;
-        
-        stats.forEach((stat, index) => {
-            const rate = scrolled * -0.5;
-            stat.style.transform = `translateY(${rate}px)`;
-        });
-    });
 </script>
-
-<style>
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.group:hover {
-    transform: translateY(-4px) scale(1.02);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.cursor-pointer:hover {
-    transform: scale(1.05);
-    transition: transform 0.2s ease;
-}
-</style>
 {% endblock %}
