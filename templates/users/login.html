@@ -1,113 +1,119 @@
-{% extends 'users/base_auth.html' %}
+<!-- ========================================== -->
+<!-- templates/users/login.html -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Connexion - RepAvi{% endblock %}
+{% block title %}Connexion - RepAvi Lodges{% endblock %}
 
 {% block content %}
-<div>
-      <div class="mb-6">
-        <button onclick="window.history.back()" class="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-gray-700 font-medium transition-all duration-200 hover:shadow-sm group">
-            <i class="fas fa-arrow-left mr-2 text-gray-500 group-hover:text-gray-700 transition-colors"></i>
-            <span>Retour</span>
-        </button>
-    </div>
-    <h2 class="text-center text-3xl font-bold text-gray-900 mb-8">
-        Connexion à votre compte
-    </h2>
-
-    <form method="post" action="{% url 'users:login' %}" class="space-y-6">
-        {% csrf_token %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-cyan-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
         
-        <div>
-            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                {{ form.username.label }}
-            </label>
-            {{ form.username }}
-            {% if form.username.errors %}
-                <div class="mt-1 text-sm text-red-600">
-                    {{ form.username.errors.0 }}
+        <!-- Logo RepAvi -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center space-x-3 mb-6">
+                <div class="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+                    <span class="material-icons text-white text-2xl">home</span>
                 </div>
-            {% endif %}
+                <div>
+                    <div class="text-3xl font-bold text-gray-800">RepAvi Lodges</div>
+                    <div class="text-gray-600 text-sm">Système de Gestion</div>
+                </div>
+            </div>
+            
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Accès Gestionnaires</h1>
+            <p class="text-gray-600">Connectez-vous à votre espace de gestion</p>
         </div>
 
-        <div>
-            <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                {{ form.password.label }}
-            </label>
-            <div class="relative">
-                {{ form.password }}
-                <button type="button" onclick="togglePasswordVisibility()" tabindex="-1"
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none"
-                    aria-label="Afficher/Masquer le mot de passe">
-                    <i id="password-eye" class="fas fa-eye"></i>
+        <!-- Formulaire de connexion -->
+        <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+            
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6">
+                Identifiants incorrects. Veuillez réessayer.
+            </div>
+            {% endif %}
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Username -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Nom d'utilisateur
+                    </label>
+                    <div class="relative">
+                        <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">person</span>
+                        <input type="text" name="username" 
+                               class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-colors"
+                               placeholder="Votre nom d'utilisateur"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Mot de passe
+                    </label>
+                    <div class="relative">
+                        <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">lock</span>
+                        <input type="password" name="password" 
+                               class="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-colors"
+                               placeholder="••••••••"
+                               required>
+                        <button type="button" onclick="togglePassword()" 
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <span class="material-icons" id="eye-icon">visibility</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Se souvenir -->
+                <div class="flex items-center">
+                    <input type="checkbox" name="remember_me" 
+                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label class="ml-2 text-sm text-gray-600">Se souvenir de moi</label>
+                </div>
+
+                <!-- Bouton connexion -->
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-colors font-medium flex items-center justify-center space-x-2">
+                    <span class="material-icons text-sm">login</span>
+                    <span>Se connecter</span>
                 </button>
-            </div>
-            {% if form.password.errors %}
-                <div class="mt-1 text-sm text-red-600">
-                    {{ form.password.errors.0 }}
+            </form>
+        </div>
+
+        <!-- Informations système -->
+        <div class="text-center mt-8">
+            <div class="flex items-center justify-center space-x-6 text-gray-500 text-sm">
+                <div class="flex items-center space-x-2">
+                    <span class="material-icons text-sm text-green-500">security</span>
+                    <span>Système sécurisé</span>
                 </div>
-            {% endif %}
-        </div>
-        <script>
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById("{{ form.password.id_for_label }}");
-            const eyeIcon = document.getElementById("password-eye");
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                eyeIcon.classList.remove("fa-eye");
-                eyeIcon.classList.add("fa-eye-slash");
-            } else {
-                passwordInput.type = "password";
-                eyeIcon.classList.remove("fa-eye-slash");
-                eyeIcon.classList.add("fa-eye");
-            }
-        }
-        </script>
-
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                {{ form.remember_me }}
-                <label for="{{ form.remember_me.id_for_label }}" class="ml-2 block text-sm text-gray-900">
-                    {{ form.remember_me.label }}
-                </label>
+                <div class="flex items-center space-x-2">
+                    <span class="material-icons text-sm text-blue-500">support</span>
+                    <span>Support inclus</span>
+                </div>
             </div>
-
-            <div class="text-sm">
-                <a href="{% url 'users:password_reset_request' %}" class="text-blue-800 hover:text-blue-900">
-                    Mot de passe oublié ?
-                </a>
-            </div>
-        </div>
-
-        <div>
-            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                <i class="fas fa-sign-in-alt mr-2"></i>
-                Se connecter
-            </button>
-        </div>
-
-        {% if form.non_field_errors %}
-            <div class="text-sm text-red-600 text-center">
-                {{ form.non_field_errors.0 }}
-            </div>
-        {% endif %}
-    </form>
-
-    <div class="mt-6">
-        <div class="relative">
-            <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-300"></div>
-            </div>
-            <div class="relative flex justify-center text-sm">
-                <span class="px-2 bg-white text-gray-500">Nouveau sur RepAvi ?</span>
-            </div>
-        </div>
-
-        <div class="mt-6">
-            <a href="{% url 'users:register' %}" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                <i class="fas fa-user-plus mr-2"></i>
-                Créer un compte
-            </a>
         </div>
     </div>
 </div>
+
+<script>
+function togglePassword() {
+    const passwordInput = document.querySelector('input[name="password"]');
+    const eyeIcon = document.getElementById('eye-icon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.textContent = 'visibility_off';
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.textContent = 'visibility';
+    }
+}
+</script>
 {% endblock %}

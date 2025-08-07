@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Gestionnaires - RepAvi Lodges</title>
+    
+    <!-- Fonts RepAvi -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Romla:wght@300;400;600;700&family=Arimo:wght@300;400;500;600&family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'romla': ['Romla', 'serif'],
+                        'arimo': ['Arimo', 'sans-serif'],
+                        'lato': ['Lato', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Arimo', sans-serif;
+        }
+        
+        h1, h2 {
+            font-family: 'Romla', serif;
+        }
+        
+        h3, h4, h5, h6 {
+            font-family: 'Lato', sans-serif;
+        }
+        
+        .sidebar {
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+        }
+        
+        .main-content {
+            background: #f9fafb;
+        }
+        
+        .card-clean {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .card-clean:hover {
+            border-color: #d1d5db;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+        }
+    </style>
+</head>
+
+<body class="h-full bg-gray-50">
+    <div class="flex h-screen">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 flex-shrink-0 overflow-y-auto">
+            <div class="p-6">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-white text-lg">home</span>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg text-gray-900">RepAvi Lodges</h1>
+                        <p class="text-xs text-gray-500">Système de Gestion</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="space-y-1">
+                    <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">dashboard</span>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a href="{% url 'appartements:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">apartment</span>
+                        <span>Appartements</span>
+                    </a>
+
+                    <a href="{% url 'clients:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">people</span>
+                        <span>Clients</span>
+                    </a>
+
+                    <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">event</span>
+                        <span>Réservations</span>
+                    </a>
+
+                    <a href="{% url 'paiements:echeancier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">payments</span>
+                        <span>Paiements</span>
+                    </a>
+
+                    <!-- Divider -->
+                    <div class="border-t border-gray-200 my-4"></div>
+
+                    <a href="{% url 'inventaire:general' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">inventory</span>
+                        <span>Inventaire</span>
+                    </a>
+
+                    <a href="{% url 'menage:planning' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">cleaning_services</span>
+                        <span>Ménage</span>
+                    </a>
+
+                    <a href="{% url 'comptabilite:rapport_mensuel' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">account_balance</span>
+                        <span>Comptabilité</span>
+                    </a>
+
+                    <a href="{% url 'facturation:generer' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        <span class="material-icons text-sm">receipt</span>
+                        <span>Facturation</span>
+                    </a>
+                </nav>
+
+                <!-- User Menu -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex items-center space-x-3 px-3 py-3">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <span class="material-icons text-white text-sm">person</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900">{{ user.first_name|default:user.username }}</p>
+                            <p class="text-xs text-gray-500">{{ user.get_profil_display }}</p>
+                        </div>
+                        <div class="relative group">
+                            <button class="p-1 text-gray-400 hover:text-gray-600">
+                                <span class="material-icons text-sm">more_vert</span>
+                            </button>
+                            <div class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                                <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
+                                    <span class="material-icons text-sm">account_circle</span>
+                                    <span>Mon Profil</span>
+                                </a>
+                                {% if user.profil == 'super_admin' %}
+                                <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 bg-blue-50 text-blue-600">
+                                    <span class="material-icons text-sm">supervisor_account</span>
+                                    <span>Gestionnaires</span>
+                                </a>
+                                {% endif %}
+                                <hr class="my-1">
+                                <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50">
+                                    <span class="material-icons text-sm">logout</span>
+                                    <span>Déconnexion</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto main-content">
+            
+            <!-- Header -->
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">
+                            Gestion des Gestionnaires
+                        </h1>
+                        <p class="text-gray-600">
+                            Administration des comptes utilisateurs RepAvi Lodges
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <a href="{% url 'users:creer_gestionnaire' %}" 
+                           class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <span class="material-icons text-sm">person_add</span>
+                            <span>Nouveau Gestionnaire</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="p-6 space-y-6">
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-blue-600">group</span>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold text-gray-900 mb-1">{{ total_gestionnaires }}</div>
+                        <div class="text-sm text-gray-600">Total Gestionnaires</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-green-600">check_circle</span>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold text-green-600 mb-1">{{ gestionnaires_actifs }}</div>
+                        <div class="text-sm text-gray-600">Actifs</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-purple-600">admin_panel_settings</span>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold text-purple-600 mb-1">{{ super_admins }}</div>
+                        <div class="text-sm text-gray-600">Super Admins</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-red-600">block</span>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold text-red-600 mb-1">{{ total_gestionnaires|sub:gestionnaires_actifs }}</div>
+                        <div class="text-sm text-gray-600">Inactifs</div>
+                    </div>
+                </div>
+
+                <!-- Filters & Search -->
+                <div class="card-clean p-6">
+                    <form method="GET" class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                        
+                        <!-- Search -->
+                        <div class="flex-1">
+                            <div class="relative">
+                                <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
+                                <input type="text" 
+                                       name="search" 
+                                       value="{{ search_query }}"
+                                       placeholder="Rechercher par nom, email, nom d'utilisateur..."
+                                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                            </div>
+                        </div>
+                        
+                        <!-- Status Filter -->
+                        <div>
+                            <select name="statut" 
+                                    class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                                <option value="">Tous les statuts</option>
+                                <option value="actif" {% if statut_filtre == 'actif' %}selected{% endif %}>Actifs</option>
+                                <option value="inactif" {% if statut_filtre == 'inactif' %}selected{% endif %}>Inactifs</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex items-center space-x-2">
+                            <button type="submit" 
+                                    class="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <span class="material-icons text-sm">search</span>
+                                <span>Rechercher</span>
+                            </button>
+                            
+                            {% if search_query or statut_filtre %}
+                            <a href="{% url 'users:liste_gestionnaires' %}" 
+                               class="flex items-center space-x-2 px-4 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <span class="material-icons text-sm">clear</span>
+                                <span>Effacer</span>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                <div class="space-y-3">
+                  {% for message in messages %}
+                  <div class="flex items-center p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                    <span class="material-icons mr-3">
+                      {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+                    </span>
+                    <span>{{ message }}</span>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Liste des gestionnaires -->
+                <div class="card-clean">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            Liste des Gestionnaires ({{ page_obj.paginator.count }} résultat{{ page_obj.paginator.count|pluralize }})
+                        </h3>
+                    </div>
+                    
+                    {% if gestionnaires %}
+                    <div class="divide-y divide-gray-200">
+                        {% for gestionnaire in gestionnaires %}
+                        <div class="p-6 hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center justify-between">
+                                
+                                <!-- Info gestionnaire -->
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 {% if gestionnaire.is_active %}bg-green-100{% else %}bg-red-100{% endif %} rounded-full flex items-center justify-center">
+                                        <span class="material-icons {% if gestionnaire.is_active %}text-green-600{% else %}text-red-600{% endif %}">
+                                            {% if gestionnaire.profil == 'super_admin' %}admin_panel_settings{% else %}person{% endif %}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            <h4 class="text-lg font-semibold text-gray-900">
+                                                {{ gestionnaire.get_full_name|default:gestionnaire.username }}
+                                            </h4>
+                                            
+                                            <!-- Badges -->
+                                            <div class="flex items-center space-x-2">
+                                                {% if gestionnaire.profil == 'super_admin' %}
+                                                <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full font-medium">
+                                                    Super Admin
+                                                </span>
+                                                {% else %}
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                                                    Gestionnaire
+                                                </span>
+                                                {% endif %}
+                                                
+                                                {% if gestionnaire.is_active %}
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+                                                    Actif
+                                                </span>
+                                                {% else %}
+                                                <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">
+                                                    Inactif
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center space-x-6 mt-2 text-sm text-gray-600">
+                                            <span class="flex items-center space-x-1">
+                                                <span class="material-icons text-sm">alternate_email</span>
+                                                <span>{{ gestionnaire.email }}</span>
+                                            </span>
+                                            
+                                            {% if gestionnaire.telephone %}
+                                            <span class="flex items-center space-x-1">
+                                                <span class="material-icons text-sm">phone</span>
+                                                <span>{{ gestionnaire.telephone }}</span>
+                                            </span>
+                                            {% endif %}
+                                            
+                                            <span class="flex items-center space-x-1">
+                                                <span class="material-icons text-sm">schedule</span>
+                                                <span>Créé {{ gestionnaire.date_joined|date:"d/m/Y" }}</span>
+                                            </span>
+                                            
+                                            {% if gestionnaire.last_login %}
+                                            <span class="flex items-center space-x-1">
+                                                <span class="material-icons text-sm">login</span>
+                                                <span>Dernière connexion {{ gestionnaire.last_login|date:"d/m/Y H:i" }}</span>
+                                            </span>
+                                            {% else %}
+                                            <span class="flex items-center space-x-1 text-gray-400">
+                                                <span class="material-icons text-sm">login</span>
+                                                <span>Jamais connecté</span>
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Actions -->
+                                <div class="flex items-center space-x-2">
+                                    {% if gestionnaire != user %}
+                                    
+                                    <!-- Modifier -->
+                                    <a href="{% url 'users:modifier_gestionnaire' gestionnaire.pk %}" 
+                                       class="flex items-center space-x-2 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                                       title="Modifier">
+                                        <span class="material-icons text-sm">edit</span>
+                                        <span class="hidden sm:inline">Modifier</span>
+                                    </a>
+                                    
+                                    {% if gestionnaire.is_active %}
+                                    <!-- Désactiver -->
+                                    <a href="{% url 'users:desactiver_gestionnaire' gestionnaire.pk %}" 
+                                       class="flex items-center space-x-2 px-3 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                                       title="Désactiver">
+                                        <span class="material-icons text-sm">block</span>
+                                        <span class="hidden sm:inline">Désactiver</span>
+                                    </a>
+                                    {% else %}
+                                    <!-- Réactiver -->
+                                    <a href="{% url 'users:reactiver_gestionnaire' gestionnaire.pk %}" 
+                                       class="flex items-center space-x-2 px-3 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                                       title="Réactiver"
+                                       onclick="return confirm('Réactiver ce gestionnaire ?')">
+                                        <span class="material-icons text-sm">check_circle</span>
+                                        <span class="hidden sm:inline">Réactiver</span>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    {% else %}
+                                    <span class="px-3 py-2 text-gray-500 bg-gray-100 rounded-lg text-sm">
+                                        Votre compte
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            Affichage {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ page_obj.paginator.count }} résultats
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if statut_filtre %}&statut={{ statut_filtre }}{% endif %}" 
+                               class="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                Précédent
+                            </a>
+                            {% endif %}
+                            
+                            <span class="text-sm text-gray-500">
+                                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                            </span>
+                            
+                            {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if statut_filtre %}&statut={{ statut_filtre }}{% endif %}" 
+                               class="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                Suivant
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% else %}
+                    <!-- État vide -->
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-icons text-gray-400 text-2xl">supervisor_account</span>
+                        </div>
+                        
+                        {% if search_query %}
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">
+                            Aucun gestionnaire trouvé
+                        </h3>
+                        <p class="text-gray-500 mb-6">
+                            Aucun résultat pour "{{ search_query }}". Essayez avec d'autres termes.
+                        </p>
+                        <a href="{% url 'users:liste_gestionnaires' %}" 
+                           class="text-blue-600 hover:text-blue-700">
+                            Voir tous les gestionnaires
+                        </a>
+                        {% else %}
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">
+                            Aucun gestionnaire
+                        </h3>
+                        <p class="text-gray-500 mb-6">
+                            Commencez par créer votre premier gestionnaire.
+                        </p>
+                        <a href="{% url 'users:creer_gestionnaire' %}" 
+                           class="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <span class="material-icons text-sm">person_add</span>
+                            <span>Créer un Gestionnaire</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

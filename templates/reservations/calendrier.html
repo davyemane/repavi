@@ -1,0 +1,170 @@
+<!-- templates/reservations/calendrier.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Calendrier des Réservations - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<!-- Header avec navigation mois -->
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center space-x-3">
+            <span class="material-icons text-green-600 text-3xl">event</span>
+            <span>Calendrier des Réservations</span>
+        </h1>
+        <p class="text-gray-600 mt-2">Vue mensuelle avec couleurs par statut selon cahier des charges</p>
+    </div>
+    
+    <a href="{% url 'reservations:nouvelle' %}" 
+       class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-colors font-medium flex items-center space-x-2">
+        <span class="material-icons">add_circle</span>
+        <span>Nouvelle Réservation</span>
+    </a>
+</div>
+
+<!-- Navigation mois -->
+<div class="bg-white rounded-2xl p-6 border border-gray-100 mb-8">
+    <div class="flex items-center justify-between">
+        
+        <!-- Mois précédent -->
+        <a href="?{% if mois == 1 %}annee={{ annee|add:'-1' }}&mois=12{% else %}annee={{ annee }}&mois={{ mois|add:'-1' }}{% endif %}" 
+           class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <span class="material-icons">chevron_left</span>
+            <span>Précédent</span>
+        </a>
+        
+        <!-- Mois actuel -->
+        <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-900">{{ mois_nom|capfirst }}</h2>
+            <p class="text-gray-600">Planning des réservations</p>
+        </div>
+        
+        <!-- Mois suivant -->
+        <a href="?{% if mois == 12 %}annee={{ annee|add:'1' }}&mois=1{% else %}annee={{ annee }}&mois={{ mois|add:'1' }}{% endif %}" 
+           class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <span>Suivant</span>
+            <span class="material-icons">chevron_right</span>
+        </a>
+    </div>
+</div>
+
+<!-- Légende des statuts -->
+<div class="bg-white rounded-2xl p-4 border border-gray-100 mb-6">
+    <div class="flex items-center justify-center space-x-8 text-sm">
+        <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-blue-500 rounded"></div>
+            <span>Confirmée</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-green-500 rounded"></div>
+            <span>En cours</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-gray-500 rounded"></div>
+            <span>Terminée</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-red-500 rounded"></div>
+            <span>Annulée</span>
+        </div>
+    </div>
+</div>
+
+<!-- Calendrier par appartement -->
+<div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+    
+    <!-- En-tête du calendrier -->
+    <div class="bg-gray-50 p-4 border-b border-gray-200">
+        <div class="grid grid-cols-8 gap-2 text-center text-sm font-medium text-gray-600">
+            <div class="font-bold text-gray-900">Appartement</div>
+            {% for jour in "1234567"|make_list %}
+            <div>{{ jour }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Corps du calendrier -->
+    <div class="divide-y divide-gray-100">
+        {% for data in calendrier_data %}
+        <div class="p-4">
+            <div class="grid grid-cols-8 gap-2 items-center">
+                
+                <!-- Appartement -->
+                <div class="font-medium text-gray-900">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full {% if data.appartement.statut == 'disponible' %}bg-green-500{% elif data.appartement.statut == 'occupe' %}bg-red-500{% else %}bg-yellow-500{% endif %}"></span>
+                        <span>{{ data.appartement.numero }}</span>
+                    </div>
+                    <div class="text-xs text-gray-500">{{ data.appartement.get_type_logement_display }}</div>
+                </div>
+                
+                <!-- Réservations de la semaine -->
+                {% for jour in "1234567"|make_list %}
+                <div class="min-h-[60px] relative">
+                    {% for reservation in data.reservations %}
+                        {% comment %} Logique d'affichage des réservations selon les dates {% endcomment %}
+                        <div class="absolute inset-0 {% if reservation.statut == 'confirmee' %}bg-blue-500{% elif reservation.statut == 'en_cours' %}bg-green-500{% elif reservation.statut == 'terminee' %}bg-gray-500{% else %}bg-red-500{% endif %} text-white rounded p-1 text-xs">
+                            <div class="font-medium">{{ reservation.client.prenom }}</div>
+                            <div>{{ reservation.nombre_nuits }}n</div>
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- Bouton ajout rapide -->
+                    <button onclick="ajouterReservation('{{ data.appartement.pk }}', '{{ jour }}')" 
+                            class="absolute inset-0 border-2 border-dashed border-gray-200 rounded text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors opacity-0 hover:opacity-100 flex items-center justify-center">
+                        <span class="material-icons text-sm">add</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Réservations du jour -->
+{% if arrivees_aujourd_hui %}
+<div class="mt-8 bg-white rounded-2xl p-6 border border-gray-100">
+    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+        <span class="material-icons text-green-600">today</span>
+        <span>Arrivées du jour</span>
+    </h3>
+    
+    <div class="space-y-4">
+        {% for reservation in arrivees_aujourd_hui %}
+        <div class="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <span class="material-icons text-green-600">person</span>
+                </div>
+                <div>
+                    <div class="font-medium text-gray-900">{{ reservation.client.prenom }} {{ reservation.client.nom }}</div>
+                    <div class="text-gray-600 text-sm">{{ reservation.appartement.numero }} • {{ reservation.nombre_nuits }} nuits</div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="px-3 py-1 bg-green-500 text-white text-sm rounded-full">Arrivée</span>
+                <a href="{% url 'reservations:detail' reservation.pk %}" 
+                   class="text-blue-600 hover:text-blue-700">
+                    <span class="material-icons">visibility</span>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Ajout rapide de réservation
+function ajouterReservation(appartementId, jour) {
+    const url = "{% url 'reservations:nouvelle' %}";
+    window.location.href = `${url}?appartement=${appartementId}&date=${jour}`;
+}
+
+// Drag & drop pour modification (selon cahier)
+// TODO: Implémenter modification en drag & drop
+</script>
+{% endblock %}

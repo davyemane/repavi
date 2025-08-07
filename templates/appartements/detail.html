@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ appartement.numero }} - RepAvi Lodges{% endblock %}
+
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Romla:wght@300;400;600;700&family=Arimo:wght@300;400;500;600&family=Lato:wght@300;400;600;700&display=swap');
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+{% include '_navigation.html' %}
+
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-4">
+          <a href="{% url 'dashboard' %}" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <span class="material-icons text-sm">dashboard</span>
+            <span style="font-family: 'Arimo', sans-serif;">Dashboard</span>
+          </a>
+          <span class="text-gray-400">/</span>
+          <a href="{% url 'appartements:liste' %}" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <span class="material-icons text-sm">apartment</span>
+            <span style="font-family: 'Arimo', sans-serif;">Appartements</span>
+          </a>
+          <span class="text-gray-400">/</span>
+          <span class="font-medium text-gray-900" style="font-family: 'Arimo', sans-serif;">{{ appartement.numero }}</span>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <a href="{% url 'appartements:modifier' appartement.pk %}" 
+             class="flex items-center space-x-2 px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+            <span class="material-icons text-sm">edit</span>
+            <span style="font-family: 'Arimo', sans-serif;">Modifier</span>
+          </a>
+          
+          <a href="{% url 'appartements:photos' appartement.pk %}" 
+             class="flex items-center space-x-2 px-4 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+            <span class="material-icons text-sm">photo_camera</span>
+            <span style="font-family: 'Arimo', sans-serif;">Photos</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    
+    <!-- Header de l'appartement -->
+    <div class="bg-white rounded-2xl p-8 border border-gray-100 mb-8">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between space-y-4 lg:space-y-0">
+        
+        <!-- Informations principales -->
+        <div class="flex items-center space-x-6">
+          <!-- Icône type -->
+          <div class="w-16 h-16 {% if appartement.type_logement == 'studio' %}bg-yellow-100{% elif appartement.type_logement == 't1' %}bg-blue-100{% else %}bg-green-100{% endif %} rounded-2xl flex items-center justify-center">
+            <span class="material-icons {% if appartement.type_logement == 'studio' %}text-yellow-600{% elif appartement.type_logement == 't1' %}text-blue-600{% else %}text-green-600{% endif %} text-2xl">apartment</span>
+          </div>
+          
+          <!-- Détails -->
+          <div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2" style="font-family: 'Romla', serif;">
+              {{ appartement.numero }}
+            </h1>
+            <div class="flex items-center space-x-4 text-gray-600">
+              <span class="flex items-center space-x-1">
+                <span class="material-icons text-sm">category</span>
+                <span style="font-family: 'Arimo', sans-serif;">{{ appartement.get_type_logement_display }}</span>
+              </span>
+              <span class="flex items-center space-x-1">
+                <span class="material-icons text-sm">home</span>
+                <span style="font-family: 'Arimo', sans-serif;">{{ appartement.maison }}</span>
+              </span>
+              <span class="flex items-center space-x-1">
+                <span class="material-icons text-sm">schedule</span>
+                <span style="font-family: 'Arimo', sans-serif;">Créé {{ appartement.date_creation|date:"d/m/Y" }}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Prix et statut -->
+        <div class="text-right">
+          <div class="mb-3">
+            <span class="text-3xl font-bold text-gray-900" style="font-family: 'Romla', serif;">{{ appartement.prix_par_nuit|floatformat:0 }}</span>
+            <span class="text-gray-600 ml-1" style="font-family: 'Arimo', sans-serif;">FCFA/nuit</span>
+          </div>
+          
+          <!-- Badge statut -->
+          <div class="inline-flex items-center space-x-2">
+            {% if appartement.statut == 'disponible' %}
+            <span class="px-4 py-2 bg-green-100 text-green-800 rounded-full font-medium">
+              <span class="material-icons text-sm mr-1">check_circle</span>
+              Disponible
+            </span>
+            {% elif appartement.statut == 'occupe' %}
+            <span class="px-4 py-2 bg-orange-100 text-orange-800 rounded-full font-medium">
+              <span class="material-icons text-sm mr-1">people</span>
+              Occupé
+            </span>
+            {% else %}
+            <span class="px-4 py-2 bg-red-100 text-red-800 rounded-full font-medium">
+              <span class="material-icons text-sm mr-1">build</span>
+              Maintenance
+            </span>
+            {% endif %}
+            
+            <!-- Actions de changement de statut -->
+            <div class="relative group">
+              <button class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                <span class="material-icons text-sm">more_vert</span>
+              </button>
+              
+              <div class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                {% if appartement.statut != 'disponible' %}
+                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=disponible" 
+                   class="flex items-center space-x-3 px-4 py-3 text-green-600 hover:bg-green-50 transition-colors first:rounded-t-xl">
+                  <span class="material-icons text-sm">check_circle</span>
+                  <span style="font-family: 'Arimo', sans-serif;">Marquer disponible</span>
+                </a>
+                {% endif %}
+                
+                {% if appartement.statut != 'occupe' %}
+                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=occupe" 
+                   class="flex items-center space-x-3 px-4 py-3 text-orange-600 hover:bg-orange-50 transition-colors">
+                  <span class="material-icons text-sm">people</span>
+                  <span style="font-family: 'Arimo', sans-serif;">Marquer occupé</span>
+                </a>
+                {% endif %}
+                
+                {% if appartement.statut != 'maintenance' %}
+                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=maintenance" 
+                   class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors last:rounded-b-xl">
+                  <span class="material-icons text-sm">build</span>
+                  <span style="font-family: 'Arimo', sans-serif;">Marquer en maintenance</span>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      
+      <!-- Colonne principale -->
+      <div class="lg:col-span-2 space-y-8">
+        
+        <!-- Photos -->
+        {% if appartement.photos.all %}
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2" style="font-family: 'Lato', sans-serif;">
+            <span class="material-icons text-blue-600">photo_library</span>
+            <span>Photos ({{ appartement.photos.count }})</span>
+          </h3>
+          
+          <!-- Photo principale -->
+          {% for photo in appartement.photos.all %}
+            {% if photo.est_principale %}
+            <div class="mb-6">
+              <img src="{{ photo.photo.url }}" 
+                   alt="{{ photo.nom_piece }}"
+                   class="w-full h-64 object-cover rounded-xl shadow-sm">
+              <p class="text-sm text-gray-600 mt-2" style="font-family: 'Arimo', sans-serif;">
+                <span class="material-icons text-sm mr-1">room</span>
+                {{ photo.nom_piece }} (Photo principale)
+              </p>
+            </div>
+            {% endif %}
+          {% endfor %}
+          
+          <!-- Galerie miniatures -->
+          <div class="grid grid-cols-4 gap-3">
+            {% for photo in appartement.photos.all %}
+              {% if not photo.est_principale %}
+              <div class="relative group">
+                <img src="{{ photo.photo.url }}" 
+                     alt="{{ photo.nom_piece }}"
+                     class="w-full h-20 object-cover rounded-lg cursor-pointer group-hover:opacity-80 transition-opacity"
+                     onclick="openPhotoModal('{{ photo.photo.url }}', '{{ photo.nom_piece }}')">
+                <div class="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-1 rounded">
+                  {{ photo.nom_piece }}
+                </div>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          
+          <div class="mt-4 text-center">
+            <a href="{% url 'appartements:photos' appartement.pk %}" 
+               class="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700">
+              <span class="material-icons text-sm">add_a_photo</span>
+              <span style="font-family: 'Arimo', sans-serif;">Gérer les photos</span>
+            </a>
+          </div>
+        </div>
+        {% endif %}
+        
+        <!-- Équipements -->
+        {% if appartement.equipements %}
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2" style="font-family: 'Lato', sans-serif;">
+            <span class="material-icons text-blue-600">inventory</span>
+            <span>Équipements ({{ appartement.equipements|length }})</span>
+          </h3>
+          
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {% for equipement in appartement.equipements %}
+            <div class="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
+              <span class="material-icons text-blue-600 text-sm">
+                {% if equipement == 'TV' %}tv
+                {% elif equipement == 'Frigo' %}kitchen
+                {% elif equipement == 'Climatisation' %}ac_unit
+                {% elif equipement == 'Wifi' %}wifi
+                {% elif equipement == 'Parking' %}local_parking
+                {% else %}check_circle{% endif %}
+              </span>
+              <span class="text-sm text-gray-700" style="font-family: 'Arimo', sans-serif;">{{ equipement }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        
+        <!-- Réservations récentes -->
+        {% if reservations %}
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2" style="font-family: 'Lato', sans-serif;">
+            <span class="material-icons text-blue-600">event</span>
+            <span>Réservations Récentes</span>
+          </h3>
+          
+          <div class="space-y-4">
+            {% for reservation in reservations %}
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span class="material-icons text-blue-600 text-sm">person</span>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-900" style="font-family: 'Lato', sans-serif;">
+                    {{ reservation.client.get_full_name }}
+                  </h4>
+                  <p class="text-sm text-gray-600" style="font-family: 'Arimo', sans-serif;">
+                    Du {{ reservation.date_arrivee|date:"d/m/Y" }} au {{ reservation.date_depart|date:"d/m/Y" }}
+                  </p>
+                </div>
+              </div>
+              
+              <div class="text-right">
+                <p class="font-semibold text-gray-900" style="font-family: 'Romla', serif;">{{ reservation.montant_total|floatformat:0 }} FCFA</p>
+                <span class="px-2 py-1 {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800{% elif reservation.statut == 'en_cours' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %} text-xs rounded-full">
+                  {{ reservation.get_statut_display }}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <div class="mt-4 text-center">
+            <a href="{% url 'reservations:liste' %}?appartement={{ appartement.pk }}" 
+               class="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700">
+              <span class="material-icons text-sm">visibility</span>
+              <span style="font-family: 'Arimo', sans-serif;">Voir toutes les réservations</span>
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        
+        <!-- Actions rapides -->
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2" style="font-family: 'Lato', sans-serif;">
+            <span class="material-icons text-blue-600">flash_on</span>
+            <span>Actions Rapides</span>
+          </h3>
+          
+          <div class="space-y-3">
+            <a href="{% url 'reservations:nouvelle' %}?appartement={{ appartement.pk }}" 
+               class="w-full flex items-center space-x-3 p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors">
+              <span class="material-icons text-sm">add_circle</span>
+              <span style="font-family: 'Arimo', sans-serif;">Nouvelle réservation</span>
+            </a>
+            
+            <a href="{% url 'inventaire:appartement' appartement.pk %}" 
+               class="w-full flex items-center space-x-3 p-3 bg-green-50 text-green-600 rounded-xl hover:bg-green-100 transition-colors">
+              <span class="material-icons text-sm">inventory</span>
+              <span style="font-family: 'Arimo', sans-serif;">Gérer l'inventaire</span>
+            </a>
+            
+            <a href="{% url 'menage:programmer' appartement.pk %}" 
+               class="w-full flex items-center space-x-3 p-3 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 transition-colors">
+              <span class="material-icons text-sm">cleaning_services</span>
+              <span style="font-family: 'Arimo', sans-serif;">Programmer ménage</span>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Statistiques -->
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2" style="font-family: 'Lato', sans-serif;">
+            <span class="material-icons text-blue-600">analytics</span>
+            <span>Statistiques</span>
+          </h3>
+          
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600" style="font-family: 'Arimo', sans-serif;">Réservations ce mois</span>
+              <span class="font-semibold text-gray-900">{{ reservations.count }}</span>
+            </div>
+            
+            {% if equipements %}
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600" style="font-family: 'Arimo', sans-serif;">Valeur inventaire</span>
+              <span class="font-semibold text-gray-900">{{ valeur_totale|floatformat:0 }} FCFA</span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600" style="font-family: 'Arimo', sans-serif;">Équipements</span>
+              <span class="font-semibold text-gray-900">{{ equipements.count }} items</span>
+            </div>
+            {% endif %}
+            
+            <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+              <span class="text-sm text-gray-600" style="font-family: 'Arimo', sans-serif;">Taux d'occupation</span>
+              <span class="font-semibold text-green-600">85%</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Informations système -->
+        <div class="bg-gray-50 rounded-2xl p-6">
+          <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2" style="font-family: 'Lato', sans-serif;">
+            <span class="material-icons text-gray-600">info</span>
+            <span>Informations</span>
+          </h3>
+          
+          <div class="space-y-3 text-sm text-gray-600" style="font-family: 'Arimo', sans-serif;">
+            <div class="flex items-center justify-between">
+              <span>Créé le</span>
+              <span>{{ appartement.date_creation|date:"d/m/Y" }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Dernière modification</span>
+              <span>{{ appartement.date_modification|date:"d/m/Y H:i" }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>ID système</span>
+              <span>#{{ appartement.pk }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal pour les photos -->
+<div id="photoModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="relative max-w-4xl max-h-screen p-4">
+    <img id="modalPhoto" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+    <button onclick="closePhotoModal()" class="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors">
+      <span class="material-icons">close</span>
+    </button>
+    <div id="modalCaption" class="absolute bottom-4 left-4 right-4 text-white bg-black/50 p-3 rounded-lg text-center"></div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openPhotoModal(photoUrl, caption) {
+    document.getElementById('modalPhoto').src = photoUrl;
+    document.getElementById('modalCaption').textContent = caption;
+    document.getElementById('photoModal').classList.remove('hidden');
+}
+
+function closePhotoModal() {
+    document.getElementById('photoModal').classList.add('hidden');
+}
+
+// Fermer avec Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePhotoModal();
+    }
+});
+
+// Confirmation pour les changements de statut
+document.addEventListener('DOMContentLoaded', function() {
+    const statusLinks = document.querySelectorAll('a[href*="changer_statut"]');
+    
+    statusLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const url = new URL(this.href);
+            const statut = url.searchParams.get('statut');
+            const message = `Confirmer le changement de statut vers "${statut}" ?`;
+            
+            if (!confirm(message)) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

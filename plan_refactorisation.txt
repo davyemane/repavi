@@ -1,0 +1,585 @@
+# 📋 Plan de Refactoring RepAvi Lodges
+## Conformité stricte au Cahier des Charges
+
+---
+
+## 🎯 **OBJECTIF**
+Refactorer le projet existant pour respecter **exactement** le cahier des charges, en supprimant tout ce qui n'est pas requis et en implémentant uniquement les fonctionnalités demandées.
+
+---
+
+## 🏗️ **NOUVELLE STRUCTURE D'APPLICATIONS**
+
+### Apps à Garder/Modifier
+```python
+# apps/users/          ✅ GARDER - Adapter aux profils requis
+# apps/appartements/   🔄 RENOMMER home → Gestion appartements  
+# apps/clients/        ➕ CRÉER - Gestion clients simple
+# apps/reservations/   🔄 MODIFIER - Simplifier selon cahier
+# apps/paiements/      ➕ CRÉER - Paiements par tranches
+# apps/inventaire/     🔄 RENOMMER meubles → Inventaire équipements
+# apps/comptabilite/   ➕ CRÉER - Comptabilité simple
+# apps/menage/         ➕ CRÉER - Planning ménage
+# apps/facturation/    ➕ CRÉER - Factures PDF
+```
+
+### Apps à Supprimer
+```python
+# apps/avis/           ❌ SUPPRIMER - Non requis par cahier
+# Page d'accueil      ❌ SUPPRIMER - Pas dans les specs
+# Fonctionnalités complexes ❌ SUPPRIMER
+```
+
+---
+
+## 👥 **PROFILS UTILISATEURS (Exact cahier)**
+
+### 1. Super Administrateur
+- **Qui** : Direction RepAvi Lodges
+- **Droits** : Accès complet + gestion des gestionnaires
+- **Interface** : Tableau de bord complet
+
+### 2. Gestionnaire  
+- **Qui** : Personnel opérationnel
+- **Droits** : Gestion quotidienne (clients, réservations, paiements, inventaire)
+- **Interface** : Tableau de bord fonctionnel
+
+### 3. Client
+- **Qui** : Locataires
+- **Droits** : **AUCUN ACCÈS** au système (important !)
+
+---
+
+## 🏠 **MODÈLES DJANGO REQUIS**
+
+### 1. Appartement
+```python
+class Appartement(models.Model):
+    numero = models.CharField(max_length=10, unique=True)
+    type_logement = models.CharField(choices=[
+        ('studio', 'Studio'),
+        ('t1', 'T1'), 
+        ('t2', 'T2')
+    ])
+    maison = models.CharField(max_length=100)  # Nom de la maison
+    prix_par_nuit = models.DecimalField(max_digits=10, decimal_places=2)
+    statut = models.CharField(choices=[
+        ('disponible', 'Disponible'),
+        ('occupe', 'Occupé'),
+        ('maintenance', 'Maintenance')
+    ])
+    equipements = models.JSONField(default=list)  # Liste simple
+    photos = models.ManyToManyField('PhotoAppartement')
+```
+
+### 2. Client  
+```python
+class Client(models.Model):
+    nom = models.CharField(max_length=100)
+    prenom = models.CharField(max_length=100)
+    telephone = models.CharField(max_length=20)
+    email = models.EmailField()
+    piece_identite = models.ImageField(upload_to='clients/documents/')
+    adresse_residence = models.TextField()
+    contact_urgence_nom = models.CharField(max_length=100)
+    contact_urgence_tel = models.CharField(max_length=20)
+    date_creation = models.DateTimeField(auto_now_add=True)
+```
+
+### 3. Réservation
+```python
+class Reservation(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    appartement = models.ForeignKey(Appartement, on_delete=models.CASCADE)
+    date_arrivee = models.DateField()
+    date_depart = models.DateField()
+    nombre_nuits = models.IntegerField()
+    prix_total = models.DecimalField(max_digits=10, decimal_places=2)
+    statut = models.CharField(choices=[
+        ('confirmee', 'Confirmée'),
+        ('en_cours', 'En cours'),
+        ('terminee', 'Terminée'),
+        ('annulee', 'Annulée')
+    ])
+```
+
+### 4. Paiement (SIMPLIFIÉ)
+```python
+class EcheancierPaiement(models.Model):
+    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
+    montant_prevu = models.DecimalField(max_digits=10, decimal_places=2)
+    date_echeance = models.DateField()
+    montant_paye = models.DecimalField(default=0)
+    mode_paiement = models.CharField(choices=[
+        ('especes', 'Espèces'),
+        ('virement', 'Virement bancaire'), 
+        ('mobile_money', 'Mobile Money'),
+        ('cheque', 'Chèque')
+    ])
+    statut = models.CharField(choices=[
+        ('en_attente', 'En attente'),
+        ('paye', 'Payé')
+    ])
+```
+
+### 5. Inventaire
+```python
+class EquipementAppartement(models.Model):
+    appartement = models.ForeignKey(Appartement, on_delete=models.CASCADE)
+    nom = models.CharField(max_length=100)
+    etat = models.CharField(choices=[
+        ('bon', 'Bon'),
+        ('usage', 'Usage'), 
+        ('defectueux', 'Défectueux'),
+        ('hors_service', 'Hors service')
+    ])
+    prix_achat = models.DecimalField(max_digits=10, decimal_places=2)
+    date_achat = models.DateField()
+    photo = models.ImageField(upload_to='inventaire/')
+    commentaire = models.TextField(blank=True)
+```
+
+---
+
+## 🎨 **DESIGN SYSTEM (Inspiré des composants React)**
+
+### Couleurs Principales
+```css
+/* Gradient principal */
+--gradient-primary: from-blue-600 to-purple-600;
+--gradient-success: from-green-500 to-emerald-500;
+--gradient-warning: from-yellow-500 to-orange-500;
+--gradient-danger: from-red-500 to-pink-500;
+
+/* Couleurs solides */
+--blue-600: #2563eb;
+--purple-600: #9333ea;
+--green-600: #16a34a;
+--red-600: #dc2626;
+--gray-50: #f9fafb;
+--gray-100: #f3f4f6;
+```
+
+### Composants UI Réutilisables
+- **Cards** : `bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg`
+- **Buttons Primary** : `bg-blue-600 text-white py-3 px-6 rounded-xl hover:bg-blue-700`
+- **Inputs** : `border border-gray-300 rounded-xl focus:border-blue-600 focus:ring-2 focus:ring-blue-100`
+- **Gradients** : `bg-gradient-to-r from-blue-600 to-purple-600`
+
+---
+
+## 📋 **MODULES À IMPLÉMENTER**
+
+### 1. 🏠 Gestion Appartements (`apps/appartements/`)
+- **Modèles** : Appartement, PhotoAppartement
+- **Vues** : Liste, Création, Modification, Changement statut
+- **Templates** : Liste avec filtres, Formulaire simple
+- **Fonctionnalités** :
+  - ✅ Numéro, type (Studio/T1/T2), maison
+  - ✅ Prix par nuit unique et simple
+  - ✅ Statut : Disponible/Occupé/Maintenance
+  - ✅ Photos par pièce
+  - ✅ Liste d'équipements simple
+
+### 2. 👥 Gestion Clients (`apps/clients/`)
+- **Modèles** : Client
+- **Vues** : CRUD complet + recherche
+- **Templates** : Liste, Fiche client, Formulaire
+- **Fonctionnalités** :
+  - ✅ Identité : nom, prénom, téléphone, email
+  - ✅ Document : pièce d'identité (photo)
+  - ✅ Adresse résidence habituelle
+  - ✅ Contact d'urgence
+
+### 3. 📅 Réservations (`apps/reservations/`)
+- **Modèles** : Reservation
+- **Vues** : Calendrier, Création, Planning
+- **Templates** : Calendrier mensuel, Formulaire réservation
+- **Fonctionnalités** :
+  - ✅ Vue mensuelle avec couleurs par statut
+  - ✅ Création par étapes (Client → Appartement → Dates → Tarif → Paiement)
+  - ✅ Calcul automatique (nuits × prix)
+  - ✅ Alerte conflits de dates
+
+### 4. 💰 Paiements (`apps/paiements/`)
+- **Modèles** : EcheancierPaiement
+- **Vues** : Gestion échéancier, Enregistrement paiements
+- **Templates** : Tableau paiements, Formulaire saisie
+- **Fonctionnalités** :
+  - ✅ Plan de paiement simple (Acompte + Solde)
+  - ✅ Modes : Espèces, Virement, Mobile Money, Chèque
+  - ✅ Suivi tableau avec statut Payé/En attente
+
+### 5. 🛠️ Inventaire (`apps/inventaire/`)
+- **Modèles** : EquipementAppartement
+- **Vues** : Par appartement, Changement état
+- **Templates** : Liste équipements, Formulaire ajout
+- **Fonctionnalités** :
+  - ✅ États : Bon, Usage, Défectueux, Hors service
+  - ✅ Infos : Prix d'achat, photo, commentaire
+  - ✅ Changement d'état en 1 clic
+  - ✅ Total valeur par appartement
+
+### 6. 📊 Comptabilité (`apps/comptabilite/`)
+- **Modèles** : ComptabiliteAppartement
+- **Vues** : Vue mensuelle par appartement
+- **Templates** : Tableau revenus/charges
+- **Fonctionnalités** :
+  - ✅ Addition revenus par appartement
+  - ✅ Soustraction charges manuelles
+  - ✅ Pourcentage occupation simple
+  - ❌ PAS de calculs complexes/fiscaux
+
+### 7. 🧹 Planning Ménage (`apps/menage/`)
+- **Modèles** : TacheMenage
+- **Vues** : Liste tâches, Check-list
+- **Templates** : Planning simple, Formulaire check-list
+- **Fonctionnalités** :
+  - ✅ Liste appartements à nettoyer après départ
+  - ✅ Statut : À faire/En cours/Terminé
+  - ✅ Notes personnel ménage
+  - ✅ Photos avant/après (optionnel)
+
+### 8. 📄 Facturation (`apps/facturation/`)
+- **Modèles** : Facture
+- **Vues** : Génération PDF automatique
+- **Templates** : Template PDF
+- **Fonctionnalités** :
+  - ✅ PDF avec logo RepAvi Lodges
+  - ✅ Infos client et séjour
+  - ✅ Détail coûts (nuits + frais)
+  - ✅ Plan de paiement si échéancé
+
+---
+
+## 🎨 **INTERFACE UTILISATEUR**
+
+### Dashboard Principal (Inspiré du design React)
+```html
+<!-- Structure type -->
+<div class="min-h-screen bg-gray-50">
+  <!-- Header avec navigation -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <!-- Logo RepAvi Lodges + Navigation -->
+  </header>
+  
+  <!-- Hero Section avec KPIs -->
+  <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white">
+    <!-- Statistiques principales -->
+  </div>
+  
+  <!-- Modules Grid -->
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Cards pour chaque module -->
+  </div>
+</div>
+```
+
+### Cards Modules (Style moderne)
+- **Appartements** : Icône 🏠, couleur bleue
+- **Clients** : Icône 👥, couleur verte  
+- **Réservations** : Icône 📅, couleur purple
+- **Paiements** : Icône 💰, couleur orange
+- **Inventaire** : Icône 🛠️, couleur indigo
+- **Comptabilité** : Icône 📊, couleur cyan
+- **Ménage** : Icône 🧹, couleur emerald
+- **Facturation** : Icône 📄, couleur slate
+
+---
+
+## 🗂️ **NOUVELLE STRUCTURE FICHIERS**
+
+```
+repavi/
+├── apps/
+│   ├── users/                    # ✅ Adapter profils
+│   ├── appartements/             # 🔄 Ex-home  
+│   ├── clients/                  # ➕ Nouveau
+│   ├── reservations/             # 🔄 Simplifier
+│   ├── paiements/                # ➕ Nouveau
+│   ├── inventaire/               # 🔄 Ex-meubles
+│   ├── comptabilite/             # ➕ Nouveau
+│   ├── menage/                   # ➕ Nouveau
+│   └── facturation/              # ➕ Nouveau
+├── templates/
+│   ├── base.html                 # Template de base moderne
+│   ├── dashboard/                # Dashboard principal
+│   ├── appartements/             # Templates appartements
+│   ├── clients/                  # Templates clients
+│   ├── reservations/             # Templates réservations
+│   ├── paiements/                # Templates paiements
+│   ├── inventaire/               # Templates inventaire
+│   ├── comptabilite/             # Templates comptabilité
+│   ├── menage/                   # Templates ménage
+│   └── facturation/              # Templates facturation
+├── static/
+│   ├── css/                      # Tailwind compilé
+│   ├── js/                       # JavaScript simple
+│   └── images/                   # Logo, icônes
+├── media/
+│   ├── appartements/photos/      # Photos appartements
+│   ├── clients/documents/        # Pièces identité
+│   ├── inventaire/               # Photos équipements
+│   └── menage/                   # Photos avant/après
+└── config/
+    ├── settings/                 # Settings simplifiés
+    ├── urls.py                   # URLs principales
+    └── wsgi.py
+```
+
+---
+
+## ⚙️ **ÉTAPES DE REFACTORING**
+
+### 🗑️ **ÉTAPE 1 : NETTOYAGE (Jour 1)**
+
+#### Supprimer les éléments non requis
+```bash
+# Apps à supprimer
+rm -rf apps/avis/
+
+# Templates page d'accueil
+rm -rf templates/home/index.html
+rm -rf templates/components/hero.html
+
+# Fonctionnalités complexes non mentionnées
+# (à identifier dans le code existant)
+```
+
+#### Simplifier settings.py
+```python
+# Garder seulement les apps requises
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth', 
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    # Third party
+    'tailwind',
+    'theme',
+    
+    # RepAvi apps - SEULEMENT celles du cahier
+    'apps.users',
+    'apps.appartements',
+    'apps.clients', 
+    'apps.reservations',
+    'apps.paiements',
+    'apps.inventaire',
+    'apps.comptabilite',
+    'apps.menage',
+    'apps.facturation',
+]
+```
+
+### 🔄 **ÉTAPE 2 : RESTRUCTURATION (Jours 2-3)**
+
+#### Renommer et adapter les apps existantes
+```bash
+# Renommer
+mv home/ apps/appartements/
+mv meubles/ apps/inventaire/
+
+# Créer nouvelles apps
+python manage.py startapp clients apps/clients
+python manage.py startapp paiements apps/paiements  
+python manage.py startapp comptabilite apps/comptabilite
+python manage.py startapp menage apps/menage
+python manage.py startapp facturation apps/facturation
+```
+
+#### Adapter le modèle User
+```python
+# apps/users/models.py
+class User(AbstractUser):
+    PROFIL_CHOICES = [
+        ('super_admin', 'Super Administrateur'),
+        ('gestionnaire', 'Gestionnaire'),
+    ]
+    profil = models.CharField(max_length=20, choices=PROFIL_CHOICES)
+    telephone = models.CharField(max_length=20, blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    
+    # PAS de profil client - ils n'accèdent pas au système
+```
+
+### 🎨 **ÉTAPE 3 : TEMPLATES MODERNES (Jours 4-5)**
+
+#### Base Template (Inspiré du design React)
+```html
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RepAvi Lodges - Gestion{% endblock %}</title>
+    {% load static %}
+    {% load tailwind_tags %}
+    {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Header moderne avec navigation -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <!-- Navigation style moderne comme dans le React -->
+    </header>
+    
+    <!-- Main content -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
+```
+
+#### Dashboard Principal
+```html
+<!-- templates/dashboard/index.html -->
+{% extends 'base.html' %}
+{% block content %}
+<!-- Hero section avec statistiques -->
+<div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white mb-8">
+    <!-- KPIs : Nb appartements, Occupation actuelle, Revenus mois -->
+</div>
+
+<!-- Modules Grid -->
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Card pour chaque module avec icônes Material -->
+</div>
+{% endblock %}
+```
+
+### 📱 **RESPONSIVE ET MODERNE**
+- Design mobile-first
+- Cards avec hover effects
+- Gradient backgrounds
+- Icônes Material Design
+- Navigation sticky
+- Micro-animations CSS
+
+---
+
+## 🔒 **SYSTÈME D'AUTHENTIFICATION SIMPLIFIÉ**
+
+### URLs d'authentification
+```python
+# apps/users/urls.py
+urlpatterns = [
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    # PAS d'inscription publique - comptes créés par admin
+]
+```
+
+### Décorateurs de sécurité
+```python
+from functools import wraps
+from django.contrib.auth.decorators import login_required
+
+def super_admin_required(view_func):
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if request.user.profil != 'super_admin':
+            return redirect('dashboard')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+def gestionnaire_required(view_func):
+    @wraps(view_func)
+    @login_required  
+    def wrapper(request, *args, **kwargs):
+        if request.user.profil not in ['super_admin', 'gestionnaire']:
+            return redirect('dashboard')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+```
+
+---
+
+## 📊 **FONCTIONNALITÉS EXACTES DU CAHIER**
+
+### ✅ **CE QUI DOIT ÊTRE INCLUS**
+1. **Appartements** : Numéro, type, prix/nuit, statut, photos, équipements
+2. **Clients** : Fiche simple avec identité, documents, contacts
+3. **Réservations** : Calendrier simple, création 5 étapes, calcul auto
+4. **Paiements** : Échéancier simple (Acompte + Solde), modes de paiement
+5. **Inventaire** : Liste par appartement, états, prix, photos
+6. **Comptabilité** : Addition revenus - charges, % occupation
+7. **Ménage** : Planning après départs, check-list simple
+8. **Facturation** : PDF automatique avec infos complètes
+
+### ❌ **CE QUI DOIT ÊTRE EXCLU**
+1. Réservations en ligne par clients
+2. Intégrations Booking.com/Airbnb
+3. Paiements en ligne automatiques
+4. Analytics avancées
+5. Application mobile
+6. Système de sécurité complexe
+7. Page d'accueil publique
+
+---
+
+## 🚀 **PLANNING DE REFACTORING (1 SEMAINE)**
+
+### **Jour 1** : Nettoyage et structure
+- Supprimer apps/fonctionnalités non requises
+- Créer nouvelle structure d'apps
+- Adapter settings.py
+
+### **Jour 2** : Modèles et base de données
+- Créer tous les modèles selon cahier
+- Migrations
+- Données de test simples
+
+### **Jour 3** : Templates de base
+- Base template moderne
+- Dashboard principal
+- Navigation
+
+### **Jour 4** : Vues principales
+- Appartements CRUD
+- Clients CRUD  
+- Réservations basiques
+
+### **Jour 5** : Fonctionnalités avancées
+- Paiements par tranches
+- Inventaire
+- Comptabilité simple
+
+### **Weekend** : Tests et finitions
+- Tests fonctionnels
+- Optimisations
+- Documentation
+
+---
+
+## 📝 **CRITÈRES DE VALIDATION**
+
+### ⏱️ **Performance (Cahier des charges)**
+- ✅ Créer appartement : < 2 minutes
+- ✅ Changer statut : 1 clic
+- ✅ Créer réservation : < 5 minutes
+- ✅ Échéancier : < 1 minute
+- ✅ Pages : < 3 secondes
+
+### 🎯 **Simplicité d'usage**
+- ✅ Formation : 2h maximum
+- ✅ Actions courantes : Max 3 clics
+- ✅ Messages d'erreur clairs
+
+---
+
+## 🎉 **RÉSULTAT ATTENDU**
+
+Un système **ultra-simple** et **fonctionnel** qui respecte **exactement** le cahier des charges :
+- Interface moderne inspirée du design React fourni
+- Fonctionnalités limitées aux specs exactes
+- Performance et simplicité d'usage garanties
+- Formation de l'équipe en 2h maximum
+
+**Êtes-vous prêt à commencer la refactoring ? Par quelle étape souhaitez-vous commencer ?**

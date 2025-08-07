@@ -16,6 +16,7 @@ django-extensions==4.1
 django-ratelimit==4.1.0
 django-tailwind==4.0.1
 fonttools==4.58.4
+h11==0.16.0
 idna==3.10
 iniconfig==2.1.0
 Jinja2==3.1.6
@@ -50,6 +51,7 @@ tinyhtml5==2.0.0
 types-python-dateutil==2.9.0.20250516
 typing_extensions==4.14.0
 urllib3==2.5.0
+uvicorn==0.35.0
 weasyprint==65.1
 webencodings==0.5.1
 xlsxwriter==3.2.5
