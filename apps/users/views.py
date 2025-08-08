@@ -50,6 +50,7 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             'total_appartements': Appartement.objects.count(),
             'appartements_disponibles': Appartement.objects.filter(statut='disponible').count(),
             'appartements_occupes': Appartement.objects.filter(statut='occupe').count(),
+            'appartements_maintenance': Appartement.objects.filter(statut='maintenance').count(),
             
             # Clients
             'total_clients': Client.objects.count(),
@@ -95,16 +96,44 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             'mois_actuel': today,
         })
         
+        # Stats spécifiques aux Super Admin
+        if self.request.user.profil == 'super_admin':
+            context.update({
+                'total_gestionnaires': User.objects.filter(profil='gestionnaire').count(),
+                'gestionnaires_actifs': User.objects.filter(
+                    profil='gestionnaire', 
+                    is_active=True
+                ).count(),
+                'super_admins': User.objects.filter(profil='super_admin').count(),
+            })
+        
+        # Données pour le graphique des revenus (exemple)
+        context.update({
+            'jours_semaine': ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+            'revenus_semaine': [45000, 52000, 38000, 67000, 89000, 125000, 98000],  # À calculer dynamiquement
+        })
+        
         return context
     
     def get_revenus_mois(self, annee, mois):
         """Calcul simple des revenus selon cahier"""
-        from apps.comptabilite.models import ComptabiliteAppartement
-        return ComptabiliteAppartement.objects.filter(
-            type_mouvement='revenu',
-            date_mouvement__year=annee,
-            date_mouvement__month=mois
-        ).aggregate(total=Sum('montant'))['total'] or 0
+        try:
+            from apps.comptabilite.models import ComptabiliteAppartement
+            revenus = ComptabiliteAppartement.objects.filter(
+                type_mouvement='revenu',
+                date_mouvement__year=annee,
+                date_mouvement__month=mois
+            ).aggregate(total=Sum('montant'))['total']
+            return float(revenus) if revenus else 0.0
+        except ImportError:
+            # Si le modèle n'existe pas encore, calculer à partir des réservations
+            from apps.reservations.models import Reservation
+            reservations = Reservation.objects.filter(
+                statut__in=['confirmee', 'en_cours', 'terminee'],
+                date_arrivee__year=annee,
+                date_arrivee__month=mois
+            ).aggregate(total=Sum('montant_total'))['total']
+            return float(reservations) if reservations else 0.0
     
     def get_taux_occupation_mois(self, annee, mois):
         """Calcul simple du taux d'occupation selon cahier"""
@@ -137,7 +166,6 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
                 nuits_occupees += (fin_sejour - debut_sejour).days
         
         return round((nuits_occupees / nuits_totales_possibles) * 100) if nuits_totales_possibles > 0 else 0
-
 
 @login_required
 @user_passes_test(is_gestionnaire)      
@@ -209,11 +237,9 @@ class ListeGestionnairesView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context.update({
             'total_gestionnaires': User.objects.filter(profil='gestionnaire').count(),
             'gestionnaires_actifs': User.objects.filter(profil='gestionnaire', is_active=True).count(),
+            'gestionnaires_inactifs': User.objects.filter(profil='gestionnaire', is_active=False).count(),  # Ajoutez cette ligne
             'super_admins': User.objects.filter(profil='super_admin').count(),
-            'search_query': self.request.GET.get('search', ''),
-            'statut_filtre': self.request.GET.get('statut', ''),
-        })
-        
+        })        
         return context
 
 
