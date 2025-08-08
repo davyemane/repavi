@@ -26,6 +26,22 @@ class User(AbstractUser):
     def is_gestionnaire(self):
         return self.profil in ['super_admin', 'gestionnaire']
     
+    def save(self, *args, **kwargs):
+        """
+        Surcharge save pour attribuer automatiquement le profil super_admin
+        aux superusers Django créés via createsuperuser
+        """
+        # Si c'est un superuser Django et qu'il n'a pas encore de profil spécifique
+        if self.is_superuser and self.profil == 'gestionnaire':
+            self.profil = 'super_admin'
+        
+        # Si on force le profil super_admin, s'assurer que c'est aussi un superuser Django
+        if self.profil == 'super_admin':
+            self.is_superuser = True
+            self.is_staff = True
+            
+        super().save(*args, **kwargs)
+    
     class Meta:
         verbose_name = 'Utilisateur'
         verbose_name_plural = 'Utilisateurs'
