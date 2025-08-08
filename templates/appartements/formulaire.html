@@ -1,0 +1,180 @@
+<!-- ========================================== -->
+<!-- templates/appartements/formulaire.html -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titre }} - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav class="flex items-center space-x-2 text-gray-600 mb-6">
+    <a href="{% url 'dashboard' %}" class="hover:text-blue-600">Tableau de bord</a>
+    <span class="material-icons text-sm">chevron_right</span>
+    <a href="{% url 'appartements:liste' %}" class="hover:text-blue-600">Appartements</a>
+    <span class="material-icons text-sm">chevron_right</span>
+    <span class="text-gray-900 font-medium">{{ titre }}</span>
+</nav>
+
+<!-- Header -->
+<div class="flex items-center space-x-3 mb-8">
+    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+        <span class="material-icons text-white">apartment</span>
+    </div>
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">{{ titre }}</h1>
+        <p class="text-gray-600">{{ action }} en moins de 2 minutes selon cahier des charges</p>
+    </div>
+</div>
+
+<!-- Formulaire -->
+<div class="max-w-4xl">
+    <form method="post" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+        
+        <!-- Informations de base -->
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                <span class="material-icons text-blue-600">info</span>
+                <span>Informations de base</span>
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Numéro -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.numero.label }}</label>
+                    {{ form.numero }}
+                    {% if form.numero.help_text %}
+                    <p class="text-gray-500 text-sm mt-1">{{ form.numero.help_text }}</p>
+                    {% endif %}
+                    {% if form.numero.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.numero.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.type_logement.label }}</label>
+                    {{ form.type_logement }}
+                    {% if form.type_logement.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.type_logement.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Maison -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.maison.label }}</label>
+                    {{ form.maison }}
+                    {% if form.maison.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.maison.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Prix -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.prix_par_nuit.label }}</label>
+                    <div class="relative">
+                        {{ form.prix_par_nuit }}
+                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">FCFA</span>
+                    </div>
+                    {% if form.prix_par_nuit.help_text %}
+                    <p class="text-gray-500 text-sm mt-1">{{ form.prix_par_nuit.help_text }}</p>
+                    {% endif %}
+                    {% if form.prix_par_nuit.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.prix_par_nuit.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Statut -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.statut.label }}</label>
+                    {{ form.statut }}
+                    {% if form.statut.errors %}
+                    <div class="text-red-600 text-sm mt-1">{{ form.statut.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Équipements selon cahier -->
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                <span class="material-icons text-purple-600">inventory</span>
+                <span>Équipements disponibles</span>
+            </h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {% for choice in form.equipements_choix %}
+                <label class="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:border-blue-600 hover:bg-blue-50 transition-colors cursor-pointer">
+                    {{ choice.tag }}
+                    <span class="text-gray-700">{{ choice.choice_label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center justify-between bg-white rounded-2xl p-6 border border-gray-100">
+            <a href="{% url 'appartements:liste' %}" 
+               class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2">
+                <span class="material-icons text-sm">arrow_back</span>
+                <span>Annuler</span>
+            </a>
+            
+            <button type="submit" 
+                    class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-colors font-medium flex items-center space-x-2">
+                <span class="material-icons text-sm">save</span>
+                <span>{{ action }} l'appartement</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Preview en temps réel -->
+{% if appartement %}
+<div class="mt-8 max-w-md">
+    <h3 class="font-bold text-gray-900 mb-4">Aperçu</h3>
+    <div class="bg-white rounded-xl p-4 border border-gray-100">
+        <div class="text-lg font-bold text-gray-900">{{ appartement.numero }}</div>
+        <div class="text-gray-600">{{ appartement.get_type_logement_display }} - {{ appartement.maison }}</div>
+        <div class="text-blue-600 font-semibold">{{ appartement.prix_par_nuit|floatformat:0 }} FCFA/nuit</div>
+        
+        {% if appartement.equipements %}
+        <div class="mt-3 flex flex-wrap gap-1">
+            {% for eq in appartement.equipements %}
+            <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded">{{ eq }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Calcul du prix en temps réel
+function calculerPrix() {
+    // Sera utilisé pour les réservations
+    console.log('Calcul prix...');
+}
+
+// Validation côté client
+document.querySelector('form').addEventListener('submit', function(e) {
+    const numero = document.querySelector('input[name="numero"]').value;
+    const prix = document.querySelector('input[name="prix_par_nuit"]').value;
+    
+    if (!numero || !prix) {
+        e.preventDefault();
+        alert('Veuillez remplir tous les champs obligatoires');
+        return false;
+    }
+    
+    if (parseInt(prix) < 1000) {
+        e.preventDefault();
+        alert('Le prix par nuit semble trop faible. Vérifiez la saisie.');
+        return false;
+    }
+});
+</script>
+{% endblock %}

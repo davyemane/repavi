@@ -1,0 +1,133 @@
+<!-- templates/clients/liste.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Clients - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<!-- Header avec recherche -->
+<div class="flex items-center justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center space-x-3">
+            <span class="material-icons text-green-600 text-3xl">people</span>
+            <span>Gestion des Clients</span>
+        </h1>
+        <p class="text-gray-600 mt-2">{{ clients|length }} client(s) • Fiche client simple selon cahier des charges</p>
+    </div>
+    
+    <a href="{% url 'clients:nouveau' %}" 
+       class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-colors font-medium flex items-center space-x-2">
+        <span class="material-icons">person_add</span>
+        <span>Nouveau Client</span>
+    </a>
+</div>
+
+<!-- Recherche selon cahier (nom ou téléphone) -->
+<div class="bg-white rounded-2xl p-6 border border-gray-100 mb-8">
+    <form method="get" class="flex items-center space-x-4">
+        <div class="flex-1 relative">
+            <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
+            <input type="text" name="q" value="{{ recherche }}" 
+                   placeholder="Rechercher par nom, prénom ou téléphone..."
+                   class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium">
+            Rechercher
+        </button>
+        {% if recherche %}
+        <a href="{% url 'clients:liste' %}" class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium">
+            Effacer
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Liste des clients -->
+<div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+    {% for client in clients %}
+    <div class="bg-white rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+        
+        <!-- Header client -->
+        <div class="p-6 pb-4">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                        <span class="material-icons text-white">person</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">{{ client.prenom }} {{ client.nom }}</h3>
+                        <p class="text-gray-600 text-sm">Client #{{ client.pk }}</p>
+                    </div>
+                </div>
+                
+                <!-- Badge nombre de séjours -->
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">{{ client.get_nombre_sejours }}</div>
+                    <div class="text-xs text-gray-500">séjour(s)</div>
+                </div>
+            </div>
+            
+            <!-- Informations contact selon cahier -->
+            <div class="space-y-2">
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <span class="material-icons text-sm">phone</span>
+                    <span class="text-sm">{{ client.telephone }}</span>
+                </div>
+                
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <span class="material-icons text-sm">email</span>
+                    <span class="text-sm">{{ client.email }}</span>
+                </div>
+                
+                <div class="flex items-start space-x-2 text-gray-600">
+                    <span class="material-icons text-sm mt-0.5">location_on</span>
+                    <span class="text-sm">{{ client.adresse_residence|truncatechars:50 }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="px-6 pb-6">
+            <div class="flex space-x-2">
+                <a href="{% url 'clients:detail' client.pk %}" 
+                   class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center flex items-center justify-center space-x-1">
+                    <span class="material-icons text-sm">visibility</span>
+                    <span>Voir Fiche</span>
+                </a>
+                
+                <a href="{% url 'reservations:nouvelle' %}?client={{ client.pk }}" 
+                   class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                   title="Nouvelle réservation">
+                    <span class="material-icons text-sm">event_available</span>
+                </a>
+                
+                <a href="{% url 'clients:modifier' client.pk %}" 
+                   class="bg-gray-100 text-gray-600 p-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
+                   title="Modifier">
+                    <span class="material-icons text-sm">edit</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    
+    <!-- État vide -->
+    <div class="col-span-full text-center py-12">
+        <span class="material-icons text-gray-400 text-6xl mb-4">people</span>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Aucun client trouvé</h3>
+        <p class="text-gray-600 mb-6">
+            {% if recherche %}
+            Aucun résultat pour "{{ recherche }}".
+            {% else %}
+            Commencez par ajouter votre premier client.
+            {% endif %}
+        </p>
+        <a href="{% url 'clients:nouveau' %}" 
+           class="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-medium">
+            <span class="material-icons">person_add</span>
+            <span>Ajouter un client</span>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

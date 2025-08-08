@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Créer un Gestionnaire - RepAvi Lodges{% endblock %}
+
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Romla:wght@300;400;600;700&family=Arimo:wght@300;400;500;600&family=Lato:wght@300;400;600;700&display=swap');
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+{% include '_navigation.html' %}
+
+<div class="min-h-screen bg-gray-50">
+  <!-- Header avec breadcrumb -->
+  <header class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-4">
+          <a href="{% url 'dashboard' %}" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <span class="material-icons text-sm">dashboard</span>
+            <span style="font-family: 'Arimo', sans-serif;">Dashboard</span>
+          </a>
+          <span class="text-gray-400">/</span>
+          <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <span class="material-icons text-sm">supervisor_account</span>
+            <span style="font-family: 'Arimo', sans-serif;">Gestionnaires</span>
+          </a>
+          <span class="text-gray-400">/</span>
+          <span class="font-medium text-gray-900" style="font-family: 'Arimo', sans-serif;">Nouveau Gestionnaire</span>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <a href="{% url 'users:liste_gestionnaires' %}" 
+             class="flex items-center space-x-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <span class="material-icons text-sm">arrow_back</span>
+            <span style="font-family: 'Arimo', sans-serif;">Retour</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      
+      <!-- Titre principal -->
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span class="material-icons text-white text-3xl">person_add</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2" style="font-family: 'Romla', serif;">
+          Créer un Gestionnaire
+        </h1>
+        <p class="text-gray-600" style="font-family: 'Arimo', sans-serif;">
+          Ajouter un nouveau membre à l'équipe RepAvi Lodges
+        </p>
+      </div>
+
+      <!-- Formulaire -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+        
+        {% if messages %}
+        <div class="mb-6 space-y-3">
+          {% for message in messages %}
+          <div class="flex items-center p-4 rounded-xl {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+            <span class="material-icons mr-3">
+              {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+            </span>
+            <span style="font-family: 'Arimo', sans-serif;">{{ message }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="space-y-6">
+          {% csrf_token %}
+
+          <!-- Informations personnelles -->
+          <div class="border-b border-gray-200 pb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2" style="font-family: 'Lato', sans-serif;">
+              <span class="material-icons text-blue-600">person</span>
+              <span>Informations Personnelles</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Nom d'utilisateur -->
+              <div>
+                <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2" style="font-family: 'Arimo', sans-serif;">
+                  <span class="flex items-center space-x-2">
+                    <span class="material-icons text-sm">badge</span>
+                    <span>Nom d'utilisateur *</span>
+                  </span>
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <p class="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                  <span class="material-icons text-sm">error</span>
+                  <span>{{ form.username.errors.0 }}</span>
+                </p>
+                {% endif %}
+              </div>
+
+              <!-- Email -->
+              <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2" style="font-family: 'Arimo', sans-serif;">
+                  <span class="flex items-center space-x-2">
+                    <span class="material-icons text-sm">email</span>
+                    <span>Email *</span>
+                  </span>
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <p class="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                  <span class="material-icons text-sm">error</span>
+                  <span>{{ form.email.errors.0 }}</span>
+                </p>
+                {% endif %}
+              </div>
+
+              <!-- Prénom -->
+              <div>
+                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2" style="font-family: 'Arimo', sans-serif;">
+                  <span class="flex items-center space-x-2">
+                    <span class="material-icons text-sm">person</span>
+                    <span>Prénom *</span>
+                  </span>
+                </label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                <p class="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                  <span class="material-icons text-sm">error</span>
+                  <span>{{ form.first_name.errors.0 }}</span>
+                </p>
+                {% endif %}
+              </div>
+
+              <!-- Nom -->
+              <div>
+                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2" style="font-family: 'Arimo', sans-serif;">
+                  <span class="flex items-center space-x-2">
+                    <span class="material-icons text-sm">person</span>
+                    <span>Nom *</span>
+                  </span>
+                </label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                <p class="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                  <span class="material-icons text-sm">error</span>
+                  <span>{{ form.last_name.errors.0 }}</span>
+                </p>
+                {% endif %}
+              </div>
+
+              <!-- Téléphone -->
+              <div>
+                <label for="{{ form.telephone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2" style="font-family: 'Arimo', sans-serif;">
+                  <span class="flex items-center space-x-2">
+                    <span class="material-icons text-sm">phone</span>
+                    <span>Téléphone</span>
+                  </span>
+                </label>
+                {{ form.telephone }}
+                {% if form.telephone.errors %}
+                <p class="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                  <span class="material-icons text-sm">error</span>
+                  <span>{{ form.telephone.errors.0 }}</span>
+                </p>
+                {% endif %}
+              </div>
+
+              <!-- Profil -->
+              <div>
+                <label for="{{ form.profil.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2" style="font-family: 'Arimo', sans-serif;">
+                  <span class="flex items-center space-x-2">
+                    <span class="material-icons text-sm">admin_panel_settings</span>
+                    <span>Profil *</span>
+                  </span>
+                </label>
+                {{ form.profil }}
+                {% if form.profil.errors %}
+                <p class="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                  <span class="material-icons text-sm">error</span>
+                  <span>{{ form.profil.errors.0 }}</span>
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Sécurité -->
+          <div class="pb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2" style="font-family: 'Lato', sans-serif;">
+              <span class="material-icons text-blue-600">security</span>
+              <span>Sécurité</span>
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Mot de passe -->
+              <div>
+                <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2" style="font-family: 'Arimo', sans-serif;">
+                  <span class="flex items-center space-x-2">
+                    <span class="material-icons text-sm">lock</span>
+                    <span>Mot de passe *</span>
+                  </span>
+                </label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                <p class="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                  <span class="material-icons text-sm">error</span>
+                  <span>{{ form.password1.errors.0 }}</span>
+                </p>
+                {% endif %}
+                <p class="text-xs text-gray-500 mt-1" style="font-family: 'Arimo', sans-serif;">
+                  Minimum 8 caractères avec lettres et chiffres
+                </p>
+              </div>
+
+              <!-- Confirmation mot de passe -->
+              <div>
+                <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2" style="font-family: 'Arimo', sans-serif;">
+                  <span class="flex items-center space-x-2">
+                    <span class="material-icons text-sm">lock</span>
+                    <span>Confirmer le mot de passe *</span>
+                  </span>
+                </label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                <p class="text-sm text-red-600 mt-1 flex items-center space-x-1">
+                  <span class="material-icons text-sm">error</span>
+                  <span>{{ form.password2.errors.0 }}</span>
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
+            <div class="flex items-center space-x-2 text-gray-500">
+              <span class="material-icons text-sm">info</span>
+              <span class="text-sm" style="font-family: 'Arimo', sans-serif;">
+                Les champs avec * sont obligatoires
+              </span>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+              <a href="{% url 'users:liste_gestionnaires' %}" 
+                 class="flex items-center space-x-2 px-6 py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                <span class="material-icons text-sm">cancel</span>
+                <span style="font-family: 'Arimo', sans-serif;">Annuler</span>
+              </a>
+              
+              <button type="submit" 
+                      class="flex items-center space-x-2 px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                <span class="material-icons text-sm">person_add</span>
+                <span style="font-family: 'Arimo', sans-serif;">Créer le Gestionnaire</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Validation en temps réel du mot de passe
+document.addEventListener('DOMContentLoaded', function() {
+    const password1 = document.querySelector('input[name="password1"]');
+    const password2 = document.querySelector('input[name="password2"]');
+    
+    if (password1 && password2) {
+        password2.addEventListener('input', function() {
+            if (password1.value !== password2.value) {
+                password2.setCustomValidity('Les mots de passe ne correspondent pas');
+            } else {
+                password2.setCustomValidity('');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
