@@ -22,7 +22,7 @@ def is_super_admin(user):
 
 class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     """
-    Dashboard principal selon cahier des charges
+    Dashboard principal selon cahier des charges avec activité récente
     """
     template_name = 'dashboard/index.html'
     
@@ -96,6 +96,15 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             'mois_actuel': today,
         })
         
+        # Actions récentes pour le dashboard (8 dernières actions)
+        try:
+            from .models import ActionLog
+            actions_recentes = ActionLog.objects.select_related('utilisateur').order_by('-timestamp')[:8]
+            context['actions_recentes'] = actions_recentes
+        except ImportError:
+            # Si le modèle ActionLog n'existe pas encore
+            context['actions_recentes'] = []
+        
         # Stats spécifiques aux Super Admin
         if self.request.user.profil == 'super_admin':
             context.update({
@@ -132,7 +141,7 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
                 statut__in=['confirmee', 'en_cours', 'terminee'],
                 date_arrivee__year=annee,
                 date_arrivee__month=mois
-            ).aggregate(total=Sum('montant_total'))['total']
+            ).aggregate(total=Sum('prix_total'))['total']
             return float(reservations) if reservations else 0.0
     
     def get_taux_occupation_mois(self, annee, mois):
@@ -389,3 +398,64 @@ def profil_utilisateur(request):
         'titre': 'Mon Profil',
     }
     return render(request, 'users/profil_utilisateur.html', context)
+
+@login_required
+@user_passes_test(is_super_admin)
+def journal_actions(request):
+    """Journal des actions - Admin seulement"""
+    from .models import ActionLog
+    
+    # Filtres
+    action_filter = request.GET.get('action', '')
+    model_filter = request.GET.get('model', '')
+    user_filter = request.GET.get('user', '')
+    
+    logs = ActionLog.objects.select_related('utilisateur').order_by('-timestamp')
+    
+    if action_filter:
+        logs = logs.filter(action=action_filter)
+    if model_filter:
+        logs = logs.filter(model_name__icontains=model_filter)
+    if user_filter:
+        logs = logs.filter(utilisateur__username__icontains=user_filter)
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(logs, 50)
+    page = request.GET.get('page')
+    logs_page = paginator.get_page(page)
+    
+    context = {
+        'logs': logs_page,
+        'action_filter': action_filter,
+        'model_filter': model_filter,
+        'user_filter': user_filter,
+        'action_choices': ActionLog.ACTION_CHOICES,
+    }
+    return render(request, 'users/journal_actions.html', context)
+
+@login_required  
+@user_passes_test(is_super_admin)
+def statistiques_audit(request):
+    """Statistiques d'audit"""
+    from .models import ActionLog
+    from django.db.models import Count
+    from datetime import timedelta
+    
+    today = timezone.now().date()
+    week_ago = today - timedelta(days=7)
+    month_ago = today - timedelta(days=30)
+    
+    stats = {
+        'total_actions': ActionLog.objects.count(),
+        'actions_today': ActionLog.objects.filter(timestamp__date=today).count(),
+        'actions_week': ActionLog.objects.filter(timestamp__date__gte=week_ago).count(),
+        'actions_month': ActionLog.objects.filter(timestamp__date__gte=month_ago).count(),
+        'actions_by_type': ActionLog.objects.values('action').annotate(count=Count('action')),
+        'actions_by_user': ActionLog.objects.filter(
+            utilisateur__isnull=False
+        ).values('utilisateur__username').annotate(count=Count('utilisateur')).order_by('-count')[:10],
+        'actions_by_model': ActionLog.objects.values('model_name').annotate(count=Count('model_name')).order_by('-count')[:10],
+    }
+    
+    return render(request, 'users/statistiques_audit.html', {'stats': stats})

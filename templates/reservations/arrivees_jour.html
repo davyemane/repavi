@@ -1,0 +1,68 @@
+<!-- templates/reservations/arrivees_jour.html -->
+{% extends 'base.html' %}
+
+{% block title %}Arrivées du Jour - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-8">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-green-600 text-xl">event_available</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Arrivées du jour</h1>
+                    <p class="text-gray-600">{{ date_jour|date:"l d F Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            {% if arrivees %}
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">{{ arrivees.count }} arrivée(s) prévue(s)</h2>
+            </div>
+            
+            <div class="divide-y divide-gray-100">
+                {% for reservation in arrivees %}
+                <div class="p-6 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span class="material-icons text-blue-600">person</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900">{{ reservation.client.nom }} {{ reservation.client.prenom }}</h3>
+                                <p class="text-gray-600">{{ reservation.client.telephone }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-right">
+                            <p class="text-lg font-semibold text-gray-900">{{ reservation.appartement.numero }}</p>
+                            <p class="text-sm text-gray-600">{{ reservation.nombre_nuits }} nuit(s)</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <a href="{% url 'reservations:detail' reservation.pk %}" 
+                               class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                                <span class="material-icons text-sm mr-1">visibility</span>
+                                Voir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="px-6 py-12 text-center">
+                <span class="material-icons text-gray-400 text-4xl mb-4">event_busy</span>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune arrivée prévue</h3>
+                <p class="text-gray-500">Pas d'arrivée programmée pour aujourd'hui</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

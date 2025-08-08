@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}Paiements en Retard - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+        <div class="p-6">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-white text-lg">error</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-gray-900">Paiements</h1>
+                    <p class="text-xs text-gray-500">En retard</p>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="space-y-1">
+                <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <span class="material-icons text-sm">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="{% url 'paiements:echeancier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <span class="material-icons text-sm">payments</span>
+                    <span>Échéancier</span>
+                </a>
+
+                <a href="{% url 'paiements:retards' %}" class="flex items-center space-x-3 px-3 py-3 text-red-600 bg-red-50 rounded-lg font-medium">
+                    <span class="material-icons text-sm">error</span>
+                    <span>Paiements en retard</span>
+                </a>
+
+                <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <span class="material-icons text-sm">event</span>
+                    <span>Réservations</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Paiements en Retard</h1>
+                    <p class="text-gray-600">Suivi des échéances dépassées</p>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="window.location.reload()" class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                        <span class="material-icons">refresh</span>
+                    </button>
+                    
+                    <a href="{% url 'paiements:echeancier' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                        <span class="material-icons text-sm mr-2">arrow_back</span>
+                        Retour à l'échéancier
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="p-6">
+            <!-- Alert Header -->
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                <div class="flex items-center">
+                    <span class="material-icons text-red-600 mr-3">warning</span>
+                    <div>
+                        <h3 class="text-sm font-medium text-red-900">Attention !</h3>
+                        <p class="text-sm text-red-700 mt-1">
+                            {{ reservations.count }} réservation(s) avec des paiements en retard nécessitent un suivi urgent.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 border border-gray-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-red-600">error</span>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ reservations.count }}</div>
+                    <div class="text-sm text-gray-600">Réservations en retard</div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 border border-gray-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-orange-600">schedule</span>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ total_montant_retard|default:0|floatformat:0 }}</div>
+                    <div class="text-sm text-gray-600">FCFA en retard</div>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 border border-gray-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-yellow-600">access_time</span>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ retard_moyen|default:0 }}</div>
+                    <div class="text-sm text-gray-600">Jours de retard moyen</div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Réservations avec retards de paiement</h2>
+                </div>
+
+                {% if reservations %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réservation</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Échéance</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retard</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for reservation in reservations %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        Rés. #{{ reservation.id }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        {{ reservation.appartement.nom }}
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        {{ reservation.date_arrivee|date:"d/m/Y" }} - {{ reservation.date_depart|date:"d/m/Y" }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ reservation.client.nom }} {{ reservation.client.prenom }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        {{ reservation.client.telephone }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-red-600 font-medium">
+                                        {{ reservation.date_echeance|date:"d/m/Y" }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        {{ reservation.get_statut_display }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                                        {{ reservation.jours_retard|default:0 }} jour(s)
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ reservation.prix_total|floatformat:0 }} FCFA
+                                    </div>
+                                    <div class="text-sm text-red-600">
+                                        Dû: {{ reservation.montant_du|default:reservation.prix_total|floatformat:0 }} FCFA
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center space-x-2">
+                                        <a href="tel:{{ reservation.client.telephone }}" 
+                                           class="inline-flex items-center p-1.5 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors">
+                                            <span class="material-icons text-sm">call</span>
+                                        </a>
+                                        {% if reservation.client.email %}
+                                        <a href="mailto:{{ reservation.client.email }}" 
+                                           class="inline-flex items-center p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors">
+                                            <span class="material-icons text-sm">email</span>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
+                                        <a href="{% url 'reservations:detail' reservation.pk %}" 
+                                           class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                            <span class="material-icons text-sm mr-1">visibility</span>
+                                            Voir
+                                        </a>
+                                        
+                                        {% if reservation.echeances_en_retard %}
+                                        <a href="{% url 'paiements:saisir' reservation.echeances_en_retard.first.pk %}" 
+                                           class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors">
+                                            <span class="material-icons text-sm mr-1">payment</span>
+                                            Relancer
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="px-6 py-12 text-center">
+                    <span class="material-icons text-green-400 text-4xl mb-4">check_circle</span>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun retard de paiement</h3>
+                    <p class="text-gray-500 mb-6">Tous les paiements sont à jour !</p>
+                    <a href="{% url 'paiements:echeancier' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700">
+                        <span class="material-icons text-sm mr-2">payments</span>
+                        Voir l'échéancier
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Actions rapides -->
+            {% if reservations %}
+            <div class="mt-6 bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                <div class="flex items-start space-x-3">
+                    <span class="material-icons text-yellow-600 mt-0.5">lightbulb</span>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-medium text-yellow-900">Actions recommandées</h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Contacter les clients par téléphone pour un rappel amiable</li>
+                                <li>Envoyer un SMS de rappel avec les détails de paiement</li>
+                                <li>Proposer un échéancier de rattrapage si nécessaire</li>
+                                <li>Enregistrer les paiements dès réception</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Actualiser automatiquement toutes les 5 minutes
+    setInterval(() => {
+        window.location.reload();
+    }, 300000); // 5 minutes
+    
+    // Tri par nombre de jours de retard (le plus urgent en premier)
+    const tbody = document.querySelector('tbody');
+    if (tbody) {
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const retardA = parseInt(a.querySelector('.bg-red-100').textContent) || 0;
+            const retardB = parseInt(b.querySelector('.bg-red-100').textContent) || 0;
+            return retardB - retardA; // Décroissant
+        });
+        
+        rows.forEach(row => tbody.appendChild(row));
+    }
+});
+</script>
+{% endblock %}

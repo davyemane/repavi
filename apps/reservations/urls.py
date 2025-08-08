@@ -23,4 +23,6 @@ urlpatterns = [
     # Arrivées et départs du jour
     path('arrivees-jour/', views.arrivees_du_jour, name='arrivees_jour'),
     path('departs-jour/', views.departs_du_jour, name='departs_jour'),
+    path('<int:pk>/supprimer/', views.supprimer_reservation, name='supprimer'),
+
 ]

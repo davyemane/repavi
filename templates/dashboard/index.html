@@ -1,646 +1,882 @@
 <!DOCTYPE html>
 <html lang="fr" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - RepAvi Lodges</title>
-    
+
     <!-- Fonts RepAvi -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Romla:wght@300;400;600;700&family=Arimo:wght@300;400;500;600&family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Romla:wght@300;400;600;700&family=Arimo:wght@300;400;500;600&family=Lato:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'romla': ['Romla', 'serif'],
-                        'arimo': ['Arimo', 'sans-serif'],
-                        'lato': ['Lato', 'sans-serif'],
-                    }
-                }
-            }
-        }
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              romla: ["Romla", "serif"],
+              arimo: ["Arimo", "sans-serif"],
+              lato: ["Lato", "sans-serif"],
+            },
+          },
+        },
+      };
     </script>
-    
+
     <style>
-        body {
-            font-family: 'Arimo', sans-serif;
-        }
-        
-        h1, h2 {
-            font-family: 'Romla', serif;
-        }
-        
-        h3, h4, h5, h6 {
-            font-family: 'Lato', sans-serif;
-        }
-        
-        .sidebar {
-            background: #ffffff;
-            border-right: 1px solid #e5e7eb;
-        }
-        
-        .main-content {
-            background: #f9fafb;
-        }
-        
-        .card-clean {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-        
-        .card-clean:hover {
-            border-color: #d1d5db;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .stat-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 24px;
-        }
-        
-        .chart-container {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 24px;
-        }
+      body {
+        font-family: "Arimo", sans-serif;
+      }
+
+      h1,
+      h2 {
+        font-family: "Romla", serif;
+      }
+
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Lato", sans-serif;
+      }
+
+      .sidebar {
+        background: #ffffff;
+        border-right: 1px solid #e5e7eb;
+      }
+
+      .main-content {
+        background: #f9fafb;
+      }
+
+      .card-clean {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+      }
+
+      .card-clean:hover {
+        border-color: #d1d5db;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px;
+      }
+
+      .chart-container {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px;
+      }
     </style>
-</head>
+  </head>
 
-<body class="h-full bg-gray-50">
+  <body class="h-full bg-gray-50">
     <div class="flex h-screen">
-        
-        <!-- Sidebar -->
-        <aside class="sidebar w-64 flex-shrink-0 overflow-y-auto">
-            <div class="p-6">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3 mb-8">
-                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <span class="material-icons text-white text-lg">home</span>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-lg text-gray-900">RepAvi Lodges</h1>
-                        <p class="text-xs text-gray-500">Système de Gestion</p>
-                    </div>
-                </div>
-
-                <!-- Navigation Menu -->
-                <nav class="space-y-1">
-                    <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium">
-                        <span class="material-icons text-sm">dashboard</span>
-                        <span>Dashboard</span>
-                    </a>
-
-                    <a href="{% url 'appartements:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">apartment</span>
-                        <span>Appartements</span>
-                    </a>
-
-                    <a href="{% url 'clients:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">people</span>
-                        <span>Clients</span>
-                    </a>
-
-                    <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">event</span>
-                        <span>Réservations</span>
-                        {% if reservations_aujourd_hui > 0 %}
-                        <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ reservations_aujourd_hui }}</span>
-                        {% endif %}
-                    </a>
-
-                    <a href="{% url 'paiements:echeancier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">payments</span>
-                        <span>Paiements</span>
-                        {% if paiements_retard > 0 %}
-                        <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ paiements_retard }}</span>
-                        {% endif %}
-                    </a>
-
-                    <!-- Divider -->
-                    <div class="border-t border-gray-200 my-4"></div>
-
-                    <a href="{% url 'inventaire:general' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">inventory</span>
-                        <span>Inventaire</span>
-                    </a>
-
-                    <a href="{% url 'menage:planning' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">cleaning_services</span>
-                        <span>Ménage</span>
-                        {% if taches_menage_urgentes > 0 %}
-                        <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ taches_menage_urgentes }}</span>
-                        {% endif %}
-                    </a>
-
-                    <a href="{% url 'comptabilite:rapport_mensuel' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">account_balance</span>
-                        <span>Comptabilité</span>
-                    </a>
-
-                    <a href="{% url 'facturation:generer' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">receipt</span>
-                        <span>Facturation</span>
-                    </a>
-
-                    <!-- Section Administration (Super Admin uniquement) -->
-                    {% if user.profil == 'super_admin' %}
-                    <div class="border-t border-gray-200 my-4"></div>
-                    
-                    <div class="px-3 py-2">
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Administration</h4>
-                    </div>
-
-                    <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">supervisor_account</span>
-                        <span>Gestion Gestionnaires</span>
-                        <span class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full">Admin</span>
-                    </a>
-
-                    <a href="{% url 'users:historique' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">history</span>
-                        <span>Historique Activités</span>
-                    </a>
-                    {% endif %}
-                </nav>
-
-                <!-- User Menu -->
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <div class="flex items-center space-x-3 px-3 py-3">
-                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                            <span class="material-icons text-white text-sm">person</span>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900">{{ user.first_name|default:user.username }}</p>
-                            <p class="text-xs text-gray-500">{{ user.get_profil_display }}</p>
-                        </div>
-                        <div class="relative group">
-                            <button class="p-1 text-gray-400 hover:text-gray-600">
-                                <span class="material-icons text-sm">more_vert</span>
-                            </button>
-                            <div class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                                <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
-                                    <span class="material-icons text-sm">account_circle</span>
-                                    <span>Mon Profil</span>
-                                </a>
-                                {% if user.profil == 'super_admin' %}
-                                <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
-                                    <span class="material-icons text-sm">supervisor_account</span>
-                                    <span>Gestionnaires</span>
-                                </a>
-                                <a href="{% url 'users:creer_gestionnaire' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
-                                    <span class="material-icons text-sm">person_add</span>
-                                    <span>Nouveau Gestionnaire</span>
-                                </a>
-                                {% endif %}
-                                <hr class="my-1">
-                                <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50">
-                                    <span class="material-icons text-sm">logout</span>
-                                    <span>Déconnexion</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <!-- Sidebar -->
+      <aside class="sidebar w-64 flex-shrink-0 overflow-y-auto">
+        <div class="p-6">
+          <!-- Logo -->
+          <div class="flex items-center space-x-3 mb-8">
+            <div
+              class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center"
+            >
+              <span class="material-icons text-white text-lg">home</span>
             </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto main-content">
-            
-            <!-- Header -->
-            <header class="bg-white border-b border-gray-200 px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900">
-                            Bonjour {{ user.first_name|default:user.username }} ! 👋
-                        </h1>
-                        <p class="text-gray-600">
-                            Voici un aperçu de votre activité - {{ mois_actuel|date:"F Y" }}
-                            {% if user.profil == 'super_admin' %}
-                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                Super Administrateur
-                            </span>
-                            {% endif %}
-                        </p>
-                    </div>
-                    
-                    <div class="flex items-center space-x-3">
-                        {% if user.profil == 'super_admin' %}
-                        <a href="{% url 'users:creer_gestionnaire' %}" class="inline-flex items-center px-4 py-2 border border-purple-300 rounded-lg text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors">
-                            <span class="material-icons text-sm mr-2">person_add</span>
-                            Nouveau Gestionnaire
-                        </a>
-                        {% endif %}
-                        
-                        <button class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                            <span class="material-icons">notifications</span>
-                        </button>
-                        
-                        <button class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                            <span class="material-icons">refresh</span>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Dashboard Content -->
-            <div class="p-6 space-y-6">
-                
-                <!-- KPIs Section -->
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Indicateurs Clés</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        
-                        <!-- Total Appartements -->
-                        <div class="stat-card">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <span class="material-icons text-blue-600 text-xl">apartment</span>
-                                </div>
-                                <span class="material-icons text-green-500">trending_up</span>
-                            </div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1">{{ total_appartements }}</div>
-                            <div class="text-sm text-gray-600 mb-2">Appartements Total</div>
-                            <div class="text-xs text-green-600">{{ appartements_disponibles }} disponibles</div>
-                        </div>
-
-                        <!-- Réservations -->
-                        <div class="stat-card">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                    <span class="material-icons text-green-600 text-xl">event</span>
-                                </div>
-                                {% if reservations_aujourd_hui > 0 %}
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                {% endif %}
-                            </div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1">{{ reservations_ce_mois }}</div>
-                            <div class="text-sm text-gray-600 mb-2">Réservations ce mois</div>
-                            <div class="text-xs text-green-600">{{ reservations_aujourd_hui }} aujourd'hui</div>
-                        </div>
-
-                        <!-- Clients -->
-                        <div class="stat-card">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                    <span class="material-icons text-purple-600 text-xl">people</span>
-                                </div>
-                                <span class="text-purple-500 text-sm font-medium">+{{ nouveaux_clients_mois }}</span>
-                            </div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1">{{ total_clients }}</div>
-                            <div class="text-sm text-gray-600 mb-2">Clients Total</div>
-                            <div class="text-xs text-purple-600">{{ nouveaux_clients_mois }} nouveaux ce mois</div>
-                        </div>
-
-                        <!-- Revenus -->
-                        <div class="stat-card">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                                    <span class="material-icons text-orange-600 text-xl">payments</span>
-                                </div>
-                                <div class="text-green-500 text-sm font-medium">FCFA</div>
-                            </div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1">{{ revenus_mois|floatformat:0 }}</div>
-                            <div class="text-sm text-gray-600 mb-2">Revenus ce mois</div>
-                            <div class="text-xs text-green-600">Taux occupation: {{ taux_occupation }}%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts and Details Section -->
-                <div class="grid lg:grid-cols-3 gap-6">
-                    
-                    <!-- Left Column - Charts -->
-                    <div class="lg:col-span-2 space-y-6">
-                        
-                        <!-- Occupation Chart -->
-                        <div class="chart-container">
-                            <div class="flex items-center justify-between mb-6">
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Taux d'Occupation</h3>
-                                    <p class="text-gray-600 text-sm">État actuel du parc immobilier</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-center mb-6">
-                                <!-- Simple Progress Circle -->
-                                <div class="relative w-48 h-48">
-                                    <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 200 200">
-                                        <!-- Background circle -->
-                                        <circle cx="100" cy="100" r="75" fill="none" stroke="#f3f4f6" stroke-width="12"/>
-                                        <!-- Progress circle -->
-                                        <circle cx="100" cy="100" r="75" fill="none" stroke="#10b981" stroke-width="12" 
-                                                stroke-dasharray="471" 
-                                                stroke-dashoffset="{% widthratio taux_occupation 100 471 %}"
-                                                stroke-linecap="round"
-                                                class="transition-all duration-1000 ease-out"
-                                                style="stroke-dashoffset: calc(471 - (471 * {{ taux_occupation }} / 100))"/>
-                                    </svg>
-                                    
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <div class="text-center">
-                                            <div class="text-4xl font-bold text-gray-900">{{ taux_occupation }}%</div>
-                                            <div class="text-sm text-gray-600">Occupé</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-4">
-                                <div class="text-center p-3 bg-green-50 rounded-lg border border-green-100">
-                                    <div class="text-xl font-bold text-green-600">{{ appartements_disponibles }}</div>
-                                    <div class="text-xs text-green-600">Disponibles</div>
-                                </div>
-                                <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                    <div class="text-xl font-bold text-blue-600">{{ appartements_occupes }}</div>
-                                    <div class="text-xs text-blue-600">Occupés</div>
-                                </div>
-                                <div class="text-center p-3 bg-orange-50 rounded-lg border border-orange-100">
-                                    <div class="text-xl font-bold text-orange-600">{{ appartements_maintenance }}</div>
-                                    <div class="text-xs text-orange-600">Maintenance</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Revenue Chart -->
-                        <div class="chart-container">
-                            <div class="flex items-center justify-between mb-6">
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">Revenus Hebdomadaires</h3>
-                                    <p class="text-gray-600 text-sm">Performance des 7 derniers jours</p>
-                                </div>
-                            </div>
-                            
-                            <div class="h-64">
-                                <canvas id="revenusChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column - Actions & Alerts -->
-                    <div class="space-y-6">
-                        
-                        <!-- Quick Actions -->
-                        <div class="card-clean p-6">
-                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                                <span class="material-icons text-blue-600">flash_on</span>
-                                <span>Actions Rapides</span>
-                            </h3>
-                            
-                            <div class="space-y-3">
-                                <a href="{% url 'reservations:nouvelle' %}" class="w-full flex items-center justify-between p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                                    <span class="flex items-center space-x-3">
-                                        <span class="material-icons text-sm">add_circle</span>
-                                        <span class="font-medium">Nouvelle réservation</span>
-                                    </span>
-                                    <span class="material-icons text-sm">arrow_forward</span>
-                                </a>
-                                
-                                <a href="{% url 'clients:nouveau' %}" class="w-full flex items-center justify-between p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors">
-                                    <span class="flex items-center space-x-3">
-                                        <span class="material-icons text-sm">person_add</span>
-                                        <span class="font-medium">Nouveau client</span>
-                                    </span>
-                                    <span class="material-icons text-sm">arrow_forward</span>
-                                </a>
-                                
-                                <a href="{% url 'appartements:creer' %}" class="w-full flex items-center justify-between p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors">
-                                    <span class="flex items-center space-x-3">
-                                        <span class="material-icons text-sm">add_home</span>
-                                        <span class="font-medium">Nouvel appartement</span>
-                                    </span>
-                                    <span class="material-icons text-sm">arrow_forward</span>
-                                </a>
-
-                                <!-- Actions Super Admin -->
-                                {% if user.profil == 'super_admin' %}
-                                <div class="border-t border-gray-200 pt-3 mt-3">
-                                    <a href="{% url 'users:creer_gestionnaire' %}" class="w-full flex items-center justify-between p-3 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors">
-                                        <span class="flex items-center space-x-3">
-                                            <span class="material-icons text-sm">supervisor_account</span>
-                                            <span class="font-medium">Nouveau gestionnaire</span>
-                                        </span>
-                                        <span class="material-icons text-sm">arrow_forward</span>
-                                    </a>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Alerts -->
-                        <div class="card-clean p-6">
-                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                                <span class="material-icons text-red-600">warning</span>
-                                <span>Alertes Importantes</span>
-                            </h3>
-                            
-                            <div class="space-y-3">
-                                {% if arrivees_aujourd_hui %}
-                                <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                    <span class="material-icons text-blue-600 text-sm">event_available</span>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">{{ arrivees_aujourd_hui.count }} arrivée(s) aujourd'hui</p>
-                                        <p class="text-xs text-gray-600">Appartements à préparer</p>
-                                    </div>
-                                    <a href="{% url 'reservations:arrivees_jour' %}" class="text-blue-600 hover:text-blue-700">
-                                        <span class="material-icons text-sm">arrow_forward</span>
-                                    </a>
-                                </div>
-                                {% endif %}
-
-                                {% if paiements_retard > 0 %}
-                                <div class="flex items-center space-x-3 p-3 bg-red-50 rounded-lg border border-red-100">
-                                    <span class="material-icons text-red-600 text-sm">error</span>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">{{ paiements_retard }} paiement(s) en retard</p>
-                                        <p class="text-xs text-gray-600">Nécessite un suivi</p>
-                                    </div>
-                                    <a href="{% url 'paiements:retards' %}" class="text-red-600 hover:text-red-700">
-                                        <span class="material-icons text-sm">arrow_forward</span>
-                                    </a>
-                                </div>
-                                {% endif %}
-
-                                {% if taches_menage_urgentes > 0 %}
-                                <div class="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-100">
-                                    <span class="material-icons text-orange-600 text-sm">cleaning_services</span>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">{{ taches_menage_urgentes }} ménage(s) urgent(s)</p>
-                                        <p class="text-xs text-gray-600">À traiter rapidement</p>
-                                    </div>
-                                    <a href="{% url 'menage:urgentes' %}" class="text-orange-600 hover:text-orange-700">
-                                        <span class="material-icons text-sm">arrow_forward</span>
-                                    </a>
-                                </div>
-                                {% endif %}
-
-                                {% if not arrivees_aujourd_hui and not paiements_retard and not taches_menage_urgentes %}
-                                <div class="text-center py-6">
-                                    <span class="material-icons text-green-500 text-4xl mb-2">check_circle</span>
-                                    <p class="text-sm text-gray-600">Aucune alerte urgente</p>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Quick Stats -->
-                        <div class="card-clean p-6">
-                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                                <span class="material-icons text-green-600">analytics</span>
-                                <span>Stats Rapides</span>
-                            </h3>
-                            
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Équipements défectueux</span>
-                                    <span class="font-semibold text-red-600">{{ equipements_defectueux }}</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Paiements en attente</span>
-                                    <span class="font-semibold text-orange-600">{{ paiements_en_attente }}</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Réservations actives</span>
-                                    <span class="font-semibold text-green-600">{{ reservations_actives }}</span>
-                                </div>
-                                
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Taux de satisfaction</span>
-                                    <span class="font-semibold text-blue-600">--%</span>
-                                </div>
-
-                                <!-- Stats Super Admin -->
-                                {% if user.profil == 'super_admin' %}
-                                <div class="border-t border-gray-200 pt-4 mt-4">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-600">Total gestionnaires</span>
-                                        <span class="font-semibold text-purple-600">{{ total_gestionnaires|default:0 }}</span>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div>
+              <h1 class="font-bold text-lg text-gray-900">RepAvi Lodges</h1>
+              <p class="text-xs text-gray-500">Système de Gestion</p>
             </div>
-        </main>
+          </div>
+
+          <!-- Navigation Menu -->
+          <nav class="space-y-1">
+            <a
+              href="{% url 'dashboard' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium"
+            >
+              <span class="material-icons text-sm">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+
+            <a
+              href="{% url 'appartements:liste' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">apartment</span>
+              <span>Appartements</span>
+            </a>
+
+            <a
+              href="{% url 'clients:liste' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">people</span>
+              <span>Clients</span>
+            </a>
+
+            <a
+              href="{% url 'reservations:calendrier' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">event</span>
+              <span>Réservations</span>
+              {% if reservations_aujourd_hui > 0 %}
+              <span
+                class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full"
+                >{{ reservations_aujourd_hui }}</span
+              >
+              {% endif %}
+            </a>
+
+            <a
+              href="{% url 'paiements:echeancier' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">payments</span>
+              <span>Paiements</span>
+              {% if paiements_retard > 0 %}
+              <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+                >{{ paiements_retard }}</span
+              >
+              {% endif %}
+            </a>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-200 my-4"></div>
+
+            <a
+              href="{% url 'inventaire:general' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">inventory</span>
+              <span>Inventaire</span>
+            </a>
+
+            <a
+              href="{% url 'menage:planning' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">cleaning_services</span>
+              <span>Ménage</span>
+              {% if taches_menage_urgentes > 0 %}
+              <span
+                class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full"
+                >{{ taches_menage_urgentes }}</span
+              >
+              {% endif %}
+            </a>
+
+            <a
+              href="{% url 'comptabilite:rapport_mensuel' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">account_balance</span>
+              <span>Comptabilité</span>
+            </a>
+
+            <a
+              href="{% url 'facturation:generer' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">receipt</span>
+              <span>Facturation</span>
+            </a>
+
+            <!-- Section Administration (Super Admin uniquement) -->
+            {% if user.profil == 'super_admin' %}
+            <div class="border-t border-gray-200 my-4"></div>
+
+            <div class="px-3 py-2">
+              <h4
+                class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+              >
+                Administration
+              </h4>
+            </div>
+
+            <a
+              href="{% url 'users:liste_gestionnaires' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">supervisor_account</span>
+              <span>Gestion Gestionnaires</span>
+              <span
+                class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full"
+                >Admin</span
+              >
+            </a>
+
+            <a
+              href="{% url 'users:historique' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <span class="material-icons text-sm">history</span>
+              <span>Historique Activités</span>
+            </a>
+            <a
+              href="{% url 'users:journal_actions' %}"
+              class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
+            >
+              <span class="material-icons text-sm">security</span>
+              <span>Journal d'audit</span>
+            </a>
+            {% endif %}
+          </nav>
+
+          <!-- User Menu -->
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <div class="flex items-center space-x-3 px-3 py-3">
+              <div
+                class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
+              >
+                <span class="material-icons text-white text-sm">person</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900">
+                  {{ user.first_name|default:user.username }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ user.get_profil_display }}
+                </p>
+              </div>
+              <div class="relative group">
+                <button class="p-1 text-gray-400 hover:text-gray-600">
+                  <span class="material-icons text-sm">more_vert</span>
+                </button>
+                <div
+                  class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10"
+                >
+                  <a
+                    href="{% url 'users:profil' %}"
+                    class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50"
+                  >
+                    <span class="material-icons text-sm">account_circle</span>
+                    <span>Mon Profil</span>
+                  </a>
+                  {% if user.profil == 'super_admin' %}
+                  <a
+                    href="{% url 'users:liste_gestionnaires' %}"
+                    class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50"
+                  >
+                    <span class="material-icons text-sm"
+                      >supervisor_account</span
+                    >
+                    <span>Gestionnaires</span>
+                  </a>
+                  <a
+                    href="{% url 'users:creer_gestionnaire' %}"
+                    class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50"
+                  >
+                    <span class="material-icons text-sm">person_add</span>
+                    <span>Nouveau Gestionnaire</span>
+                  </a>
+                  {% endif %}
+                  <hr class="my-1" />
+                  <a
+                    href="{% url 'logout' %}"
+                    class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50"
+                  >
+                    <span class="material-icons text-sm">logout</span>
+                    <span>Déconnexion</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 overflow-y-auto main-content">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">
+                Bonjour {{ user.first_name|default:user.username }} ! 👋
+              </h1>
+              <p class="text-gray-600">
+                Voici un aperçu de votre activité - {{ mois_actuel|date:"F Y" }}
+                {% if user.profil == 'super_admin' %}
+                <span
+                  class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                >
+                  Super Administrateur
+                </span>
+                {% endif %}
+              </p>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              {% if user.profil == 'super_admin' %}
+              <a
+                href="{% url 'users:creer_gestionnaire' %}"
+                class="inline-flex items-center px-4 py-2 border border-purple-300 rounded-lg text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
+              >
+                <span class="material-icons text-sm mr-2">person_add</span>
+                Nouveau Gestionnaire
+              </a>
+              {% endif %}
+
+              <button
+                class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+              >
+                <span class="material-icons">notifications</span>
+              </button>
+
+              <button
+                class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+              >
+                <span class="material-icons">refresh</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-6 space-y-6">
+          <!-- KPIs Section -->
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+              Indicateurs Clés
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <!-- Total Appartements -->
+              <div class="stat-card">
+                <div class="flex items-center justify-between mb-4">
+                  <div
+                    class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"
+                  >
+                    <span class="material-icons text-blue-600 text-xl"
+                      >apartment</span
+                    >
+                  </div>
+                  <span class="material-icons text-green-500">trending_up</span>
+                </div>
+                <div class="text-3xl font-bold text-gray-900 mb-1">
+                  {{ total_appartements }}
+                </div>
+                <div class="text-sm text-gray-600 mb-2">Appartements Total</div>
+                <div class="text-xs text-green-600">
+                  {{ appartements_disponibles }} disponibles
+                </div>
+              </div>
+
+              <!-- Réservations -->
+              <div class="stat-card">
+                <div class="flex items-center justify-between mb-4">
+                  <div
+                    class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center"
+                  >
+                    <span class="material-icons text-green-600 text-xl"
+                      >event</span
+                    >
+                  </div>
+                  {% if reservations_aujourd_hui > 0 %}
+                  <div
+                    class="w-2 h-2 bg-green-500 rounded-full animate-pulse"
+                  ></div>
+                  {% endif %}
+                </div>
+                <div class="text-3xl font-bold text-gray-900 mb-1">
+                  {{ reservations_ce_mois }}
+                </div>
+                <div class="text-sm text-gray-600 mb-2">
+                  Réservations ce mois
+                </div>
+                <div class="text-xs text-green-600">
+                  {{ reservations_aujourd_hui }} aujourd'hui
+                </div>
+              </div>
+
+              <!-- Clients -->
+              <div class="stat-card">
+                <div class="flex items-center justify-between mb-4">
+                  <div
+                    class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center"
+                  >
+                    <span class="material-icons text-purple-600 text-xl"
+                      >people</span
+                    >
+                  </div>
+                  <span class="text-purple-500 text-sm font-medium"
+                    >+{{ nouveaux_clients_mois }}</span
+                  >
+                </div>
+                <div class="text-3xl font-bold text-gray-900 mb-1">
+                  {{ total_clients }}
+                </div>
+                <div class="text-sm text-gray-600 mb-2">Clients Total</div>
+                <div class="text-xs text-purple-600">
+                  {{ nouveaux_clients_mois }} nouveaux ce mois
+                </div>
+              </div>
+
+              <!-- Revenus -->
+              <div class="stat-card">
+                <div class="flex items-center justify-between mb-4">
+                  <div
+                    class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center"
+                  >
+                    <span class="material-icons text-orange-600 text-xl"
+                      >payments</span
+                    >
+                  </div>
+                  <div class="text-green-500 text-sm font-medium">FCFA</div>
+                </div>
+                <div class="text-3xl font-bold text-gray-900 mb-1">
+                  {{ revenus_mois|floatformat:0 }}
+                </div>
+                <div class="text-sm text-gray-600 mb-2">Revenus ce mois</div>
+                <div class="text-xs text-green-600">
+                  Taux occupation: {{ taux_occupation }}%
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts and Details Section -->
+          <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Left Column - Charts -->
+            <div class="lg:col-span-2 space-y-6">
+              <!-- Occupation Chart -->
+              <div class="chart-container">
+                <div class="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      Taux d'Occupation
+                    </h3>
+                    <p class="text-gray-600 text-sm">
+                      État actuel du parc immobilier
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-center mb-6">
+                  <!-- Simple Progress Circle -->
+                  <div class="relative w-48 h-48">
+                    <svg
+                      class="w-48 h-48 transform -rotate-90"
+                      viewBox="0 0 200 200"
+                    >
+                      <!-- Background circle -->
+                      <circle
+                        cx="100"
+                        cy="100"
+                        r="75"
+                        fill="none"
+                        stroke="#f3f4f6"
+                        stroke-width="12"
+                      />
+                      <!-- Progress circle -->
+                      <circle
+                        cx="100"
+                        cy="100"
+                        r="75"
+                        fill="none"
+                        stroke="#10b981"
+                        stroke-width="12"
+                        stroke-dasharray="471"
+                        stroke-dashoffset="{% widthratio taux_occupation 100 471 %}"
+                        stroke-linecap="round"
+                        class="transition-all duration-1000 ease-out"
+                        style="stroke-dashoffset: calc(471 - (471 * {{ taux_occupation }} / 100))"
+                      />
+                    </svg>
+
+                    <div
+                      class="absolute inset-0 flex items-center justify-center"
+                    >
+                      <div class="text-center">
+                        <div class="text-4xl font-bold text-gray-900">
+                          {{ taux_occupation }}%
+                        </div>
+                        <div class="text-sm text-gray-600">Occupé</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                  <div
+                    class="text-center p-3 bg-green-50 rounded-lg border border-green-100"
+                  >
+                    <div class="text-xl font-bold text-green-600">
+                      {{ appartements_disponibles }}
+                    </div>
+                    <div class="text-xs text-green-600">Disponibles</div>
+                  </div>
+                  <div
+                    class="text-center p-3 bg-blue-50 rounded-lg border border-blue-100"
+                  >
+                    <div class="text-xl font-bold text-blue-600">
+                      {{ appartements_occupes }}
+                    </div>
+                    <div class="text-xs text-blue-600">Occupés</div>
+                  </div>
+                  <div
+                    class="text-center p-3 bg-orange-50 rounded-lg border border-orange-100"
+                  >
+                    <div class="text-xl font-bold text-orange-600">
+                      {{ appartements_maintenance }}
+                    </div>
+                    <div class="text-xs text-orange-600">Maintenance</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Revenue Chart -->
+              <div class="chart-container">
+                <div class="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      Revenus Hebdomadaires
+                    </h3>
+                    <p class="text-gray-600 text-sm">
+                      Performance des 7 derniers jours
+                    </p>
+                  </div>
+                </div>
+
+                <div class="h-64">
+                  <canvas id="revenusChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column - Actions & Alerts -->
+            <div class="space-y-6">
+              <!-- Quick Actions -->
+              <div class="card-clean p-6">
+                <h3
+                  class="font-semibold text-gray-900 mb-4 flex items-center space-x-2"
+                >
+                  <span class="material-icons text-blue-600">flash_on</span>
+                  <span>Actions Rapides</span>
+                </h3>
+
+                <div class="space-y-3">
+                  <a
+                    href="{% url 'reservations:nouvelle' %}"
+                    class="w-full flex items-center justify-between p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <span class="flex items-center space-x-3">
+                      <span class="material-icons text-sm">add_circle</span>
+                      <span class="font-medium">Nouvelle réservation</span>
+                    </span>
+                    <span class="material-icons text-sm">arrow_forward</span>
+                  </a>
+
+                  <a
+                    href="{% url 'clients:nouveau' %}"
+                    class="w-full flex items-center justify-between p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
+                  >
+                    <span class="flex items-center space-x-3">
+                      <span class="material-icons text-sm">person_add</span>
+                      <span class="font-medium">Nouveau client</span>
+                    </span>
+                    <span class="material-icons text-sm">arrow_forward</span>
+                  </a>
+
+                  <a
+                    href="{% url 'appartements:creer' %}"
+                    class="w-full flex items-center justify-between p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors"
+                  >
+                    <span class="flex items-center space-x-3">
+                      <span class="material-icons text-sm">add_home</span>
+                      <span class="font-medium">Nouvel appartement</span>
+                    </span>
+                    <span class="material-icons text-sm">arrow_forward</span>
+                  </a>
+
+                  <!-- Actions Super Admin -->
+                  {% if user.profil == 'super_admin' %}
+                  <div class="border-t border-gray-200 pt-3 mt-3">
+                    <a
+                      href="{% url 'users:creer_gestionnaire' %}"
+                      class="w-full flex items-center justify-between p-3 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors"
+                    >
+                      <span class="flex items-center space-x-3">
+                        <span class="material-icons text-sm"
+                          >supervisor_account</span
+                        >
+                        <span class="font-medium">Nouveau gestionnaire</span>
+                      </span>
+                      <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Alerts -->
+              <div class="card-clean p-6">
+                <h3
+                  class="font-semibold text-gray-900 mb-4 flex items-center space-x-2"
+                >
+                  <span class="material-icons text-red-600">warning</span>
+                  <span>Alertes Importantes</span>
+                </h3>
+
+                <div class="space-y-3">
+                  {% if arrivees_aujourd_hui %}
+                  <div
+                    class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100"
+                  >
+                    <span class="material-icons text-blue-600 text-sm"
+                      >event_available</span
+                    >
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-gray-900">
+                        {{ arrivees_aujourd_hui.count }} arrivée(s) aujourd'hui
+                      </p>
+                      <p class="text-xs text-gray-600">
+                        Appartements à préparer
+                      </p>
+                    </div>
+                    <a
+                      href="{% url 'reservations:arrivees_jour' %}"
+                      class="text-blue-600 hover:text-blue-700"
+                    >
+                      <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+                  </div>
+                  {% endif %} {% if paiements_retard > 0 %}
+                  <div
+                    class="flex items-center space-x-3 p-3 bg-red-50 rounded-lg border border-red-100"
+                  >
+                    <span class="material-icons text-red-600 text-sm"
+                      >error</span
+                    >
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-gray-900">
+                        {{ paiements_retard }} paiement(s) en retard
+                      </p>
+                      <p class="text-xs text-gray-600">Nécessite un suivi</p>
+                    </div>
+                    <a
+                      href="{% url 'paiements:retards' %}"
+                      class="text-red-600 hover:text-red-700"
+                    >
+                      <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+                  </div>
+                  {% endif %} {% if taches_menage_urgentes > 0 %}
+                  <div
+                    class="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-100"
+                  >
+                    <span class="material-icons text-orange-600 text-sm"
+                      >cleaning_services</span
+                    >
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-gray-900">
+                        {{ taches_menage_urgentes }} ménage(s) urgent(s)
+                      </p>
+                      <p class="text-xs text-gray-600">À traiter rapidement</p>
+                    </div>
+                    <a
+                      href="{% url 'menage:urgentes' %}"
+                      class="text-orange-600 hover:text-orange-700"
+                    >
+                      <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+                  </div>
+                  {% endif %}
+                  {% if not arrivees_aujourd_hui and not paiements_retard and not taches_menage_urgentes %}
+                  <div class="text-center py-6">
+                    <span class="material-icons text-green-500 text-4xl mb-2"
+                      >check_circle</span
+                    >
+                    <p class="text-sm text-gray-600">Aucune alerte urgente</p>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Quick Stats -->
+              <div class="card-clean p-6">
+                <h3
+                  class="font-semibold text-gray-900 mb-4 flex items-center space-x-2"
+                >
+                  <span class="material-icons text-green-600">analytics</span>
+                  <span>Stats Rapides</span>
+                </h3>
+
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600"
+                      >Équipements défectueux</span
+                    >
+                    <span class="font-semibold text-red-600"
+                      >{{ equipements_defectueux }}</span
+                    >
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600"
+                      >Paiements en attente</span
+                    >
+                    <span class="font-semibold text-orange-600"
+                      >{{ paiements_en_attente }}</span
+                    >
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600"
+                      >Réservations actives</span
+                    >
+                    <span class="font-semibold text-green-600"
+                      >{{ reservations_actives }}</span
+                    >
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600"
+                      >Taux de satisfaction</span
+                    >
+                    <span class="font-semibold text-blue-600">--%</span>
+                  </div>
+
+                  <!-- Stats Super Admin -->
+                  {% if user.profil == 'super_admin' %}
+                  <div class="border-t border-gray-200 pt-4 mt-4">
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-gray-600"
+                        >Total gestionnaires</span
+                      >
+                      <span class="font-semibold text-purple-600"
+                        >{{ total_gestionnaires|default:0 }}</span
+                      >
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Revenue Chart - Données du backend
-            const revenusCtx = document.getElementById('revenusChart');
-            
-            if (revenusCtx) {
-                // Données à récupérer depuis le backend Django
-                const joursData = {{ jours_semaine|safe }};
-                const revenusData = {{ revenus_semaine|safe }};
-                
-                new Chart(revenusCtx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: joursData,
-                        datasets: [{
-                            label: 'Revenus (FCFA)',
-                            data: revenusData,
-                            backgroundColor: '#3b82f6',
-                            borderRadius: 6,
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(17, 24, 39, 0.8)',
-                                titleColor: '#ffffff',
-                                bodyColor: '#ffffff',
-                                cornerRadius: 8,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.parsed.y.toLocaleString('fr-FR') + ' FCFA';
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    color: '#6b7280',
-                                    font: {
-                                        family: 'Arimo'
-                                    }
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: '#f3f4f6'
-                                },
-                                ticks: {
-                                    color: '#6b7280',
-                                    font: {
-                                        family: 'Arimo'
-                                    },
-                                    callback: function(value) {
-                                        if (value >= 1000000) {
-                                            return (value / 1000000).toLocaleString('fr-FR') + 'M';
-                                        } else if (value >= 1000) {
-                                            return (value / 1000).toLocaleString('fr-FR') + 'k';
-                                        }
-                                        return value.toLocaleString('fr-FR');
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+      document.addEventListener('DOMContentLoaded', function() {
+          // Revenue Chart - Données du backend
+          const revenusCtx = document.getElementById('revenusChart');
 
-            // Animation des compteurs (optionnelle)
-            const counters = document.querySelectorAll('.text-3xl.font-bold');
-            counters.forEach(counter => {
-                const target = parseInt(counter.textContent.replace(/\D/g, ''));
-                if (target > 0 && target < 1000) {
-                    let current = 0;
-                    const increment = target / 30;
-                    const timer = setInterval(() => {
-                        current += increment;
-                        if (current >= target) {
-                            counter.textContent = target.toLocaleString('fr-FR');
-                            clearInterval(timer);
-                        } else {
-                            counter.textContent = Math.floor(current).toLocaleString('fr-FR');
-                        }
-                    }, 50);
-                }
-            });
-        });
+          if (revenusCtx) {
+              // Données à récupérer depuis le backend Django
+              const joursData = {{ jours_semaine|safe }};
+              const revenusData = {{ revenus_semaine|safe }};
+
+              new Chart(revenusCtx.getContext('2d'), {
+                  type: 'bar',
+                  data: {
+                      labels: joursData,
+                      datasets: [{
+                          label: 'Revenus (FCFA)',
+                          data: revenusData,
+                          backgroundColor: '#3b82f6',
+                          borderRadius: 6,
+                          borderWidth: 0
+                      }]
+                  },
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                          legend: {
+                              display: false
+                          },
+                          tooltip: {
+                              backgroundColor: 'rgba(17, 24, 39, 0.8)',
+                              titleColor: '#ffffff',
+                              bodyColor: '#ffffff',
+                              cornerRadius: 8,
+                              callbacks: {
+                                  label: function(context) {
+                                      return context.parsed.y.toLocaleString('fr-FR') + ' FCFA';
+                                  }
+                              }
+                          }
+                      },
+                      scales: {
+                          x: {
+                              grid: {
+                                  display: false
+                              },
+                              ticks: {
+                                  color: '#6b7280',
+                                  font: {
+                                      family: 'Arimo'
+                                  }
+                              }
+                          },
+                          y: {
+                              beginAtZero: true,
+                              grid: {
+                                  color: '#f3f4f6'
+                              },
+                              ticks: {
+                                  color: '#6b7280',
+                                  font: {
+                                      family: 'Arimo'
+                                  },
+                                  callback: function(value) {
+                                      if (value >= 1000000) {
+                                          return (value / 1000000).toLocaleString('fr-FR') + 'M';
+                                      } else if (value >= 1000) {
+                                          return (value / 1000).toLocaleString('fr-FR') + 'k';
+                                      }
+                                      return value.toLocaleString('fr-FR');
+                                  }
+                              }
+                          }
+                      }
+                  }
+              });
+          }
+
+          // Animation des compteurs (optionnelle)
+          const counters = document.querySelectorAll('.text-3xl.font-bold');
+          counters.forEach(counter => {
+              const target = parseInt(counter.textContent.replace(/\D/g, ''));
+              if (target > 0 && target < 1000) {
+                  let current = 0;
+                  const increment = target / 30;
+                  const timer = setInterval(() => {
+                      current += increment;
+                      if (current >= target) {
+                          counter.textContent = target.toLocaleString('fr-FR');
+                          clearInterval(timer);
+                      } else {
+                          counter.textContent = Math.floor(current).toLocaleString('fr-FR');
+                      }
+                  }, 50);
+              }
+          });
+      });
     </script>
-</body>
+  </body>
 </html>

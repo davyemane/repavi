@@ -22,4 +22,8 @@ urlpatterns = [
     
     # Historique activités (requis par le cahier des charges)
     path('historique/', views.historique_activites, name='historique'),
+
+    path('audit/journal/', views.journal_actions, name='journal_actions'),
+    path('audit/stats/', views.statistiques_audit, name='statistiques_audit'),
+
 ]

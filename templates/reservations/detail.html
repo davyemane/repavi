@@ -1,0 +1,330 @@
+{% extends 'base.html' %} {% block title %}Réservation #{{ reservation.id }} -
+RepAvi Lodges{% endblock %} {% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+        <a href="{% url 'dashboard' %}" class="hover:text-blue-600"
+          >Dashboard</a
+        >
+        <span>/</span>
+        <a
+          href="{% url 'reservations:calendrier' %}"
+          class="hover:text-blue-600"
+          >Réservations</a
+        >
+        <span>/</span>
+        <span class="text-gray-900">Détail #{{ reservation.id }}</span>
+      </nav>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div
+            class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"
+          >
+            <span class="material-icons text-blue-600 text-xl"
+              >event_available</span
+            >
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">
+              Réservation #{{ reservation.id }}
+            </h1>
+            <p class="text-gray-600">
+              {{ reservation.client.nom }} {{ reservation.client.prenom }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          {% if reservation.statut != 'annulee' %}
+          <a
+            href="{% url 'reservations:modifier' reservation.pk %}"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <span class="material-icons text-sm mr-2">edit</span>
+            Modifier
+          </a>
+
+          <a
+            href="{% url 'reservations:annuler' reservation.pk %}"
+            class="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-lg text-red-700 bg-red-50 hover:bg-red-100"
+          >
+            <span class="material-icons text-sm mr-2">cancel</span>
+            Annuler
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Informations principales -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Statut et dates -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">
+            Informations du séjour
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-2">Statut</h3>
+              <span
+                class="inline-flex px-3 py-1 text-sm font-medium rounded-full {% if reservation.statut == 'confirmee' %}bg-blue-100 text-blue-800 {% elif reservation.statut == 'en_cours' %}bg-green-100 text-green-800 {% elif reservation.statut == 'terminee' %}bg-gray-100 text-gray-800 {% else %}bg-red-100 text-red-800{% endif %}"
+              >
+                {{ reservation.get_statut_display }}
+              </span>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-2">
+                Appartement
+              </h3>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ reservation.appartement.numero }}
+              </p>
+              <p class="text-sm text-gray-600">
+                {{ reservation.appartement.get_type_logement_display }}
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-2">Arrivée</h3>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ reservation.date_arrivee|date:"d/m/Y" }}
+              </p>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-2">Départ</h3>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ reservation.date_depart|date:"d/m/Y" }}
+              </p>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-2">Durée</h3>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ reservation.nombre_nuits }} nuit(s)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarification -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Tarification</h2>
+
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Prix par nuit</span>
+              <span class="font-medium"
+                >{{ reservation.appartement.prix_par_nuit|floatformat:0 }}
+                FCFA</span
+              >
+            </div>
+
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Nombre de nuits</span>
+              <span class="font-medium">{{ reservation.nombre_nuits }}</span>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-semibold text-gray-900">Total</span>
+                <span class="text-2xl font-bold text-blue-600"
+                  >{{ reservation.prix_total|floatformat:0 }} FCFA</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Échéancier de paiement -->
+        {% if echeanciers %}
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">
+            Échéancier de paiement
+          </h2>
+
+          <div class="space-y-3">
+            {% for echeance in echeanciers %}
+            <div
+              class="flex items-center justify-between p-4 {% if echeance.statut == 'paye' %}bg-green-50 border border-green-200{% else %}bg-orange-50 border border-orange-200{% endif %} rounded-lg"
+            >
+              <div class="flex items-center space-x-3">
+                <span
+                  class="inline-flex px-2 py-1 text-xs font-medium rounded-full {% if echeance.type_paiement == 'acompte' %}bg-blue-100 text-blue-800 {% else %}bg-purple-100 text-purple-800{% endif %}"
+                >
+                  {{ echeance.get_type_paiement_display }}
+                </span>
+                <div>
+                  <p class="font-medium text-gray-900">
+                    {{ echeance.montant_prevu|floatformat:0 }} FCFA
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    Échéance : {{ echeance.date_echeance|date:"d/m/Y" }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="text-right">
+                {% if echeance.statut == 'paye' %}
+                <span
+                  class="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full"
+                >
+                  <span class="material-icons text-xs mr-1">check_circle</span>
+                  Payé
+                </span>
+                {% else %}
+                <a
+                  href="{% url 'paiements:saisir' echeance.pk %}"
+                  class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-green-600 hover:bg-green-700"
+                >
+                  <span class="material-icons text-xs mr-1">payment</span>
+                  Saisir
+                </a>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Client -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">
+            Informations client
+          </h2>
+
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-1">
+                Nom complet
+              </h3>
+              <p class="text-lg font-semibold text-gray-900">
+                {{ reservation.client.nom }} {{ reservation.client.prenom }}
+              </p>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-1">Téléphone</h3>
+              <a
+                href="tel:{{ reservation.client.telephone }}"
+                class="text-blue-600 hover:text-blue-700"
+              >
+                {{ reservation.client.telephone }}
+              </a>
+            </div>
+
+            {% if reservation.client.email %}
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-1">Email</h3>
+              <a
+                href="mailto:{{ reservation.client.email }}"
+                class="text-blue-600 hover:text-blue-700"
+              >
+                {{ reservation.client.email }}
+              </a>
+            </div>
+            {% endif %}
+
+            <div class="pt-4 border-t border-gray-200">
+              <a
+                href="{% url 'clients:detail' reservation.client.pk %}"
+                class="inline-flex items-center text-sm text-blue-600 hover:text-blue-700"
+              >
+                <span class="material-icons text-sm mr-1">person</span>
+                Voir fiche client
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">
+            Actions rapides
+          </h2>
+
+          <div class="space-y-3">
+            <a
+              href="{% url 'reservations:calendrier' %}"
+              class="w-full flex items-center justify-between p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"
+            >
+              <span class="flex items-center space-x-3">
+                <span class="material-icons text-sm">event</span>
+                <span>Voir calendrier</span>
+              </span>
+              <span class="material-icons text-sm">arrow_forward</span>
+            </a>
+
+            <!-- Dans le div des actions -->
+            {% if user.profil == 'super_admin' %}
+            <a
+              href="{% url 'reservations:supprimer' reservation.pk %}"
+              class="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-lg text-red-700 bg-red-50 hover:bg-red-100"
+              onclick="return confirm('Supprimer définitivement cette réservation ?')"
+            >
+              <span class="material-icons text-sm mr-2">delete_forever</span>
+              Supprimer
+            </a>
+            {% endif %}
+
+            <a
+              href="{% url 'appartements:detail' reservation.appartement.pk %}"
+              class="w-full flex items-center justify-between p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100"
+            >
+              <span class="flex items-center space-x-3">
+                <span class="material-icons text-sm">apartment</span>
+                <span>Détail appartement</span>
+              </span>
+              <span class="material-icons text-sm">arrow_forward</span>
+            </a>
+
+            <a
+              href="{% url 'paiements:echeancier' %}"
+              class="w-full flex items-center justify-between p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100"
+            >
+              <span class="flex items-center space-x-3">
+                <span class="material-icons text-sm">payments</span>
+                <span>Gestion paiements</span>
+              </span>
+              <span class="material-icons text-sm">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Métadonnées -->
+        <div class="bg-gray-50 rounded-xl border border-gray-200 p-4">
+          <h3 class="text-sm font-medium text-gray-700 mb-2">
+            Informations système
+          </h3>
+          <div class="text-xs text-gray-600 space-y-1">
+            <p>Créée le {{ reservation.date_creation|date:"d/m/Y H:i" }}</p>
+            {% if reservation.date_modification != reservation.date_creation %}
+            <p>
+              Modifiée le {{ reservation.date_modification|date:"d/m/Y H:i" }}
+            </p>
+            {% endif %} {% if reservation.gestionnaire %}
+            <p>
+              Par {{
+              reservation.gestionnaire.first_name|default:reservation.gestionnaire.username
+              }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
