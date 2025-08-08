@@ -1,0 +1,167 @@
+<!-- templates/users/journal_actions.html - VERSION AMÉLIORÉE -->
+{% extends 'base.html' %}
+
+{% block title %}Journal des Actions - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<div class="flex h-screen">
+    <aside class="w-64 bg-white border-r border-gray-200 p-6">
+        <h1 class="font-bold text-lg mb-6">🔒 Audit Système</h1>
+        <nav class="space-y-2">
+            <a href="{% url 'users:journal_actions' %}" class="block p-3 bg-blue-50 text-blue-600 rounded-lg font-medium">
+                <span class="material-icons text-sm mr-2">security</span>Journal
+            </a>
+            <a href="{% url 'users:statistiques_audit' %}" class="block p-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                <span class="material-icons text-sm mr-2">analytics</span>Statistiques
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+        <header class="bg-white border-b p-6">
+            <h1 class="text-2xl font-bold mb-4">Journal des Actions Système</h1>
+            
+            <!-- Filtres améliorés -->
+            <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <select name="action" class="border rounded-lg px-3 py-2">
+                    <option value="">🔍 Toutes actions</option>
+                    {% for action, label in action_choices %}
+                    <option value="{{ action }}" {% if action_filter == action %}selected{% endif %}>
+                        {% if action == 'create' %}➕{% elif action == 'update' %}✏️{% elif action == 'delete' %}🗑️{% elif action == 'login' %}🔑{% else %}📋{% endif %} {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+                
+                <input type="text" name="model" placeholder="🏷️ Modèle (ex: Reservation)" value="{{ model_filter }}" class="border rounded-lg px-3 py-2">
+                <input type="text" name="user" placeholder="👤 Utilisateur" value="{{ user_filter }}" class="border rounded-lg px-3 py-2">
+                
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    <span class="material-icons text-sm mr-1">search</span>Filtrer
+                </button>
+                <a href="{% url 'users:journal_actions' %}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-center">
+                    <span class="material-icons text-sm mr-1">refresh</span>Reset
+                </a>
+            </form>
+        </header>
+
+        <div class="p-6">
+            <div class="bg-white rounded-xl border overflow-hidden shadow-sm">
+                {% if logs %}
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="p-4 text-left font-medium text-gray-700">👤 Utilisateur</th>
+                            <th class="p-4 text-left font-medium text-gray-700">⚡ Action</th>
+                            <th class="p-4 text-left font-medium text-gray-700">📦 Objet</th>
+                            <th class="p-4 text-left font-medium text-gray-700">🌐 IP</th>
+                            <th class="p-4 text-left font-medium text-gray-700">🕒 Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr class="border-t hover:bg-gray-50 transition-colors">
+                            <td class="p-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span class="material-icons text-blue-600 text-sm">person</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium text-gray-900">
+                                            {{ log.utilisateur.username|default:"🤖 Système" }}
+                                        </div>
+                                        {% if log.utilisateur %}
+                                        <div class="text-xs text-gray-500">
+                                            {{ log.utilisateur.get_profil_display }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full
+                                    {% if log.action == 'create' %}bg-green-100 text-green-800
+                                    {% elif log.action == 'update' %}bg-blue-100 text-blue-800
+                                    {% elif log.action == 'delete' %}bg-red-100 text-red-800
+                                    {% elif log.action == 'login' %}bg-purple-100 text-purple-800
+                                    {% elif log.action == 'logout' %}bg-orange-100 text-orange-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    <span class="mr-1">
+                                        {% if log.action == 'create' %}➕
+                                        {% elif log.action == 'update' %}✏️
+                                        {% elif log.action == 'delete' %}🗑️
+                                        {% elif log.action == 'login' %}🔑
+                                        {% elif log.action == 'logout' %}🚪
+                                        {% else %}📋{% endif %}
+                                    </span>
+                                    {{ log.get_action_display }}
+                                </span>
+                            </td>
+                            <td class="p-4">
+                                <div class="max-w-xs">
+                                    <div class="font-medium text-gray-900 flex items-center space-x-2">
+                                        <span class="text-xs bg-gray-200 px-2 py-1 rounded">{{ log.model_name }}</span>
+                                        {% if log.object_id %}
+                                        <span class="text-xs text-gray-500">#{{ log.object_id }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-sm text-gray-600 mt-1 truncate" title="{{ log.object_repr }}">
+                                        {{ log.object_repr|truncatechars:60 }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <div class="text-sm text-gray-600">
+                                    {{ log.ip_address|default:"🔒 N/A" }}
+                                </div>
+                                {% if log.method %}
+                                <div class="text-xs text-gray-400">{{ log.method }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="p-4">
+                                <div class="text-sm text-gray-900">
+                                    {{ log.timestamp|date:"d/m/Y" }}
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    {{ log.timestamp|date:"H:i:s" }}
+                                </div>
+                                <div class="text-xs text-blue-600">
+                                    {{ log.timestamp|timesince }} ago
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="p-12 text-center">
+                    <span class="material-icons text-gray-400 text-5xl mb-4">security</span>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune action trouvée</h3>
+                    <p class="text-gray-500">Aucune activité ne correspond aux filtres sélectionnés</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Pagination améliorée -->
+            {% if logs.has_other_pages %}
+            <div class="mt-6 flex justify-center">
+                <div class="flex items-center space-x-2">
+                    {% if logs.has_previous %}
+                    <a href="?page=1" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">⏮️ Premier</a>
+                    <a href="?page={{ logs.previous_page_number }}" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">⬅️ Précédent</a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg">
+                        Page {{ logs.number }} / {{ logs.paginator.num_pages }}
+                    </span>
+                    
+                    {% if logs.has_next %}
+                    <a href="?page={{ logs.next_page_number }}" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">Suivant ➡️</a>
+                    <a href="?page={{ logs.paginator.num_pages }}" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">Dernier ⏭️</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

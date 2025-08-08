@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Réservations - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-white text-lg">event</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-gray-900">Réservations</h1>
+                    <p class="text-xs text-gray-500">Liste complète</p>
+                </div>
+            </div>
+
+            <nav class="space-y-1">
+                <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                    <span class="material-icons text-sm">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                    <span class="material-icons text-sm">calendar_view_month</span>
+                    <span>Calendrier</span>
+                </a>
+
+                <a href="{% url 'reservations:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium">
+                    <span class="material-icons text-sm">list</span>
+                    <span>Liste</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Liste des Réservations</h1>
+                    <p class="text-gray-600">Toutes les réservations avec filtres</p>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <select name="statut_filtre" class="px-3 py-2 border border-gray-300 rounded-lg" onchange="window.location.href='?statut=' + this.value">
+                        <option value="tous" {% if statut_filtre == 'tous' %}selected{% endif %}>Tous les statuts</option>
+                        <option value="confirmee" {% if statut_filtre == 'confirmee' %}selected{% endif %}>Confirmées</option>
+                        <option value="en_cours" {% if statut_filtre == 'en_cours' %}selected{% endif %}>En cours</option>
+                        <option value="terminee" {% if statut_filtre == 'terminee' %}selected{% endif %}>Terminées</option>
+                        <option value="annulee" {% if statut_filtre == 'annulee' %}selected{% endif %}>Annulées</option>
+                    </select>
+                    
+                    <a href="{% url 'reservations:nouvelle' %}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700">
+                        <span class="material-icons text-sm mr-2">add</span>
+                        Nouvelle réservation
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6">
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                {% if reservations %}
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Appartement</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dates</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for reservation in reservations %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">#{{ reservation.id }}</div>
+                                    <div class="text-xs text-gray-500">{{ reservation.date_creation|date:"d/m/Y" }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ reservation.client.nom }} {{ reservation.client.prenom }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{ reservation.client.telephone }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ reservation.appartement.numero }}</div>
+                                    <div class="text-sm text-gray-500">{{ reservation.appartement.get_type_logement_display }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ reservation.date_arrivee|date:"d/m/Y" }}</div>
+                                    <div class="text-sm text-gray-500">au {{ reservation.date_depart|date:"d/m/Y" }}</div>
+                                    <div class="text-xs text-gray-400">{{ reservation.nombre_nuits }} nuit(s)</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ reservation.prix_total|floatformat:0 }} FCFA</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full
+                                        {% if reservation.statut == 'confirmee' %}bg-blue-100 text-blue-800
+                                        {% elif reservation.statut == 'en_cours' %}bg-green-100 text-green-800
+                                        {% elif reservation.statut == 'terminee' %}bg-gray-100 text-gray-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ reservation.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
+                                        <a href="{% url 'reservations:detail' reservation.pk %}" 
+                                           class="text-blue-600 hover:text-blue-700">
+                                            <span class="material-icons text-sm">visibility</span>
+                                        </a>
+                                        
+                                        {% if reservation.statut != 'annulee' %}
+                                        <a href="{% url 'reservations:modifier' reservation.pk %}" 
+                                           class="text-gray-600 hover:text-gray-700">
+                                            <span class="material-icons text-sm">edit</span>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="px-6 py-12 text-center">
+                    <span class="material-icons text-gray-400 text-4xl mb-4">event_busy</span>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune réservation</h3>
+                    <p class="text-gray-500 mb-6">Commencez par créer votre première réservation</p>
+                    <a href="{% url 'reservations:nouvelle' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700">
+                        <span class="material-icons text-sm mr-2">add</span>
+                        Nouvelle réservation
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

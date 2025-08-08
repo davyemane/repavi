@@ -1,0 +1,29 @@
+<!-- templates/reservations/confirmer_suppression.html -->
+{% extends 'base.html' %}
+
+{% block title %}Supprimer Réservation - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-8 px-4">
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
+        <h1 class="text-xl font-bold text-red-900 mb-4">⚠️ Suppression définitive</h1>
+        <p class="text-red-700">Cette action supprimera définitivement la réservation. Cette action est irréversible.</p>
+    </div>
+
+    <div class="bg-white border rounded-xl p-6 mb-6">
+        <h2 class="font-semibold mb-4">Réservation à supprimer :</h2>
+        <div class="space-y-2">
+            <p><strong>Client :</strong> {{ reservation.client.nom }} {{ reservation.client.prenom }}</p>
+            <p><strong>Appartement :</strong> {{ reservation.appartement.numero }}</p>
+            <p><strong>Dates :</strong> {{ reservation.date_arrivee|date:"d/m/Y" }} - {{ reservation.date_depart|date:"d/m/Y" }}</p>
+            <p><strong>Montant :</strong> {{ reservation.prix_total|floatformat:0 }} FCFA</p>
+        </div>
+    </div>
+
+    <form method="post" class="flex space-x-4">
+        {% csrf_token %}
+        <a href="{% url 'reservations:detail' reservation.pk %}" class="px-6 py-2 border rounded-lg">Annuler</a>
+        <button type="submit" class="px-6 py-2 bg-red-600 text-white rounded-lg">Supprimer définitivement</button>
+    </form>
+</div>
+{% endblock %}

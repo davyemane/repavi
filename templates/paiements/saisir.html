@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Saisir Paiement - RepAvi Lodges{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+                <a href="{% url 'dashboard' %}" class="hover:text-blue-600">Dashboard</a>
+                <span>/</span>
+                <a href="{% url 'paiements:echeancier' %}" class="hover:text-blue-600">Paiements</a>
+                <span>/</span>
+                <span class="text-gray-900">Saisir paiement</span>
+            </nav>
+            
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-green-600 text-xl">payment</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Saisir un paiement</h1>
+                    <p class="text-gray-600">Enregistrer un paiement reçu</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information de la réservation -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Informations de l'échéance</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Réservation</h3>
+                    <div class="space-y-1">
+                        <p class="text-sm text-gray-900">Réservation #{{ reservation.id }}</p>
+                        <p class="text-sm text-gray-600">{{ reservation.appartement.nom }}</p>
+                        <p class="text-sm text-gray-600">
+                            Du {{ reservation.date_arrivee|date:"d/m/Y" }} au {{ reservation.date_depart|date:"d/m/Y" }}
+                        </p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Client</h3>
+                    <div class="space-y-1">
+                        <p class="text-sm text-gray-900">{{ reservation.client.nom }} {{ reservation.client.prenom }}</p>
+                        <p class="text-sm text-gray-600">{{ reservation.client.telephone }}</p>
+                        <p class="text-sm text-gray-600">{{ reservation.client.email|default:"Email non renseigné" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-1">Type de paiement</h3>
+                        <p class="text-lg font-semibold text-blue-600">{{ echeance.get_type_paiement_display }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-1">Montant prévu</h3>
+                        <p class="text-lg font-semibold text-gray-900">{{ echeance.montant_prevu|floatformat:0 }} FCFA</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-700 mb-1">Date d'échéance</h3>
+                        <p class="text-lg font-semibold {% if echeance.date_echeance < today %}text-red-600{% else %}text-gray-900{% endif %}">
+                            {{ echeance.date_echeance|date:"d/m/Y" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de saisie -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Détails du paiement reçu</h2>
+            </div>
+
+            <form method="post" class="p-6">
+                {% csrf_token %}
+                
+                <div class="space-y-6">
+                    <!-- Montant payé -->
+                    <div>
+                        <label for="{{ form.montant_paye.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.montant_paye.label }}
+                        </label>
+                        {{ form.montant_paye }}
+                        {% if form.montant_paye.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.montant_paye.errors|first }}
+                            </div>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">
+                            Montant prévu : {{ echeance.montant_prevu|floatformat:0 }} FCFA
+                        </p>
+                    </div>
+
+                    <!-- Mode de paiement -->
+                    <div>
+                        <label for="{{ form.mode_paiement.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.mode_paiement.label }}
+                        </label>
+                        {{ form.mode_paiement }}
+                        {% if form.mode_paiement.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.mode_paiement.errors|first }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Commentaire -->
+                    <div>
+                        <label for="{{ form.commentaire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.commentaire.label }}
+                        </label>
+                        {{ form.commentaire }}
+                        {% if form.commentaire.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {{ form.commentaire.errors|first }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-between pt-6 mt-6 border-t border-gray-200">
+                    <a href="{% url 'paiements:echeancier' %}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <span class="material-icons text-sm mr-2">arrow_back</span>
+                        Retour
+                    </a>
+
+                    <div class="flex items-center space-x-3">
+                        <button type="button" onclick="window.history.back()" 
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                            Annuler
+                        </button>
+                        
+                        <button type="submit" 
+                                class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 transition-colors">
+                            <span class="material-icons text-sm mr-2">save</span>
+                            Enregistrer le paiement
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Calcul automatique du solde -->
+        <div class="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <div class="flex items-start space-x-3">
+                <span class="material-icons text-blue-600 mt-0.5">info</span>
+                <div>
+                    <h3 class="text-sm font-medium text-blue-900">Information</h3>
+                    <p class="text-sm text-blue-700 mt-1">
+                        Le solde restant sera calculé automatiquement après enregistrement. 
+                        La date de paiement sera automatiquement définie à aujourd'hui.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus sur le montant
+    const montantInput = document.querySelector('input[name="montant_paye"]');
+    if (montantInput) {
+        montantInput.focus();
+        montantInput.select();
+    }
+
+    // Validation en temps réel
+    montantInput?.addEventListener('input', function() {
+        const montantPrevu = {{ echeance.montant_prevu }};
+        const montantSaisi = parseFloat(this.value) || 0;
+        
+        if (montantSaisi > montantPrevu) {
+            this.style.borderColor = '#f59e0b';
+            // Afficher un avertissement
+        } else {
+            this.style.borderColor = '#d1d5db';
+        }
+    });
+});
+</script>
+{% endblock %}
