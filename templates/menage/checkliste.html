@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Check-list Ménage {{ tache.appartement.numero }} - RepAvi Lodges{% endblock %}
+
+{% block content %}
+{% include '_navigation.html' %}
+
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-4">
+          <a href="{% url 'menage:planning' %}" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <span class="material-icons text-sm">cleaning_services</span>
+            <span>Planning Ménage</span>
+          </a>
+          <span class="text-gray-400">/</span>
+          <span class="font-medium text-gray-900">Check-list {{ tache.appartement.numero }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Info appartement -->
+      <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-8">
+        <div class="flex items-center space-x-4">
+          <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center">
+            <span class="material-icons text-purple-600 text-2xl">apartment</span>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ tache.appartement.numero }}</h1>
+            <p class="text-gray-600">
+              {{ tache.appartement.get_type_logement_display }} • {{ tache.appartement.maison }}
+              • Prévu: {{ tache.date_prevue|date:"d/m/Y" }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire check-list -->
+      <form method="post" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+        
+        <!-- Check-list simple selon cahier -->
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+            <span class="material-icons text-green-600">checklist</span>
+            <span>Check-list Simple</span>
+          </h2>
+          
+          <div class="space-y-6">
+            <!-- Ménage général -->
+            <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-xl">
+              {{ form.menage_general_fait }}
+              <label for="{{ form.menage_general_fait.id_for_label }}" class="text-lg font-medium text-gray-900 cursor-pointer">
+                {{ form.menage_general_fait.label }}
+              </label>
+            </div>
+            
+            <!-- Équipements -->
+            <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-xl">
+              {{ form.equipements_verifies }}
+              <label for="{{ form.equipements_verifies.id_for_label }}" class="text-lg font-medium text-gray-900 cursor-pointer">
+                {{ form.equipements_verifies.label }}
+              </label>
+            </div>
+            
+            <!-- Temps passé -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.temps_passe.label }}</label>
+              {{ form.temps_passe }}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Problèmes -->
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+            <span class="material-icons text-orange-600">report_problem</span>
+            <span>Problèmes Signalés</span>
+          </h2>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.problemes_signales.label }}</label>
+            {{ form.problemes_signales }}
+          </div>
+        </div>
+        
+        <!-- Photos optionnel selon cahier -->
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+            <span class="material-icons text-blue-600">photo_camera</span>
+            <span>Photos (Optionnel)</span>
+          </h2>
+          
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.photo_avant.label }}</label>
+              {{ form.photo_avant }}
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.photo_apres.label }}</label>
+              {{ form.photo_apres }}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Notes -->
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+            <span class="material-icons text-purple-600">notes</span>
+            <span>Notes du Personnel</span>
+          </h2>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.notes_personnel.label }}</label>
+            {{ form.notes_personnel }}
+          </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center justify-between bg-white rounded-2xl p-6 border border-gray-100">
+          <a href="{% url 'menage:planning' %}" 
+             class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2">
+            <span class="material-icons text-sm">arrow_back</span>
+            <span>Retour Planning</span>
+          </a>
+          
+          <div class="flex items-center space-x-3">
+            <button type="submit" 
+                    class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2">
+              <span class="material-icons text-sm">save</span>
+              <span>Sauvegarder</span>
+            </button>
+            
+            <a href="{% url 'menage:terminer' tache.pk %}" 
+               class="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-medium flex items-center space-x-2"
+               onclick="return confirm('Marquer comme terminé ?')">
+              <span class="material-icons text-sm">check_circle</span>
+              <span>Terminer</span>
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

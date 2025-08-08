@@ -1,7 +1,7 @@
 # ==========================================
 # apps/appartements/views.py - Gestion appartements
 # ==========================================
-from datetime import timezone
+from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -126,48 +126,55 @@ def changer_statut_appartement(request, pk):
 #gerer photos
 @login_required
 @user_passes_test(is_gestionnaire)
-def gerer_photos(request):
+def gerer_photos(request):  
     """Gestion des photos selon cahier"""
-    from apps.appartements.models import Appartement
     appartements = Appartement.objects.all()
     
     context = {
         'appartements': appartements,
+        'photos': [appartement.photos.all() for appartement in appartements],
     }
-    return render(request, 'appartements/gerer_photos.html', context)
+    return render(request, 'appartements/gerer_photo.html', context)
+
 
 @login_required
 @user_passes_test(is_gestionnaire)
-def ajouter_photo(request):
-    """Ajouter une photo selon cahier"""
-    if request.method == 'POST':
-        form = PhotoAppartementForm(request.POST, request.FILES)
-        if form.is_valid():
-            photo = form.save(commit=False)
-            photo.gestionnaire = request.user
-            photo.save()
-            
-            messages.success(request, f'Photo ajoutée avec succès !')
-            return redirect('appartements:gerer_photos')
-    else:
-        form = PhotoAppartementForm()
+def ajouter_photo(request, pk=None):
+    if pk:
+        appartement = get_object_or_404(Appartement, pk=pk)
     
-    context = {
-        'form': form,
-        'titre': 'Ajouter une photo',
-    }
-    return render(request, 'appartements/ajouter_photo.html', context)
+        if request.method == 'POST':
+            form = PhotoAppartementForm(request.POST, request.FILES)
+            if form.is_valid():
+                photo = form.save(commit=False)
+                photo.appartement = appartement
+                photo.save()
+                
+                messages.success(request, f'Photo ajoutée avec succès !')
+                return redirect('appartements:photos')
+        else:
+            form = PhotoAppartementForm()
+        
+        context = {
+            'form': form,
+            'appartement': appartement,
+            'titre': f'Ajouter une photo - {appartement.numero}',
+        }
+        return render(request, 'appartements/ajouter_photo.html', context)
+    else:
+        messages.error(request, 'Veuillez sélectionner un appartement')
+        return redirect('appartements:liste')
 
 @login_required
 @user_passes_test(is_gestionnaire)
-def supprimer_photo(request, pk):
+def supprimer_photo(request, photo_pk):
     """Supprimer une photo selon cahier"""
-    photo = get_object_or_404(PhotoAppartement, pk=pk)
+    photo = get_object_or_404(PhotoAppartement, pk=photo_pk)
     
     if request.method == 'POST':
         photo.delete()
         messages.success(request, f'Photo supprimée avec succès !')
-        return redirect('appartements:gerer_photos')
+        return redirect('appartements:photos')
     
     context = {
         'photo': photo,

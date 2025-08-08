@@ -13,7 +13,7 @@ urlpatterns = [
     path('<int:pk>/statut/', views.changer_statut_appartement, name='changer_statut'),
     
     # Photos par pièce selon cahier
-    path('<int:pk>/photos/', views.gerer_photos, name='photos'),
+    path('photos/', views.gerer_photos, name='photos'),
     path('<int:pk>/photo/ajouter/', views.ajouter_photo, name='ajouter_photo'),
     path('photo/<int:photo_pk>/supprimer/', views.supprimer_photo, name='supprimer_photo'),
 ]

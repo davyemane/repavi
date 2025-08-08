@@ -67,6 +67,9 @@ class Appartement(models.Model):
             statut__in=['confirmee', 'en_cours']
         ).exists()
     
+    def get_photo_principale(self):
+        return self.photos.filter(est_principale=True).first()
+
     class Meta:
         verbose_name = 'Appartement'
         verbose_name_plural = 'Appartements'
@@ -85,3 +88,5 @@ class PhotoAppartement(models.Model):
         verbose_name = 'Photo Appartement'
         verbose_name_plural = 'Photos Appartements'
         ordering = ['ordre', 'nom_piece']
+
+

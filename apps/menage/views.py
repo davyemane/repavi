@@ -154,3 +154,45 @@ def historique_menage(request):
         'appartements': appartements,
     }
     return render(request, 'menage/historique.html', context)
+
+@login_required
+@user_passes_test(is_gestionnaire)
+def programmer_menage(request, appartement_pk):
+    """Programmer ménage pour un appartement"""
+    from apps.appartements.models import Appartement
+    appartement = get_object_or_404(Appartement, pk=appartement_pk)
+    
+    if request.method == 'POST':
+        date_prevue = request.POST.get('date_prevue')
+        
+        if date_prevue:
+            tache, created = TacheMenage.objects.get_or_create(
+                appartement=appartement,
+                date_prevue=date_prevue,
+                statut='a_faire',
+                defaults={
+                    'personnel': request.user
+                }
+            )
+            
+            if created:
+                messages.success(request, f'Ménage programmé pour {appartement.numero} le {date_prevue}')
+            else:
+                messages.info(request, 'Ménage déjà programmé pour cette date')
+        else:
+            messages.error(request, 'Date requise')
+            
+        return redirect('appartements:detail', pk=appartement_pk)
+    
+    # GET - Afficher le formulaire simple
+    today = timezone.now().date()
+    
+    context = {
+        'appartement': appartement,
+        'today': today,
+        'taches_existantes': TacheMenage.objects.filter(
+            appartement=appartement,
+            statut__in=['a_faire', 'en_cours']
+        )
+    }
+    return render(request, 'menage/programmer.html', context)

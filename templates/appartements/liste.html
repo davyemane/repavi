@@ -33,6 +33,13 @@
             <span class="material-icons text-sm">add_home</span>
             <span style="font-family: 'Arimo', sans-serif;">Nouvel Appartement</span>
           </a>
+            <!-- Photos -->
+  <a href="{% url 'appartements:photos' %}" 
+     class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+     title="Gérer photos">
+    <span class="material-icons text-sm">photo_camera</span>
+  </a>
+
         </div>
       </div>
     </div>
@@ -198,26 +205,13 @@
         <!-- Image principale -->
         <div class="relative h-48 bg-gray-200">
           {% if appartement.photos.all %}
-            {% for photo in appartement.photos.all %}
-              {% if photo.est_principale %}
-                <img src="{{ photo.photo.url }}" 
-                     alt="{{ photo.nom_piece }}"
-                     class="w-full h-full object-cover">
-                <div class="absolute top-3 left-3">
-                  <span class="px-2 py-1 bg-white/90 backdrop-blur-sm text-gray-800 text-xs rounded-full font-medium">
-                    📷 {{ appartement.photos.count }}
-                  </span>
-                </div>
-                {% break %}
-              {% endif %}
-            {% empty %}
-              <div class="w-full h-full flex items-center justify-center bg-gray-100">
-                <div class="text-center">
-                  <span class="material-icons text-gray-400 text-4xl">image</span>
-                  <p class="text-gray-500 text-sm mt-2" style="font-family: 'Arimo', sans-serif;">Aucune photo</p>
-                </div>
-              </div>
-            {% endfor %}
+
+          
+{% if appartement.get_photo_principale %}
+  <img src="{{ appartement.get_photo_principale.photo.url }}" 
+       alt="{{ appartement.get_photo_principale.nom_piece }}"
+       class="w-full h-full object-cover">
+{% endif %}
           {% else %}
             <div class="w-full h-full flex items-center justify-center bg-gray-100">
               <div class="text-center">
@@ -308,6 +302,8 @@
             </div>
             
             <div class="flex items-center space-x-2">
+
+  
               <!-- Voir détail -->
               <a href="{% url 'appartements:detail' appartement.pk %}" 
                  class="flex items-center space-x-1 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm">
