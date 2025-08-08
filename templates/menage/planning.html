@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Planning Ménage - RepAvi Lodges{% endblock %}
+
+{% block content %}
+{% include '_navigation.html' %}
+
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-4">
+          <a href="{% url 'dashboard' %}" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <span class="material-icons text-sm">dashboard</span>
+            <span>Dashboard</span>
+          </a>
+          <span class="text-gray-400">/</span>
+          <span class="font-medium text-gray-900">Planning Ménage</span>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          {% if taches_urgentes %}
+          <a href="{% url 'menage:urgentes' %}" 
+             class="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+            <span class="material-icons text-sm">warning</span>
+            <span>{{ taches_urgentes.count }} Urgent{{ taches_urgentes.count|pluralize }}</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <span class="material-icons text-white text-2xl">cleaning_services</span>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Planning Ménage</h1>
+      <p class="text-gray-600">Organisation simple selon cahier des charges</p>
+    </div>
+
+    <!-- Tâches urgentes -->
+    {% if taches_urgentes %}
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
+      <h2 class="text-xl font-bold text-red-900 mb-4 flex items-center space-x-2">
+        <span class="material-icons text-red-600">warning</span>
+        <span>Tâches Urgentes ({{ taches_urgentes.count }})</span>
+      </h2>
+      
+      <div class="space-y-3">
+        {% for tache in taches_urgentes %}
+        <div class="bg-white rounded-xl p-4 border border-red-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                <span class="material-icons text-red-600">apartment</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-gray-900">{{ tache.appartement.numero }}</h3>
+                <p class="text-sm text-gray-600">
+                  Prévu: {{ tache.date_prevue|date:"d/m/Y" }}
+                  {% if tache.reservation %} • Après: {{ tache.reservation.client.prenom }} {{ tache.reservation.client.nom }}{% endif %}
+                </p>
+              </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <a href="{% url 'menage:checklist' tache.pk %}" 
+                 class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                Commencer
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      
+      <!-- Tâches en cours -->
+      <div class="bg-white rounded-2xl p-6 border border-gray-100">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+          <span class="material-icons text-blue-600">hourglass_empty</span>
+          <span>En Cours ({{ taches_en_cours.count }})</span>
+        </h2>
+        
+        {% if taches_en_cours %}
+        <div class="space-y-4">
+          {% for tache in taches_en_cours %}
+          <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-gray-900">{{ tache.appartement.numero }}</h3>
+                <p class="text-sm text-gray-600">
+                  {% if tache.personnel %}Par: {{ tache.personnel.first_name }}{% endif %}
+                  • Prévu: {{ tache.date_prevue|date:"d/m/Y" }}
+                </p>
+              </div>
+              <a href="{% url 'menage:checklist' tache.pk %}" 
+                 class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                Continuer
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+          <span class="material-icons text-gray-400 text-3xl mb-2">check_circle</span>
+          <p class="text-gray-600">Aucune tâche en cours</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Tâches à venir -->
+      <div class="bg-white rounded-2xl p-6 border border-gray-100">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+          <span class="material-icons text-green-600">schedule</span>
+          <span>À Venir ({{ taches_a_venir.count }})</span>
+        </h2>
+        
+        {% if taches_a_venir %}
+        <div class="space-y-4">
+          {% for tache in taches_a_venir %}
+          <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-gray-900">{{ tache.appartement.numero }}</h3>
+                <p class="text-sm text-gray-600">Prévu: {{ tache.date_prevue|date:"d/m/Y" }}</p>
+              </div>
+              <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
+                Planifié
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+          <span class="material-icons text-gray-400 text-3xl mb-2">event_available</span>
+          <p class="text-gray-600">Aucune tâche planifiée</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}
