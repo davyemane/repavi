@@ -1,0 +1,184 @@
+<!-- ========================================== -->
+<!-- templates/inventaire/supprimer_equipement.html -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titre }} - RepAvi Lodges{% endblock %}
+
+{% block page_title %}{{ titre }}{% endblock %}
+{% block page_subtitle %}Appartement {{ equipement.appartement.numero }} • Confirmation requise{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'inventaire:appartement' equipement.appartement.pk %}" 
+   class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg border border-gray-200 p-8">
+        
+        <!-- Header d'alerte -->
+        <div class="flex items-center space-x-4 mb-8">
+            <div class="w-16 h-16 bg-red-100 rounded-xl flex items-center justify-center">
+                <span class="material-icons text-red-600 text-2xl">warning</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-red-900 font-lato">Supprimer {{ equipement.nom }}</h2>
+                <p class="text-red-600 font-lato">Cette action est irréversible</p>
+            </div>
+        </div>
+        
+        <!-- Alerte de confirmation -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+            <div class="flex items-start space-x-3">
+                <span class="material-icons text-red-600 text-lg mt-0.5">error</span>
+                <div>
+                    <h3 class="text-lg font-semibold text-red-900 mb-2 font-lato">Attention !</h3>
+                    <p class="text-red-700 mb-4 font-lato">
+                        Vous êtes sur le point de supprimer définitivement cet équipement de l'inventaire. 
+                        Cette action ne peut pas être annulée.
+                    </p>
+                    <ul class="list-disc list-inside text-red-700 text-sm space-y-1 font-lato">
+                        <li>L'équipement sera retiré de l'inventaire</li>
+                        <li>La valeur totale de l'appartement sera recalculée</li>
+                        <li>Les données de l'équipement seront perdues</li>
+                        {% if equipement.photo %}
+                        <li>La photo associée sera supprimée</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Détails de l'équipement à supprimer -->
+        <div class="border border-gray-200 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Détails de l'équipement</h3>
+            
+            <div class="flex items-center space-x-4 mb-6">
+                {% if equipement.photo %}
+                <img src="{{ equipement.photo.url }}" alt="{{ equipement.nom }}" class="w-20 h-20 rounded-lg object-cover border border-gray-200">
+                {% else %}
+                <div class="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-gray-400 text-2xl">image</span>
+                </div>
+                {% endif %}
+                
+                <div>
+                    <h4 class="text-xl font-bold text-gray-900 font-lato">{{ equipement.nom }}</h4>
+                    <p class="text-gray-600 font-lato">Appartement {{ equipement.appartement.numero }}</p>
+                    <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full font-lato
+                        {% if equipement.etat == 'bon' %}bg-green-100 text-green-800
+                        {% elif equipement.etat == 'usage' %}bg-blue-100 text-blue-800
+                        {% elif equipement.etat == 'defectueux' %}bg-orange-100 text-orange-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                        {{ equipement.get_etat_display }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-900 mb-1 font-lato">Prix d'achat</label>
+                    <p class="text-lg text-gray-900 font-lato">{{ equipement.prix_achat|floatformat:0 }} FCFA</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-900 mb-1 font-lato">Date d'achat</label>
+                    <p class="text-lg text-gray-900 font-lato">{{ equipement.date_achat|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+            
+            {% if equipement.commentaire %}
+            <div class="mt-4">
+                <label class="block text-sm font-semibold text-gray-900 mb-1 font-lato">Commentaire</label>
+                <p class="text-gray-700 font-lato">{{ equipement.commentaire }}</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Impact financier -->
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-8">
+            <div class="flex items-center space-x-3 mb-3">
+                <span class="material-icons text-orange-600">calculate</span>
+                <h3 class="text-lg font-semibold text-orange-900 font-lato">Impact sur la valeur</h3>
+            </div>
+            <p class="text-orange-800 font-lato">
+                La valeur totale de l'appartement {{ equipement.appartement.numero }} sera réduite de 
+                <strong>{{ equipement.prix_achat|floatformat:0 }} FCFA</strong> après suppression.
+            </p>
+        </div>
+        
+        <!-- Actions de confirmation -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Confirmation par case à cocher -->
+            <div class="flex items-start space-x-3">
+                <input type="checkbox" id="confirm-delete" name="confirm_delete" required
+                       class="mt-1 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                <label for="confirm-delete" class="text-sm text-gray-700 font-lato">
+                    Je confirme vouloir supprimer définitivement <strong>{{ equipement.nom }}</strong> 
+                    de l'inventaire de l'appartement {{ equipement.appartement.numero }}.
+                </label>
+            </div>
+            
+            <!-- Boutons d'action -->
+            <div class="flex space-x-4 pt-6">
+                <button type="submit" 
+                        id="delete-button"
+                        disabled
+                        class="flex items-center justify-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium font-lato disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    <span class="material-icons text-sm">delete_forever</span>
+                    <span>Supprimer définitivement</span>
+                </button>
+                
+                <a href="{% url 'inventaire:appartement' equipement.appartement.pk %}" 
+                   class="flex items-center justify-center space-x-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium font-lato">
+                    <span class="material-icons text-sm">close</span>
+                    <span>Annuler</span>
+                </a>
+                
+                <a href="{% url 'inventaire:modifier_equipement' equipement.pk %}" 
+                   class="flex items-center justify-center space-x-2 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium font-lato">
+                    <span class="material-icons text-sm">edit</span>
+                    <span>Modifier plutôt</span>
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Alternatives selon cahier -->
+    <div class="mt-8 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-[#02066F] mb-4 font-lato">Alternatives à la suppression</h3>
+        <div class="space-y-3">
+            <div class="flex items-center space-x-3">
+                <span class="material-icons text-[#02066F]">edit</span>
+                <div>
+                    <p class="font-medium text-gray-900 font-lato">Modifier l'équipement</p>
+                    <p class="text-sm text-gray-600 font-lato">Changez l'état, le prix ou ajoutez des notes</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <span class="material-icons text-red-500">dangerous</span>
+                <div>
+                    <p class="font-medium text-gray-900 font-lato">Marquer comme "Hors service"</p>
+                    <p class="text-sm text-gray-600 font-lato">Conserve l'historique tout en indiquant qu'il n'est plus utilisable</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Activer/désactiver le bouton de suppression selon la case à cocher
+document.getElementById('confirm-delete').addEventListener('change', function() {
+    const deleteButton = document.getElementById('delete-button');
+    deleteButton.disabled = !this.checked;
+});
+</script>
+{% endblock %}

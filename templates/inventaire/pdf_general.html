@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventaire Général - RepAvi Lodges</title>
+</head>
+<body>
+    <!-- En-tête -->
+    <div class="header">
+        <div class="logo">RepAvi Lodges</div>
+        <div class="rapport-title">Inventaire Général du Système</div>
+        <div style="font-size: 10pt; color: #666; margin-top: 10px;">
+            Généré le {{ date_generation|date:"d/m/Y à H:i" }} par {{ utilisateur.get_full_name|default:utilisateur.username }}
+        </div>
+    </div>
+
+    <!-- Résumé global -->
+    <div class="stats-grid">
+        <div class="stats-row">
+            <div class="stats-cell">
+                <div class="stats-number">{{ appartements_data|length }}</div>
+                <div>Appartements</div>
+            </div>
+            <div class="stats-cell">
+                <div class="stats-number">{{ total_equipements }}</div>
+                <div>Équipements</div>
+            </div>
+            <div class="stats-cell">
+                <div class="stats-number">{{ valeur_totale|floatformat:0 }}</div>
+                <div>FCFA Total</div>
+            </div>
+            <div class="stats-cell">
+                <div class="stats-number">{{ valeur_moyenne|floatformat:0 }}</div>
+                <div>FCFA Moyen</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventaire par appartement -->
+    <h3>Inventaire par Appartement</h3>
+    <table class="equipement-table">
+        <thead>
+            <tr>
+                <th>Appartement</th>
+                <th>Type</th>
+                <th>Nb Équipements</th>
+                <th>Valeur Totale (FCFA)</th>
+                <th>Valeur Moyenne (FCFA)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in appartements_data %}
+            <tr>
+                <td><strong>{{ data.appartement.numero }}</strong></td>
+                <td>{{ data.appartement.get_type_logement_display }}</td>
+                <td>{{ data.nb_equipements }}</td>
+                <td>{{ data.valeur_totale|floatformat:0 }}</td>
+                <td>{{ data.valeur_moyenne|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr style="background-color: #f8f9fa; font-weight: bold;">
+                <td colspan="2">TOTAL GÉNÉRAL</td>
+                <td>{{ total_equipements }}</td>
+                <td>{{ valeur_totale|floatformat:0 }}</td>
+                <td>{{ valeur_moyenne|floatformat:0 }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- Statistiques détaillées par appartement -->
+    {% for data in appartements_data %}
+    {% if data.nb_equipements > 0 %}
+    <div class="break-inside-avoid" style="margin-top: 30px;">
+        <h4>{{ data.appartement.numero }} - Détail</h4>
+        <table class="equipement-table">
+            <thead>
+                <tr>
+                    <th>Équipement</th>
+                    <th>État</th>
+                    <th>Prix d'achat</th>
+                    <th>Date d'achat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipement in data.appartement.inventaire_equipements.all %}
+                <tr>
+                    <td>{{ equipement.nom }}</td>
+                    <td class="etat-{{ equipement.etat }}">{{ equipement.get_etat_display }}</td>
+                    <td>{{ equipement.prix_achat|floatformat:0 }} FCFA</td>
+                    <td>{{ equipement.date_achat|date:"d/m/Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <!-- Pied de page -->
+    <div class="footer-info">
+        <p><strong>Note :</strong> Inventaire général simplifié selon cahier des charges RepAvi Lodges.</p>
+        <p><strong>Total appartements :</strong> {{ appartements_data|length }} | <strong>Total équipements :</strong> {{ total_equipements }} | <strong>Valeur totale :</strong> {{ valeur_totale|floatformat:0 }} FCFA</p>
+        <p><strong>Généré le :</strong> {{ date_generation|date:"d/m/Y à H:i" }} par {{ utilisateur.get_full_name|default:utilisateur.username }}</p>
+    </div>
+</body>
+</html>

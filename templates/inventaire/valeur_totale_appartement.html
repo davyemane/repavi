@@ -1,0 +1,356 @@
+<!-- ========================================== -->
+<!-- templates/inventaire/valeur_totale_appartement.html -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Valeur Totale {{ appartement.numero }} - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Valeur Totale Inventaire{% endblock %}
+{% block page_subtitle %}{{ appartement.numero }} • {{ appartement.get_type_logement_display }} • {{ valeur_totale|floatformat:0 }} FCFA{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <button onclick="window.location.href='{% url 'inventaire:pdf_appartement' appartement.pk %}'" 
+            class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">print</span>
+        Imprimer Rapport
+    </button>
+    
+    <a href="{% url 'inventaire:appartement' appartement.pk %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">arrow_back</span>
+        Retour Inventaire
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- En-tête appartement -->
+<div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 bg-gradient-to-br from-[#02066F] to-green-600 rounded-xl flex items-center justify-center">
+                <span class="material-icons text-white text-2xl">calculate</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 font-lato">Évaluation Financière</h2>
+                <p class="text-gray-600 font-lato">{{ appartement.numero }} - {{ appartement.get_type_logement_display }}</p>
+                {% if appartement.maison %}
+                <p class="text-sm text-gray-500 font-lato">{{ appartement.maison }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="text-right">
+            <div class="text-3xl font-bold text-[#02066F] font-lato">{{ equipements.count }}</div>
+            <div class="text-gray-600 font-lato">équipements évalués</div>
+        </div>
+    </div>
+</div>
+
+<!-- Valeur totale principale -->
+<div class="bg-gradient-to-r from-green-50 to-[#02066F]/5 rounded-lg border border-green-200 p-8 mb-8 text-center">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Valeur Totale de l'Inventaire</h3>
+    <div class="text-5xl font-bold text-green-600 mb-2 font-lato">{{ valeur_totale|floatformat:0 }}</div>
+    <div class="text-green-700 text-xl font-lato">FCFA</div>
+    <p class="text-gray-600 mt-4 font-lato">
+        Basée sur les prix d'achat selon cahier des charges • 
+        <span class="font-semibold">{{ equipements.count }} équipements</span>
+    </p>
+</div>
+
+<!-- Répartition par état selon cahier -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    {% for etat_code, etat_data in valeurs_par_etat.items %}
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 {% if etat_code == 'bon' %}bg-green-100{% elif etat_code == 'usage' %}bg-blue-100{% elif etat_code == 'defectueux' %}bg-orange-100{% else %}bg-red-100{% endif %} rounded-lg flex items-center justify-center">
+                <span class="w-4 h-4 rounded-full {% if etat_code == 'bon' %}bg-green-500{% elif etat_code == 'usage' %}bg-blue-500{% elif etat_code == 'defectueux' %}bg-orange-500{% else %}bg-red-500{% endif %}"></span>
+            </div>
+            <span class="text-sm font-medium {% if etat_code == 'bon' %}text-green-600{% elif etat_code == 'usage' %}text-blue-600{% elif etat_code == 'defectueux' %}text-orange-600{% else %}text-red-600{% endif %} font-lato">{{ etat_data.count }}</span>
+        </div>
+        
+        <h4 class="font-semibold text-gray-900 mb-2 font-lato">{{ etat_data.nom }}</h4>
+        <div class="text-2xl font-bold {% if etat_code == 'bon' %}text-green-600{% elif etat_code == 'usage' %}text-blue-600{% elif etat_code == 'defectueux' %}text-orange-600{% else %}text-red-600{% endif %} font-lato">
+            {{ etat_data.valeur|floatformat:0 }}
+        </div>
+        <div class="text-xs text-gray-500 font-lato">FCFA</div>
+        
+        <!-- Pourcentage de la valeur totale -->
+        {% if valeur_totale > 0 %}
+        <div class="mt-3">
+            <div class="flex justify-between text-xs text-gray-600 mb-1 font-lato">
+                <span>Part du total</span>
+                <span>{% widthratio etat_data.valeur valeur_totale 100 %}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="{% if etat_code == 'bon' %}bg-green-500{% elif etat_code == 'usage' %}bg-blue-500{% elif etat_code == 'defectueux' %}bg-orange-500{% else %}bg-red-500{% endif %} h-2 rounded-full" 
+                     style="width: {% widthratio etat_data.valeur valeur_totale 100 %}%"></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Détail par équipement -->
+{% if equipements %}
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-8">
+    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 font-lato">Détail par Équipement</h3>
+    </div>
+    
+    <!-- Version mobile -->
+    <div class="md:hidden divide-y divide-gray-200">
+        {% for equipement in equipements %}
+        <div class="p-4">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-gray-900 font-lato">{{ equipement.nom }}</h4>
+                <span class="text-lg font-bold text-[#02066F] font-lato">{{ equipement.prix_achat|floatformat:0 }} FCFA</span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full font-lato
+                    {% if equipement.etat == 'bon' %}bg-green-100 text-green-800
+                    {% elif equipement.etat == 'usage' %}bg-blue-100 text-blue-800
+                    {% elif equipement.etat == 'defectueux' %}bg-orange-100 text-orange-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ equipement.get_etat_display }}
+                </span>
+                
+                <span class="text-sm text-gray-500 font-lato">{{ equipement.date_achat|date:"d/m/Y" }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Version desktop -->
+    <div class="hidden md:block overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Équipement</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">État</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Prix d'achat</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Date d'achat</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Part du total</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for equipement in equipements %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-3">
+                            {% if equipement.photo %}
+                            <img src="{{ equipement.photo.url }}" alt="{{ equipement.nom }}" class="w-12 h-12 rounded-lg object-cover">
+                            {% else %}
+                            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-gray-400 text-sm">image</span>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <div class="font-semibold text-gray-900 font-lato">{{ equipement.nom }}</div>
+                                {% if equipement.commentaire %}
+                                <div class="text-sm text-gray-500 font-lato">{{ equipement.commentaire|truncatechars:40 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full font-lato
+                            {% if equipement.etat == 'bon' %}bg-green-100 text-green-800
+                            {% elif equipement.etat == 'usage' %}bg-blue-100 text-blue-800
+                            {% elif equipement.etat == 'defectueux' %}bg-orange-100 text-orange-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ equipement.get_etat_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-lg font-bold text-[#02066F] font-lato">{{ equipement.prix_achat|floatformat:0 }}</div>
+                        <div class="text-sm text-gray-500 font-lato">FCFA</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900 font-lato">{{ equipement.date_achat|date:"d/m/Y" }}</td>
+                    <td class="px-6 py-4">
+                        {% if valeur_totale > 0 %}
+                        <div class="flex items-center space-x-2">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                <div class="bg-[#02066F] h-2 rounded-full" style="width: {% widthratio equipement.prix_achat valeur_totale 100 %}%"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900 font-lato">{% widthratio equipement.prix_achat valeur_totale 100 %}%</span>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Analyse et recommandations selon cahier -->
+<div class="grid md:grid-cols-2 gap-8">
+    <!-- Analyse de l'état -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Analyse de l'État</h3>
+        
+        <div class="space-y-4">
+            {% for etat_code, etat_data in valeurs_par_etat.items %}
+            {% if etat_data.count > 0 %}
+            <div class="flex items-center justify-between p-3 {% if etat_code == 'bon' %}bg-green-50{% elif etat_code == 'usage' %}bg-blue-50{% elif etat_code == 'defectueux' %}bg-orange-50{% else %}bg-red-50{% endif %} rounded-lg">
+                <div class="flex items-center space-x-3">
+                    <span class="w-3 h-3 rounded-full {% if etat_code == 'bon' %}bg-green-500{% elif etat_code == 'usage' %}bg-blue-500{% elif etat_code == 'defectueux' %}bg-orange-500{% else %}bg-red-500{% endif %}"></span>
+                    <span class="font-medium {% if etat_code == 'bon' %}text-green-800{% elif etat_code == 'usage' %}text-blue-800{% elif etat_code == 'defectueux' %}text-orange-800{% else %}text-red-800{% endif %} font-lato">{{ etat_data.nom }}</span>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-semibold {% if etat_code == 'bon' %}text-green-800{% elif etat_code == 'usage' %}text-blue-800{% elif etat_code == 'defectueux' %}text-orange-800{% else %}text-red-800{% endif %} font-lato">{{ etat_data.count }} équipements</div>
+                    <div class="text-xs {% if etat_code == 'bon' %}text-green-600{% elif etat_code == 'usage' %}text-blue-600{% elif etat_code == 'defectueux' %}text-orange-600{% else %}text-red-600{% endif %} font-lato">{{ etat_data.valeur|floatformat:0 }} FCFA</div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        
+        <!-- Indicateurs de santé -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <h4 class="font-semibold text-gray-900 mb-3 font-lato">Indicateurs de Santé</h4>
+            {% if equipements.count > 0 %}
+            <div class="space-y-2">
+                <div class="flex justify-between text-sm font-lato">
+                    <span class="text-gray-600">Équipements en bon état</span>
+                    <span class="font-semibold {{ classe_sante }}">
+                        {{ pourcentage_bon|floatformat:0 }}%
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="{{ bg_sante }} h-2 rounded-full" 
+                         style="width: {{ pourcentage_bon }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recommandations -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Recommandations</h3>
+        
+        <div class="space-y-4">
+            {% if valeurs_par_etat.defectueux.count > 0 %}
+            <div class="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg">
+                <span class="material-icons text-orange-600 text-sm mt-1">warning</span>
+                <div>
+                    <h4 class="font-semibold text-orange-800 font-lato">Équipements défectueux</h4>
+                    <p class="text-sm text-orange-700 font-lato">
+                        {{ valeurs_par_etat.defectueux.count }} équipement(s) nécessite(nt) une réparation.
+                        Valeur concernée : {{ valeurs_par_etat.defectueux.valeur|floatformat:0 }} FCFA.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if valeurs_par_etat.hors_service.count > 0 %}
+            <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
+                <span class="material-icons text-red-600 text-sm mt-1">dangerous</span>
+                <div>
+                    <h4 class="font-semibold text-red-800 font-lato">Équipements hors service</h4>
+                    <p class="text-sm text-red-700 font-lato">
+                        {{ valeurs_par_etat.hors_service.count }} équipement(s) hors service.
+                        Considérer le remplacement pour {{ valeurs_par_etat.hors_service.valeur|floatformat:0 }} FCFA.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if valeurs_par_etat.bon.count == equipements.count and equipements.count > 0 %}
+            <div class="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
+                <span class="material-icons text-green-600 text-sm mt-1">check_circle</span>
+                <div>
+                    <h4 class="font-semibold text-green-800 font-lato">Excellent état</h4>
+                    <p class="text-sm text-green-700 font-lato">
+                        Tous les équipements sont en bon état. Continuez l'entretien préventif.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Recommandation générale -->
+            <div class="flex items-start space-x-3 p-3 bg-[#02066F]/5 rounded-lg">
+                <span class="material-icons text-[#02066F] text-sm mt-1">lightbulb</span>
+                <div>
+                    <h4 class="font-semibold text-[#02066F] font-lato">Conseil selon cahier</h4>
+                    <p class="text-sm text-[#02066F] font-lato">
+                        Inventaire simplifié basé sur les prix d'achat. 
+                        Pas de dépréciation automatique selon cahier des charges.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="mt-8 bg-gray-50 rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Actions Rapides</h3>
+    <div class="grid md:grid-cols-3 gap-4">
+        <a href="{% url 'inventaire:ajouter_equipement' appartement.pk %}" 
+           class="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-[#02066F] hover:bg-[#02066F]/5 transition-colors">
+            <span class="material-icons text-[#02066F]">add</span>
+            <div>
+                <div class="font-semibold text-gray-900 font-lato">Ajouter Équipement</div>
+                <div class="text-sm text-gray-600 font-lato">Compléter l'inventaire</div>
+            </div>
+        </a>
+        
+        <a href="{% url 'inventaire:appartement' appartement.pk %}" 
+           class="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-[#02066F] hover:bg-[#02066F]/5 transition-colors">
+            <span class="material-icons text-[#02066F]">inventory</span>
+            <div>
+                <div class="font-semibold text-gray-900 font-lato">Voir Inventaire</div>
+                <div class="text-sm text-gray-600 font-lato">Gérer les équipements</div>
+            </div>
+        </a>
+        
+        <a href="{% url 'inventaire:general' %}" 
+           class="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-[#02066F] hover:bg-[#02066F]/5 transition-colors">
+            <span class="material-icons text-[#02066F]">dashboard</span>
+            <div>
+                <div class="font-semibold text-gray-900 font-lato">Vue Générale</div>
+                <div class="text-sm text-gray-600 font-lato">Tous les appartements</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Note de bas de page selon cahier -->
+<div class="mt-8 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
+    <div class="flex items-start space-x-2 text-[#02066F]">
+        <span class="material-icons text-sm mt-0.5">info</span>
+        <div class="text-sm font-lato">
+            <strong>Inventaire simplifié selon cahier :</strong> 
+            Évaluation basée uniquement sur les prix d'achat. Pas de dépréciation automatique, 
+            pas de calculs complexes. Focus sur la simplicité d'usage et le changement d'état en 1 clic.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        font-size: 12pt;
+    }
+    
+    .print-title {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+}
+</style>
+{% endblock %}

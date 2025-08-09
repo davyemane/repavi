@@ -1,0 +1,230 @@
+<!-- ========================================== -->
+<!-- templates/inventaire/modifier_equipement.html -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titre }} - RepAvi Lodges{% endblock %}
+
+{% block page_title %}{{ titre }}{% endblock %}
+{% block page_subtitle %}Appartement {{ equipement.appartement.numero }} • {{ equipement.appartement.get_type_logement_display }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'inventaire:appartement' equipement.appartement.pk %}" 
+   class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg border border-gray-200 p-8">
+        
+        <!-- Header du formulaire -->
+        <div class="flex items-center space-x-4 mb-8">
+            <div class="w-16 h-16 bg-orange-100 rounded-xl flex items-center justify-center">
+                <span class="material-icons text-orange-600 text-2xl">edit</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 font-lato">Modifier {{ equipement.nom }}</h2>
+                <p class="text-gray-600 font-lato">Appartement {{ equipement.appartement.numero }}</p>
+            </div>
+        </div>
+        
+        <!-- Photo actuelle -->
+        {% if equipement.photo %}
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-900 mb-2 font-lato">Photo actuelle</label>
+            <img src="{{ equipement.photo.url }}" alt="{{ equipement.nom }}" class="w-32 h-32 object-cover rounded-lg border border-gray-200">
+        </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Nom de l'équipement -->
+            <div>
+                <label for="{{ form.nom.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.nom.label }}
+                </label>
+                {{ form.nom }}
+                {% if form.nom.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.nom.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- État avec changement visuel -->
+            <div>
+                <label for="{{ form.etat.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.etat.label }}
+                </label>
+                <div class="relative">
+                    {{ form.etat }}
+                    <div class="mt-2 grid grid-cols-2 gap-3">
+                        {% for value, label in form.etat.field.choices %}
+                        <div class="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-colors
+                            {% if value == 'bon' %}hover:border-green-300 hover:bg-green-50
+                            {% elif value == 'usage' %}hover:border-blue-300 hover:bg-blue-50
+                            {% elif value == 'defectueux' %}hover:border-orange-300 hover:bg-orange-50
+                            {% else %}hover:border-red-300 hover:bg-red-50{% endif %}"
+                             onclick="document.getElementById('{{ form.etat.id_for_label }}').value='{{ value }}';">
+                            <span class="w-3 h-3 rounded-full 
+                                {% if value == 'bon' %}bg-green-500
+                                {% elif value == 'usage' %}bg-blue-500
+                                {% elif value == 'defectueux' %}bg-orange-500
+                                {% else %}bg-red-500{% endif %}"></span>
+                            <span class="font-lato">{{ label }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if form.etat.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.etat.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Prix d'achat -->
+            <div>
+                <label for="{{ form.prix_achat.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.prix_achat.label }}
+                </label>
+                {{ form.prix_achat }}
+                {% if form.prix_achat.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.prix_achat.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500 font-lato">Prix d'achat en francs CFA</p>
+            </div>
+            
+            <!-- Date d'achat -->
+            <div>
+                <label for="{{ form.date_achat.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.date_achat.label }}
+                </label>
+                {{ form.date_achat }}
+                {% if form.date_achat.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.date_achat.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Photo -->
+            <div>
+                <label for="{{ form.photo.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.photo.label }} {% if equipement.photo %}(Nouvelle photo){% endif %}
+                </label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-[#02066F] transition-colors">
+                    <div class="space-y-1 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="{{ form.photo.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-[#02066F] hover:text-[#030a8a] focus-within:outline-none font-lato">
+                                <span>{% if equipement.photo %}Changer la photo{% else %}Ajouter une photo{% endif %}</span>
+                                {{ form.photo }}
+                            </label>
+                            <p class="pl-1 font-lato">ou glisser-déposer</p>
+                        </div>
+                        <p class="text-xs text-gray-500 font-lato">PNG, JPG, WEBP jusqu'à 10MB</p>
+                    </div>
+                </div>
+                {% if form.photo.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.photo.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Commentaire -->
+            <div>
+                <label for="{{ form.commentaire.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.commentaire.label }}
+                </label>
+                {{ form.commentaire }}
+                {% if form.commentaire.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.commentaire.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500 font-lato">Notes optionnelles sur l'équipement</p>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex space-x-4 pt-6">
+                <button type="submit" 
+                        class="flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium font-lato">
+                    <span class="material-icons text-sm">save</span>
+                    <span>Enregistrer les modifications</span>
+                </button>
+                
+                <a href="{% url 'inventaire:appartement' equipement.appartement.pk %}" 
+                   class="flex items-center justify-center space-x-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium font-lato">
+                    <span class="material-icons text-sm">close</span>
+                    <span>Annuler</span>
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Historique des changements d'état selon cahier -->
+    <div class="mt-8 bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Changement d'État Rapide</h3>
+        <p class="text-sm text-gray-600 mb-4 font-lato">
+            Vous pouvez aussi changer l'état directement en 1 clic selon le cahier :
+        </p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {% for etat_code, etat_nom in equipement.ETAT_CHOICES %}
+            <a href="{% url 'inventaire:changer_etat' equipement.pk %}?etat={{ etat_code }}" 
+               class="flex items-center space-x-2 px-4 py-3 rounded-lg border transition-colors font-lato
+               {% if etat_code == equipement.etat %}
+                   {% if etat_code == 'bon' %}bg-green-100 border-green-300 text-green-800
+                   {% elif etat_code == 'usage' %}bg-blue-100 border-blue-300 text-blue-800
+                   {% elif etat_code == 'defectueux' %}bg-orange-100 border-orange-300 text-orange-800
+                   {% else %}bg-red-100 border-red-300 text-red-800{% endif %}
+               {% else %}
+                   border-gray-200 text-gray-700 hover:border-[#02066F] hover:bg-[#02066F]/5
+               {% endif %}">
+                <span class="w-3 h-3 rounded-full 
+                    {% if etat_code == 'bon' %}bg-green-500
+                    {% elif etat_code == 'usage' %}bg-blue-500
+                    {% elif etat_code == 'defectueux' %}bg-orange-500
+                    {% else %}bg-red-500{% endif %}"></span>
+                <span>{{ etat_nom }}</span>
+                {% if etat_code == equipement.etat %}
+                <span class="material-icons text-sm">check</span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Actions dangereuses -->
+    <div class="mt-8 bg-red-50 border border-red-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-red-800 mb-4 font-lato">Actions Dangereuses</h3>
+        <div class="flex space-x-4">
+            <a href="{% url 'inventaire:supprimer_equipement' equipement.pk %}" 
+               class="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium font-lato">
+                <span class="material-icons text-sm">delete</span>
+                <span>Supprimer cet équipement</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Prévisualisation de l'image
+document.getElementById('{{ form.photo.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Créer un élément de prévisualisation si il n'existe pas
+            let preview = document.getElementById('photo-preview');
+            if (!preview) {
+                preview = document.createElement('img');
+                preview.id = 'photo-preview';
+                preview.className = 'mt-4 w-32 h-32 object-cover rounded-lg border border-gray-200';
+                document.querySelector('form').appendChild(preview);
+            }
+            preview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

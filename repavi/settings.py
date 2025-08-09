@@ -24,7 +24,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default=['localhost', '127.0
 AUTH_USER_MODEL = 'users.User'
 
 # === URLS D'AUTHENTIFICATION ===
-LOGIN_URL = '/'
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
@@ -43,6 +43,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'tailwind',
     'theme',
+    'axes'
 ]
 
 # Apps de développement
@@ -71,6 +72,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # === MIDDLEWARE ===
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'axes.middleware.AxesMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -80,6 +82,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
    
 ]
+
+AXES_FAILURE_LIMIT = 3
+AXES_COOLOFF_TIME = 300  # secondes (5 minutes)
+AXES_LOCK_OUT_AT_FAILURE = True
+AXES_USE_USER_AGENT = True  # Différencie selon le terminal
+AXES_ONLY_USER_FAILURES = False  # Combine IP + identifiant
+AXES_RESET_ON_SUCCESS = True
+
 
 # Middleware de développement
 if DEBUG:

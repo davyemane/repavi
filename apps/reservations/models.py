@@ -3,6 +3,7 @@
 # ==========================================
 from django.db import models
 from django.core.exceptions import ValidationError
+from decimal import Decimal
 from datetime import timedelta
 
 class Reservation(models.Model):
@@ -71,20 +72,20 @@ class Reservation(models.Model):
         # Calcul automatique selon cahier AVANT validation
         if self.date_arrivee and self.date_depart:
             self.nombre_nuits = (self.date_depart - self.date_arrivee).days
-            if self.appartement_id:  # Vérifier que l'appartement existe
+            if self.appartement_id:
                 try:
-                    if hasattr(self.appartement, 'prix_par_nuit'):
-                        self.prix_total = self.nombre_nuits * self.appartement.prix_par_nuit
-                    else:
-                        # Si l'appartement n'est pas encore chargé
+                    # Forcer le rechargement pour éviter les problèmes de cache
+                    if self.appartement_id:
                         from apps.appartements.models import Appartement
                         appartement = Appartement.objects.get(pk=self.appartement_id)
-                        self.prix_total = self.nombre_nuits * appartement.prix_par_nuit
-                except:
-                    # En cas d'erreur, on garde les valeurs par défaut
-                    pass
+                        # prix_par_nuit est déjà un Decimal, mais on s'assure de la cohérence
+                        self.prix_total = Decimal(str(self.nombre_nuits)) * appartement.prix_par_nuit
+                    else:
+                        self.prix_total = Decimal('0')
+                except Exception as e:
+                    # En cas d'erreur, laisser prix_total à 0
+                    self.prix_total = Decimal('0')
         
-        # Validation avant sauvegarde
         self.full_clean()
         super().save(*args, **kwargs)
     

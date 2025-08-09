@@ -1,8 +1,6 @@
-# ==========================================
-# apps/inventaire/urls.py
-# ==========================================
 from django.urls import path
 from . import views
+from .pdf_utils import generer_pdf_inventaire, generer_pdf_general
 
 app_name = 'inventaire'
 
@@ -23,4 +21,8 @@ urlpatterns = [
     
     # Valeur totale par appartement selon cahier
     path('appartement/<int:appartement_pk>/valeur/', views.valeur_totale_appartement, name='valeur_totale'),
+    
+    # PDF selon cahier
+    path('appartement/<int:appartement_pk>/pdf/', generer_pdf_inventaire, name='pdf_appartement'),
+    path('pdf/', generer_pdf_general, name='pdf_general'),
 ]

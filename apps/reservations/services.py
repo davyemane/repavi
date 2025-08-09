@@ -2,6 +2,7 @@
 # apps/reservations/services.py - Services réservations
 # ==========================================
 from datetime import timedelta, date
+from decimal import Decimal
 from django.core.exceptions import ValidationError
 
 class ReservationService:
@@ -15,8 +16,8 @@ class ReservationService:
         # Supprimer ancien échéancier si modification
         EcheancierPaiement.objects.filter(reservation=reservation).delete()
         
-        # Acompte (40% selon cahier)
-        acompte = reservation.prix_total * 0.4
+        # Acompte (40% selon cahier) - CORRECTION
+        acompte = reservation.prix_total * Decimal('0.4')
         EcheancierPaiement.objects.create(
             reservation=reservation,
             type_paiement='acompte',
@@ -24,8 +25,8 @@ class ReservationService:
             date_echeance=reservation.date_arrivee - timedelta(days=7)
         )
         
-        # Solde (60% selon cahier)
-        solde = reservation.prix_total - acompte
+        # Solde (60% selon cahier) - CORRECTION
+        solde = reservation.prix_total * Decimal('0.6')
         EcheancierPaiement.objects.create(
             reservation=reservation,
             type_paiement='solde',

@@ -13,12 +13,51 @@ from .forms import EquipementForm
 
 @login_required
 @user_passes_test(is_gestionnaire)
+def inventaire_general(request):
+    """Inventaire général selon cahier"""
+    appartements = Appartement.objects.all()
+    
+    # Statistiques globales
+    total_equipements = EquipementAppartement.objects.count()
+    equipements_defectueux = EquipementAppartement.objects.filter(etat='defectueux').count()
+    equipements_hors_service = EquipementAppartement.objects.filter(etat='hors_service').count()
+    valeur_totale = EquipementAppartement.objects.aggregate(total=Sum('prix_achat'))['total'] or 0
+    
+    # Données par appartement
+    appartements_data = []
+    for appartement in appartements:
+        equipements = appartement.inventaire_equipements.all()  # Utilisation du nouveau related_name
+        stats_etats = {}
+        for etat_code, etat_nom in EquipementAppartement.ETAT_CHOICES:
+            stats_etats[etat_code] = {
+                'nom': etat_nom,
+                'count': equipements.filter(etat=etat_code).count()
+            }
+        
+        appartements_data.append({
+            'appartement': appartement,
+            'equipements': equipements,
+            'nb_equipements': equipements.count(),
+            'valeur_totale': equipements.aggregate(total=Sum('prix_achat'))['total'] or 0,
+            'stats_etats': stats_etats,
+        })
+    
+    context = {
+        'appartements_data': appartements_data,
+        'total_equipements': total_equipements,
+        'equipements_defectueux': equipements_defectueux,
+        'equipements_hors_service': equipements_hors_service,
+        'valeur_totale': valeur_totale,
+    }
+    return render(request, 'inventaire/general.html', context)
+
+@login_required
+@user_passes_test(is_gestionnaire)
 def inventaire_par_appartement(request, appartement_pk):
     """Inventaire par appartement selon cahier"""
-    from apps.appartements.models import Appartement
     appartement = get_object_or_404(Appartement, pk=appartement_pk)
     
-    equipements = EquipementAppartement.objects.filter(appartement=appartement)
+    equipements = appartement.inventaire_equipements.all()  # Utilisation du nouveau related_name
     valeur_totale = equipements.aggregate(total=Sum('prix_achat'))['total'] or 0
     
     # Statistiques par état
@@ -57,40 +96,34 @@ def changer_etat_equipement(request, pk):
 
 @login_required
 @user_passes_test(is_gestionnaire)
-def inventaire_general(request):
-    """Inventaire général selon cahier"""
-    from apps.appartements.models import Appartement
-    appartements = Appartement.objects.all().prefetch_related('equipements')
-    
-    # Valeur totale par appartement
-    valeur_totale = sum(eq.prix_achat for eq in appartements.all())
-    
-    context = {
-        'appartements': appartements,
-        'valeur_totale': valeur_totale,
-    }
-    return render(request, 'inventaire/general.html', context)
-
-#ajouter équipement
-@login_required
-@user_passes_test(is_gestionnaire)
-def ajouter_equipement(request):
+def ajouter_equipement(request, appartement_pk):
     """Ajouter un équipement selon cahier"""
+    appartement = get_object_or_404(Appartement, pk=appartement_pk)
+    
     if request.method == 'POST':
         form = EquipementForm(request.POST, request.FILES)
         if form.is_valid():
             equipement = form.save(commit=False)
-            equipement.gestionnaire = request.user
+            equipement.appartement = appartement
             equipement.save()
             
             messages.success(request, f'Équipement {equipement.nom} ajouté avec succès !')
-            return redirect('inventaire:general')
+            return redirect('inventaire:appartement', appartement_pk=appartement.pk)
     else:
         form = EquipementForm()
     
+    # Équipements suggérés selon cahier
+    equipements_sugges = [
+        'TV', 'Frigo', 'Climatisation', 'Micro-ondes', 'Bouilloire', 
+        'Canapé', 'Table basse', 'Lit double', 'Armoire', 'Chaises',
+        'Wifi', 'Balcon', 'Parking', 'Sécurité 24h', 'Générateur'
+    ]
+    
     context = {
         'form': form,
-        'titre': 'Ajouter un équipement',
+        'appartement': appartement,
+        'titre': f'Ajouter un équipement - {appartement.numero}',
+        'equipements_sugges': equipements_sugges,
     }
     return render(request, 'inventaire/ajouter_equipement.html', context)
 
@@ -103,12 +136,10 @@ def modifier_equipement(request, pk):
     if request.method == 'POST':
         form = EquipementForm(request.POST, request.FILES, instance=equipement)
         if form.is_valid():
-            equipement = form.save(commit=False)
-            equipement.gestionnaire = request.user
-            equipement.save()
+            equipement = form.save()
             
             messages.success(request, f'Équipement {equipement.nom} modifié avec succès !')
-            return redirect('inventaire:general')
+            return redirect('inventaire:appartement', appartement_pk=equipement.appartement.pk)
     else:
         form = EquipementForm(instance=equipement)
     
@@ -126,9 +157,10 @@ def supprimer_equipement(request, pk):
     equipement = get_object_or_404(EquipementAppartement, pk=pk)
     
     if request.method == 'POST':
+        appartement_pk = equipement.appartement.pk
         equipement.delete()
         messages.success(request, f'Équipement {equipement.nom} supprimé avec succès !')
-        return redirect('inventaire:general')
+        return redirect('inventaire:appartement', appartement_pk=appartement_pk)
     
     context = {
         'equipement': equipement,
@@ -138,33 +170,46 @@ def supprimer_equipement(request, pk):
 
 @login_required
 @user_passes_test(is_gestionnaire)
-def changer_etat_equipement(request, pk):
-    """Changer état d'un équipement selon cahier"""
-    equipement = get_object_or_404(EquipementAppartement, pk=pk)
-    nouvel_etat = request.GET.get('etat')
-    commentaire = request.GET.get('commentaire', '')
-    
-    if nouvel_etat in dict(EquipementAppartement.ETAT_CHOICES):
-        equipement.etat = nouvel_etat
-        if commentaire:
-            equipement.commentaire = commentaire
-        equipement.save()
-        
-        messages.success(request, f'État de {equipement.nom} changé en {equipement.get_etat_display()}')
-    
-    return redirect('inventaire:general')
-
-@login_required
-@user_passes_test(is_gestionnaire)
 def valeur_totale_appartement(request, appartement_pk):
     """Valeur totale d'un appartement selon cahier"""
     appartement = get_object_or_404(Appartement, pk=appartement_pk)
     
-    # Valeur totale par équipement
-    valeur_totale = sum(eq.prix_achat for eq in appartement.equipements.all())
+    equipements = appartement.inventaire_equipements.all()  # Utilisation du nouveau related_name
+    valeur_totale = equipements.aggregate(total=Sum('prix_achat'))['total'] or 0
+    
+    # Détail par état
+    valeurs_par_etat = {}
+    for etat_code, etat_nom in EquipementAppartement.ETAT_CHOICES:
+        equipements_etat = equipements.filter(etat=etat_code)
+        valeurs_par_etat[etat_code] = {
+            'nom': etat_nom,
+            'count': equipements_etat.count(),
+            'valeur': equipements_etat.aggregate(total=Sum('prix_achat'))['total'] or 0
+        }
+    
+    # Calculs pour indicateurs de santé
+    total_count = equipements.count()
+    bon_count = valeurs_par_etat['bon']['count']
+    pourcentage_bon = (bon_count / total_count * 100) if total_count > 0 else 0
+    
+    # Classe CSS selon pourcentage
+    if pourcentage_bon >= 80:
+        classe_sante = 'text-green-600'
+        bg_sante = 'bg-green-500'
+    elif pourcentage_bon >= 60:
+        classe_sante = 'text-orange-600'
+        bg_sante = 'bg-orange-500'
+    else:
+        classe_sante = 'text-red-600'
+        bg_sante = 'bg-red-500'
     
     context = {
         'appartement': appartement,
+        'equipements': equipements,
         'valeur_totale': valeur_totale,
+        'valeurs_par_etat': valeurs_par_etat,
+        'pourcentage_bon': pourcentage_bon,
+        'classe_sante': classe_sante,
+        'bg_sante': bg_sante,
     }
     return render(request, 'inventaire/valeur_totale_appartement.html', context)

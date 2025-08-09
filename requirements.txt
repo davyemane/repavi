@@ -11,6 +11,7 @@ cookiecutter==2.6.0
 coverage==7.9.1
 cssselect2==0.8.0
 Django==5.2.3
+django-axes==8.0.0
 django-browser-reload==1.18.0
 django-extensions==4.1
 django-ipware==7.0.1

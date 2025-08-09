@@ -1,6 +1,7 @@
 # ==========================================
 # apps/reservations/views.py - Réservations et planning CORRIGÉ
 # ==========================================
+from decimal import Decimal
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -167,7 +168,7 @@ def verifier_disponibilite(request):
         
         # Calcul automatique selon cahier
         nombre_nuits = (date_depart - date_arrivee).days
-        prix_total = nombre_nuits * appartement.prix_par_nuit
+        prix_total = nombre_nuits * appartement.prix_par_nuit 
         
         return JsonResponse({
             'disponible': True,
@@ -175,8 +176,9 @@ def verifier_disponibilite(request):
             'prix_par_nuit': float(appartement.prix_par_nuit),
             'prix_total': float(prix_total),
             'message': f'Disponible - {nombre_nuits} nuits × {appartement.prix_par_nuit} FCFA'
-        })
-        
+        })        
+    
+    
     except Exception as e:
         return JsonResponse({'error': str(e)})
 

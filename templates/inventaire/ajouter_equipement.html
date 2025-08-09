@@ -1,0 +1,205 @@
+<!-- ========================================== -->
+<!-- templates/inventaire/ajouter_equipement.html -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ titre }} - RepAvi Lodges{% endblock %}
+
+{% block page_title %}{{ titre }}{% endblock %}
+{% block page_subtitle %}Appartement {{ appartement.numero }} • {{ appartement.get_type_logement_display }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'inventaire:appartement' appartement.pk %}" 
+   class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg border border-gray-200 p-8">
+        
+        <!-- Header du formulaire -->
+        <div class="flex items-center space-x-4 mb-8">
+            <div class="w-16 h-16 bg-[#02066F] rounded-xl flex items-center justify-center">
+                <span class="material-icons text-white text-2xl">add</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 font-lato">Nouvel Équipement</h2>
+                <p class="text-gray-600 font-lato">Ajout pour {{ appartement.numero }}</p>
+            </div>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Nom de l'équipement -->
+            <div>
+                <label for="{{ form.nom.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.nom.label }}
+                </label>
+                {{ form.nom }}
+                {% if form.nom.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.nom.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500 font-lato">Ex: TV Samsung 32", Frigo LG, Canapé 3 places...</p>
+            </div>
+            
+            <!-- État -->
+            <div>
+                <label for="{{ form.etat.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.etat.label }}
+                </label>
+                {{ form.etat }}
+                {% if form.etat.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.etat.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500 font-lato">État actuel de l'équipement selon cahier</p>
+            </div>
+            
+            <!-- Prix d'achat -->
+            <div>
+                <label for="{{ form.prix_achat.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.prix_achat.label }}
+                </label>
+                {{ form.prix_achat }}
+                {% if form.prix_achat.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.prix_achat.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500 font-lato">Prix d'achat en francs CFA</p>
+            </div>
+            
+            <!-- Date d'achat -->
+            <div>
+                <label for="{{ form.date_achat.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.date_achat.label }}
+                </label>
+                {{ form.date_achat }}
+                {% if form.date_achat.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.date_achat.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Photo -->
+            <div>
+                <label for="{{ form.photo.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.photo.label }}
+                </label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-[#02066F] transition-colors">
+                    <div class="space-y-1 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="{{ form.photo.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-[#02066F] hover:text-[#030a8a] focus-within:outline-none font-lato">
+                                <span>Choisir une photo</span>
+                                {{ form.photo }}
+                            </label>
+                            <p class="pl-1 font-lato">ou glisser-déposer</p>
+                        </div>
+                        <p class="text-xs text-gray-500 font-lato">PNG, JPG, WEBP jusqu'à 10MB</p>
+                    </div>
+                </div>
+                {% if form.photo.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.photo.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Commentaire -->
+            <div>
+                <label for="{{ form.commentaire.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    {{ form.commentaire.label }}
+                </label>
+                {{ form.commentaire }}
+                {% if form.commentaire.errors %}
+                <p class="mt-1 text-sm text-red-600 font-lato">{{ form.commentaire.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-sm text-gray-500 font-lato">Notes optionnelles sur l'équipement</p>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex space-x-4 pt-6">
+                <button type="submit" 
+                        class="flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-medium font-lato">
+                    <span class="material-icons text-sm">save</span>
+                    <span>Enregistrer l'équipement</span>
+                </button>
+                
+                <a href="{% url 'inventaire:appartement' appartement.pk %}" 
+                   class="flex items-center justify-center space-x-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium font-lato">
+                    <span class="material-icons text-sm">close</span>
+                    <span>Annuler</span>
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Équipements suggérés selon cahier -->
+    <div class="mt-8 bg-gray-50 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Équipements Suggérés</h3>
+        <p class="text-sm text-gray-600 mb-4 font-lato">
+            Cliquez sur un équipement pour pré-remplir le nom :
+        </p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {% for equipement in equipements_sugges %}
+            <button type="button" 
+                    onclick="document.getElementById('{{ form.nom.id_for_label }}').value='{{ equipement }}'"
+                    class="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:border-[#02066F] hover:bg-[#02066F]/5 transition-colors text-gray-700 font-lato">
+                {{ equipement }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Prévisualisation de l'image
+document.getElementById('{{ form.photo.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Créer un élément de prévisualisation si il n'existe pas
+            let preview = document.getElementById('photo-preview');
+            if (!preview) {
+                preview = document.createElement('img');
+                preview.id = 'photo-preview';
+                preview.className = 'mt-4 w-32 h-32 object-cover rounded-lg border border-gray-200';
+                e.target.parentNode.parentNode.appendChild(preview);
+            }
+            preview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Auto-complétion intelligent pour le prix selon le nom
+document.getElementById('{{ form.nom.id_for_label }}').addEventListener('input', function(e) {
+    const nom = e.target.value.toLowerCase();
+    const prixField = document.getElementById('{{ form.prix_achat.id_for_label }}');
+    
+    // Suggestions de prix selon le type d'équipement
+    const suggestions = {
+        'tv': 180000,
+        'frigo': 220000,
+        'canapé': 85000,
+        'climatisation': 150000,
+        'micro-ondes': 45000,
+        'bouilloire': 15000,
+        'table': 25000,
+        'lit': 120000,
+        'armoire': 95000,
+        'chaise': 12000
+    };
+    
+    for (const [key, value] of Object.entries(suggestions)) {
+        if (nom.includes(key) && !prixField.value) {
+            prixField.value = value;
+            break;
+        }
+    }
+});
+</script>
+{% endblock %}

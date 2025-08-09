@@ -1,4 +1,5 @@
 # apps/users/views.py - Authentification et profils
+import json
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -117,11 +118,11 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             })
         
         # Données pour le graphique des revenus (exemple)
+        jours_semaine, revenus_semaine = self.get_revenus_7_jours()
         context.update({
-            'jours_semaine': ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-            'revenus_semaine': [45000, 52000, 38000, 67000, 89000, 125000, 98000],  # À calculer dynamiquement
+            'jours_semaine': json.dumps(jours_semaine),
+            'revenus_semaine': json.dumps(revenus_semaine),
         })
-        
         return context
     
     def get_revenus_mois(self, annee, mois):
@@ -175,6 +176,29 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
                 nuits_occupees += (fin_sejour - debut_sejour).days
         
         return round((nuits_occupees / nuits_totales_possibles) * 100) if nuits_totales_possibles > 0 else 0
+    
+    def get_revenus_7_jours(self):
+        """Calcul des revenus réels des 7 derniers jours"""
+        from apps.paiements.models import EcheancierPaiement
+        from datetime import timedelta
+        
+        today = timezone.now().date()
+        jours = []
+        revenus = []
+        
+        for i in range(7):
+            jour = today - timedelta(days=6-i)
+            jours.append(jour.strftime('%d/%m'))
+            
+            # Revenus du jour
+            revenus_jour = EcheancierPaiement.objects.filter(
+                statut='paye',
+                date_paiement=jour
+            ).aggregate(total=Sum('montant_paye'))['total'] or 0
+            
+            revenus.append(float(revenus_jour))
+        
+        return jours, revenus
 
 @login_required
 @user_passes_test(is_gestionnaire)      

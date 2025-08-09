@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport Inventaire {{ appartement.numero }}</title>
+</head>
+<body>
+    <!-- En-tête -->
+    <div class="header">
+        <div class="logo">RepAvi Lodges</div>
+        <div class="rapport-title">Rapport d'Inventaire</div>
+        <div>{{ appartement.numero }} - {{ appartement.get_type_logement_display }}</div>
+        <div style="font-size: 10pt; color: #666; margin-top: 10px;">
+            Généré le {{ date_generation|date:"d/m/Y à H:i" }} par {{ utilisateur.get_full_name|default:utilisateur.username }}
+        </div>
+    </div>
+
+    <!-- Résumé -->
+    <div class="stats-grid">
+        <div class="stats-row">
+            <div class="stats-cell">
+                <div class="stats-number">{{ equipements.count }}</div>
+                <div>Équipements</div>
+            </div>
+            <div class="stats-cell">
+                <div class="stats-number">{{ valeur_totale|floatformat:0 }}</div>
+                <div>FCFA</div>
+            </div>
+            <div class="stats-cell">
+                <div class="stats-number">{{ valeurs_par_etat.bon.count }}</div>
+                <div>Bon état</div>
+            </div>
+            <div class="stats-cell">
+                <div class="stats-number">{{ pourcentage_bon|floatformat:0 }}%</div>
+                <div>Santé</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Répartition par état -->
+    <h3>Répartition par État</h3>
+    <table class="equipement-table break-inside-avoid">
+        <thead>
+            <tr>
+                <th>État</th>
+                <th>Nombre</th>
+                <th>Valeur (FCFA)</th>
+                <th>Pourcentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for etat_code, etat_data in valeurs_par_etat.items %}
+            <tr>
+                <td class="etat-{{ etat_code }}">{{ etat_data.nom }}</td>
+                <td>{{ etat_data.count }}</td>
+                <td>{{ etat_data.valeur|floatformat:0 }}</td>
+                <td>{% if valeur_totale > 0 %}{% widthratio etat_data.valeur valeur_totale 100 %}%{% else %}0%{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Liste détaillée -->
+    {% if equipements %}
+    <h3>Détail des Équipements</h3>
+    <table class="equipement-table">
+        <thead>
+            <tr>
+                <th>Équipement</th>
+                <th>État</th>
+                <th>Prix d'achat</th>
+                <th>Date d'achat</th>
+                <th>Commentaire</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipement in equipements %}
+            <tr>
+                <td>{{ equipement.nom }}</td>
+                <td class="etat-{{ equipement.etat }}">{{ equipement.get_etat_display }}</td>
+                <td>{{ equipement.prix_achat|floatformat:0 }} FCFA</td>
+                <td>{{ equipement.date_achat|date:"d/m/Y" }}</td>
+                <td>{{ equipement.commentaire|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <!-- Pied de page -->
+    <div class="footer-info">
+        <p><strong>Note :</strong> Inventaire simplifié selon cahier des charges. Valeurs basées sur les prix d'achat.</p>
+        <p><strong>Appartement :</strong> {{ appartement.numero }} - {{ appartement.get_type_logement_display }}</p>
+        {% if appartement.maison %}<p><strong>Maison :</strong> {{ appartement.maison }}</p>{% endif %}
+        <p><strong>Total équipements :</strong> {{ equipements.count }} | <strong>Valeur totale :</strong> {{ valeur_totale|floatformat:0 }} FCFA</p>
+    </div>
+</body>
+</html>

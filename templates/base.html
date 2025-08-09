@@ -191,10 +191,14 @@
                                 </a>
                                 {% endif %}
                                 <hr class="my-1">
-                                <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg">
-                                    <span class="material-icons text-sm">logout</span>
-                                    <span class="font-lato">Déconnexion</span>
-                                </a>
+<form action="{% url 'logout' %}" method="post" class="m-0">
+    {% csrf_token %}
+    <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left">
+        <span class="material-icons text-sm">logout</span>
+        <span class="font-lato">Déconnexion</span>
+    </button>
+</form>
+                                
                             </div>
                         </div>
                     </div>

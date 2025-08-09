@@ -1,0 +1,340 @@
+<!-- ========================================== -->
+<!-- templates/inventaire/base_inventaire.html -->
+<!-- Template de base pour le module inventaire -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+/* Styles spécifiques à l'inventaire selon cahier */
+.etat-badge {
+    @apply inline-flex px-3 py-1 text-sm font-semibold rounded-full;
+}
+
+.etat-bon {
+    @apply bg-green-100 text-green-800;
+}
+
+.etat-usage {
+    @apply bg-blue-100 text-blue-800;
+}
+
+.etat-defectueux {
+    @apply bg-orange-100 text-orange-800;
+}
+
+.etat-hors-service {
+    @apply bg-red-100 text-red-800;
+}
+
+/* Animation pour changement d'état */
+.equipement-row {
+    transition: all 0.3s ease;
+}
+
+.equipement-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les actions rapides selon cahier */
+.action-rapide {
+    @apply flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors border;
+}
+
+.action-rapide:hover {
+    @apply border-blue-300 bg-blue-50;
+}
+
+/* Indicateurs visuels pour les états */
+.indicateur-etat {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.indicateur-bon { background-color: #10b981; }
+.indicateur-usage { background-color: #3b82f6; }
+.indicateur-defectueux { background-color: #f59e0b; }
+.indicateur-hors-service { background-color: #ef4444; }
+
+/* Style pour les cartes d'équipements */
+.equipement-card {
+    @apply bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow;
+}
+
+/* Modal pour changement d'état rapide */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+/* Responsive pour mobile selon cahier */
+@media (max-width: 768px) {
+    .equipement-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Print styles pour rapports selon cahier */
+@media print {
+    .no-print, .action-rapide, .modal-overlay {
+        display: none !important;
+    }
+    
+    .equipement-card {
+        break-inside: avoid;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    
+    .print-header {
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// JavaScript pour fonctionnalités inventaire selon cahier
+
+// Changement d'état rapide en 1 clic selon cahier
+function changerEtatRapide(equipementId, nouvelEtat, ancienEtat) {
+    // Confirmation selon importance du changement
+    let message = `Changer l'état vers "${nouvelEtat}" ?`;
+    
+    if (nouvelEtat === 'hors_service') {
+        message = `⚠️ Marquer comme HORS SERVICE ?\n\nCette action indique que l'équipement n'est plus utilisable.`;
+    } else if (ancienEtat === 'hors_service' && nouvelEtat === 'bon') {
+        message = `✅ Remettre en BON ÉTAT ?\n\nL'équipement sera à nouveau considéré comme fonctionnel.`;
+    }
+    
+    if (confirm(message)) {
+        // Animation de feedback immédiat
+        const row = document.querySelector(`[data-equipement-id="${equipementId}"]`);
+        if (row) {
+            row.style.opacity = '0.6';
+            row.style.transform = 'scale(0.98)';
+        }
+        
+        // Redirection avec paramètres selon cahier
+        window.location.href = `/inventaire/equipement/${equipementId}/etat/?etat=${nouvelEtat}`;
+    }
+}
+
+// Modal pour changement d'état avec commentaire
+function ouvrirModalEtat(equipementId, equipementNom) {
+    const modal = document.getElementById('modal-changement-etat');
+    const titre = document.getElementById('modal-titre');
+    const form = document.getElementById('form-changement-etat');
+    
+    titre.textContent = `Changer l'état de ${equipementNom}`;
+    form.action = `/inventaire/equipement/${equipementId}/etat/`;
+    
+    modal.classList.add('active');
+}
+
+function fermerModalEtat() {
+    const modal = document.getElementById('modal-changement-etat');
+    modal.classList.remove('active');
+}
+
+// Fermeture modal par clic extérieur
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+        fermerModalEtat();
+    }
+});
+
+// Escape pour fermer modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        fermerModalEtat();
+    }
+});
+
+// Auto-refresh des données selon cahier (optionnel)
+function activerAutoRefresh() {
+    // Refresh toutes les 5 minutes pour voir les changements d'autres utilisateurs
+    setInterval(function() {
+        // Vérifier si des changements ont eu lieu
+        fetch(window.location.href + '?check=1')
+            .then(response => response.json())
+            .then(data => {
+                if (data.updated) {
+                    // Afficher notification discrète
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    notification.textContent = 'Inventaire mis à jour par un autre utilisateur';
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 3000);
+                }
+            })
+            .catch(error => console.log('Auto-refresh error:', error));
+    }, 300000); // 5 minutes
+}
+
+// Initialisation selon cahier
+document.addEventListener('DOMContentLoaded', function() {
+    // Tooltips pour les états
+    const badges = document.querySelectorAll('.etat-badge');
+    badges.forEach(badge => {
+        badge.title = 'Cliquez pour changer l\'état selon cahier';
+    });
+    
+    // Animation d'entrée pour les cartes
+    const cards = document.querySelectorAll('.equipement-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Activation auto-refresh si demandé
+    if (localStorage.getItem('inventaire-auto-refresh') === 'true') {
+        activerAutoRefresh();
+    }
+});
+
+// Fonctions utilitaires selon cahier
+function formatPrix(prix) {
+    return new Intl.NumberFormat('fr-FR').format(prix) + ' FCFA';
+}
+
+function calculerPourcentage(valeur, total) {
+    if (total === 0) return 0;
+    return Math.round((valeur / total) * 100);
+}
+
+// Export/Import functions (futures évolutions)
+function exporterInventaire(appartementId = null) {
+    const url = appartementId 
+        ? `/inventaire/appartement/${appartementId}/export/`
+        : '/inventaire/export/';
+    window.open(url, '_blank');
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Modal pour changement d'état avec commentaire selon cahier -->
+<div id="modal-changement-etat" class="modal-overlay">
+    <div class="modal-content">
+        <div class="flex items-center justify-between mb-6">
+            <h3 id="modal-titre" class="text-lg font-semibold text-gray-900 font-lato">Changer l'état</h3>
+            <button onclick="fermerModalEtat()" class="text-gray-400 hover:text-gray-600">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        
+        <form id="form-changement-etat" method="get" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-900 mb-3 font-lato">Nouvel état</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:border-green-300 hover:bg-green-50">
+                        <input type="radio" name="etat" value="bon" class="text-green-600 focus:ring-green-500">
+                        <span class="indicateur-etat indicateur-bon"></span>
+                        <span class="font-lato">Bon</span>
+                    </label>
+                    
+                    <label class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50">
+                        <input type="radio" name="etat" value="usage" class="text-blue-600 focus:ring-blue-500">
+                        <span class="indicateur-etat indicateur-usage"></span>
+                        <span class="font-lato">Usage</span>
+                    </label>
+                    
+                    <label class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:border-orange-300 hover:bg-orange-50">
+                        <input type="radio" name="etat" value="defectueux" class="text-orange-600 focus:ring-orange-500">
+                        <span class="indicateur-etat indicateur-defectueux"></span>
+                        <span class="font-lato">Défectueux</span>
+                    </label>
+                    
+                    <label class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:border-red-300 hover:bg-red-50">
+                        <input type="radio" name="etat" value="hors_service" class="text-red-600 focus:ring-red-500">
+                        <span class="indicateur-etat indicateur-hors-service"></span>
+                        <span class="font-lato">Hors service</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div>
+                <label for="commentaire" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
+                    Commentaire (optionnel)
+                </label>
+                <textarea name="commentaire" id="commentaire" rows="3" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                          placeholder="Raison du changement d'état..."></textarea>
+            </div>
+            
+            <div class="flex space-x-3 pt-4">
+                <button type="submit" 
+                        class="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+                    <span class="material-icons text-sm">save</span>
+                    <span>Changer l'état</span>
+                </button>
+                
+                <button type="button" onclick="fermerModalEtat()"
+                        class="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-lato">
+                    <span class="material-icons text-sm">close</span>
+                    <span>Annuler</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Contenu spécifique de la page -->
+{% block inventaire_content %}
+{% endblock %}
+{% endblock %}

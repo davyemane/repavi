@@ -1,0 +1,271 @@
+<!-- ========================================== -->
+<!-- templates/inventaire/general.html -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inventaire Général - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Inventaire Général{% endblock %}
+{% block page_subtitle %}Gestion des équipements par appartement selon cahier{% endblock %}
+
+{% block header_actions %}
+<div class="flex space-x-3">
+    <select onchange="if(this.value) window.location.href='{% url "inventaire:ajouter_equipement" appartement_pk=0 %}'.replace('0', this.value)" 
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#02066F] font-lato">
+        <option value="">Ajouter équipement à...</option>
+        {% for data in appartements_data %}
+        <option value="{{ data.appartement.pk }}">{{ data.appartement.numero }}</option>
+        {% endfor %}
+    </select>
+    
+    <a href="{% url 'inventaire:pdf_general' %}" 
+       class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">picture_as_pdf</span>
+        PDF Général
+    </a>
+    
+    <button onclick="window.location.href='{% url 'inventaire:pdf_general' %}'" 
+            class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">print</span>
+        Imprimer
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Statistiques globales -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Total Équipements</p>
+                <p class="text-2xl font-bold text-[#02066F] font-lato">{{ total_equipements }}</p>
+            </div>
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">inventory</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Valeur Totale</p>
+                <p class="text-2xl font-bold text-green-600 font-lato">{{ valeur_totale|floatformat:0 }}</p>
+                <p class="text-xs text-gray-500 font-lato">FCFA</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-green-600">attach_money</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Défectueux</p>
+                <p class="text-2xl font-bold text-orange-600 font-lato">{{ equipements_defectueux }}</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-orange-600">warning</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Hors Service</p>
+                <p class="text-2xl font-bold text-red-600 font-lato">{{ equipements_hors_service }}</p>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-red-600">dangerous</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventaire par appartement -->
+<div class="space-y-6">
+    {% for data in appartements_data %}
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        
+        <!-- Header appartement -->
+        <div class="bg-gray-50 p-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-white text-sm">apartment</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 font-lato">{{ data.appartement.numero }}</h3>
+                        <p class="text-gray-600 text-sm font-lato">{{ data.appartement.get_type_logement_display }}</p>
+                    </div>
+                </div>
+                
+                <div class="text-right">
+                    <div class="text-lg font-bold text-[#02066F] font-lato">{{ data.nb_equipements }} équipements</div>
+                    <div class="text-gray-600 text-sm font-lato">{{ data.valeur_totale|floatformat:0 }} FCFA</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenu inventaire -->
+        <div class="p-6">
+            {% if data.equipements %}
+            
+            <!-- États des équipements -->
+            <div class="grid md:grid-cols-4 gap-4 mb-6">
+                {% for etat_code, etat_data in data.stats_etats.items %}
+                <div class="text-center p-3 {% if etat_code == 'bon' %}bg-green-50 border-green-100{% elif etat_code == 'usage' %}bg-blue-50 border-blue-100{% elif etat_code == 'defectueux' %}bg-orange-50 border-orange-100{% else %}bg-red-50 border-red-100{% endif %} rounded-lg border">
+                    <div class="text-xl font-bold {% if etat_code == 'bon' %}text-green-600{% elif etat_code == 'usage' %}text-blue-600{% elif etat_code == 'defectueux' %}text-orange-600{% else %}text-red-600{% endif %} font-lato">{{ etat_data.count }}</div>
+                    <div class="text-xs {% if etat_code == 'bon' %}text-green-600{% elif etat_code == 'usage' %}text-blue-600{% elif etat_code == 'defectueux' %}text-orange-600{% else %}text-red-600{% endif %} font-lato">{{ etat_data.nom }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Liste équipements -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Équipement</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">État</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Prix d'achat</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for equipement in data.equipements %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4">
+                                <div class="flex items-center space-x-3">
+                                    {% if equipement.photo %}
+                                    <img src="{{ equipement.photo.url }}" alt="{{ equipement.nom }}" class="w-12 h-12 rounded-lg object-cover">
+                                    {% else %}
+                                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                        <span class="material-icons text-gray-400">image</span>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="font-medium text-gray-900 font-lato">{{ equipement.nom }}</div>
+                                        {% if equipement.commentaire %}
+                                        <div class="text-sm text-gray-500 font-lato">{{ equipement.commentaire|truncatechars:50 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full font-lato
+                                    {% if equipement.etat == 'bon' %}bg-green-100 text-green-800
+                                    {% elif equipement.etat == 'usage' %}bg-blue-100 text-blue-800
+                                    {% elif equipement.etat == 'defectueux' %}bg-orange-100 text-orange-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ equipement.get_etat_display }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-4 text-sm text-gray-900 font-lato">{{ equipement.prix_achat|floatformat:0 }} FCFA</td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <!-- Changement d'état rapide selon cahier -->
+                                    <div class="relative group">
+                                        <button class="p-1 text-gray-400 hover:text-[#02066F] transition-colors">
+                                            <span class="material-icons text-sm">more_vert</span>
+                                        </button>
+                                        <div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                            {% for etat_code, etat_nom in equipement.ETAT_CHOICES %}
+                                            <a href="{% url 'inventaire:changer_etat' equipement.pk %}?etat={{ etat_code }}" 
+                                               class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-50 {% if forloop.first %}rounded-t-lg{% elif forloop.last %}rounded-b-lg{% endif %}">
+                                                <span class="w-2 h-2 rounded-full 
+                                                    {% if etat_code == 'bon' %}bg-green-500
+                                                    {% elif etat_code == 'usage' %}bg-blue-500
+                                                    {% elif etat_code == 'defectueux' %}bg-orange-500
+                                                    {% else %}bg-red-500{% endif %}"></span>
+                                                <span class="font-lato">{{ etat_nom }}</span>
+                                            </a>
+                                            {% endfor %}
+                                            <hr class="my-1">
+                                            <a href="{% url 'inventaire:modifier_equipement' equipement.pk %}" class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:bg-gray-50">
+                                                <span class="material-icons text-sm">edit</span>
+                                                <span class="font-lato">Modifier</span>
+                                            </a>
+                                            <a href="{% url 'inventaire:supprimer_equipement' equipement.pk %}" class="flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 rounded-b-lg">
+                                                <span class="material-icons text-sm">delete</span>
+                                                <span class="font-lato">Supprimer</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% else %}
+            <div class="text-center py-8">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="material-icons text-gray-400 text-2xl">inventory</span>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2 font-lato">Aucun équipement</h3>
+                <p class="text-gray-500 mb-4 font-lato">Cet appartement n'a pas encore d'équipements enregistrés.</p>
+            </div>
+            {% endif %}
+            
+            <!-- Actions par appartement -->
+            <div class="mt-6 flex space-x-3">
+                <a href="{% url 'inventaire:appartement' data.appartement.pk %}" 
+                   class="flex items-center space-x-1 px-4 py-2 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors text-sm font-medium font-lato">
+                    <span class="material-icons text-sm">visibility</span>
+                    <span>Voir détail</span>
+                </a>
+                
+                <a href="{% url 'inventaire:ajouter_equipement' data.appartement.pk %}" 
+                   class="flex items-center space-x-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium font-lato">
+                    <span class="material-icons text-sm">add</span>
+                    <span>Ajouter équipement</span>
+                </a>
+                
+                <a href="{% url 'inventaire:valeur_totale' data.appartement.pk %}" 
+                   class="flex items-center space-x-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium font-lato">
+                    <span class="material-icons text-sm">calculate</span>
+                    <span>Valeur totale</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <!-- État vide -->
+    <div class="text-center py-12">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span class="material-icons text-gray-400 text-3xl">inventory</span>
+        </div>
+        <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
+            Aucun appartement
+        </h3>
+        <p class="text-gray-500 mb-6 font-lato">
+            Créez d'abord des appartements pour gérer leur inventaire.
+        </p>
+        <a href="{% url 'appartements:creer' %}" 
+           class="inline-flex items-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+            <span class="material-icons text-sm">add</span>
+            <span>Créer Appartement</span>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Note importante selon cahier -->
+<div class="mt-8 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
+    <div class="flex items-start space-x-2 text-[#02066F]">
+        <span class="material-icons text-sm mt-0.5">info</span>
+        <div class="text-sm font-lato">
+            <strong>Inventaire simplifié selon cahier :</strong> 
+            Changement d'état en 1 clic, informations basiques (prix d'achat, photo), 
+            pas de dépréciation automatique. Focus sur la simplicité d'usage.
+        </div>
+    </div>
+</div>
+{% endblock %}
