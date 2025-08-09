@@ -1,102 +1,129 @@
-<!-- ========================================== -->
-<!-- templates/users/login.html -->
-<!-- ========================================== -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Connexion - RepAvi Lodges{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-cyan-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8 font-lato">
+    <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg">
         
-        <!-- Logo RepAvi -->
-        <div class="text-center mb-8">
-            <div class="flex items-center justify-center space-x-3 mb-6">
-                <div class="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
-                    <span class="material-icons text-white text-2xl">home</span>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold text-gray-800">RepAvi Lodges</div>
-                    <div class="text-gray-600 text-sm">Système de Gestion</div>
+        <!-- Header Section -->
+        <div class="text-center mb-8 sm:mb-10">
+            <!-- Logo and Brand -->
+            <div class="flex items-center justify-center mb-6 sm:mb-8">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-lg">
+                        <span class="material-icons text-white text-2xl sm:text-3xl">home</span>
+                    </div>
+                    <div class="text-left">
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#02066F] font-lato leading-tight">
+                            RepAvi Lodges
+                        </h1>
+                        <p class="text-gray-500 text-sm sm:text-base font-medium mt-1">
+                            Système de Gestion
+                        </p>
+                    </div>
                 </div>
             </div>
             
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">Accès Gestionnaires</h1>
-            <p class="text-gray-600">Connectez-vous à votre espace de gestion</p>
+            <!-- Page Title -->
+            <div class="space-y-2">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 font-lato">Accès Gestionnaires</h2>
+                <p class="text-gray-600 text-sm sm:text-base">Connectez-vous à votre espace de gestion</p>
+            </div>
         </div>
 
-        <!-- Formulaire de connexion -->
-        <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+        <!-- Login Form -->
+        <div class="bg-white rounded-lg shadow-lg p-6 sm:p-8 border border-gray-200">
             
             {% if form.errors %}
-            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6">
-                Identifiants incorrects. Veuillez réessayer.
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
+                <div class="flex items-center space-x-3">
+                    <span class="material-icons text-red-500 text-lg">error_outline</span>
+                    <span class="font-medium">Identifiants incorrects. Veuillez réessayer.</span>
+                </div>
             </div>
             {% endif %}
 
             <form method="post" class="space-y-6">
                 {% csrf_token %}
                 
-                <!-- Username -->
+                <!-- Username Field -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2 font-lato">
                         Nom d'utilisateur
                     </label>
                     <div class="relative">
                         <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">person</span>
                         <input type="text" name="username" 
-                               class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-colors"
+                               class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400 font-lato"
                                placeholder="Votre nom d'utilisateur"
-                               required>
+                               required
+                               autocomplete="username">
                     </div>
                 </div>
 
-                <!-- Password -->
+                <!-- Password Field -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2 font-lato">
                         Mot de passe
                     </label>
                     <div class="relative">
                         <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">lock</span>
-                        <input type="password" name="password" 
-                               class="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-colors"
+                        <input type="password" name="password" id="password-input"
+                               class="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400 font-lato"
                                placeholder="••••••••"
-                               required>
+                               required
+                               autocomplete="current-password">
                         <button type="button" onclick="togglePassword()" 
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                            <span class="material-icons" id="eye-icon">visibility</span>
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#02066F] transition-colors duration-200 p-1 rounded-md hover:bg-gray-100"
+                                tabindex="-1">
+                            <span class="material-icons text-lg" id="eye-icon">visibility</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Se souvenir -->
+                <!-- Remember Me -->
                 <div class="flex items-center">
-                    <input type="checkbox" name="remember_me" 
-                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                    <label class="ml-2 text-sm text-gray-600">Se souvenir de moi</label>
+                    <input type="checkbox" name="remember_me" id="remember_me"
+                           class="w-4 h-4 text-[#02066F] border-gray-300 rounded focus:ring-[#02066F] focus:ring-2 transition-colors">
+                    <label for="remember_me" class="ml-3 text-sm text-gray-600 font-lato cursor-pointer select-none">
+                        Se souvenir de moi
+                    </label>
                 </div>
 
-                <!-- Bouton connexion -->
+                <!-- Submit Button -->
                 <button type="submit" 
-                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-colors font-medium flex items-center justify-center space-x-2">
-                    <span class="material-icons text-sm">login</span>
+                        class="w-full bg-[#02066F] hover:bg-[#030a8a] active:bg-[#01044d] text-white py-3.5 rounded-lg transition-all duration-200 font-semibold font-lato flex items-center justify-center space-x-2 shadow-md hover:shadow-lg active:scale-[0.98]">
+                    <span class="material-icons text-lg">login</span>
                     <span>Se connecter</span>
                 </button>
+
+                <!-- Forgot Password -->
+                <div class="text-center pt-2">
+                    <a href="#" class="text-sm text-[#02066F] hover:text-[#030a8a] hover:underline transition-colors font-lato font-medium">
+                        Mot de passe oublié ?
+                    </a>
+                </div>
             </form>
         </div>
 
-        <!-- Informations système -->
+        <!-- System Information -->
         <div class="text-center mt-8">
-            <div class="flex items-center justify-center space-x-6 text-gray-500 text-sm">
-                <div class="flex items-center space-x-2">
-                    <span class="material-icons text-sm text-green-500">security</span>
-                    <span>Système sécurisé</span>
+            <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-8">
+                <div class="flex items-center space-x-2 text-gray-500 text-sm">
+                    <span class="material-icons text-sm text-green-500">verified_user</span>
+                    <span class="font-lato font-medium">Système sécurisé</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <span class="material-icons text-sm text-blue-500">support</span>
-                    <span>Support inclus</span>
+                <div class="flex items-center space-x-2 text-gray-500 text-sm">
+                    <span class="material-icons text-sm text-[#02066F]">support_agent</span>
+                    <span class="font-lato font-medium">Support 24/7</span>
                 </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="mt-6 text-xs text-gray-400 font-lato">
+                Version 2.1.0 • © 2024 RepAvi Lodges • Tous droits réservés
             </div>
         </div>
     </div>
@@ -104,7 +131,7 @@
 
 <script>
 function togglePassword() {
-    const passwordInput = document.querySelector('input[name="password"]');
+    const passwordInput = document.getElementById('password-input');
     const eyeIcon = document.getElementById('eye-icon');
     
     if (passwordInput.type === 'password') {
@@ -115,5 +142,27 @@ function togglePassword() {
         eyeIcon.textContent = 'visibility';
     }
 }
+
+// Auto-focus on username field (desktop only)
+document.addEventListener('DOMContentLoaded', function() {
+    const firstInput = document.querySelector('input[name="username"]');
+    if (firstInput && window.innerWidth > 768) {
+        firstInput.focus();
+    }
+});
+
+// Enhanced form navigation with Enter key
+document.querySelector('form').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const inputs = this.querySelectorAll('input[type="text"], input[type="password"]');
+        const currentInput = e.target;
+        const currentIndex = Array.from(inputs).indexOf(currentInput);
+        
+        if (currentIndex < inputs.length - 1) {
+            e.preventDefault();
+            inputs[currentIndex + 1].focus();
+        }
+    }
+});
 </script>
 {% endblock %}
