@@ -4,21 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance en cours - RepAvi</title>
-    <meta name="description" content="Site en maintenance - RepAvi">
+    <title>Maintenance en cours - RepAvi Lodges</title>
+    <meta name="description" content="Site en maintenance - RepAvi Lodges">
 
     <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Lato', sans-serif;
         }
-        .gradient-background {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .font-lato {
+            font-family: 'Lato', sans-serif;
         }
         .maintenance-animation {
             animation: bounce 2s infinite;
@@ -49,15 +49,15 @@
         <div class="max-w-lg mx-auto px-4 text-center">
             <!-- Illustration de maintenance -->
             <div class="mb-8">
-                <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-indigo-400 to-purple-600 rounded-full flex items-center justify-center maintenance-animation">
-                    <i class="fas fa-tools text-6xl text-white"></i>
+                <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-full flex items-center justify-center maintenance-animation">
+                    <span class="material-icons text-6xl text-white">build</span>
                 </div>
                 
-                <h1 class="text-4xl font-bold text-gray-900 mb-4">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 font-lato">
                     Maintenance en cours
                 </h1>
                 
-                <p class="text-gray-600 text-lg mb-8">
+                <p class="text-gray-600 text-lg mb-8 font-lato">
                     Nous effectuons actuellement une maintenance programmée pour améliorer votre expérience. 
                     Le site sera de nouveau disponible très bientôt !
                 </p>
@@ -66,40 +66,40 @@
             <!-- Barre de progression -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-8">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-lg font-medium text-gray-900">
-                        <i class="fas fa-cog mr-2 text-indigo-600"></i>
+                    <h3 class="text-lg font-medium text-gray-900 font-lato">
+                        <span class="material-icons text-[#02066F] mr-2">settings</span>
                         Progression de la maintenance
                     </h3>
-                    <span class="text-sm text-gray-500" id="progress-text">En cours...</span>
+                    <span class="text-sm text-gray-500 font-lato" id="progress-text">En cours...</span>
                 </div>
                 
                 <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
-                    <div class="progress-bar bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full"></div>
+                    <div class="progress-bar bg-gradient-to-r from-[#02066F] to-[#030a8a] h-3 rounded-full"></div>
                 </div>
                 
-                <div class="text-sm text-gray-600">
+                <div class="text-sm text-gray-600 font-lato">
                     <p>Mise à jour des serveurs et amélioration des performances</p>
                 </div>
             </div>
 
             <!-- Informations sur la maintenance -->
-            <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 mb-8">
-                <h3 class="text-lg font-medium text-indigo-900 mb-4">
-                    <i class="fas fa-info-circle mr-2"></i>
+            <div class="bg-[#02066F]/5 border border-[#02066F]/20 rounded-2xl p-6 mb-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
+                    <span class="material-icons text-[#02066F] mr-2">info</span>
                     Informations sur la maintenance
                 </h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-indigo-800">
-                    <div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div class="font-lato">
                         <strong>Début :</strong> 02:00 CET
                     </div>
-                    <div>
+                    <div class="font-lato">
                         <strong>Fin prévue :</strong> 04:00 CET
                     </div>
-                    <div>
+                    <div class="font-lato">
                         <strong>Durée :</strong> ~2 heures
                     </div>
-                    <div>
+                    <div class="font-lato">
                         <strong>Statut :</strong> 
                         <span class="inline-flex items-center">
                             <span class="w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
@@ -111,96 +111,96 @@
 
             <!-- Améliorations apportées -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-8">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <i class="fas fa-rocket mr-2 text-green-600"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
+                    <span class="material-icons text-green-600 mr-2">rocket_launch</span>
                     Améliorations en cours
                 </h3>
                 
                 <div class="grid grid-cols-1 gap-3 text-sm">
                     <div class="flex items-center">
-                        <i class="fas fa-check text-green-500 mr-3"></i>
-                        <span class="text-gray-700">Optimisation des performances</span>
+                        <span class="material-icons text-green-500 mr-3">check_circle</span>
+                        <span class="text-gray-700 font-lato">Optimisation des performances</span>
                     </div>
                     <div class="flex items-center">
-                        <i class="fas fa-check text-green-500 mr-3"></i>
-                        <span class="text-gray-700">Mise à jour de sécurité</span>
+                        <span class="material-icons text-green-500 mr-3">check_circle</span>
+                        <span class="text-gray-700 font-lato">Mise à jour de sécurité</span>
                     </div>
                     <div class="flex items-center">
-                        <i class="fas fa-spinner fa-spin text-blue-500 mr-3"></i>
-                        <span class="text-gray-700">Amélioration de l'interface</span>
+                        <span class="material-icons text-[#02066F] mr-3 animate-spin">sync</span>
+                        <span class="text-gray-700 font-lato">Amélioration de l'interface</span>
                     </div>
                     <div class="flex items-center">
-                        <i class="fas fa-clock text-orange-500 mr-3"></i>
-                        <span class="text-gray-700">Nouvelles fonctionnalités</span>
+                        <span class="material-icons text-orange-500 mr-3">schedule</span>
+                        <span class="text-gray-700 font-lato">Nouvelles fonctionnalités</span>
                     </div>
                 </div>
             </div>
 
             <!-- Temps d'attente estimé -->
             <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
-                <h3 class="text-lg font-medium text-yellow-900 mb-3">
-                    <i class="fas fa-clock mr-2"></i>
+                <h3 class="text-lg font-medium text-yellow-900 mb-3 font-lato">
+                    <span class="material-icons text-yellow-600 mr-2">schedule</span>
                     Temps d'attente estimé
                 </h3>
                 
-                <div class="text-3xl font-bold text-yellow-800 mb-2" id="countdown">
+                <div class="text-3xl font-bold text-yellow-800 mb-2 font-lato" id="countdown">
                     -- : -- : --
                 </div>
                 
-                <p class="text-yellow-700 text-sm">
+                <p class="text-yellow-700 text-sm font-lato">
                     Le site sera automatiquement rechargé dès la fin de la maintenance
                 </p>
             </div>
 
             <!-- Actions alternatives -->
             <div class="space-y-4 mb-8">
-                <div class="text-lg font-medium text-gray-900 mb-4">
+                <div class="text-lg font-medium text-gray-900 mb-4 font-lato">
                     En attendant, vous pouvez :
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <a href="mailto:contact@repavi.com" 
-                       class="flex items-center justify-center px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-envelope mr-2"></i>
+                       class="flex items-center justify-center px-6 py-3 bg-white border border-[#02066F] text-[#02066F] rounded-xl hover:bg-[#02066F]/5 transition-colors font-lato">
+                        <span class="material-icons text-sm mr-2">mail</span>
                         Nous contacter
                     </a>
                     
                     <a href="tel:+33123456789" 
-                       class="flex items-center justify-center px-6 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors">
-                        <i class="fas fa-phone mr-2"></i>
+                       class="flex items-center justify-center px-6 py-3 bg-white border border-[#02066F] text-[#02066F] rounded-xl hover:bg-[#02066F]/5 transition-colors font-lato">
+                        <span class="material-icons text-sm mr-2">phone</span>
                         Appeler le support
                     </a>
                 </div>
                 
                 <button onclick="location.reload()" 
-                        class="w-full flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors">
-                    <i class="fas fa-refresh mr-2"></i>
+                        class="w-full flex items-center justify-center px-6 py-3 bg-[#02066F] text-white rounded-xl font-medium hover:bg-[#030a8a] transition-colors font-lato">
+                    <span class="material-icons text-sm mr-2">refresh</span>
                     Actualiser la page
                 </button>
             </div>
 
             <!-- Réseaux sociaux -->
             <div class="bg-gray-100 rounded-2xl p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
                     Suivez-nous pour les dernières nouvelles
                 </h3>
                 
                 <div class="flex justify-center space-x-4">
-                    <a href="#" class="text-gray-400 hover:text-blue-500 transition-colors">
-                        <i class="fab fa-facebook-f text-2xl"></i>
+                    <a href="#" class="text-gray-400 hover:text-[#02066F] transition-colors">
+                        <span class="material-icons text-2xl">facebook</span>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors">
-                        <i class="fab fa-twitter text-2xl"></i>
+                    <a href="#" class="text-gray-400 hover:text-[#02066F] transition-colors">
+                        <span class="material-icons text-2xl">alternate_email</span>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-pink-500 transition-colors">
-                        <i class="fab fa-instagram text-2xl"></i>
+                    <a href="#" class="text-gray-400 hover:text-[#02066F] transition-colors">
+                        <span class="material-icons text-2xl">photo_camera</span>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-blue-600 transition-colors">
-                        <i class="fab fa-linkedin-in text-2xl"></i>
+                    <a href="#" class="text-gray-400 hover:text-[#02066F] transition-colors">
+                        <span class="material-icons text-2xl">business</span>
                     </a>
                 </div>
                 
-                <p class="text-gray-500 text-sm mt-4">
+                <p class="text-gray-500 text-sm mt-4 font-lato">
                     Merci pour votre patience ! 💙
                 </p>
             </div>

@@ -1,22 +1,22 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Page introuvable - RepAvi{% endblock %}
+{% block title %}Page introuvable - RepAvi Lodges{% endblock %}
 
 {% block content %}
 <div class="min-h-screen bg-gray-50 flex flex-col justify-center">
     <div class="max-w-md mx-auto px-4 text-center">
         <!-- Illustration d'erreur -->
         <div class="mb-8">
-            <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-indigo-400 to-purple-600 rounded-full flex items-center justify-center">
-                <span class="text-6xl font-bold text-white">404</span>
+            <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-full flex items-center justify-center">
+                <span class="text-6xl font-bold text-white font-lato">404</span>
             </div>
             
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4 font-lato">
                 Oups ! Page introuvable
             </h1>
             
-            <p class="text-gray-600 text-lg mb-8">
+            <p class="text-gray-600 text-lg mb-8 font-lato">
                 La page que vous recherchez n'existe pas ou a été déplacée. 
                 Ne vous inquiétez pas, nous allons vous aider à retrouver votre chemin !
             </p>
@@ -25,63 +25,68 @@
         <!-- Actions suggérées -->
         <div class="space-y-4 mb-8">
             <a href="{% url 'home:index' %}" 
-               class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                <i class="fas fa-home mr-2"></i>
+               class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-[#02066F] hover:bg-[#030a8a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">home</span>
                 Retour à l'accueil
             </a>
             
             <a href="{% url 'home:maisons_list' %}" 
-               class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                <i class="fas fa-search mr-2"></i>
+               class="w-full inline-flex items-center justify-center px-6 py-3 border border-[#02066F] rounded-xl text-base font-medium text-[#02066F] bg-white hover:bg-[#02066F]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">search</span>
                 Découvrir nos maisons
             </a>
             
             <button onclick="history.back()" 
-                    class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>
+                    class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">arrow_back</span>
                 Retour à la page précédente
             </button>
         </div>
 
         <!-- Recherche rapide -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
-                <i class="fas fa-search mr-2 text-indigo-600"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
+                <span class="material-icons text-[#02066F] mr-2">search</span>
                 Recherche rapide
             </h3>
             
             <form action="{% url 'home:maisons_list' %}" method="get" class="space-y-4">
                 <div>
                     <input type="text" name="search" placeholder="Rechercher une maison..."
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#02066F] focus:border-transparent font-lato">
                 </div>
                 <button type="submit" 
-                        class="w-full bg-indigo-600 text-white px-4 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+                        class="w-full bg-[#02066F] text-white px-4 py-3 rounded-xl font-medium hover:bg-[#030a8a] transition-colors font-lato">
                     Rechercher
                 </button>
             </form>
         </div>
 
         <!-- Liens populaires -->
-        <div class="mt-8 p-6 bg-gray-100 rounded-2xl">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Pages populaires</h3>
+        <div class="mt-8 p-6 bg-[#02066F]/5 rounded-2xl">
+            <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">Pages populaires</h3>
             <div class="grid grid-cols-2 gap-3 text-sm">
-                <a href="{% url 'home:maisons_list' %}" class="text-indigo-600 hover:text-indigo-700 transition-colors">
-                    <i class="fas fa-home mr-1"></i>Toutes les maisons
+                <a href="{% url 'home:maisons_list' %}" 
+                   class="text-[#02066F] hover:text-[#030a8a] transition-colors font-lato">
+                    <span class="material-icons text-sm mr-1">home</span>Toutes les maisons
                 </a>
-                <a href="{% url 'home:apropos' %}" class="text-indigo-600 hover:text-indigo-700 transition-colors">
-                    <i class="fas fa-info-circle mr-1"></i>À propos
+                <a href="{% url 'home:apropos' %}" 
+                   class="text-[#02066F] hover:text-[#030a8a] transition-colors font-lato">
+                    <span class="material-icons text-sm mr-1">info</span>À propos
                 </a>
-                <a href="{% url 'home:contact' %}" class="text-indigo-600 hover:text-indigo-700 transition-colors">
-                    <i class="fas fa-envelope mr-1"></i>Contact
+                <a href="{% url 'home:contact' %}" 
+                   class="text-[#02066F] hover:text-[#030a8a] transition-colors font-lato">
+                    <span class="material-icons text-sm mr-1">mail</span>Contact
                 </a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'users:profile' %}" class="text-indigo-600 hover:text-indigo-700 transition-colors">
-                        <i class="fas fa-user mr-1"></i>Mon profil
+                    <a href="{% url 'users:profile' %}" 
+                       class="text-[#02066F] hover:text-[#030a8a] transition-colors font-lato">
+                        <span class="material-icons text-sm mr-1">person</span>Mon profil
                     </a>
                 {% else %}
-                    <a href="{% url 'users:login' %}" class="text-indigo-600 hover:text-indigo-700 transition-colors">
-                        <i class="fas fa-sign-in-alt mr-1"></i>Connexion
+                    <a href="{% url 'users:login' %}" 
+                       class="text-[#02066F] hover:text-[#030a8a] transition-colors font-lato">
+                        <span class="material-icons text-sm mr-1">login</span>Connexion
                     </a>
                 {% endif %}
             </div>
@@ -89,12 +94,12 @@
 
         <!-- Contact support -->
         <div class="mt-8 text-center">
-            <p class="text-gray-500 text-sm mb-3">
+            <p class="text-gray-500 text-sm mb-3 font-lato">
                 Vous rencontrez un problème technique ?
             </p>
             <a href="{% url 'home:contact' %}" 
-               class="inline-flex items-center text-indigo-600 hover:text-indigo-700 text-sm font-medium transition-colors">
-                <i class="fas fa-headset mr-2"></i>
+               class="inline-flex items-center text-[#02066F] hover:text-[#030a8a] text-sm font-medium transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">headset_mic</span>
                 Contacter notre support
             </a>
         </div>
