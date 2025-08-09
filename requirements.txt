@@ -13,6 +13,7 @@ cssselect2==0.8.0
 Django==5.2.3
 django-browser-reload==1.18.0
 django-extensions==4.1
+django-ipware==7.0.1
 django-ratelimit==4.1.0
 django-tailwind==4.0.1
 fonttools==4.58.4
@@ -36,6 +37,7 @@ pytest==8.4.1
 pytest-django==4.11.1
 python-dateutil==2.9.0.post0
 python-decouple==3.8
+python-ipware==3.0.0
 python-magic==0.4.27
 python-slugify==8.0.4
 PyYAML==6.0.2
