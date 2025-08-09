@@ -1,84 +1,144 @@
+<!-- ========================================== -->
+<!-- templates/menage/programmer.html -->
+<!-- ========================================== -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Programmer Ménage {{ appartement.numero }} - RepAvi Lodges{% endblock %}
 
+{% block page_title %}Programmer Ménage{% endblock %}
+{% block page_subtitle %}{{ appartement.numero }} • {{ appartement.get_type_logement_display }} • {{ appartement.maison }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'appartements:detail' appartement.pk %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour Appartement
+</a>
+{% endblock %}
+
 {% block content %}
-{% include '_navigation.html' %}
-
-<div class="min-h-screen bg-gray-50">
-  <header class="bg-white border-b border-gray-200">
-    <div class="container mx-auto px-4">
-      <div class="flex items-center space-x-4 h-16">
-        <a href="{% url 'appartements:detail' appartement.pk %}" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600">
-          <span class="material-icons text-sm">apartment</span>
-          <span>{{ appartement.numero }}</span>
-        </a>
-        <span class="text-gray-400">/</span>
-        <span class="font-medium text-gray-900">Programmer Ménage</span>
-      </div>
-    </div>
-  </header>
-
-  <main class="container mx-auto px-4 py-8 max-w-2xl">
+<div class="max-w-2xl mx-auto">
     
     <!-- Info appartement -->
-    <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-6">
-      <div class="flex items-center space-x-4">
-        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-          <span class="material-icons text-purple-600">apartment</span>
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">apartment</span>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 font-lato">{{ appartement.numero }}</h2>
+                <p class="text-gray-600 font-lato">{{ appartement.get_type_logement_display }} • {{ appartement.maison }}</p>
+            </div>
         </div>
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">{{ appartement.numero }}</h1>
-          <p class="text-gray-600">{{ appartement.get_type_logement_display }} • {{ appartement.maison }}</p>
-        </div>
-      </div>
     </div>
-
+    
     <!-- Tâches existantes -->
     {% if taches_existantes %}
-    <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-6">
-      <h3 class="font-bold text-orange-900 mb-2">Tâches déjà programmées :</h3>
-      {% for tache in taches_existantes %}
-      <p class="text-orange-700">• {{ tache.date_prevue|date:"d/m/Y" }} - {{ tache.get_statut_display }}</p>
-      {% endfor %}
+    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+        <h3 class="font-bold text-orange-900 mb-2 font-lato">Tâches déjà programmées :</h3>
+        {% for tache in taches_existantes %}
+        <div class="flex items-center justify-between py-2">
+            <p class="text-orange-700 font-lato">• {{ tache.date_prevue|date:"d/m/Y" }} - {{ tache.get_statut_display }}</p>
+            <span class="px-2 py-1 {% if tache.statut == 'termine' %}bg-green-100 text-green-800{% elif tache.statut == 'en_cours' %}bg-[#02066F]/10 text-[#02066F]{% else %}bg-orange-100 text-orange-800{% endif %} text-xs rounded-full font-lato">
+                {{ tache.get_statut_display }}
+            </span>
+        </div>
+        {% endfor %}
     </div>
     {% endif %}
-
-    <!-- Formulaire -->
-    <div class="bg-white rounded-2xl p-6 border border-gray-100">
-      <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-        <span class="material-icons text-purple-600">schedule</span>
-        <span>Programmer Ménage</span>
-      </h2>
-      
-      <form method="post" class="space-y-6">
-        {% csrf_token %}
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Date prévue</label>
-          <input type="date" 
-                 name="date_prevue" 
-                 min="{{ today|date:'Y-m-d' }}"
-                 required
-                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+    
+    <!-- Stats rapides -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 font-lato">Tâches Totales</p>
+                    <p class="text-xl font-bold text-gray-900 font-lato">{{ taches_existantes.count }}</p>
+                </div>
+                <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-gray-600 text-sm">list</span>
+                </div>
+            </div>
         </div>
         
-        <div class="flex items-center justify-between">
-          <a href="{% url 'appartements:detail' appartement.pk %}" 
-             class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors">
-            Annuler
-          </a>
-          
-          <button type="submit" 
-                  class="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition-colors flex items-center space-x-2">
-            <span class="material-icons text-sm">schedule</span>
-            <span>Programmer</span>
-          </button>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 font-lato">En Attente</p>
+                    <p class="text-xl font-bold text-[#02066F] font-lato">{{ taches_en_attente|default:0 }}</p>
+                </div>
+                <div class="w-8 h-8 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F] text-sm">schedule</span>
+                </div>
+            </div>
         </div>
-      </form>
     </div>
-  </main>
+    
+    <!-- Formulaire -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+            <span class="material-icons text-[#02066F]">schedule</span>
+            <span>Programmer Ménage</span>
+        </h3>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Date prévue</label>
+                <input type="date"
+                       name="date_prevue"
+                       min="{{ today|date:'Y-m-d' }}"
+                       required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato">
+                <p class="text-gray-500 text-sm mt-1 font-lato">La date ne peut pas être antérieure à aujourd'hui</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Personnel assigné (optionnel)</label>
+                <select name="personnel" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato">
+                    <option value="">Sélectionner un personnel...</option>
+                    {% for person in personnel_disponible %}
+                    <option value="{{ person.pk }}">{{ person.first_name }} {{ person.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Notes (optionnel)</label>
+                <textarea name="notes" 
+                          rows="3"
+                          placeholder="Instructions spéciales, remarques..."
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato"></textarea>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <a href="{% url 'appartements:detail' appartement.pk %}"
+                   class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors font-lato">
+                    <span class="material-icons text-sm mr-2">cancel</span>
+                    <span>Annuler</span>
+                </a>
+                
+                <button type="submit"
+                        class="inline-flex items-center px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+                    <span class="material-icons text-sm mr-2">schedule</span>
+                    <span>Programmer</span>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Note importante -->
+    <div class="mt-6 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
+        <div class="flex items-start space-x-2 text-[#02066F]">
+            <span class="material-icons text-sm mt-0.5">info</span>
+            <div class="text-sm font-lato">
+                <strong>Programmation ménage :</strong> 
+                Une fois programmée, la tâche apparaîtra dans le planning ménage et pourra être assignée au personnel de nettoyage.
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock %}

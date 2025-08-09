@@ -1,215 +1,208 @@
+<!-- ========================================== -->
+<!-- templates/paiements/modifier.html -->
+<!-- ========================================== -->
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Modifier Paiement - RepAvi Lodges{% endblock %}
 
+{% block page_title %}Modifier le paiement{% endblock %}
+{% block page_subtitle %}{{ echeance.get_type_paiement_display }} - {{ echeance.montant_prevu|floatformat:0 }} FCFA{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'paiements:echeancier' %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour Échéancier
+</a>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-                <a href="{% url 'dashboard' %}" class="hover:text-blue-600">Dashboard</a>
-                <span>/</span>
-                <a href="{% url 'paiements:echeancier' %}" class="hover:text-blue-600">Paiements</a>
-                <span>/</span>
-                <span class="text-gray-900">Modifier paiement</span>
-            </nav>
-            
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-blue-600 text-xl">edit</span>
+<div class="max-w-3xl mx-auto">
+    
+    <!-- Information de la réservation -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Informations de l'échéance</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-2 font-lato">Réservation</h3>
+                <div class="space-y-1">
+                    <p class="text-sm text-gray-900 font-lato">Réservation #{{ reservation.id }}</p>
+                    <p class="text-sm text-gray-600 font-lato">{{ reservation.appartement.numero }}</p>
+                    <p class="text-sm text-gray-600 font-lato">
+                        Du {{ reservation.date_arrivee|date:"d/m/Y" }} au {{ reservation.date_depart|date:"d/m/Y" }}
+                    </p>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Modifier le paiement</h1>
-                    <p class="text-gray-600">{{ echeance.get_type_paiement_display }} - {{ echeance.montant_prevu|floatformat:0 }} FCFA</p>
+            </div>
+            
+            <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-2 font-lato">Client</h3>
+                <div class="space-y-1">
+                    <p class="text-sm text-gray-900 font-lato">{{ reservation.client.prenom }} {{ reservation.client.nom }}</p>
+                    <p class="text-sm text-gray-600 font-lato">{{ reservation.client.telephone }}</p>
+                    <p class="text-sm text-gray-600 font-lato">{{ reservation.client.email|default:"Email non renseigné" }}</p>
                 </div>
             </div>
         </div>
 
-        <!-- Information de la réservation -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Informations de l'échéance</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Réservation</h3>
-                    <div class="space-y-1">
-                        <p class="text-sm text-gray-900">Réservation #{{ reservation.id }}</p>
-                        <p class="text-sm text-gray-600">{{ reservation.appartement.nom }}</p>
-                        <p class="text-sm text-gray-600">
-                            Du {{ reservation.date_arrivee|date:"d/m/Y" }} au {{ reservation.date_depart|date:"d/m/Y" }}
-                        </p>
-                    </div>
+                    <h3 class="text-sm font-medium text-gray-700 mb-1 font-lato">Type</h3>
+                    <p class="text-lg font-semibold text-[#02066F] font-lato">{{ echeance.get_type_paiement_display }}</p>
                 </div>
-                
                 <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Client</h3>
-                    <div class="space-y-1">
-                        <p class="text-sm text-gray-900">{{ reservation.client.nom }} {{ reservation.client.prenom }}</p>
-                        <p class="text-sm text-gray-600">{{ reservation.client.telephone }}</p>
-                        <p class="text-sm text-gray-600">{{ reservation.client.email|default:"Email non renseigné" }}</p>
-                    </div>
+                    <h3 class="text-sm font-medium text-gray-700 mb-1 font-lato">Montant prévu</h3>
+                    <p class="text-lg font-semibold text-gray-900 font-lato">{{ echeance.montant_prevu|floatformat:0 }} FCFA</p>
                 </div>
-            </div>
-
-            <div class="mt-6 pt-6 border-t border-gray-200">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-700 mb-1">Type</h3>
-                        <p class="text-lg font-semibold text-blue-600">{{ echeance.get_type_paiement_display }}</p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-700 mb-1">Montant prévu</h3>
-                        <p class="text-lg font-semibold text-gray-900">{{ echeance.montant_prevu|floatformat:0 }} FCFA</p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-700 mb-1">Date d'échéance</h3>
-                        <p class="text-lg font-semibold text-gray-900">{{ echeance.date_echeance|date:"d/m/Y" }}</p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-medium text-gray-700 mb-1">Statut actuel</h3>
-                        {% if echeance.statut == 'paye' %}
-                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                Payé
-                            </span>
-                        {% else %}
-                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">
-                                En attente
-                            </span>
-                        {% endif %}
-                    </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700 mb-1 font-lato">Date d'échéance</h3>
+                    <p class="text-lg font-semibold text-gray-900 font-lato">{{ echeance.date_echeance|date:"d/m/Y" }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700 mb-1 font-lato">Statut actuel</h3>
+                    {% if echeance.statut == 'paye' %}
+                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full font-lato">
+                            Payé
+                        </span>
+                    {% else %}
+                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full font-lato">
+                            En attente
+                        </span>
+                    {% endif %}
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Informations du paiement actuel -->
-        {% if echeance.statut == 'paye' %}
-        <div class="bg-green-50 rounded-xl border border-green-200 p-6 mb-6">
-            <h2 class="text-lg font-semibold text-green-900 mb-4">Paiement enregistré</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <h3 class="text-sm font-medium text-green-700 mb-1">Montant payé</h3>
-                    <p class="text-lg font-semibold text-green-900">{{ echeance.montant_paye|floatformat:0 }} FCFA</p>
-                </div>
-                <div>
-                    <h3 class="text-sm font-medium text-green-700 mb-1">Mode de paiement</h3>
-                    <p class="text-lg font-semibold text-green-900">{{ echeance.get_mode_paiement_display|default:"Non spécifié" }}</p>
-                </div>
-                <div>
-                    <h3 class="text-sm font-medium text-green-700 mb-1">Date de paiement</h3>
-                    <p class="text-lg font-semibold text-green-900">{{ echeance.date_paiement|date:"d/m/Y"|default:"Non spécifiée" }}</p>
-                </div>
+    <!-- Informations du paiement actuel -->
+    {% if echeance.statut == 'paye' %}
+    <div class="bg-green-50 rounded-lg border border-green-200 p-6 mb-6">
+        <h2 class="text-lg font-semibold text-green-900 mb-4 font-lato">Paiement enregistré</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <h3 class="text-sm font-medium text-green-700 mb-1 font-lato">Montant payé</h3>
+                <p class="text-lg font-semibold text-green-900 font-lato">{{ echeance.montant_paye|floatformat:0 }} FCFA</p>
             </div>
+            <div>
+                <h3 class="text-sm font-medium text-green-700 mb-1 font-lato">Mode de paiement</h3>
+                <p class="text-lg font-semibold text-green-900 font-lato">{{ echeance.get_mode_paiement_display|default:"Non spécifié" }}</p>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-green-700 mb-1 font-lato">Date de paiement</h3>
+                <p class="text-lg font-semibold text-green-900 font-lato">{{ echeance.date_paiement|date:"d/m/Y"|default:"Non spécifiée" }}</p>
+            </div>
+        </div>
 
-            {% if echeance.solde_restant != 0 %}
-            <div class="mt-4 p-3 bg-orange-100 rounded-lg border border-orange-200">
-                <div class="flex items-center">
-                    <span class="material-icons text-orange-600 mr-2">warning</span>
-                    <span class="text-sm font-medium text-orange-800">
-                        Solde restant : {{ echeance.solde_restant|floatformat:0 }} FCFA
-                    </span>
-                </div>
+        {% if echeance.solde_restant != 0 %}
+        <div class="mt-4 p-3 bg-orange-100 rounded-lg border border-orange-200">
+            <div class="flex items-center">
+                <span class="material-icons text-orange-600 mr-2">warning</span>
+                <span class="text-sm font-medium text-orange-800 font-lato">
+                    Solde restant : {{ echeance.solde_restant|floatformat:0 }} FCFA
+                </span>
             </div>
-            {% endif %}
-
-            {% if echeance.commentaire %}
-            <div class="mt-4">
-                <h3 class="text-sm font-medium text-green-700 mb-1">Commentaire</h3>
-                <p class="text-sm text-green-900 bg-green-100 p-3 rounded-lg">{{ echeance.commentaire }}</p>
-            </div>
-            {% endif %}
         </div>
         {% endif %}
 
-        <!-- Formulaire de modification -->
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">Modifier les détails du paiement</h2>
-            </div>
+        {% if echeance.commentaire %}
+        <div class="mt-4">
+            <h3 class="text-sm font-medium text-green-700 mb-1 font-lato">Commentaire</h3>
+            <p class="text-sm text-green-900 bg-green-100 p-3 rounded-lg font-lato">{{ echeance.commentaire }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
 
-            <form method="post" class="p-6">
-                {% csrf_token %}
-                
-                <div class="space-y-6">
-                    <!-- Montant payé -->
-                    <div>
-                        <label for="{{ form.montant_paye.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ form.montant_paye.label }}
-                        </label>
-                        {{ form.montant_paye }}
-                        {% if form.montant_paye.errors %}
-                            <div class="mt-1 text-sm text-red-600">
-                                {{ form.montant_paye.errors|first }}
-                            </div>
-                        {% endif %}
-                        <p class="mt-1 text-sm text-gray-500">
-                            Montant prévu : {{ echeance.montant_prevu|floatformat:0 }} FCFA
-                        </p>
-                    </div>
-
-                    <!-- Mode de paiement -->
-                    <div>
-                        <label for="{{ form.mode_paiement.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ form.mode_paiement.label }}
-                        </label>
-                        {{ form.mode_paiement }}
-                        {% if form.mode_paiement.errors %}
-                            <div class="mt-1 text-sm text-red-600">
-                                {{ form.mode_paiement.errors|first }}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Commentaire -->
-                    <div>
-                        <label for="{{ form.commentaire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ form.commentaire.label }}
-                        </label>
-                        {{ form.commentaire }}
-                        {% if form.commentaire.errors %}
-                            <div class="mt-1 text-sm text-red-600">
-                                {{ form.commentaire.errors|first }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex items-center justify-between pt-6 mt-6 border-t border-gray-200">
-                    <a href="{% url 'paiements:echeancier' %}" 
-                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                        <span class="material-icons text-sm mr-2">arrow_back</span>
-                        Retour à l'échéancier
-                    </a>
-
-                    <div class="flex items-center space-x-3">
-                        <button type="button" onclick="window.history.back()" 
-                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                            Annuler
-                        </button>
-                        
-                        <button type="submit" 
-                                class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                            <span class="material-icons text-sm mr-2">save</span>
-                            Sauvegarder les modifications
-                        </button>
-                    </div>
-                </div>
-            </form>
+    <!-- Formulaire de modification -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 font-lato">Modifier les détails du paiement</h2>
         </div>
 
-        <!-- Information -->
-        <div class="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-200">
-            <div class="flex items-start space-x-3">
-                <span class="material-icons text-blue-600 mt-0.5">info</span>
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Montant payé -->
                 <div>
-                    <h3 class="text-sm font-medium text-blue-900">Information importante</h3>
-                    <p class="text-sm text-blue-700 mt-1">
-                        La modification d'un paiement déjà enregistré peut affecter la comptabilité. 
-                        Assurez-vous que les informations saisies sont correctes avant de sauvegarder.
+                    <label for="{{ form.montant_paye.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        {{ form.montant_paye.label }}
+                    </label>
+                    {{ form.montant_paye }}
+                    {% if form.montant_paye.errors %}
+                        <div class="mt-1 text-sm text-red-600 font-lato">
+                            {{ form.montant_paye.errors|first }}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500 font-lato">
+                        Montant prévu : {{ echeance.montant_prevu|floatformat:0 }} FCFA
                     </p>
                 </div>
+
+                <!-- Mode de paiement -->
+                <div>
+                    <label for="{{ form.mode_paiement.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        {{ form.mode_paiement.label }}
+                    </label>
+                    {{ form.mode_paiement }}
+                    {% if form.mode_paiement.errors %}
+                        <div class="mt-1 text-sm text-red-600 font-lato">
+                            {{ form.mode_paiement.errors|first }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Commentaire -->
+                <div>
+                    <label for="{{ form.commentaire.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        {{ form.commentaire.label }}
+                    </label>
+                    {{ form.commentaire }}
+                    {% if form.commentaire.errors %}
+                        <div class="mt-1 text-sm text-red-600 font-lato">
+                            {{ form.commentaire.errors|first }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between pt-6 mt-6 border-t border-gray-200">
+                <a href="{% url 'paiements:echeancier' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors font-lato">
+                    <span class="material-icons text-sm mr-2">arrow_back</span>
+                    Retour à l'échéancier
+                </a>
+
+                <div class="flex items-center space-x-3">
+                    <button type="button" onclick="window.history.back()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors font-lato">
+                        Annuler
+                    </button>
+                    
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#02066F] hover:bg-[#030a8a] transition-colors font-lato">
+                        <span class="material-icons text-sm mr-2">save</span>
+                        Sauvegarder les modifications
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Information -->
+    <div class="mt-6 bg-[#02066F]/5 rounded-lg p-4 border border-[#02066F]/20">
+        <div class="flex items-start space-x-3">
+            <span class="material-icons text-[#02066F] mt-0.5">info</span>
+            <div>
+                <h3 class="text-sm font-medium text-[#02066F] font-lato">Information importante</h3>
+                <p class="text-sm text-[#02066F] mt-1 font-lato">
+                    La modification d'un paiement déjà enregistré peut affecter la comptabilité. 
+                    Assurez-vous que les informations saisies sont correctes avant de sauvegarder.
+                </p>
             </div>
         </div>
     </div>
@@ -225,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const montantSaisi = parseFloat(montantInput.value) || 0;
         const solde = montantPrevu - montantSaisi;
         
-        // Affichage visuel du solde (optionnel)
+        // Affichage visuel du solde
         if (solde > 0) {
             montantInput.style.borderColor = '#f59e0b'; // Orange pour solde restant
         } else if (solde < 0) {

@@ -1,9 +1,14 @@
+# apps/users/apps.py
 from django.apps import AppConfig
 
 class UsersConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.users'
-    verbose_name = 'Utilisateurs RepAvi'
-
+    verbose_name = 'Utilisateurs'
+    
     def ready(self):
-        import apps.users.signals  # Importer les signaux
+        # Importer les signaux pour qu'ils soient enregistrés
+        try:
+            import apps.users.signals
+        except ImportError:
+            pass

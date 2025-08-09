@@ -1,8 +1,39 @@
-<!-- templates/reservations/calendrier.html - MISE À JOUR -->
+<!-- templates/reservations/calendrier.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Calendrier des Réservations - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Calendrier des Réservations{% endblock %}
+{% block page_subtitle %}Vue mensuelle - {{ mois_nom|capfirst }} {{ annee }}{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-4">
+    <!-- Navigation mois -->
+    <div class="flex items-center space-x-2">
+        <a href="?{% if mois == 1 %}annee={{ annee|add:'-1' }}&mois=12{% else %}annee={{ annee }}&mois={{ mois|add:'-1' }}{% endif %}" 
+           class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        
+        <a href="{% url 'reservations:calendrier' %}" 
+           class="px-3 py-2 text-sm text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg border border-gray-300 font-lato">
+            Aujourd'hui
+        </a>
+        
+        <a href="?{% if mois == 12 %}annee={{ annee|add:'1' }}&mois=1{% else %}annee={{ annee }}&mois={{ mois|add:'1' }}{% endif %}" 
+           class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors">
+            <span class="material-icons">chevron_right</span>
+        </a>
+    </div>
+    
+    <a href="{% url 'reservations:nouvelle' %}" 
+       class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">add</span>
+        Nouvelle Réservation
+    </a>
+</div>
+{% endblock %}
 
 {% block content %}
 <div class="flex h-screen">
@@ -10,34 +41,34 @@
     <aside class="w-64 bg-white border-r border-gray-200 overflow-y-auto">
         <div class="p-6">
             <div class="flex items-center space-x-3 mb-8">
-                <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                <div class="w-10 h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
                     <span class="material-icons text-white text-lg">event</span>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg text-gray-900">Calendrier</h1>
-                    <p class="text-xs text-gray-500">Vue mensuelle</p>
+                    <h1 class="font-bold text-lg text-gray-900 font-lato">Calendrier</h1>
+                    <p class="text-xs text-gray-500 font-lato">Vue mensuelle</p>
                 </div>
             </div>
 
             <nav class="space-y-1">
-                <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg font-lato">
                     <span class="material-icons text-sm">dashboard</span>
                     <span>Dashboard</span>
                 </a>
                 
-                <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-green-600 bg-green-50 rounded-lg font-medium">
+                <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium font-lato">
                     <span class="material-icons text-sm">calendar_view_month</span>
                     <span>Calendrier</span>
                 </a>
 
-                <a href="{% url 'reservations:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                <a href="{% url 'reservations:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg font-lato">
                     <span class="material-icons text-sm">list</span>
                     <span>Liste</span>
                 </a>
 
                 <div class="border-t border-gray-200 my-4"></div>
 
-                <a href="{% url 'reservations:arrivees_jour' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg">
+                <a href="{% url 'reservations:arrivees_jour' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg font-lato">
                     <span class="material-icons text-sm">login</span>
                     <span>Arrivées du jour</span>
                     {% if arrivees_aujourd_hui.count > 0 %}
@@ -45,7 +76,7 @@
                     {% endif %}
                 </a>
 
-                <a href="{% url 'reservations:departs_jour' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg">
+                <a href="{% url 'reservations:departs_jour' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg font-lato">
                     <span class="material-icons text-sm">logout</span>
                     <span>Départs du jour</span>
                 </a>
@@ -55,55 +86,10 @@
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto bg-gray-50">
-        <!-- Header avec navigation -->
-        <header class="bg-white border-b border-gray-200 px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-6">
-                    <!-- Navigation mois -->
-                    <div class="flex items-center space-x-4">
-                        <a href="?{% if mois == 1 %}annee={{ annee|add:'-1' }}&mois=12{% else %}annee={{ annee }}&mois={{ mois|add:'-1' }}{% endif %}" 
-                           class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                            <span class="material-icons">chevron_left</span>
-                        </a>
-                        
-                        <div class="text-center">
-                            <h1 class="text-2xl font-bold text-gray-900">{{ mois_nom|capfirst }}</h1>
-                            <p class="text-sm text-gray-600">{{ annee }}</p>
-                        </div>
-                        
-                        <a href="?{% if mois == 12 %}annee={{ annee|add:'1' }}&mois=1{% else %}annee={{ annee }}&mois={{ mois|add:'1' }}{% endif %}" 
-                           class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                            <span class="material-icons">chevron_right</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Bouton aujourd'hui -->
-                    <a href="{% url 'reservations:calendrier' %}" 
-                       class="px-3 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg border border-gray-300">
-                        Aujourd'hui
-                    </a>
-                </div>
-                
-                <div class="flex items-center space-x-3">
-                    <!-- Vue -->
-                    <div class="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-                        <button class="px-3 py-1 text-sm bg-white text-gray-900 rounded shadow-sm">Mois</button>
-                        <button class="px-3 py-1 text-sm text-gray-600 hover:text-gray-900">Semaine</button>
-                    </div>
-                    
-                    <a href="{% url 'reservations:nouvelle' %}" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700">
-                        <span class="material-icons text-sm mr-2">add</span>
-                        Nouvelle Réservation
-                    </a>
-                </div>
-            </div>
-        </header>
-
         <!-- Légende -->
-        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div class="px-6 py-4 bg-white border-b border-gray-200">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-6 text-sm">
+                <div class="flex items-center space-x-6 text-sm font-lato">
                     <div class="flex items-center space-x-2">
                         <div class="w-3 h-3 bg-blue-500 rounded"></div>
                         <span>Confirmée</span>
@@ -122,7 +108,7 @@
                     </div>
                 </div>
                 
-                <div class="text-sm text-gray-600">
+                <div class="text-sm text-gray-600 font-lato">
                     {{ calendrier_data|length }} appartement(s) • {{ jours_mois|length }} jours
                 </div>
             </div>
@@ -134,7 +120,7 @@
                 
                 <!-- En-tête des jours -->
                 <div class="bg-gray-50 border-b border-gray-200">
-                    <div class="grid grid-cols-8 text-center text-sm font-medium text-gray-600">
+                    <div class="grid grid-cols-8 text-center text-sm font-medium text-gray-600 font-lato">
                         <div class="p-3 border-r border-gray-200 font-bold text-gray-900">Appartement</div>
                         {% for jour in jours_mois|slice:":7" %}
                         <div class="p-3 {% if not forloop.last %}border-r border-gray-200{% endif %}">
@@ -154,10 +140,10 @@
                         <div class="p-4 border-r border-gray-200 bg-gray-50 flex flex-col justify-center">
                             <div class="flex items-center space-x-2 mb-2">
                                 <span class="w-3 h-3 rounded-full {% if appartement_data.appartement.statut == 'disponible' %}bg-green-500{% elif appartement_data.appartement.statut == 'occupe' %}bg-red-500{% else %}bg-yellow-500{% endif %}"></span>
-                                <span class="font-bold text-gray-900">{{ appartement_data.appartement.numero }}</span>
+                                <span class="font-bold text-gray-900 font-lato">{{ appartement_data.appartement.numero }}</span>
                             </div>
-                            <div class="text-xs text-gray-600">{{ appartement_data.appartement.get_type_logement_display }}</div>
-                            <div class="text-xs text-gray-500 mt-1">{{ appartement_data.appartement.prix_par_nuit|floatformat:0 }} FCFA/nuit</div>
+                            <div class="text-xs text-gray-600 font-lato">{{ appartement_data.appartement.get_type_logement_display }}</div>
+                            <div class="text-xs text-gray-500 mt-1 font-lato">{{ appartement_data.appartement.prix_par_nuit|floatformat:0 }} FCFA/nuit</div>
                         </div>
                         
                         <!-- Colonnes jours -->
@@ -168,11 +154,11 @@
                             
                             <!-- Réservations du jour -->
                             {% for reservation in jour_data.reservations %}
-                            <div class="mb-1 p-1 text-xs rounded cursor-pointer
+                            <div class="mb-1 p-1 text-xs rounded cursor-pointer transition-all hover:scale-105
                                 {% if reservation.statut == 'confirmee' %}bg-blue-500 text-white
                                 {% elif reservation.statut == 'en_cours' %}bg-green-500 text-white
                                 {% elif reservation.statut == 'terminee' %}bg-gray-500 text-white
-                                {% else %}bg-red-500 text-white{% endif %}"
+                                {% else %}bg-red-500 text-white{% endif %} font-lato"
                                  onclick="window.location.href='{% url 'reservations:detail' reservation.pk %}'">
                                 <div class="font-semibold truncate">{{ reservation.client.prenom }}</div>
                                 <div class="opacity-80">{{ reservation.nombre_nuits }}n</div>
@@ -181,14 +167,14 @@
                             
                             <!-- Bouton ajout rapide -->
                             <button onclick="ajouterReservation('{{ appartement_data.appartement.pk }}', '{{ jour_data.date|date:'Y-m-d' }}')" 
-                                    class="absolute inset-0 border-2 border-dashed border-transparent group-hover:border-blue-300 rounded text-blue-400 hover:text-blue-600 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center">
+                                    class="absolute inset-0 border-2 border-dashed border-transparent group-hover:border-[#02066F]/30 rounded text-[#02066F] hover:text-[#030a8a] transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center">
                                 <span class="material-icons text-lg">add_circle_outline</span>
                             </button>
                             
                             <!-- Indicateur jour actuel -->
                             {% now "Y-m-d" as today %}
                             {% if jour_data.date|date:"Y-m-d" == today %}
-                            <div class="absolute top-1 right-1 w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <div class="absolute top-1 right-1 w-2 h-2 bg-[#02066F] rounded-full"></div>
                             {% endif %}
                         </div>
                         {% endfor %}
@@ -201,7 +187,7 @@
             <div class="mt-6 flex justify-center">
                 <div class="flex items-center space-x-2">
                     {% for semaine in calendrier_html %}
-                    <div class="text-xs text-gray-500">
+                    <div class="text-xs text-gray-500 font-lato">
                         Semaine {{ forloop.counter }}
                     </div>
                     {% endfor %}
@@ -213,7 +199,7 @@
         {% if arrivees_aujourd_hui %}
         <div class="px-6 pb-6">
             <div class="bg-green-50 rounded-xl p-6 border border-green-200">
-                <h3 class="text-lg font-bold text-green-900 mb-4 flex items-center space-x-2">
+                <h3 class="text-lg font-bold text-green-900 mb-4 flex items-center space-x-2 font-lato">
                     <span class="material-icons">today</span>
                     <span>Arrivées du jour ({{ arrivees_aujourd_hui.count }})</span>
                 </h3>
@@ -227,8 +213,8 @@
                                 <span class="material-icons text-green-600 text-sm">person</span>
                             </div>
                             <div class="flex-1">
-                                <div class="font-medium text-gray-900">{{ reservation.client.prenom }} {{ reservation.client.nom }}</div>
-                                <div class="text-sm text-gray-600">{{ reservation.appartement.numero }} • {{ reservation.nombre_nuits }} nuits</div>
+                                <div class="font-medium text-gray-900 font-lato">{{ reservation.client.prenom }} {{ reservation.client.nom }}</div>
+                                <div class="text-sm text-gray-600 font-lato">{{ reservation.appartement.numero }} • {{ reservation.nombre_nuits }} nuits</div>
                             </div>
                             <span class="material-icons text-green-600">arrow_forward</span>
                         </div>
@@ -238,6 +224,59 @@
             </div>
         </div>
         {% endif %}
+
+        <!-- Statistiques du mois -->
+        <div class="px-6 pb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 font-lato">Réservations</p>
+                            <p class="text-xl font-bold text-[#02066F] font-lato">{{ stats.total_reservations|default:"0" }}</p>
+                        </div>
+                        <div class="w-8 h-8 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-[#02066F] text-sm">event</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 font-lato">Nuits vendues</p>
+                            <p class="text-xl font-bold text-green-600 font-lato">{{ stats.nuits_vendues|default:"0" }}</p>
+                        </div>
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-green-600 text-sm">nights_stay</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 font-lato">Chiffre d'affaires</p>
+                            <p class="text-xl font-bold text-blue-600 font-lato">{{ stats.chiffre_affaires|floatformat:0|default:"0" }}</p>
+                        </div>
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-blue-600 text-sm">payments</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 font-lato">Taux d'occupation</p>
+                            <p class="text-xl font-bold text-orange-600 font-lato">{{ stats.taux_occupation|default:"0" }}%</p>
+                        </div>
+                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-orange-600 text-sm">trending_up</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 </div>
 {% endblock %}

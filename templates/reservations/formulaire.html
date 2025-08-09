@@ -1,258 +1,270 @@
-<!-- templates/reservations/formulaire.html - MISE À JOUR -->
+<!-- templates/reservations/formulaire.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}{{ titre }} - RepAvi Lodges{% endblock %}
 
+{% block page_title %}{{ titre }}{% endblock %}
+{% block page_subtitle %}Création en 5 étapes selon cahier des charges{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'reservations:calendrier' %}" 
+   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">calendar_view_month</span>
+    Retour Calendrier
+</a>
+<a href="{% url 'clients:nouveau' %}?retour=reservation" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">person_add</span>
+    Nouveau Client
+</a>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-                <a href="{% url 'dashboard' %}" class="hover:text-blue-600">Dashboard</a>
-                <span>/</span>
-                <a href="{% url 'reservations:calendrier' %}" class="hover:text-blue-600">Réservations</a>
-                <span>/</span>
-                <span class="text-gray-900">{{ titre }}</span>
-            </nav>
-            
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                    <span class="material-icons text-white text-xl">event_available</span>
-                </div>
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900">{{ titre }}</h1>
-                    <p class="text-gray-600">Création en 5 étapes selon cahier des charges</p>
-                </div>
-            </div>
+<!-- Navigation breadcrumb -->
+<div class="mb-8">
+    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4 font-lato">
+        <a href="{% url 'dashboard' %}" class="hover:text-[#02066F]">Dashboard</a>
+        <span>/</span>
+        <a href="{% url 'reservations:calendrier' %}" class="hover:text-[#02066F]">Réservations</a>
+        <span>/</span>
+        <span class="text-gray-900">{{ titre }}</span>
+    </nav>
+    
+    <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 bg-gradient-to-r from-[#02066F] to-blue-600 rounded-xl flex items-center justify-center">
+            <span class="material-icons text-white text-xl">event_available</span>
         </div>
-
-        <!-- Progression des étapes -->
-        <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4" id="steps-indicator">
-                    <div class="flex items-center space-x-2" data-step="1">
-                        <div class="step-circle w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
-                        <span class="step-label font-medium text-blue-600">Client</span>
-                    </div>
-                    <span class="material-icons text-gray-300">arrow_forward</span>
-                    
-                    <div class="flex items-center space-x-2" data-step="2">
-                        <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">2</div>
-                        <span class="step-label text-gray-600">Appartement</span>
-                    </div>
-                    <span class="material-icons text-gray-300">arrow_forward</span>
-                    
-                    <div class="flex items-center space-x-2" data-step="3">
-                        <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">3</div>
-                        <span class="step-label text-gray-600">Dates</span>
-                    </div>
-                    <span class="material-icons text-gray-300">arrow_forward</span>
-                    
-                    <div class="flex items-center space-x-2" data-step="4">
-                        <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">4</div>
-                        <span class="step-label text-gray-600">Tarif</span>
-                    </div>
-                    <span class="material-icons text-gray-300">arrow_forward</span>
-                    
-                    <div class="flex items-center space-x-2" data-step="5">
-                        <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">5</div>
-                        <span class="step-label text-gray-600">Validation</span>
-                    </div>
-                </div>
-            </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 font-lato">{{ titre }}</h1>
+            <p class="text-gray-600 font-lato">Création en 5 étapes selon cahier des charges</p>
         </div>
-
-        <!-- Formulaire -->
-        <form method="post" class="space-y-8" id="reservation-form">
-            {% csrf_token %}
-            
-            <!-- Étape 1: Client -->
-            <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="1">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <span class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
-                    <span>Sélection du Client</span>
-                    <span class="step-status ml-auto text-green-600 hidden">
-                        <span class="material-icons">check_circle</span>
-                    </span>
-                </h2>
-                
-                <div class="grid md:grid-cols-3 gap-6">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.client.label }}</label>
-                        {{ form.client }}
-                        {% if form.client.errors %}
-                        <div class="text-red-600 text-sm mt-1">{{ form.client.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="flex items-end">
-                        <a href="{% url 'clients:nouveau' %}?retour=reservation" 
-                           class="w-full bg-green-100 text-green-600 px-4 py-3 rounded-xl hover:bg-green-200 transition-colors font-medium flex items-center justify-center space-x-2">
-                            <span class="material-icons text-sm">person_add</span>
-                            <span>Nouveau Client</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Info client sélectionné -->
-                <div id="client-info" class="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200 hidden">
-                    <div class="flex items-center space-x-3">
-                        <span class="material-icons text-blue-600">info</span>
-                        <div id="client-details" class="text-blue-800"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Étape 2: Appartement -->
-            <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="2">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <span class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
-                    <span>Choix de l'Appartement</span>
-                    <span class="step-status ml-auto text-green-600 hidden">
-                        <span class="material-icons">check_circle</span>
-                    </span>
-                </h2>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.appartement.label }}</label>
-                    {{ form.appartement }}
-                    {% if form.appartement.errors %}
-                    <div class="text-red-600 text-sm mt-1">{{ form.appartement.errors.0 }}</div>
-                    {% endif %}
-                    
-                    <!-- Info appartement sélectionné -->
-                    <div id="appartement-info" class="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200 hidden">
-                        <div class="flex items-center space-x-4">
-                            <span class="material-icons text-blue-600">info</span>
-                            <div id="appartement-details"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Étape 3: Dates -->
-            <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="3">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <span class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
-                    <span>Dates du Séjour</span>
-                    <span class="step-status ml-auto text-green-600 hidden">
-                        <span class="material-icons">check_circle</span>
-                    </span>
-                </h2>
-                
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.date_arrivee.label }}</label>
-                        {{ form.date_arrivee }}
-                        {% if form.date_arrivee.errors %}
-                        <div class="text-red-600 text-sm mt-1">{{ form.date_arrivee.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.date_depart.label }}</label>
-                        {{ form.date_depart }}
-                        {% if form.date_depart.errors %}
-                        <div class="text-red-600 text-sm mt-1">{{ form.date_depart.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <!-- Alerte conflit -->
-                <div id="conflit-alerte" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 hidden">
-                    <div class="flex items-center space-x-2">
-                        <span class="material-icons">warning</span>
-                        <span class="font-medium">Conflit détecté !</span>
-                    </div>
-                    <div id="conflit-message" class="mt-2 text-sm"></div>
-                </div>
-            </div>
-
-            <!-- Étape 4: Calcul automatique -->
-            <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="4">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <span class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
-                    <span>Calcul Automatique</span>
-                    <span class="step-status ml-auto text-green-600 hidden">
-                        <span class="material-icons">check_circle</span>
-                    </span>
-                </h2>
-
-                <div id="calcul-automatique" class="p-6 bg-green-50 border border-green-200 rounded-xl text-green-600 hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold" id="nombre-nuits">0</div>
-                            <div class="text-sm">Nuits</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-2xl font-bold" id="prix-nuit">0</div>
-                            <div class="text-sm">FCFA/nuit</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-blue-600" id="prix-total">0</div>
-                            <div class="text-sm">FCFA Total</div>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <div class="font-medium" id="details-calcul"></div>
-                    </div>
-                </div>
-
-                <!-- Statut -->
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.statut.label }}</label>
-                    {{ form.statut }}
-                    {% if form.statut.errors %}
-                    <div class="text-red-600 text-sm mt-1">{{ form.statut.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Étape 5: Plan de Paiement -->
-            <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="5">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                    <span class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">5</span>
-                    <span>Plan de Paiement</span>
-                </h2>
-                
-                <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                    <div class="text-blue-800 font-medium mb-4">Échéancier automatique selon cahier :</div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-blue-700">
-                        <div class="flex justify-between items-center p-3 bg-white rounded-lg">
-                            <span class="font-medium">• Acompte (40%) :</span>
-                            <span class="font-bold text-lg" id="montant-acompte">0 FCFA</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-white rounded-lg">
-                            <span class="font-medium">• Solde (60%) :</span>
-                            <span class="font-bold text-lg" id="montant-solde">0 FCFA</span>
-                        </div>
-                    </div>
-                    <div class="text-blue-600 text-sm mt-4 text-center">
-                        L'échéancier sera créé automatiquement après validation
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Actions -->
-            <div class="flex items-center justify-between bg-white rounded-2xl p-6 border border-gray-100">
-                <a href="{% url 'reservations:calendrier' %}" 
-                   class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2">
-                    <span class="material-icons text-sm">arrow_back</span>
-                    <span>Retour Calendrier</span>
-                </a>
-                
-                <button type="submit" 
-                        class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-colors font-medium flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        id="btn-creer" disabled>
-                    <span class="material-icons text-sm">save</span>
-                    <span>Créer la Réservation</span>
-                </button>
-            </div>
-        </form>
     </div>
 </div>
+
+<!-- Progression des étapes -->
+<div class="bg-white rounded-2xl p-6 border border-gray-100 mb-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4" id="steps-indicator">
+            <div class="flex items-center space-x-2" data-step="1">
+                <div class="step-circle w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
+                <span class="step-label font-medium text-[#02066F] font-lato">Client</span>
+            </div>
+            <span class="material-icons text-gray-300">arrow_forward</span>
+            
+            <div class="flex items-center space-x-2" data-step="2">
+                <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">2</div>
+                <span class="step-label text-gray-600 font-lato">Appartement</span>
+            </div>
+            <span class="material-icons text-gray-300">arrow_forward</span>
+            
+            <div class="flex items-center space-x-2" data-step="3">
+                <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">3</div>
+                <span class="step-label text-gray-600 font-lato">Dates</span>
+            </div>
+            <span class="material-icons text-gray-300">arrow_forward</span>
+            
+            <div class="flex items-center space-x-2" data-step="4">
+                <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">4</div>
+                <span class="step-label text-gray-600 font-lato">Tarif</span>
+            </div>
+            <span class="material-icons text-gray-300">arrow_forward</span>
+            
+            <div class="flex items-center space-x-2" data-step="5">
+                <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">5</div>
+                <span class="step-label text-gray-600 font-lato">Validation</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulaire -->
+<form method="post" class="space-y-8" id="reservation-form">
+    {% csrf_token %}
+    
+    <!-- Étape 1: Client -->
+    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="1">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+            <span>Sélection du Client</span>
+            <span class="step-status ml-auto text-green-600 hidden">
+                <span class="material-icons">check_circle</span>
+            </span>
+        </h2>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.client.label }}</label>
+                {{ form.client }}
+                {% if form.client.errors %}
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.client.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="flex items-end">
+                <a href="{% url 'clients:nouveau' %}?retour=reservation" 
+                   class="w-full bg-green-100 text-green-600 px-4 py-3 rounded-xl hover:bg-green-200 transition-colors font-medium flex items-center justify-center space-x-2 font-lato">
+                    <span class="material-icons text-sm">person_add</span>
+                    <span>Nouveau Client</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Info client sélectionné -->
+        <div id="client-info" class="mt-4 p-4 bg-[#02066F]/5 rounded-xl border border-[#02066F]/20 hidden">
+            <div class="flex items-center space-x-3">
+                <span class="material-icons text-[#02066F]">info</span>
+                <div id="client-details" class="text-[#02066F] font-lato"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Étape 2: Appartement -->
+    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="2">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+            <span>Choix de l'Appartement</span>
+            <span class="step-status ml-auto text-green-600 hidden">
+                <span class="material-icons">check_circle</span>
+            </span>
+        </h2>
+        
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.appartement.label }}</label>
+            {{ form.appartement }}
+            {% if form.appartement.errors %}
+            <div class="text-red-600 text-sm mt-1 font-lato">{{ form.appartement.errors.0 }}</div>
+            {% endif %}
+            
+            <!-- Info appartement sélectionné -->
+            <div id="appartement-info" class="mt-4 p-4 bg-[#02066F]/5 rounded-xl border border-[#02066F]/20 hidden">
+                <div class="flex items-center space-x-4">
+                    <span class="material-icons text-[#02066F]">info</span>
+                    <div id="appartement-details" class="font-lato"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Étape 3: Dates -->
+    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="3">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+            <span>Dates du Séjour</span>
+            <span class="step-status ml-auto text-green-600 hidden">
+                <span class="material-icons">check_circle</span>
+            </span>
+        </h2>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.date_arrivee.label }}</label>
+                {{ form.date_arrivee }}
+                {% if form.date_arrivee.errors %}
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.date_arrivee.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.date_depart.label }}</label>
+                {{ form.date_depart }}
+                {% if form.date_depart.errors %}
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.date_depart.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Alerte conflit -->
+        <div id="conflit-alerte" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 hidden">
+            <div class="flex items-center space-x-2">
+                <span class="material-icons">warning</span>
+                <span class="font-medium font-lato">Conflit détecté !</span>
+            </div>
+            <div id="conflit-message" class="mt-2 text-sm font-lato"></div>
+        </div>
+    </div>
+
+    <!-- Étape 4: Calcul automatique -->
+    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="4">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
+            <span>Calcul Automatique</span>
+            <span class="step-status ml-auto text-green-600 hidden">
+                <span class="material-icons">check_circle</span>
+            </span>
+        </h2>
+
+        <div id="calcul-automatique" class="p-6 bg-green-50 border border-green-200 rounded-xl text-green-600 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold font-lato" id="nombre-nuits">0</div>
+                    <div class="text-sm font-lato">Nuits</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold font-lato" id="prix-nuit">0</div>
+                    <div class="text-sm font-lato">FCFA/nuit</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-[#02066F] font-lato" id="prix-total">0</div>
+                    <div class="text-sm font-lato">FCFA Total</div>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="font-medium font-lato" id="details-calcul"></div>
+            </div>
+        </div>
+
+        <!-- Statut -->
+        <div class="mt-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.statut.label }}</label>
+            {{ form.statut }}
+            {% if form.statut.errors %}
+            <div class="text-red-600 text-sm mt-1 font-lato">{{ form.statut.errors.0 }}</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Étape 5: Plan de Paiement -->
+    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="5">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">5</span>
+            <span>Plan de Paiement</span>
+        </h2>
+        
+        <div class="bg-[#02066F]/5 p-6 rounded-xl border border-[#02066F]/20">
+            <div class="text-[#02066F] font-medium mb-4 font-lato">Échéancier automatique selon cahier :</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[#02066F]">
+                <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+                    <span class="font-medium font-lato">• Acompte (40%) :</span>
+                    <span class="font-bold text-lg font-lato" id="montant-acompte">0 FCFA</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+                    <span class="font-medium font-lato">• Solde (60%) :</span>
+                    <span class="font-bold text-lg font-lato" id="montant-solde">0 FCFA</span>
+                </div>
+            </div>
+            <div class="text-[#02066F] text-sm mt-4 text-center font-lato">
+                L'échéancier sera créé automatiquement après validation
+            </div>
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="flex items-center justify-between bg-white rounded-2xl p-6 border border-gray-100">
+        <a href="{% url 'reservations:calendrier' %}" 
+           class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2 font-lato">
+            <span class="material-icons text-sm">arrow_back</span>
+            <span>Retour Calendrier</span>
+        </a>
+        
+        <button type="submit" 
+                class="bg-gradient-to-r from-[#02066F] to-blue-600 text-white px-8 py-3 rounded-xl hover:from-[#030a8a] hover:to-blue-700 transition-colors font-medium flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed font-lato"
+                id="btn-creer" disabled>
+            <span class="material-icons text-sm">save</span>
+            <span>Créer la Réservation</span>
+        </button>
+    </div>
+</form>
 {% endblock %}
 
 {% block extra_js %}
@@ -299,12 +311,12 @@ function updateStepUI(stepNumber, isValid) {
     
     if (isValid) {
         circle.className = 'step-circle w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-sm';
-        label.className = 'step-label font-medium text-green-600';
+        label.className = 'step-label font-medium text-green-600 font-lato';
         if (status) status.classList.remove('hidden');
         formState.completedSteps.add(stepNumber);
     } else {
         circle.className = 'step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm';
-        label.className = 'step-label text-gray-600';
+        label.className = 'step-label text-gray-600 font-lato';
         if (status) status.classList.add('hidden');
         formState.completedSteps.delete(stepNumber);
     }

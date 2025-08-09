@@ -1,234 +1,225 @@
+<!-- ========================================== -->
+<!-- templates/paiements/echeancier.html -->
+<!-- ========================================== -->
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Échéancier des Paiements - RepAvi Lodges{% endblock %}
 
+{% block page_title %}Échéancier des Paiements{% endblock %}
+{% block page_subtitle %}Suivi des paiements par tranches{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'paiements:retards' %}" 
+   class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">error</span>
+    Paiements en retard
+</a>
+<a href="{% url 'reservations:calendrier' %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">event</span>
+    Réservations
+</a>
+{% endblock %}
+
 {% block content %}
-<div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-gray-200 overflow-y-auto">
-        <div class="p-6">
-            <!-- Logo -->
-            <div class="flex items-center space-x-3 mb-8">
-                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-white text-lg">payments</span>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg text-gray-900">Paiements</h1>
-                    <p class="text-xs text-gray-500">Échéancier</p>
-                </div>
-            </div>
+<!-- Filtres -->
+<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900 font-lato">Filtres</h3>
+        
+        <div class="flex items-center space-x-3">
+            <select name="statut_filtre" 
+                    class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato" 
+                    onchange="window.location.href='?statut=' + this.value">
+                <option value="tous" {% if statut_filtre == 'tous' %}selected{% endif %}>Tous les statuts</option>
+                <option value="en_attente" {% if statut_filtre == 'en_attente' %}selected{% endif %}>En attente</option>
+                <option value="retard" {% if statut_filtre == 'retard' %}selected{% endif %}>En retard</option>
+                <option value="paye" {% if statut_filtre == 'paye' %}selected{% endif %}>Payés</option>
+            </select>
 
-            <!-- Navigation -->
-            <nav class="space-y-1">
-                <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                    <span class="material-icons text-sm">dashboard</span>
-                    <span>Dashboard</span>
-                </a>
-                
-                <a href="{% url 'paiements:echeancier' %}" class="flex items-center space-x-3 px-3 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium">
-                    <span class="material-icons text-sm">payments</span>
-                    <span>Échéancier</span>
-                </a>
-
-                <a href="{% url 'paiements:retards' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    <span class="material-icons text-sm">error</span>
-                    <span>Paiements en retard</span>
-                </a>
-
-                <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                    <span class="material-icons text-sm">event</span>
-                    <span>Réservations</span>
-                </a>
-            </nav>
+            <button onclick="window.location.reload()" 
+                    class="flex items-center space-x-1 p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg font-lato">
+                <span class="material-icons text-sm">refresh</span>
+            </button>
         </div>
-    </aside>
+    </div>
+</div>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto bg-gray-50">
-        <!-- Header -->
-        <header class="bg-white border-b border-gray-200 px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Échéancier des Paiements</h1>
-                    <p class="text-gray-600">Suivi des paiements par tranches</p>
-                </div>
-
-                <div class="flex items-center space-x-3">
-                    <!-- Filtres -->
-                    <div class="flex items-center space-x-2">
-                        <select name="statut_filtre" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600" onchange="window.location.href='?statut=' + this.value">
-                            <option value="tous" {% if statut_filtre == 'tous' %}selected{% endif %}>Tous les statuts</option>
-                            <option value="en_attente" {% if statut_filtre == 'en_attente' %}selected{% endif %}>En attente</option>
-                            <option value="retard" {% if statut_filtre == 'retard' %}selected{% endif %}>En retard</option>
-                        </select>
-                    </div>
-
-                    <button onclick="window.location.reload()" class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
-                        <span class="material-icons">refresh</span>
-                    </button>
-                </div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Total Échéances</p>
+                <p class="text-2xl font-bold text-gray-900 font-lato">{{ paiements.count }}</p>
             </div>
-        </header>
-
-        <!-- Content -->
-        <div class="p-6">
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-blue-600">payments</span>
-                        </div>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ paiements.count }}</div>
-                    <div class="text-sm text-gray-600">Total échéances</div>
-                </div>
-
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-orange-600">schedule</span>
-                        </div>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ paiements_en_attente|default:0 }}</div>
-                    <div class="text-sm text-gray-600">En attente</div>
-                </div>
-
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-red-600">error</span>
-                        </div>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ paiements_retard|default:0 }}</div>
-                    <div class="text-sm text-gray-600">En retard</div>
-                </div>
-
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-green-600">check_circle</span>
-                        </div>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-1">{{ paiements_payes|default:0 }}</div>
-                    <div class="text-sm text-gray-600">Payés</div>
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-lg font-semibold text-gray-900">Liste des Échéances</h2>
-                </div>
-
-                {% if paiements %}
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Réservation</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Échéance</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            {% for paiement in paiements %}
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        Rés. #{{ paiement.reservation.id }}
-                                    </div>
-                                    <div class="text-sm text-gray-500">
-                                        {{ paiement.reservation.appartement.nom }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ paiement.reservation.client.nom }} {{ paiement.reservation.client.prenom }}
-                                    </div>
-                                    <div class="text-sm text-gray-500">
-                                        {{ paiement.reservation.client.telephone }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full
-                                        {% if paiement.type_paiement == 'acompte' %}bg-blue-100 text-blue-800
-                                        {% else %}bg-purple-100 text-purple-800{% endif %}">
-                                        {{ paiement.get_type_paiement_display }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ paiement.montant_prevu|floatformat:0 }} FCFA
-                                    </div>
-                                    {% if paiement.montant_paye > 0 %}
-                                    <div class="text-sm text-green-600">
-                                        Payé: {{ paiement.montant_paye|floatformat:0 }} FCFA
-                                    </div>
-                                    {% endif %}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ paiement.date_echeance|date:"d/m/Y" }}</div>
-                                    {% if paiement.date_paiement %}
-                                    <div class="text-sm text-green-600">
-                                        Payé le {{ paiement.date_paiement|date:"d/m/Y" }}
-                                    </div>
-                                    {% endif %}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {% if paiement.statut == 'paye' %}
-                                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                            Payé
-                                        </span>
-                                    {% elif paiement.date_echeance < today %}
-                                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                                            En retard
-                                        </span>
-                                    {% else %}
-                                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">
-                                            En attente
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex items-center space-x-2">
-                                        {% if paiement.statut == 'en_attente' %}
-                                        <a href="{% url 'paiements:saisir' paiement.pk %}" 
-                                           class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 transition-colors">
-                                            <span class="material-icons text-sm mr-1">payment</span>
-                                            Saisir
-                                        </a>
-                                        {% else %}
-                                        <a href="{% url 'paiements:modifier' paiement.pk %}" 
-                                           class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                                            <span class="material-icons text-sm mr-1">edit</span>
-                                            Modifier
-                                        </a>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="px-6 py-12 text-center">
-                    <span class="material-icons text-gray-400 text-4xl mb-4">payments</span>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune échéance</h3>
-                    <p class="text-gray-500 mb-6">Les échéances de paiement apparaîtront ici</p>
-                    <a href="{% url 'reservations:nouvelle' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700">
-                        <span class="material-icons text-sm mr-2">add</span>
-                        Nouvelle réservation
-                    </a>
-                </div>
-                {% endif %}
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">payments</span>
             </div>
         </div>
-    </main>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">En Attente</p>
+                <p class="text-2xl font-bold text-orange-600 font-lato">{{ paiements_en_attente|default:0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-orange-600">schedule</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">En Retard</p>
+                <p class="text-2xl font-bold text-red-600 font-lato">{{ paiements_retard|default:0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-red-600">error</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Payés</p>
+                <p class="text-2xl font-bold text-green-600 font-lato">{{ paiements_payes|default:0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-green-600">check_circle</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900 font-lato">Liste des Échéances</h2>
+    </div>
+
+    {% if paiements %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Réservation</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Client</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Montant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Échéance</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for paiement in paiements %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 font-lato">
+                            Rés. #{{ paiement.reservation.id }}
+                        </div>
+                        <div class="text-sm text-gray-500 font-lato">
+                            {{ paiement.reservation.appartement.numero }}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 font-lato">
+                            {{ paiement.reservation.client.prenom }} {{ paiement.reservation.client.nom }}
+                        </div>
+                        <div class="text-sm text-gray-500 font-lato">
+                            {{ paiement.reservation.client.telephone }}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full font-lato
+                            {% if paiement.type_paiement == 'acompte' %}bg-[#02066F]/10 text-[#02066F]
+                            {% else %}bg-purple-100 text-purple-800{% endif %}">
+                            {{ paiement.get_type_paiement_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 font-lato">
+                            {{ paiement.montant_prevu|floatformat:0 }} FCFA
+                        </div>
+                        {% if paiement.montant_paye > 0 %}
+                        <div class="text-sm text-green-600 font-lato">
+                            Payé: {{ paiement.montant_paye|floatformat:0 }} FCFA
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 font-lato">{{ paiement.date_echeance|date:"d/m/Y" }}</div>
+                        {% if paiement.date_paiement %}
+                        <div class="text-sm text-green-600 font-lato">
+                            Payé le {{ paiement.date_paiement|date:"d/m/Y" }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if paiement.statut == 'paye' %}
+                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full font-lato">
+                                Payé
+                            </span>
+                        {% elif paiement.date_echeance < today %}
+                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full font-lato">
+                                En retard
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full font-lato">
+                                En attente
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex items-center space-x-2">
+                            {% if paiement.statut == 'en_attente' %}
+                            <a href="{% url 'paiements:saisir' paiement.pk %}" 
+                               class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 transition-colors font-lato">
+                                <span class="material-icons text-sm mr-1">payment</span>
+                                Saisir
+                            </a>
+                            {% else %}
+                            <a href="{% url 'paiements:modifier' paiement.pk %}" 
+                               class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors font-lato">
+                                <span class="material-icons text-sm mr-1">edit</span>
+                                Modifier
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="px-6 py-12 text-center">
+        <span class="material-icons text-gray-400 text-4xl mb-4">payments</span>
+        <h3 class="text-lg font-medium text-gray-900 mb-2 font-lato">Aucune échéance</h3>
+        <p class="text-gray-500 mb-6 font-lato">Les échéances de paiement apparaîtront ici</p>
+        <a href="{% url 'reservations:nouvelle' %}" 
+           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#02066F] hover:bg-[#030a8a] font-lato">
+            <span class="material-icons text-sm mr-2">add</span>
+            Nouvelle réservation
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Note importante -->
+<div class="mt-8 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
+    <div class="flex items-start space-x-2 text-[#02066F]">
+        <span class="material-icons text-sm mt-0.5">info</span>
+        <div class="text-sm font-lato">
+            <strong>Échéancier des paiements :</strong> 
+            Suivi automatique des acomptes et soldes selon les réservations. Les échéances en retard nécessitent un suivi prioritaire.
+        </div>
+    </div>
 </div>
 {% endblock %}

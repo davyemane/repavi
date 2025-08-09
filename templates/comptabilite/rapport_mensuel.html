@@ -1,40 +1,36 @@
+<!-- ========================================== -->
 <!-- templates/comptabilite/rapport_mensuel.html -->
+<!-- ========================================== -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Comptabilité {{ mois_nom }} - RepAvi Lodges{% endblock %}
 
-{% block content %}
-<!-- Header avec navigation mois -->
-<div class="flex items-center justify-between mb-8">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-            <span class="material-icons text-cyan-600 text-3xl">assessment</span>
-            <span>Comptabilité Simple</span>
-        </h1>
-        <p class="text-gray-600 mt-2">{{ mois_nom }} • Addition revenus - charges selon cahier</p>
-    </div>
-    
-    <a href="{% url 'comptabilite:ajouter_mouvement' %}" 
-       class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-colors font-medium flex items-center space-x-2">
-        <span class="material-icons">add</span>
-        <span>Ajouter Mouvement</span>
-    </a>
-</div>
+{% block page_title %}Comptabilité Simple{% endblock %}
+{% block page_subtitle %}{{ mois_nom }} • Addition revenus - charges selon cahier{% endblock %}
 
+{% block header_actions %}
+<a href="{% url 'comptabilite:ajouter_mouvement' %}" 
+   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">add</span>
+    Ajouter Mouvement
+</a>
+{% endblock %}
+
+{% block content %}
 <!-- Navigation mois -->
-<div class="bg-white rounded-2xl p-6 border border-gray-100 mb-8">
+<div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
     <div class="flex items-center justify-between">
         <a href="?{% if mois == 1 %}annee={{ annee|add:'-1' }}&mois=12{% else %}annee={{ annee }}&mois={{ mois|add:'-1' }}{% endif %}" 
-           class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+           class="flex items-center space-x-2 text-gray-600 hover:text-[#02066F] transition-colors font-lato">
             <span class="material-icons">chevron_left</span>
             <span>Mois précédent</span>
         </a>
         
-        <h2 class="text-2xl font-bold text-gray-900">{{ mois_nom|capfirst }}</h2>
+        <h2 class="text-2xl font-bold text-gray-900 font-lato">{{ mois_nom|capfirst }}</h2>
         
         <a href="?{% if mois == 12 %}annee={{ annee|add:'1' }}&mois=1{% else %}annee={{ annee }}&mois={{ mois|add:'1' }}{% endif %}" 
-           class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+           class="flex items-center space-x-2 text-gray-600 hover:text-[#02066F] transition-colors font-lato">
             <span>Mois suivant</span>
             <span class="material-icons">chevron_right</span>
         </a>
@@ -43,46 +39,70 @@
 
 <!-- Résumé global -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-white rounded-2xl p-6 border border-gray-100 text-center">
-        <div class="text-3xl font-bold text-green-600 mb-2">{{ total_revenus|floatformat:0 }}</div>
-        <div class="text-gray-600">Total Revenus (FCFA)</div>
-    </div>
-    
-    <div class="bg-white rounded-2xl p-6 border border-gray-100 text-center">
-        <div class="text-3xl font-bold text-red-600 mb-2">{{ total_charges|floatformat:0 }}</div>
-        <div class="text-gray-600">Total Charges (FCFA)</div>
-    </div>
-    
-    <div class="bg-white rounded-2xl p-6 border border-gray-100 text-center">
-        <div class="text-3xl font-bold {% if resultat_global >= 0 %}text-blue-600{% else %}text-red-600{% endif %} mb-2">
-            {{ resultat_global|floatformat:0 }}
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Total Revenus</p>
+                <p class="text-2xl font-bold text-green-600 font-lato">{{ total_revenus|floatformat:0 }}</p>
+                <p class="text-xs text-gray-500 font-lato">FCFA</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-green-600">trending_up</span>
+            </div>
         </div>
-        <div class="text-gray-600">Résultat (FCFA)</div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Total Charges</p>
+                <p class="text-2xl font-bold text-red-600 font-lato">{{ total_charges|floatformat:0 }}</p>
+                <p class="text-xs text-gray-500 font-lato">FCFA</p>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-red-600">trending_down</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Résultat</p>
+                <p class="text-2xl font-bold {% if resultat_global >= 0 %}text-[#02066F]{% else %}text-red-600{% endif %} font-lato">
+                    {{ resultat_global|floatformat:0 }}
+                </p>
+                <p class="text-xs text-gray-500 font-lato">FCFA</p>
+            </div>
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">calculate</span>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Comptabilité par appartement selon cahier -->
 <div class="space-y-6">
     {% for data in rapport_data %}
-    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
         
         <!-- Header appartement -->
         <div class="bg-gray-50 p-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                    <div class="w-10 h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
                         <span class="material-icons text-white text-sm">apartment</span>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">{{ data.appartement.numero }}</h3>
-                        <p class="text-gray-600 text-sm">{{ data.appartement.get_type_logement_display }} - {{ data.appartement.maison }}</p>
+                        <h3 class="text-lg font-bold text-gray-900 font-lato">{{ data.appartement.numero }}</h3>
+                        <p class="text-gray-600 text-sm font-lato">{{ data.appartement.get_type_logement_display }} - {{ data.appartement.maison }}</p>
                     </div>
                 </div>
                 
                 <!-- Taux d'occupation selon cahier -->
                 <div class="text-right">
-                    <div class="text-2xl font-bold text-blue-600">{{ data.taux_occupation }}%</div>
-                    <div class="text-gray-600 text-sm">{{ data.nuits_occupees }} nuits occupées</div>
+                    <div class="text-2xl font-bold text-[#02066F] font-lato">{{ data.taux_occupation }}%</div>
+                    <div class="text-gray-600 text-sm font-lato">{{ data.nuits_occupees }} nuits occupées</div>
                 </div>
             </div>
         </div>
@@ -92,41 +112,41 @@
             <div class="grid md:grid-cols-3 gap-6">
                 
                 <!-- REVENUS -->
-                <div class="bg-green-50 rounded-xl p-4">
-                    <h4 class="font-bold text-green-800 mb-3 flex items-center space-x-2">
+                <div class="bg-green-50 rounded-lg p-4">
+                    <h4 class="font-bold text-green-800 mb-3 flex items-center space-x-2 font-lato">
                         <span class="material-icons text-sm">trending_up</span>
                         <span>REVENUS</span>
                     </h4>
                     <div class="space-y-2">
                         <!-- Les revenus sont listés automatiquement depuis les réservations -->
-                        <div class="text-2xl font-bold text-green-600">{{ data.revenus|floatformat:0 }} FCFA</div>
-                        <div class="text-green-700 text-sm">Addition simple des séjours</div>
+                        <div class="text-2xl font-bold text-green-600 font-lato">{{ data.revenus|floatformat:0 }} FCFA</div>
+                        <div class="text-green-700 text-sm font-lato">Addition simple des séjours</div>
                     </div>
                 </div>
                 
                 <!-- CHARGES -->
-                <div class="bg-red-50 rounded-xl p-4">
-                    <h4 class="font-bold text-red-800 mb-3 flex items-center space-x-2">
+                <div class="bg-red-50 rounded-lg p-4">
+                    <h4 class="font-bold text-red-800 mb-3 flex items-center space-x-2 font-lato">
                         <span class="material-icons text-sm">trending_down</span>
                         <span>CHARGES</span>
                     </h4>
                     <div class="space-y-2">
-                        <div class="text-2xl font-bold text-red-600">{{ data.charges|floatformat:0 }} FCFA</div>
-                        <div class="text-red-700 text-sm">Saisies manuellement</div>
+                        <div class="text-2xl font-bold text-red-600 font-lato">{{ data.charges|floatformat:0 }} FCFA</div>
+                        <div class="text-red-700 text-sm font-lato">Saisies manuellement</div>
                     </div>
                 </div>
                 
                 <!-- RÉSULTAT -->
-                <div class="bg-blue-50 rounded-xl p-4">
-                    <h4 class="font-bold text-blue-800 mb-3 flex items-center space-x-2">
+                <div class="bg-[#02066F]/5 rounded-lg p-4">
+                    <h4 class="font-bold text-[#02066F] mb-3 flex items-center space-x-2 font-lato">
                         <span class="material-icons text-sm">calculate</span>
                         <span>RÉSULTAT</span>
                     </h4>
                     <div class="space-y-2">
-                        <div class="text-2xl font-bold {% if data.resultat >= 0 %}text-blue-600{% else %}text-red-600{% endif %}">
+                        <div class="text-2xl font-bold {% if data.resultat >= 0 %}text-[#02066F]{% else %}text-red-600{% endif %} font-lato">
                             {{ data.resultat|floatformat:0 }} FCFA
                         </div>
-                        <div class="text-blue-700 text-sm">Revenus - Charges</div>
+                        <div class="text-[#02066F] text-sm font-lato">Revenus - Charges</div>
                     </div>
                 </div>
             </div>
@@ -134,27 +154,45 @@
             <!-- Actions par appartement -->
             <div class="mt-6 flex space-x-3">
                 <a href="{% url 'comptabilite:detail_appartement' data.appartement.pk %}?annee={{ annee }}&mois={{ mois }}" 
-                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center space-x-1">
+                   class="flex items-center space-x-1 px-4 py-2 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors text-sm font-medium font-lato">
                     <span class="material-icons text-sm">visibility</span>
                     <span>Détail</span>
                 </a>
                 
                 <a href="{% url 'comptabilite:ajouter_mouvement' %}?appartement={{ data.appartement.pk }}" 
-                   class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center space-x-1">
+                   class="flex items-center space-x-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium font-lato">
                     <span class="material-icons text-sm">add</span>
                     <span>Ajouter Charge</span>
                 </a>
             </div>
         </div>
     </div>
+    {% empty %}
+    <!-- État vide -->
+    <div class="text-center py-12">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span class="material-icons text-gray-400 text-3xl">assessment</span>
+        </div>
+        <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
+            Aucune donnée comptable
+        </h3>
+        <p class="text-gray-500 mb-6 font-lato">
+            Aucun mouvement comptable pour ce mois.
+        </p>
+        <a href="{% url 'comptabilite:ajouter_mouvement' %}" 
+           class="inline-flex items-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+            <span class="material-icons text-sm">add</span>
+            <span>Ajouter Premier Mouvement</span>
+        </a>
+    </div>
     {% endfor %}
 </div>
 
 <!-- Note importante selon cahier -->
-<div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-4">
-    <div class="flex items-start space-x-2 text-blue-800">
+<div class="mt-8 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
+    <div class="flex items-start space-x-2 text-[#02066F]">
         <span class="material-icons text-sm mt-0.5">info</span>
-        <div class="text-sm">
+        <div class="text-sm font-lato">
             <strong>Comptabilité simplifiée selon cahier :</strong> 
             Pas de calculs complexes, pas de dépréciation automatique, pas de calculs fiscaux. 
             Juste addition des revenus par appartement et soustraction des charges saisies manuellement.

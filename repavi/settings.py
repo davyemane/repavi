@@ -37,6 +37,7 @@ DJANGO_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+     'apps.users',  
 ]
 
 THIRD_PARTY_APPS = [
@@ -52,7 +53,8 @@ if DEBUG:
 
 # Applications RepAvi selon cahier des charges UNIQUEMENT
 LOCAL_APPS = [
-    'apps.users',          # Profils : Super Admin + Gestionnaire
+    
+           # Profils : Super Admin + Gestionnaire
     'apps.appartements.apps.AppartementsConfig',   # Gestion appartements selon cahier
     'apps.clients.apps.ClientsConfig',        # Fiche client simple selon cahier
     'apps.reservations.apps.ReservationsConfig',   # Réservations et planning selon cahier
@@ -60,7 +62,7 @@ LOCAL_APPS = [
     'apps.inventaire.apps.InventaireConfig',     # Inventaire équipements SIMPLIFIÉ selon cahier
     'apps.comptabilite.apps.ComptabiliteConfig',   # Comptabilité simple selon cahier
     'apps.menage.apps.MenageConfig',         # Planning ménage basique selon cahier
-    'apps.facturation.apps.FacturationConfig',    # Facturation PDF selon cahier
+    'apps.facturation.apps.FacturationConfig',    # Facturation PDF selon cahier 
 ]
 
 # Liste finale des applications
@@ -73,9 +75,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'apps.users.middleware.AuditMiddleware',  # AJOUTER ICI
+    'apps.users.middleware.CurrentUserMiddleware', 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+   
 ]
 
 # Middleware de développement

@@ -1,116 +1,223 @@
+<!-- templates/reservations/annuler_reservation.html -->
 {% extends 'base.html' %}
 
 {% block title %}Annuler Réservation - RepAvi Lodges{% endblock %}
 
+{% block page_title %}Annuler la Réservation{% endblock %}
+{% block page_subtitle %}Changement de statut vers "Annulée" - Action irréversible{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'reservations:detail' reservation.pk %}" 
+   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour Détail
+</a>
+<a href="{% url 'reservations:modifier' reservation.pk %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">edit</span>
+    Modifier Plutôt
+</a>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Header -->
-        <div class="mb-8">
-            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-                <a href="{% url 'dashboard' %}" class="hover:text-blue-600">Dashboard</a>
-                <span>/</span>
-                <a href="{% url 'reservations:detail' reservation.pk %}" class="hover:text-blue-600">Réservation #{{ reservation.id }}</a>
-                <span>/</span>
-                <span class="text-gray-900">Annuler</span>
-            </nav>
-            
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-red-600 text-xl">cancel</span>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Annuler la réservation</h1>
-                    <p class="text-gray-600">Cette action est irréversible</p>
-                </div>
-            </div>
+<!-- Navigation breadcrumb -->
+<div class="mb-8">
+    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4 font-lato">
+        <a href="{% url 'dashboard' %}" class="hover:text-[#02066F]">Dashboard</a>
+        <span>/</span>
+        <a href="{% url 'reservations:detail' reservation.pk %}" class="hover:text-[#02066F]">Réservation #{{ reservation.id }}</a>
+        <span>/</span>
+        <span class="text-gray-900">Annuler</span>
+    </nav>
+    
+    <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+            <span class="material-icons text-red-600 text-xl">cancel</span>
         </div>
-
-        <!-- Informations réservation -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Détails de la réservation</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Client</h3>
-                    <p class="text-lg font-semibold text-gray-900">{{ reservation.client.nom }} {{ reservation.client.prenom }}</p>
-                    <p class="text-sm text-gray-600">{{ reservation.client.telephone }}</p>
-                </div>
-                
-                <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Appartement</h3>
-                    <p class="text-lg font-semibold text-gray-900">{{ reservation.appartement.numero }}</p>
-                    <p class="text-sm text-gray-600">{{ reservation.appartement.get_type_logement_display }}</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Dates</h3>
-                    <p class="text-sm text-gray-900">Du {{ reservation.date_arrivee|date:"d/m/Y" }}</p>
-                    <p class="text-sm text-gray-900">au {{ reservation.date_depart|date:"d/m/Y" }}</p>
-                </div>
-                
-                <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Durée</h3>
-                    <p class="text-lg font-semibold text-gray-900">{{ reservation.nombre_nuits }} nuit(s)</p>
-                </div>
-                
-                <div>
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Montant</h3>
-                    <p class="text-lg font-semibold text-gray-900">{{ reservation.prix_total|floatformat:0 }} FCFA</p>
-                </div>
-            </div>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 font-lato">Annuler la réservation</h1>
+            <p class="text-gray-600 font-lato">Cette action est irréversible</p>
         </div>
-
-        <!-- Avertissement -->
-        <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
-            <div class="flex items-start space-x-3">
-                <span class="material-icons text-red-600 mt-0.5">warning</span>
-                <div>
-                    <h3 class="text-sm font-medium text-red-900">Attention !</h3>
-                    <div class="mt-2 text-sm text-red-700">
-                        <ul class="list-disc list-inside space-y-1">
-                            <li>Cette action annulera définitivement la réservation</li>
-                            <li>L'appartement sera automatiquement libéré</li>
-                            <li>Les paiements déjà effectués devront être remboursés manuellement</li>
-                            <li>Le client sera informé de l'annulation</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Confirmation -->
-        <form method="post" class="bg-white rounded-xl border border-gray-200 p-6">
-            {% csrf_token %}
-            
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Confirmation d'annulation</h3>
-            
-            <div class="mb-6">
-                <label class="flex items-start space-x-3">
-                    <input type="checkbox" required class="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                    <span class="text-sm text-gray-700">
-                        Je confirme vouloir annuler cette réservation et comprends que cette action est irréversible.
-                    </span>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <a href="{% url 'reservations:detail' reservation.pk %}" 
-                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
-                    <span class="material-icons text-sm mr-2">arrow_back</span>
-                    Retour
-                </a>
-
-                <button type="submit" 
-                        class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700">
-                    <span class="material-icons text-sm mr-2">cancel</span>
-                    Confirmer l'annulation
-                </button>
-            </div>
-        </form>
     </div>
 </div>
+
+<!-- Informations réservation -->
+<div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Détails de la réservation</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <h3 class="text-sm font-medium text-gray-700 mb-2 font-lato">Client</h3>
+            <p class="text-lg font-semibold text-gray-900 font-lato">{{ reservation.client.nom }} {{ reservation.client.prenom }}</p>
+            <div class="flex items-center space-x-2 text-gray-600 mt-1">
+                <span class="material-icons text-sm">phone</span>
+                <span class="font-lato">{{ reservation.client.telephone }}</span>
+            </div>
+            {% if reservation.client.email %}
+            <div class="flex items-center space-x-2 text-gray-600 mt-1">
+                <span class="material-icons text-sm">email</span>
+                <span class="font-lato">{{ reservation.client.email }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div>
+            <h3 class="text-sm font-medium text-gray-700 mb-2 font-lato">Appartement</h3>
+            <p class="text-lg font-semibold text-gray-900 font-lato">{{ reservation.appartement.numero }}</p>
+            <p class="text-sm text-gray-600 font-lato">{{ reservation.appartement.get_type_logement_display }}</p>
+            <p class="text-sm text-gray-600 font-lato">{{ reservation.appartement.maison }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div>
+            <h3 class="text-sm font-medium text-gray-700 mb-2 font-lato">Dates</h3>
+            <div class="flex items-center space-x-2 mb-1">
+                <span class="material-icons text-gray-400 text-sm">login</span>
+                <span class="text-sm text-gray-900 font-lato">{{ reservation.date_arrivee|date:"d/m/Y" }}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="material-icons text-gray-400 text-sm">logout</span>
+                <span class="text-sm text-gray-900 font-lato">{{ reservation.date_depart|date:"d/m/Y" }}</span>
+            </div>
+        </div>
+        
+        <div>
+            <h3 class="text-sm font-medium text-gray-700 mb-2 font-lato">Durée</h3>
+            <div class="flex items-center space-x-2">
+                <span class="material-icons text-gray-400 text-sm">nights_stay</span>
+                <span class="text-lg font-semibold text-gray-900 font-lato">{{ reservation.nombre_nuits }} nuit(s)</span>
+            </div>
+        </div>
+        
+        <div>
+            <h3 class="text-sm font-medium text-gray-700 mb-2 font-lato">Montant</h3>
+            <div class="flex items-center space-x-2">
+                <span class="material-icons text-gray-400 text-sm">payments</span>
+                <span class="text-lg font-semibold text-gray-900 font-lato">{{ reservation.prix_total|floatformat:0 }} FCFA</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statut actuel -->
+    <div class="mt-6 pt-6 border-t border-gray-200">
+        <h3 class="text-sm font-medium text-gray-700 mb-2 font-lato">Statut actuel</h3>
+        <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full 
+               {% if reservation.statut == 'confirmee' %}bg-blue-100 text-blue-800 
+               {% elif reservation.statut == 'en_cours' %}bg-green-100 text-green-800 
+               {% elif reservation.statut == 'terminee' %}bg-gray-100 text-gray-800 
+               {% else %}bg-red-100 text-red-800{% endif %} font-lato">
+            {{ reservation.get_statut_display }}
+        </span>
+    </div>
+</div>
+
+<!-- Avertissement -->
+<div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
+    <div class="flex items-start space-x-3">
+        <span class="material-icons text-red-600 mt-0.5">warning</span>
+        <div>
+            <h3 class="text-sm font-medium text-red-900 font-lato">Attention !</h3>
+            <div class="mt-2 text-sm text-red-700 font-lato">
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Cette action annulera définitivement la réservation</li>
+                    <li>L'appartement sera automatiquement libéré</li>
+                    <li>Les paiements déjà effectués devront être remboursés manuellement</li>
+                    <li>Le client sera informé de l'annulation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Impact financier -->
+{% if reservation.paiements_effectues %}
+<div class="bg-orange-50 border border-orange-200 rounded-xl p-6 mb-6">
+    <div class="flex items-start space-x-3">
+        <span class="material-icons text-orange-600 mt-0.5">account_balance_wallet</span>
+        <div>
+            <h3 class="text-sm font-medium text-orange-900 font-lato">Impact Financier</h3>
+            <div class="mt-2 text-sm text-orange-700 font-lato">
+                <p class="mb-2">Des paiements ont été effectués pour cette réservation :</p>
+                <div class="bg-white rounded-lg p-3">
+                    <div class="flex items-center justify-between">
+                        <span>Montant total reçu :</span>
+                        <span class="font-semibold">{{ reservation.total_paiements|floatformat:0 }} FCFA</span>
+                    </div>
+                </div>
+                <p class="mt-2 text-xs">⚠️ Ces montants devront être remboursés manuellement au client</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Alternatives -->
+<div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+    <div class="flex items-start space-x-3">
+        <span class="material-icons text-blue-600 mt-0.5">lightbulb</span>
+        <div>
+            <h3 class="text-sm font-medium text-blue-900 font-lato">Alternatives à l'annulation</h3>
+            <div class="mt-2 text-sm text-blue-700 font-lato">
+                <p class="mb-3">Avant d'annuler, considérez ces options :</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <a href="{% url 'reservations:modifier' reservation.pk %}" 
+                       class="flex items-center space-x-2 p-3 bg-white rounded-lg hover:bg-blue-50 transition-colors">
+                        <span class="material-icons text-sm">edit</span>
+                        <span class="font-medium">Modifier les dates</span>
+                    </a>
+                    <a href="{% url 'reservations:reporter' reservation.pk %}" 
+                       class="flex items-center space-x-2 p-3 bg-white rounded-lg hover:bg-blue-50 transition-colors">
+                        <span class="material-icons text-sm">event</span>
+                        <span class="font-medium">Reporter le séjour</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation -->
+<form method="post" class="bg-white rounded-xl border border-gray-200 p-6">
+    {% csrf_token %}
+    
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Confirmation d'annulation</h3>
+    
+    <div class="space-y-4 mb-6">
+        <label class="flex items-start space-x-3">
+            <input type="checkbox" required class="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+            <span class="text-sm text-gray-700 font-lato">
+                Je confirme vouloir annuler cette réservation et comprends que cette action est irréversible.
+            </span>
+        </label>
+        
+        <label class="flex items-start space-x-3">
+            <input type="checkbox" required class="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+            <span class="text-sm text-gray-700 font-lato">
+                Je m'engage à gérer manuellement les remboursements nécessaires.
+            </span>
+        </label>
+        
+        <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Motif d'annulation (optionnel)</label>
+            <textarea name="motif_annulation" rows="3" 
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato"
+                      placeholder="Précisez le motif de l'annulation..."></textarea>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between">
+        <a href="{% url 'reservations:detail' reservation.pk %}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors font-lato">
+            <span class="material-icons text-sm mr-2">arrow_back</span>
+            Retour
+        </a>
+
+        <button type="submit" 
+                class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors font-lato">
+            <span class="material-icons text-sm mr-2">cancel</span>
+            Confirmer l'annulation
+        </button>
+    </div>
+</form>
 {% endblock %}

@@ -1,69 +1,127 @@
+<!-- ========================================== -->
 <!-- templates/clients/liste.html -->
+<!-- ========================================== -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Clients - RepAvi Lodges{% endblock %}
 
+{% block page_title %}Gestion des Clients{% endblock %}
+{% block page_subtitle %}{{ clients|length }} client(s) • Fiche client simple selon cahier des charges{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'clients:nouveau' %}" 
+   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">person_add</span>
+    Nouveau Client
+</a>
+{% endblock %}
+
 {% block content %}
-<!-- Header avec recherche -->
-<div class="flex items-center justify-between mb-8">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-            <span class="material-icons text-green-600 text-3xl">people</span>
-            <span>Gestion des Clients</span>
-        </h1>
-        <p class="text-gray-600 mt-2">{{ clients|length }} client(s) • Fiche client simple selon cahier des charges</p>
+<!-- Stats rapides -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Total Clients</p>
+                <p class="text-2xl font-bold text-gray-900 font-lato">{{ clients|length }}</p>
+            </div>
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">people</span>
+            </div>
+        </div>
     </div>
     
-    <a href="{% url 'clients:nouveau' %}" 
-       class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-colors font-medium flex items-center space-x-2">
-        <span class="material-icons">person_add</span>
-        <span>Nouveau Client</span>
-    </a>
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Nouveaux ce mois</p>
+                <p class="text-2xl font-bold text-green-600 font-lato">{{ nouveaux_clients_mois|default:0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-green-600">person_add</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Clients Actifs</p>
+                <p class="text-2xl font-bold text-[#02066F] font-lato">{{ clients_actifs|default:0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">trending_up</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Total Séjours</p>
+                <p class="text-2xl font-bold text-orange-600 font-lato">{{ total_sejours|default:0 }}</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-orange-600">hotel</span>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Recherche selon cahier (nom ou téléphone) -->
-<div class="bg-white rounded-2xl p-6 border border-gray-100 mb-8">
-    <form method="get" class="flex items-center space-x-4">
-        <div class="flex-1 relative">
-            <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
-            <input type="text" name="q" value="{{ recherche }}" 
-                   placeholder="Rechercher par nom, prénom ou téléphone..."
-                   class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <form method="get" class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+        <div class="flex-1">
+            <div class="relative">
+                <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
+                <input type="text" name="q" value="{{ recherche }}" 
+                       placeholder="Rechercher par nom, prénom ou téléphone..."
+                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato">
+            </div>
         </div>
-        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium">
-            Rechercher
-        </button>
-        {% if recherche %}
-        <a href="{% url 'clients:liste' %}" class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium">
-            Effacer
-        </a>
-        {% endif %}
+        
+        <div class="flex items-center space-x-2">
+            <button type="submit" 
+                    class="flex items-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+                <span class="material-icons text-sm">search</span>
+                <span>Rechercher</span>
+            </button>
+            
+            {% if recherche %}
+            <a href="{% url 'clients:liste' %}" 
+               class="flex items-center space-x-2 px-4 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-lato">
+                <span class="material-icons text-sm">clear</span>
+                <span>Effacer</span>
+            </a>
+            {% endif %}
+        </div>
     </form>
 </div>
 
 <!-- Liste des clients -->
+{% if clients %}
 <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
     {% for client in clients %}
-    <div class="bg-white rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+    <div class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300 overflow-hidden group">
         
         <!-- Header client -->
         <div class="p-6 pb-4">
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                    <div class="w-12 h-12 bg-[#02066F] rounded-full flex items-center justify-center">
                         <span class="material-icons text-white">person</span>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold text-gray-900">{{ client.prenom }} {{ client.nom }}</h3>
-                        <p class="text-gray-600 text-sm">Client #{{ client.pk }}</p>
+                        <h3 class="text-lg font-bold text-gray-900 group-hover:text-[#02066F] transition-colors font-lato">{{ client.prenom }} {{ client.nom }}</h3>
+                        <p class="text-gray-600 text-sm font-lato">Client #{{ client.pk }}</p>
                     </div>
                 </div>
                 
                 <!-- Badge nombre de séjours -->
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-600">{{ client.get_nombre_sejours }}</div>
-                    <div class="text-xs text-gray-500">séjour(s)</div>
+                    <div class="text-2xl font-bold text-[#02066F] font-lato">{{ client.get_nombre_sejours }}</div>
+                    <div class="text-xs text-gray-500 font-lato">séjour(s)</div>
                 </div>
             </div>
             
@@ -71,17 +129,17 @@
             <div class="space-y-2">
                 <div class="flex items-center space-x-2 text-gray-600">
                     <span class="material-icons text-sm">phone</span>
-                    <span class="text-sm">{{ client.telephone }}</span>
+                    <span class="text-sm font-lato">{{ client.telephone }}</span>
                 </div>
                 
                 <div class="flex items-center space-x-2 text-gray-600">
                     <span class="material-icons text-sm">email</span>
-                    <span class="text-sm">{{ client.email }}</span>
+                    <span class="text-sm font-lato">{{ client.email }}</span>
                 </div>
                 
                 <div class="flex items-start space-x-2 text-gray-600">
                     <span class="material-icons text-sm mt-0.5">location_on</span>
-                    <span class="text-sm">{{ client.adresse_residence|truncatechars:50 }}</span>
+                    <span class="text-sm font-lato">{{ client.adresse_residence|truncatechars:50 }}</span>
                 </div>
             </div>
         </div>
@@ -90,7 +148,7 @@
         <div class="px-6 pb-6">
             <div class="flex space-x-2">
                 <a href="{% url 'clients:detail' client.pk %}" 
-                   class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center flex items-center justify-center space-x-1">
+                   class="flex-1 bg-[#02066F] text-white py-2 px-4 rounded-lg hover:bg-[#030a8a] transition-colors font-medium text-center flex items-center justify-center space-x-1 font-lato">
                     <span class="material-icons text-sm">visibility</span>
                     <span>Voir Fiche</span>
                 </a>
@@ -109,25 +167,40 @@
             </div>
         </div>
     </div>
-    {% empty %}
-    
-    <!-- État vide -->
-    <div class="col-span-full text-center py-12">
-        <span class="material-icons text-gray-400 text-6xl mb-4">people</span>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Aucun client trouvé</h3>
-        <p class="text-gray-600 mb-6">
-            {% if recherche %}
-            Aucun résultat pour "{{ recherche }}".
-            {% else %}
-            Commencez par ajouter votre premier client.
-            {% endif %}
-        </p>
-        <a href="{% url 'clients:nouveau' %}" 
-           class="inline-flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-medium">
-            <span class="material-icons">person_add</span>
-            <span>Ajouter un client</span>
-        </a>
-    </div>
     {% endfor %}
 </div>
+
+{% else %}
+<!-- État vide -->
+<div class="text-center py-12">
+    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span class="material-icons text-gray-400 text-3xl">people</span>
+    </div>
+    
+    {% if recherche %}
+    <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
+        Aucun client trouvé
+    </h3>
+    <p class="text-gray-500 mb-6 font-lato">
+        Aucun résultat pour "{{ recherche }}".
+    </p>
+    <a href="{% url 'clients:liste' %}" 
+       class="text-[#02066F] hover:text-[#030a8a] font-lato">
+        Voir tous les clients
+    </a>
+    {% else %}
+    <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
+        Aucun client
+    </h3>
+    <p class="text-gray-500 mb-6 font-lato">
+        Commencez par ajouter votre premier client.
+    </p>
+    <a href="{% url 'clients:nouveau' %}" 
+       class="inline-flex items-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+        <span class="material-icons text-sm">person_add</span>
+        <span>Ajouter un client</span>
+    </a>
+    {% endif %}
+</div>
+{% endif %}
 {% endblock %}

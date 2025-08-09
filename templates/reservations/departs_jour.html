@@ -3,72 +3,314 @@
 
 {% block title %}Départs du Jour - RepAvi Lodges{% endblock %}
 
+{% block page_title %}Départs du Jour{% endblock %}
+{% block page_subtitle %}Clients partant le {{ date_jour|date:"l d F Y" }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'reservations:calendrier' %}" 
+   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">calendar_view_month</span>
+    Calendrier
+</a>
+<a href="{% url 'menage:planning_jour' %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">cleaning_services</span>
+    Planning Ménage
+</a>
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div class="mb-8">
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-orange-600 text-xl">event_busy</span>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Départs du jour</h1>
-                    <p class="text-gray-600">{{ date_jour|date:"l d F Y" }}</p>
-                </div>
+<!-- Stats rapides -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Départs Aujourd'hui</p>
+                <p class="text-2xl font-bold text-gray-900 font-lato">{{ departs.count }}</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-orange-600">logout</span>
             </div>
         </div>
-
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            {% if departs %}
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">{{ departs.count }} départ(s) prévu(s)</h2>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Séjours Terminés</p>
+                <p class="text-2xl font-bold text-orange-600 font-lato">{{ sejours_termines|default:"0" }}</p>
             </div>
-            
-            <div class="divide-y divide-gray-100">
-                {% for reservation in departs %}
-                <div class="p-6 hover:bg-gray-50">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                                <span class="material-icons text-orange-600">logout</span>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-medium text-gray-900">{{ reservation.client.nom }} {{ reservation.client.prenom }}</h3>
-                                <p class="text-gray-600">{{ reservation.client.telephone }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="text-right">
-                            <p class="text-lg font-semibold text-gray-900">{{ reservation.appartement.numero }}</p>
-                            <p class="text-sm text-gray-600">Séjour de {{ reservation.nombre_nuits }} nuit(s)</p>
-                        </div>
-                        
-                        <div class="flex items-center space-x-2">
-                            <a href="{% url 'menage:planifier' %}?appartement={{ reservation.appartement.pk }}" 
-                               class="inline-flex items-center px-3 py-2 border border-blue-300 text-sm font-medium rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100">
-                                <span class="material-icons text-sm mr-1">cleaning_services</span>
-                                Planifier ménage
-                            </a>
-                            
-                            <a href="{% url 'reservations:detail' reservation.pk %}" 
-                               class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
-                                <span class="material-icons text-sm mr-1">visibility</span>
-                                Voir
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-orange-600">check_circle</span>
             </div>
-            {% else %}
-            <div class="px-6 py-12 text-center">
-                <span class="material-icons text-gray-400 text-4xl mb-4">event_available</span>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun départ prévu</h3>
-                <p class="text-gray-500">Pas de départ programmé pour aujourd'hui</p>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Apparts à Nettoyer</p>
+                <p class="text-2xl font-bold text-[#02066F] font-lato">{{ appartements_a_nettoyer|default:"0" }}</p>
             </div>
-            {% endif %}
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">cleaning_services</span>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Navigation rapide -->
+<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-900 font-lato">Navigation Rapide</h3>
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'reservations:arrivees_jour' %}" 
+               class="flex items-center space-x-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-lato">
+                <span class="material-icons text-sm">login</span>
+                <span>Arrivées</span>
+            </a>
+            
+            <a href="{% url 'reservations:departs_jour' %}" 
+               class="flex items-center space-x-2 px-4 py-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors font-lato">
+                <span class="material-icons text-sm">logout</span>
+                <span>Départs</span>
+                <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ departs.count }}</span>
+            </a>
+            
+            <a href="{% url 'reservations:liste' %}" 
+               class="flex items-center space-x-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-lato">
+                <span class="material-icons text-sm">list</span>
+                <span>Toutes</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des départs -->
+{% if departs %}
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 bg-orange-50">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-orange-900 font-lato flex items-center space-x-2">
+                <span class="material-icons">event_busy</span>
+                <span>{{ departs.count }} départ(s) prévu(s)</span>
+            </h2>
+            <div class="text-sm text-orange-700 font-lato">
+                {{ date_jour|date:"l d F Y" }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="divide-y divide-gray-100">
+        {% for reservation in departs %}
+        <div class="p-6 hover:bg-gray-50 transition-all duration-300 group">
+            <div class="flex items-center justify-between">
+                <!-- Informations client -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                        <span class="material-icons text-orange-600">person</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 group-hover:text-[#02066F] transition-colors font-lato">
+                            {{ reservation.client.nom }} {{ reservation.client.prenom }}
+                        </h3>
+                        <div class="flex items-center space-x-2 text-gray-600">
+                            <span class="material-icons text-sm">phone</span>
+                            <span class="font-lato">{{ reservation.client.telephone }}</span>
+                        </div>
+                        {% if reservation.client.email %}
+                        <div class="flex items-center space-x-2 text-gray-600 mt-1">
+                            <span class="material-icons text-sm">email</span>
+                            <span class="font-lato text-sm">{{ reservation.client.email }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Détails séjour -->
+                <div class="text-center">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="material-icons text-gray-400 text-sm">apartment</span>
+                        <span class="text-lg font-bold text-gray-900 font-lato">{{ reservation.appartement.numero }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 font-lato">{{ reservation.appartement.get_type_logement_display }}</p>
+                    <div class="flex items-center space-x-2 mt-2">
+                        <span class="material-icons text-gray-400 text-sm">schedule</span>
+                        <span class="text-sm text-gray-600 font-lato">Séjour de {{ reservation.nombre_nuits }} nuit(s)</span>
+                    </div>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <span class="material-icons text-gray-400 text-sm">date_range</span>
+                        <span class="text-xs text-gray-500 font-lato">Du {{ reservation.date_arrivee|date:"d/m" }}</span>
+                    </div>
+                </div>
+                
+                <!-- Prix et statut -->
+                <div class="text-right">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="material-icons text-gray-400 text-sm">payments</span>
+                        <span class="text-lg font-bold text-gray-900 font-lato">{{ reservation.prix_total|floatformat:0 }}</span>
+                        <span class="text-gray-600 text-sm font-lato">FCFA</span>
+                    </div>
+                    <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full 
+                           {% if reservation.statut == 'confirmee' %}bg-blue-100 text-blue-800 
+                           {% elif reservation.statut == 'en_cours' %}bg-green-100 text-green-800 
+                           {% else %}bg-gray-100 text-gray-800{% endif %} font-lato">
+                        {{ reservation.get_statut_display }}
+                    </span>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-center space-x-2">
+                    <a href="{% url 'menage:planifier' %}?appartement={{ reservation.appartement.pk }}&date={{ date_jour|date:'Y-m-d' }}"
+                       class="flex items-center space-x-1 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-sm font-lato">
+                        <span class="material-icons text-sm">cleaning_services</span>
+                        <span>Ménage</span>
+                    </a>
+                    
+                    <a href="{% url 'reservations:detail' reservation.pk %}"
+                       class="flex items-center space-x-1 px-3 py-2 text-[#02066F] bg-[#02066F]/10 rounded-lg hover:bg-[#02066F]/20 transition-colors text-sm font-lato">
+                        <span class="material-icons text-sm">visibility</span>
+                        <span>Détail</span>
+                    </a>
+                    
+                    {% if reservation.statut == 'en_cours' %}
+                    <a href="{% url 'reservations:changer_statut' reservation.pk %}?statut=terminee"
+                       class="flex items-center space-x-1 px-3 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-sm font-lato">
+                        <span class="material-icons text-sm">check_circle</span>
+                        <span>Terminer</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Barre de progression du séjour -->
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <div class="flex items-center justify-between text-xs text-gray-500 mb-2 font-lato">
+                    <span>Arrivée: {{ reservation.date_arrivee|date:"d/m/Y" }}</span>
+                    <span>Durée: {{ reservation.nombre_nuits }} nuit(s)</span>
+                    <span>Départ: {{ reservation.date_depart|date:"d/m/Y" }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-orange-500 h-2 rounded-full" style="width: 100%"></div>
+                </div>
+                <div class="text-center mt-2">
+                    <span class="text-xs text-orange-600 font-medium font-lato">Séjour terminé - Check-out aujourd'hui</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% else %}
+<!-- État vide -->
+<div class="bg-white rounded-lg border border-gray-200 text-center py-12">
+    <div class="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span class="material-icons text-orange-400 text-3xl">event_available</span>
+    </div>
+    
+    <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
+        Aucun départ prévu
+    </h3>
+    <p class="text-gray-500 mb-6 font-lato">
+        Pas de départ programmé pour aujourd'hui.
+    </p>
+    
+    <div class="flex items-center justify-center space-x-3">
+        <a href="{% url 'reservations:calendrier' %}" 
+           class="inline-flex items-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+            <span class="material-icons text-sm">calendar_view_month</span>
+            <span>Voir Calendrier</span>
+        </a>
+        
+        <a href="{% url 'reservations:liste' %}" 
+           class="inline-flex items-center space-x-2 px-6 py-3 text-[#02066F] border border-[#02066F] rounded-lg hover:bg-[#02066F]/5 transition-colors font-lato">
+            <span class="material-icons text-sm">list</span>
+            <span>Toutes les Réservations</span>
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Actions post-départ -->
+{% if departs %}
+<div class="bg-white rounded-lg border border-gray-200 p-6 mt-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Actions Post-Départ</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="{% url 'menage:planning_jour' %}?type=depart" 
+           class="flex items-center space-x-3 p-4 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+            <span class="material-icons">cleaning_services</span>
+            <div class="font-lato">
+                <div class="font-medium">Ménage Complet</div>
+                <div class="text-sm">Nettoyer après départ</div>
+            </div>
+        </a>
+        
+        <a href="{% url 'maintenance:inspections' %}?date={{ date_jour|date:'Y-m-d' }}" 
+           class="flex items-center space-x-3 p-4 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
+            <span class="material-icons">build</span>
+            <div class="font-lato">
+                <div class="font-medium">Inspection Maintenance</div>
+                <div class="text-sm">Vérifier l'état des logements</div>
+            </div>
+        </a>
+        
+        <a href="{% url 'appartements:liste' %}?statut=disponible" 
+           class="flex items-center space-x-3 p-4 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors">
+            <span class="material-icons">check_circle</span>
+            <div class="font-lato">
+                <div class="font-medium">Remettre Disponible</div>
+                <div class="text-sm">Libérer pour nouvelles réservations</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Résumé des tâches -->
+<div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200 p-6 mt-6">
+    <h3 class="text-lg font-semibold text-orange-900 mb-4 font-lato flex items-center space-x-2">
+        <span class="material-icons">task_alt</span>
+        <span>Checklist Post-Départ</span>
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+            <h4 class="font-medium text-orange-800 font-lato">Tâches immédiates:</h4>
+            <ul class="space-y-1 text-sm text-orange-700 font-lato">
+                <li class="flex items-center space-x-2">
+                    <span class="w-4 h-4 border border-orange-400 rounded"></span>
+                    <span>Vérifier l'état de l'appartement</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-4 h-4 border border-orange-400 rounded"></span>
+                    <span>Planifier le ménage complet</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-4 h-4 border border-orange-400 rounded"></span>
+                    <span>Récupérer les clés</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="space-y-2">
+            <h4 class="font-medium text-orange-800 font-lato">Avant remise en service:</h4>
+            <ul class="space-y-1 text-sm text-orange-700 font-lato">
+                <li class="flex items-center space-x-2">
+                    <span class="w-4 h-4 border border-orange-400 rounded"></span>
+                    <span>Inspection maintenance</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-4 h-4 border border-orange-400 rounded"></span>
+                    <span>Réapprovisionnement</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="w-4 h-4 border border-orange-400 rounded"></span>
+                    <span>Photos de l'état</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

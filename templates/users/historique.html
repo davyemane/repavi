@@ -1,405 +1,327 @@
-<!DOCTYPE html>
-<html lang="fr" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historique des Activités - RepAvi Lodges</title>
-    
-    <!-- Fonts RepAvi -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Romla:wght@300;400;600;700&family=Arimo:wght@300;400;500;600&family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'romla': ['Romla', 'serif'],
-                        'arimo': ['Arimo', 'sans-serif'],
-                        'lato': ['Lato', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        body {
-            font-family: 'Arimo', sans-serif;
-        }
-        
-        h1, h2 {
-            font-family: 'Romla', serif;
-        }
-        
-        h3, h4, h5, h6 {
-            font-family: 'Lato', sans-serif;
-        }
-        
-        .sidebar {
-            background: #ffffff;
-            border-right: 1px solid #e5e7eb;
-        }
-        
-        .main-content {
-            background: #f9fafb;
-        }
-        
-        .card-clean {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-        
-        .card-clean:hover {
-            border-color: #d1d5db;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        
-        .stat-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 24px;
-        }
-    </style>
-</head>
+<!-- templates/users/historique_activites.html -->
+{% extends 'base.html' %}
 
-<body class="h-full bg-gray-50">
-    <div class="flex h-screen">
-        
-        <!-- Sidebar -->
-        <aside class="sidebar w-64 flex-shrink-0 overflow-y-auto">
-            <div class="p-6">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3 mb-8">
-                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <span class="material-icons text-white text-lg">home</span>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-lg text-gray-900">RepAvi Lodges</h1>
-                        <p class="text-xs text-gray-500">Système de Gestion</p>
-                    </div>
+{% block title %}Historique des Activités - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Historique des Activités{% endblock %}
+{% block page_subtitle %}Suivi des actions et événements dans le système RepAvi Lodges{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-3">
+    <div class="flex items-center space-x-2 text-gray-600">
+        <span class="material-icons text-sm">schedule</span>
+        <span class="text-sm font-lato">
+            Dernière mise à jour : {{ "now"|date:"d/m/Y H:i" }}
+        </span>
+    </div>
+    
+    <button onclick="location.reload()" 
+            class="flex items-center space-x-2 px-3 py-2 text-[#02066F] bg-[#02066F]/10 rounded-lg hover:bg-[#02066F]/20 transition-colors font-lato">
+        <span class="material-icons text-sm">refresh</span>
+        <span>Actualiser</span>
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="flex h-screen">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto">
+        <div class="p-6">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-10 h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-white text-lg">home</span>
                 </div>
+                <div>
+                    <h1 class="font-bold text-lg text-gray-900 font-lato">RepAvi Lodges</h1>
+                    <p class="text-xs text-gray-500 font-lato">Système de Gestion</p>
+                </div>
+            </div>
 
-                <!-- Navigation Menu -->
-                <nav class="space-y-1">
-                    <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">dashboard</span>
-                        <span>Dashboard</span>
-                    </a>
+            <!-- Navigation Menu -->
+            <nav class="space-y-1">
+                <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
 
-                    <a href="{% url 'appartements:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">apartment</span>
-                        <span>Appartements</span>
-                    </a>
+                <a href="{% url 'appartements:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">apartment</span>
+                    <span>Appartements</span>
+                </a>
 
-                    <a href="{% url 'clients:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">people</span>
-                        <span>Clients</span>
-                    </a>
+                <a href="{% url 'clients:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">people</span>
+                    <span>Clients</span>
+                </a>
 
-                    <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">event</span>
-                        <span>Réservations</span>
-                    </a>
+                <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">event</span>
+                    <span>Réservations</span>
+                </a>
 
-                    <a href="{% url 'paiements:echeancier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">payments</span>
-                        <span>Paiements</span>
-                    </a>
+                <a href="{% url 'paiements:echeancier' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">payments</span>
+                    <span>Paiements</span>
+                </a>
 
-                    <!-- Divider -->
-                    <div class="border-t border-gray-200 my-4"></div>
+                <!-- Divider -->
+                <div class="border-t border-gray-200 my-4"></div>
 
-                    <a href="{% url 'inventaire:general' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">inventory</span>
-                        <span>Inventaire</span>
-                    </a>
+                <a href="{% url 'inventaire:general' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">inventory</span>
+                    <span>Inventaire</span>
+                </a>
 
-                    <a href="{% url 'menage:planning' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">cleaning_services</span>
-                        <span>Ménage</span>
-                    </a>
+                <a href="{% url 'menage:planning' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">cleaning_services</span>
+                    <span>Ménage</span>
+                </a>
 
-                    <a href="{% url 'comptabilite:rapport_mensuel' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">account_balance</span>
-                        <span>Comptabilité</span>
-                    </a>
+                <a href="{% url 'comptabilite:rapport_mensuel' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">account_balance</span>
+                    <span>Comptabilité</span>
+                </a>
 
-                    <a href="{% url 'facturation:generer' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        <span class="material-icons text-sm">receipt</span>
-                        <span>Facturation</span>
-                    </a>
-                </nav>
+                <a href="{% url 'facturation:generer' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors font-lato">
+                    <span class="material-icons text-sm">receipt</span>
+                    <span>Facturation</span>
+                </a>
+            </nav>
 
-                <!-- User Menu -->
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <div class="flex items-center space-x-3 px-3 py-3">
-                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                            <span class="material-icons text-white text-sm">person</span>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900">{{ user.first_name|default:user.username }}</p>
-                            <p class="text-xs text-gray-500">{{ user.get_profil_display }}</p>
-                        </div>
-                        <div class="relative group">
-                            <button class="p-1 text-gray-400 hover:text-gray-600">
-                                <span class="material-icons text-sm">more_vert</span>
-                            </button>
-                            <div class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                                <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
-                                    <span class="material-icons text-sm">account_circle</span>
-                                    <span>Mon Profil</span>
-                                </a>
-                                {% if user.profil == 'super_admin' %}
-                                <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
-                                    <span class="material-icons text-sm">supervisor_account</span>
-                                    <span>Gestionnaires</span>
-                                </a>
-                                {% endif %}
-                                <hr class="my-1">
-                                <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50">
-                                    <span class="material-icons text-sm">logout</span>
-                                    <span>Déconnexion</span>
-                                </a>
-                            </div>
+            <!-- User Menu -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <div class="flex items-center space-x-3 px-3 py-3">
+                    <div class="w-8 h-8 bg-[#02066F] rounded-full flex items-center justify-center">
+                        <span class="material-icons text-white text-sm">person</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 font-lato">{{ user.first_name|default:user.username }}</p>
+                        <p class="text-xs text-gray-500 font-lato">{{ user.get_profil_display }}</p>
+                    </div>
+                    <div class="relative group">
+                        <button class="p-1 text-gray-400 hover:text-gray-600">
+                            <span class="material-icons text-sm">more_vert</span>
+                        </button>
+                        <div class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                            <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 font-lato">
+                                <span class="material-icons text-sm">account_circle</span>
+                                <span>Mon Profil</span>
+                            </a>
+                            {% if user.profil == 'super_admin' %}
+                            <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 font-lato">
+                                <span class="material-icons text-sm">supervisor_account</span>
+                                <span>Gestionnaires</span>
+                            </a>
+                            {% endif %}
+                            <hr class="my-1">
+                            <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 font-lato">
+                                <span class="material-icons text-sm">logout</span>
+                                <span>Déconnexion</span>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-        </aside>
+        </div>
+    </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto main-content">
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+        <!-- Dashboard Content -->
+        <div class="p-6 space-y-6">
             
-            <!-- Header -->
-            <header class="bg-white border-b border-gray-200 px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900">
-                            Historique des Activités
-                        </h1>
-                        <p class="text-gray-600">
-                            Suivi des actions et événements dans le système RepAvi Lodges
-                        </p>
-                    </div>
-                    
-                    <div class="flex items-center space-x-3">
-                        <div class="flex items-center space-x-2 text-gray-600">
-                            <span class="material-icons text-sm">schedule</span>
-                            <span class="text-sm">
-                                Dernière mise à jour : {{ "now"|date:"d/m/Y H:i" }}
-                            </span>
-                        </div>
-                        
-                        <button onclick="location.reload()" 
-                                class="flex items-center space-x-2 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                            <span class="material-icons text-sm">refresh</span>
-                            <span>Actualiser</span>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Dashboard Content -->
-            <div class="p-6 space-y-6">
+            <!-- Filters and Quick Stats -->
+            <div class="grid lg:grid-cols-4 gap-6">
                 
-                <!-- Filters and Quick Stats -->
-                <div class="grid lg:grid-cols-4 gap-6">
-                    
-                    <!-- Filters -->
-                    <div class="lg:col-span-3">
-                        <div class="card-clean p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                                <span class="material-icons text-blue-600">filter_alt</span>
-                                <span>Filtres</span>
-                            </h3>
-                            
-                            <div class="flex flex-wrap items-center gap-3">
-                                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
-                                    Toutes les activités
-                                </button>
-                                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                                    Réservations
-                                </button>
-                                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                                    Paiements
-                                </button>
-                                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                                    Appartements
-                                </button>
-                                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                                    Clients
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Stats -->
-                    <div class="card-clean p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                            <span class="material-icons text-purple-600">analytics</span>
-                            <span>Aujourd'hui</span>
+                <!-- Filters -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+                            <span class="material-icons text-[#02066F]">filter_alt</span>
+                            <span>Filtres</span>
                         </h3>
                         
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Réservations</span>
-                                <span class="text-lg font-bold text-green-600">{{ reservations_aujourd_hui|default:0 }}</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Paiements</span>
-                                <span class="text-lg font-bold text-blue-600">{{ paiements_aujourd_hui|default:0 }}</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600">Nouveaux clients</span>
-                                <span class="text-lg font-bold text-purple-600">{{ nouveaux_clients_aujourd_hui|default:0 }}</span>
-                            </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button class="px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium font-lato">
+                                Toutes les activités
+                            </button>
+                            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors font-lato">
+                                Réservations
+                            </button>
+                            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors font-lato">
+                                Paiements
+                            </button>
+                            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors font-lato">
+                                Appartements
+                            </button>
+                            <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors font-lato">
+                                Clients
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Timeline Activities -->
-                <div class="card-clean">
-                    <div class="p-6 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                            <span class="material-icons text-purple-600">timeline</span>
-                            <span>Activités Récentes</span>
-                        </h3>
-                    </div>
+                <!-- Quick Stats -->
+                <div class="bg-white rounded-lg border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+                        <span class="material-icons text-purple-600">analytics</span>
+                        <span>Aujourd'hui</span>
+                    </h3>
                     
-                    <div class="p-6">
-                        {% if reservations %}
-                        <!-- Timeline -->
-                        <div class="flow-root">
-                            <ul class="-mb-8">
-                                {% for reservation in reservations %}
-                                <li>
-                                    <div class="relative pb-8">
-                                        {% if not forloop.last %}
-                                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-                                        {% endif %}
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 font-lato">Réservations</span>
+                            <span class="text-lg font-bold text-green-600 font-lato">{{ reservations_aujourd_hui|default:0 }}</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 font-lato">Paiements</span>
+                            <span class="text-lg font-bold text-[#02066F] font-lato">{{ paiements_aujourd_hui|default:0 }}</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 font-lato">Nouveaux clients</span>
+                            <span class="text-lg font-bold text-purple-600 font-lato">{{ nouveaux_clients_aujourd_hui|default:0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Activities -->
+            <div class="bg-white rounded-lg border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center space-x-2 font-lato">
+                        <span class="material-icons text-purple-600">timeline</span>
+                        <span>Activités Récentes</span>
+                    </h3>
+                </div>
+                
+                <div class="p-6">
+                    {% if reservations %}
+                    <!-- Timeline -->
+                    <div class="flow-root">
+                        <ul class="-mb-8">
+                            {% for reservation in reservations %}
+                            <li>
+                                <div class="relative pb-8">
+                                    {% if not forloop.last %}
+                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                    {% endif %}
+                                    
+                                    <div class="relative flex space-x-3">
+                                        <!-- Activity Icon -->
+                                        <div class="w-8 h-8 bg-[#02066F]/10 rounded-full flex items-center justify-center">
+                                            <span class="material-icons text-[#02066F] text-sm">event</span>
+                                        </div>
                                         
-                                        <div class="relative flex space-x-3">
-                                            <!-- Activity Icon -->
-                                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                <span class="material-icons text-blue-600 text-sm">event</span>
+                                        <!-- Activity Content -->
+                                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                            <div>
+                                                <p class="text-sm text-gray-900 font-medium font-lato">
+                                                    <span class="font-semibold">Nouvelle réservation</span> - {{ reservation.client.get_full_name }}
+                                                </p>
+                                                <p class="text-sm text-gray-500 font-lato">
+                                                    Appartement {{ reservation.appartement.numero }} du {{ reservation.date_arrivee|date:"d/m/Y" }} au {{ reservation.date_depart|date:"d/m/Y" }}
+                                                </p>
+                                                <div class="flex items-center space-x-4 mt-2">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                           {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                                           {% elif reservation.statut == 'en_cours' %}bg-[#02066F]/10 text-[#02066F] 
+                                                           {% else %}bg-gray-100 text-gray-800{% endif %} font-lato">
+                                                        {{ reservation.get_statut_display }}
+                                                    </span>
+                                                    <span class="text-xs font-medium text-gray-900 font-lato">{{ reservation.montant_total }} FCFA</span>
+                                                </div>
                                             </div>
-                                            
-                                            <!-- Activity Content -->
-                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                                                <div>
-                                                    <p class="text-sm text-gray-900 font-medium">
-                                                        <span class="font-semibold">Nouvelle réservation</span> - {{ reservation.client.get_full_name }}
-                                                    </p>
-                                                    <p class="text-sm text-gray-500">
-                                                        Appartement {{ reservation.appartement.numero }} du {{ reservation.date_arrivee|date:"d/m/Y" }} au {{ reservation.date_depart|date:"d/m/Y" }}
-                                                    </p>
-                                                    <div class="flex items-center space-x-4 mt-2">
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800{% elif reservation.statut == 'en_cours' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                                                            {{ reservation.get_statut_display }}
-                                                        </span>
-                                                        <span class="text-xs font-medium text-gray-900">{{ reservation.montant_total }} FCFA</span>
-                                                    </div>
-                                                </div>
-                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                                                    <time>{{ reservation.date_creation|date:"d/m H:i" }}</time>
-                                                </div>
+                                            <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                <time class="font-lato">{{ reservation.date_creation|date:"d/m H:i" }}</time>
                                             </div>
                                         </div>
                                     </div>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% else %}
-                        <!-- Empty State -->
-                        <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <span class="material-icons text-gray-400 text-2xl">history</span>
-                            </div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">
-                                Aucune activité récente
-                            </h3>
-                            <p class="text-gray-500 mb-6">
-                                Les activités du système apparaîtront ici au fur et à mesure.
-                            </p>
-                            
-                            <!-- Quick Actions -->
-                            <div class="flex items-center justify-center space-x-4">
-                                <a href="{% url 'reservations:nouvelle' %}" 
-                                   class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                    <span class="material-icons text-sm">add</span>
-                                    <span>Nouvelle Réservation</span>
-                                </a>
-                                
-                                <a href="{% url 'clients:nouveau' %}" 
-                                   class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                                    <span class="material-icons text-sm">person_add</span>
-                                    <span>Nouveau Client</span>
-                                </a>
-                            </div>
-                        </div>
-                        {% endif %}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
-                    
-                    <!-- Footer with Pagination -->
-                    {% if reservations %}
-                    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                        <div class="text-sm text-gray-500">
-                            Affichage des {{ reservations|length }} dernières activités
+                    {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-icons text-gray-400 text-2xl">history</span>
                         </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2 font-lato">
+                            Aucune activité récente
+                        </h3>
+                        <p class="text-gray-500 mb-6 font-lato">
+                            Les activités du système apparaîtront ici au fur et à mesure.
+                        </p>
                         
-                        <div class="flex items-center space-x-2">
-                            <button class="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                Précédent
-                            </button>
-                            <button class="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                Suivant
-                            </button>
+                        <!-- Quick Actions -->
+                        <div class="flex items-center justify-center space-x-4">
+                            <a href="{% url 'reservations:nouvelle' %}" 
+                               class="flex items-center space-x-2 px-4 py-2 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+                                <span class="material-icons text-sm">add</span>
+                                <span>Nouvelle Réservation</span>
+                            </a>
+                            
+                            <a href="{% url 'clients:nouveau' %}" 
+                               class="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-lato">
+                                <span class="material-icons text-sm">person_add</span>
+                                <span>Nouveau Client</span>
+                            </a>
                         </div>
                     </div>
                     {% endif %}
                 </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        // Auto-refresh every 5 minutes
-        setInterval(() => {
-            location.reload();
-        }, 300000);
-
-        // Interactive filters
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterButtons = document.querySelectorAll('[class*="px-4 py-2"]');
-            
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Reset all buttons
-                    filterButtons.forEach(btn => {
-                        btn.classList.remove('bg-blue-600', 'text-white');
-                        btn.classList.add('bg-gray-100', 'text-gray-700');
-                    });
+                
+                <!-- Footer with Pagination -->
+                {% if reservations %}
+                <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                    <div class="text-sm text-gray-500 font-lato">
+                        Affichage des {{ reservations|length }} dernières activités
+                    </div>
                     
-                    // Activate clicked button
-                    this.classList.remove('bg-gray-100', 'text-gray-700');
-                    this.classList.add('bg-blue-600', 'text-white');
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-lato">
+                            Précédent
+                        </button>
+                        <button class="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-lato">
+                            Suivant
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Auto-refresh every 5 minutes
+    setInterval(() => {
+        location.reload();
+    }, 300000);
+
+    // Interactive filters
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('[class*="px-4 py-2"]');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Reset all buttons
+                filterButtons.forEach(btn => {
+                    btn.classList.remove('bg-[#02066F]', 'text-white');
+                    btn.classList.add('bg-gray-100', 'text-gray-700');
                 });
+                
+                // Activate clicked button
+                this.classList.remove('bg-gray-100', 'text-gray-700');
+                this.classList.add('bg-[#02066F]', 'text-white');
             });
         });
-    </script>
-</body>
-</html>
+    });
+</script>
+{% endblock %}

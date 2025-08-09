@@ -6,80 +6,80 @@
 
 {% block title %}{{ titre }} - RepAvi Lodges{% endblock %}
 
-{% block content %}
-<!-- Header -->
-<div class="flex items-center space-x-3 mb-8">
-    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-        <span class="material-icons text-white">person_add</span>
-    </div>
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900">{{ titre }}</h1>
-        <p class="text-gray-600">Fiche client simple selon cahier des charges</p>
-    </div>
-</div>
+{% block page_title %}{{ titre }}{% endblock %}
+{% block page_subtitle %}Fiche client simple selon cahier des charges{% endblock %}
 
+{% block header_actions %}
+<a href="{% url 'clients:liste' %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour Liste
+</a>
+{% endblock %}
+
+{% block content %}
 <!-- Formulaire -->
 <div class="max-w-4xl">
     <form method="post" enctype="multipart/form-data" class="space-y-8">
         {% csrf_token %}
         
         <!-- Identité selon cahier -->
-        <div class="bg-white rounded-2xl p-6 border border-gray-100">
-            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                <span class="material-icons text-blue-600">badge</span>
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-[#02066F]">badge</span>
                 <span>Identité</span>
             </h2>
             
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.nom.label }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.nom.label }}</label>
                     {{ form.nom }}
                     {% if form.nom.errors %}
-                    <div class="text-red-600 text-sm mt-1">{{ form.nom.errors.0 }}</div>
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.nom.errors.0 }}</div>
                     {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.prenom.label }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.prenom.label }}</label>
                     {{ form.prenom }}
                     {% if form.prenom.errors %}
-                    <div class="text-red-600 text-sm mt-1">{{ form.prenom.errors.0 }}</div>
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.prenom.errors.0 }}</div>
                     {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.telephone.label }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.telephone.label }}</label>
                     {{ form.telephone }}
                     {% if form.telephone.errors %}
-                    <div class="text-red-600 text-sm mt-1">{{ form.telephone.errors.0 }}</div>
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.telephone.errors.0 }}</div>
                     {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.email.label }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.email.label }}</label>
                     {{ form.email }}
                     {% if form.email.errors %}
-                    <div class="text-red-600 text-sm mt-1">{{ form.email.errors.0 }}</div>
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.email.errors.0 }}</div>
                     {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Document selon cahier -->
-        <div class="bg-white rounded-2xl p-6 border border-gray-100">
-            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                <span class="material-icons text-purple-600">description</span>
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-[#02066F]">description</span>
                 <span>Document d'identité</span>
             </h2>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.piece_identite.label }}</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.piece_identite.label }}</label>
                 {{ form.piece_identite }}
                 {% if form.piece_identite.help_text %}
-                <p class="text-gray-500 text-sm mt-1">{{ form.piece_identite.help_text }}</p>
+                <p class="text-gray-500 text-sm mt-1 font-lato">{{ form.piece_identite.help_text }}</p>
                 {% endif %}
                 {% if form.piece_identite.errors %}
-                <div class="text-red-600 text-sm mt-1">{{ form.piece_identite.errors.0 }}</div>
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.piece_identite.errors.0 }}</div>
                 {% endif %}
                 
                 <!-- Aperçu de l'image actuelle -->
@@ -93,58 +93,58 @@
         </div>
         
         <!-- Adresse selon cahier -->
-        <div class="bg-white rounded-2xl p-6 border border-gray-100">
-            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                <span class="material-icons text-orange-600">home</span>
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-[#02066F]">home</span>
                 <span>Adresse de résidence</span>
             </h2>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.adresse_residence.label }}</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.adresse_residence.label }}</label>
                 {{ form.adresse_residence }}
                 {% if form.adresse_residence.errors %}
-                <div class="text-red-600 text-sm mt-1">{{ form.adresse_residence.errors.0 }}</div>
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.adresse_residence.errors.0 }}</div>
                 {% endif %}
             </div>
         </div>
         
         <!-- Contact d'urgence selon cahier -->
-        <div class="bg-white rounded-2xl p-6 border border-gray-100">
-            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
                 <span class="material-icons text-red-600">emergency</span>
                 <span>Contact d'urgence</span>
             </h2>
             
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.contact_urgence_nom.label }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.contact_urgence_nom.label }}</label>
                     {{ form.contact_urgence_nom }}
                     {% if form.contact_urgence_nom.errors %}
-                    <div class="text-red-600 text-sm mt-1">{{ form.contact_urgence_nom.errors.0 }}</div>
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.contact_urgence_nom.errors.0 }}</div>
                     {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.contact_urgence_tel.label }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.contact_urgence_tel.label }}</label>
                     {{ form.contact_urgence_tel }}
                     {% if form.contact_urgence_tel.errors %}
-                    <div class="text-red-600 text-sm mt-1">{{ form.contact_urgence_tel.errors.0 }}</div>
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.contact_urgence_tel.errors.0 }}</div>
                     {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Actions -->
-        <div class="flex items-center justify-between bg-white rounded-2xl p-6 border border-gray-100">
+        <div class="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-6">
             <a href="{% url 'clients:liste' %}" 
-               class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2">
-                <span class="material-icons text-sm">arrow_back</span>
+               class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors font-medium font-lato">
+                <span class="material-icons text-sm mr-2">arrow_back</span>
                 <span>Retour Liste</span>
             </a>
             
             <button type="submit" 
-                    class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-colors font-medium flex items-center space-x-2">
-                <span class="material-icons text-sm">save</span>
+                    class="inline-flex items-center px-8 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-medium font-lato">
+                <span class="material-icons text-sm mr-2">save</span>
                 <span>{{ action }} le client</span>
             </button>
         </div>

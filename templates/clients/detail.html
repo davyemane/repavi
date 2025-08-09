@@ -1,4 +1,3 @@
-
 <!-- ========================================== -->
 <!-- templates/clients/detail.html -->
 <!-- ========================================== -->
@@ -7,43 +6,32 @@
 
 {% block title %}{{ client.prenom }} {{ client.nom }} - RepAvi Lodges{% endblock %}
 
-{% block content %}
-<!-- Header client -->
-<div class="flex items-center justify-between mb-8">
-    <div class="flex items-center space-x-4">
-        <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center">
-            <span class="material-icons text-white text-2xl">person</span>
-        </div>
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">{{ client.prenom }} {{ client.nom }}</h1>
-            <p class="text-gray-600">Client depuis le {{ client.date_creation|date:"d/m/Y" }} • {{ client.get_nombre_sejours }} séjour(s)</p>
-        </div>
-    </div>
-    
-    <div class="flex space-x-3">
-        <a href="{% url 'reservations:nouvelle' %}?client={{ client.pk }}" 
-           class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2">
-            <span class="material-icons text-sm">event_available</span>
-            <span>Nouvelle Réservation</span>
-        </a>
-        
-        <a href="{% url 'clients:modifier' client.pk %}" 
-           class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2">
-            <span class="material-icons text-sm">edit</span>
-            <span>Modifier</span>
-        </a>
-    </div>
-</div>
+{% block page_title %}{{ client.prenom }} {{ client.nom }}{% endblock %}
+{% block page_subtitle %}Client depuis le {{ client.date_creation|date:"d/m/Y" }} • {{ client.get_nombre_sejours }} séjour(s){% endblock %}
 
+{% block header_actions %}
+<a href="{% url 'reservations:nouvelle' %}?client={{ client.pk }}" 
+   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">event_available</span>
+    Nouvelle Réservation
+</a>
+<a href="{% url 'clients:modifier' client.pk %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">edit</span>
+    Modifier
+</a>
+{% endblock %}
+
+{% block content %}
 <div class="grid lg:grid-cols-3 gap-8">
     
     <!-- Informations client -->
     <div class="lg:col-span-1 space-y-6">
         
         <!-- Informations personnelles -->
-        <div class="bg-white rounded-2xl p-6 border border-gray-100">
-            <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                <span class="material-icons text-blue-600">contact_page</span>
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-[#02066F]">contact_page</span>
                 <span>Informations</span>
             </h3>
             
@@ -51,53 +39,53 @@
                 <div class="flex items-center space-x-3">
                     <span class="material-icons text-gray-400">phone</span>
                     <div>
-                        <div class="text-sm text-gray-500">Téléphone</div>
-                        <div class="font-medium">{{ client.telephone }}</div>
+                        <div class="text-sm text-gray-500 font-lato">Téléphone</div>
+                        <div class="font-medium font-lato">{{ client.telephone }}</div>
                     </div>
                 </div>
                 
                 <div class="flex items-center space-x-3">
                     <span class="material-icons text-gray-400">email</span>
                     <div>
-                        <div class="text-sm text-gray-500">Email</div>
-                        <div class="font-medium">{{ client.email }}</div>
+                        <div class="text-sm text-gray-500 font-lato">Email</div>
+                        <div class="font-medium font-lato">{{ client.email }}</div>
                     </div>
                 </div>
                 
                 <div class="flex items-start space-x-3">
                     <span class="material-icons text-gray-400 mt-1">location_on</span>
                     <div>
-                        <div class="text-sm text-gray-500">Adresse</div>
-                        <div class="font-medium">{{ client.adresse_residence }}</div>
+                        <div class="text-sm text-gray-500 font-lato">Adresse</div>
+                        <div class="font-medium font-lato">{{ client.adresse_residence }}</div>
                     </div>
                 </div>
             </div>
         </div>
         
         <!-- Contact d'urgence selon cahier -->
-        <div class="bg-white rounded-2xl p-6 border border-gray-100">
-            <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2">
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
                 <span class="material-icons text-red-600">emergency</span>
                 <span>Contact d'urgence</span>
             </h3>
             
             <div class="space-y-3">
                 <div>
-                    <div class="text-sm text-gray-500">Nom</div>
-                    <div class="font-medium">{{ client.contact_urgence_nom }}</div>
+                    <div class="text-sm text-gray-500 font-lato">Nom</div>
+                    <div class="font-medium font-lato">{{ client.contact_urgence_nom }}</div>
                 </div>
                 <div>
-                    <div class="text-sm text-gray-500">Téléphone</div>
-                    <div class="font-medium">{{ client.contact_urgence_tel }}</div>
+                    <div class="text-sm text-gray-500 font-lato">Téléphone</div>
+                    <div class="font-medium font-lato">{{ client.contact_urgence_tel }}</div>
                 </div>
             </div>
         </div>
         
         <!-- Pièce d'identité -->
         {% if client.piece_identite %}
-        <div class="bg-white rounded-2xl p-6 border border-gray-100">
-            <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                <span class="material-icons text-purple-600">description</span>
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="font-bold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-[#02066F]">description</span>
                 <span>Pièce d'identité</span>
             </h3>
             
@@ -110,25 +98,25 @@
     
     <!-- Historique des séjours selon cahier -->
     <div class="lg:col-span-2">
-        <div class="bg-white rounded-2xl p-6 border border-gray-100">
-            <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                <span class="material-icons text-orange-600">history</span>
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-[#02066F]">history</span>
                 <span>Historique des Séjours</span>
             </h3>
             
             {% if reservations %}
             <div class="space-y-4">
                 {% for reservation in reservations %}
-                <div class="p-4 border border-gray-200 rounded-xl {% if reservation.statut == 'confirmee' %}bg-blue-50 border-blue-200{% elif reservation.statut == 'en_cours' %}bg-green-50 border-green-200{% elif reservation.statut == 'terminee' %}bg-gray-50{% else %}bg-red-50 border-red-200{% endif %}">
+                <div class="p-4 border border-gray-200 rounded-lg {% if reservation.statut == 'confirmee' %}bg-[#02066F]/5 border-[#02066F]/20{% elif reservation.statut == 'en_cours' %}bg-green-50 border-green-200{% elif reservation.statut == 'terminee' %}bg-gray-50{% else %}bg-red-50 border-red-200{% endif %}">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-4">
                             <div class="text-center">
-                                <div class="font-bold text-gray-900">{{ reservation.date_arrivee|date:"d" }}</div>
-                                <div class="text-xs text-gray-500">{{ reservation.date_arrivee|date:"M" }}</div>
+                                <div class="font-bold text-gray-900 font-lato">{{ reservation.date_arrivee|date:"d" }}</div>
+                                <div class="text-xs text-gray-500 font-lato">{{ reservation.date_arrivee|date:"M" }}</div>
                             </div>
                             <div>
-                                <div class="font-medium text-gray-900">{{ reservation.appartement.numero }}</div>
-                                <div class="text-sm text-gray-600">
+                                <div class="font-medium text-gray-900 font-lato">{{ reservation.appartement.numero }}</div>
+                                <div class="text-sm text-gray-600 font-lato">
                                     {{ reservation.date_arrivee|date:"d/m/Y" }} → {{ reservation.date_depart|date:"d/m/Y" }}
                                     • {{ reservation.nombre_nuits }} nuits
                                 </div>
@@ -136,8 +124,8 @@
                         </div>
                         
                         <div class="text-right">
-                            <div class="font-bold text-gray-900">{{ reservation.prix_total|floatformat:0 }} FCFA</div>
-                            <div class="text-sm {% if reservation.statut == 'confirmee' %}text-blue-600{% elif reservation.statut == 'en_cours' %}text-green-600{% elif reservation.statut == 'terminee' %}text-gray-600{% else %}text-red-600{% endif %}">
+                            <div class="font-bold text-gray-900 font-lato">{{ reservation.prix_total|floatformat:0 }} FCFA</div>
+                            <div class="text-sm {% if reservation.statut == 'confirmee' %}text-[#02066F]{% elif reservation.statut == 'en_cours' %}text-green-600{% elif reservation.statut == 'terminee' %}text-gray-600{% else %}text-red-600{% endif %} font-lato">
                                 {{ reservation.get_statut_display }}
                             </div>
                         </div>
@@ -148,7 +136,7 @@
             {% else %}
             <div class="text-center py-8">
                 <span class="material-icons text-gray-400 text-4xl mb-4">event_busy</span>
-                <p class="text-gray-600">Aucun séjour enregistré pour ce client</p>
+                <p class="text-gray-600 font-lato">Aucun séjour enregistré pour ce client</p>
             </div>
             {% endif %}
         </div>
@@ -169,7 +157,7 @@ function ouvrirImage(url) {
             <img src="${url}" class="w-full h-auto rounded-lg" alt="Pièce d'identité">
             <div class="text-center mt-4">
                 <button onclick="this.closest('.fixed').remove()" 
-                        class="bg-white text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100">
+                        class="bg-white text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 font-lato">
                     Fermer
                 </button>
             </div>
@@ -180,4 +168,3 @@ function ouvrirImage(url) {
 }
 </script>
 {% endblock %}
-{% endblock %>
