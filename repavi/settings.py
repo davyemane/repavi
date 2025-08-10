@@ -46,6 +46,12 @@ THIRD_PARTY_APPS = [
     'axes'
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',  # Ajoute ceci en premier
+    'django.contrib.auth.backends.ModelBackend',  # ou ton backend d’authentification principal
+]
+
+
 # Apps de développement
 if DEBUG:
     THIRD_PARTY_APPS.extend([
@@ -87,8 +93,6 @@ MIDDLEWARE = [
 AXES_FAILURE_LIMIT = 3
 AXES_COOLOFF_TIME = 300  # secondes (5 minutes)
 AXES_LOCK_OUT_AT_FAILURE = True
-AXES_USE_USER_AGENT = True  # Différencie selon le terminal
-AXES_ONLY_USER_FAILURES = False  # Combine IP + identifiant
 AXES_RESET_ON_SUCCESS = True
 
 

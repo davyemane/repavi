@@ -38,7 +38,81 @@
             font-family: 'Lato', sans-serif;
         }
     </style>
+
+    <script>
+// Système notifications
+let notificationDropdownOpen = false;
+
+function toggleNotifications() {
+    const dropdown = document.getElementById('notification-dropdown');
+    notificationDropdownOpen = !notificationDropdownOpen;
+    dropdown.classList.toggle('hidden');
+    if (notificationDropdownOpen) loadNotifications();
+}
+
+function loadNotifications() {
+    fetch('/api/notifications/')
+        .then(response => response.json())
+        .then(data => {
+            updateNotificationsList(data.notifications);
+            updateNotificationBadge(data.unread_count);
+        });
+}
+
+function updateNotificationsList(notifications) {
+    const list = document.getElementById('notification-list');
+    list.innerHTML = notifications.length ? notifications.map(n => `
+        <div class="p-4 border-b hover:bg-gray-50 ${n.read ? 'opacity-75' : ''}" onclick="markAsRead(${n.id}, '${n.url}')">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-${n.color}-100 rounded-full flex items-center justify-center">
+                    <span class="material-icons text-${n.color}-600 text-sm">${n.icon}</span>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium ${n.read ? '' : 'font-bold'}">${n.title}</p>
+                    <p class="text-sm text-gray-600 mt-1">${n.message}</p>
+                    ${n.url ? `<span class="text-sm text-[#02066F] cursor-pointer">${n.url_text} →</span>` : ''}
+                </div>
+            </div>
+        </div>
+    `).join('') : '<div class="p-8 text-center"><span class="material-icons text-gray-400 text-3xl mb-2">notifications_none</span><p class="text-gray-500">Aucune notification</p></div>';
+}
+
+function updateNotificationBadge(count) {
+    const badge = document.getElementById('notification-badge');
+    if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+    } else {
+        badge.classList.add('hidden');
+    }
+}
+
+function markAsRead(id, url) {
+    fetch(`/api/notifications/${id}/read/`, {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}})
+        .then(() => url ? window.location.href = url : loadNotifications());
+}
+
+// Polling
+setInterval(() => {
+    if (!notificationDropdownOpen) {
+        fetch('/api/notifications/count/')
+            .then(r => r.json())
+            .then(d => updateNotificationBadge(d.count));
+    }
+}, 30000);
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/notifications/count/')
+        .then(r => r.json())
+        .then(d => updateNotificationBadge(d.count))
+        .catch(() => {});
+});
+</script>
 </head>
+
+
 
 <body class="h-full bg-gray-50 font-lato">
     <div class="flex h-screen overflow-hidden">
@@ -234,10 +308,29 @@
                         </a>
                         {% endif %}
 
-                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons">notifications</span>
-                        </button>
+<!-- Ancien bouton -->
 
+<!-- Nouveau système notifications -->
+<div class="relative" id="notification-center">
+    <button onclick="toggleNotifications()" 
+            class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors relative">
+        <span class="material-icons">notifications</span>
+        <span id="notification-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full hidden items-center justify-center">0</span>
+    </button>
+
+    <div id="notification-dropdown" class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+            <h3 class="font-semibold text-gray-900 font-lato">Notifications</h3>
+            <button onclick="markAllAsRead()" class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">Tout marquer lu</button>
+        </div>
+        <div id="notification-list" class="max-h-96 overflow-y-auto">
+            <div class="p-4 text-center text-gray-500 font-lato">Chargement...</div>
+        </div>
+        <div class="border-t border-gray-200 p-3">
+            <a href="{% url 'notifications:all' %}" class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">Voir toutes les notifications →</a>
+        </div>
+    </div>
+</div>
                         <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons">refresh</span>
                         </button>
