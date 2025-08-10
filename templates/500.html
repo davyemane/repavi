@@ -1,171 +1,180 @@
+{% extends 'base_empty.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Erreur technique - RepAvi Lodges</title>
-    <meta name="description" content="Une erreur technique est survenue">
 
-    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% block title %}Erreur technique - RepAvi Lodges{% endblock %}
 
-    <style>
-        body {
-            font-family: 'Lato', sans-serif;
-        }
-        .font-lato {
-            font-family: 'Lato', sans-serif;
-        }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-900 antialiased">
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center">
-        <div class="max-w-lg mx-auto px-4 text-center">
-            <!-- Illustration d'erreur -->
-            <div class="mb-8">
-                <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center">
-                    <span class="material-icons text-6xl text-white">warning</span>
-                </div>
-                
-                <h1 class="text-3xl font-bold text-gray-900 mb-4 font-lato">
-                    Erreur technique
-                </h1>
-                
-                <p class="text-gray-600 text-lg mb-8 font-lato">
-                    Une erreur inattendue s'est produite sur nos serveurs. 
-                    Nos équipes techniques ont été automatiquement alertées et travaillent à résoudre le problème.
-                </p>
-            </div>
-
-            <!-- Code d'erreur -->
-            <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
-                <div class="flex items-center justify-center mb-3">
-                    <span class="material-icons text-red-500 mr-2">bug_report</span>
-                    <span class="text-red-700 font-medium font-lato">Erreur 500 - Erreur interne du serveur</span>
-                </div>
-                <p class="text-red-600 text-sm font-lato">
-                    Veuillez réessayer dans quelques minutes. Si le problème persiste, contactez notre support.
-                </p>
-            </div>
-
-            <!-- Actions suggérées -->
-            <div class="space-y-4 mb-8">
-                <button onclick="location.reload()" 
-                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-[#02066F] hover:bg-[#030a8a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
-                    <span class="material-icons text-sm mr-2">refresh</span>
-                    Réessayer
-                </button>
-                
-                <a href="/" 
-                   class="w-full inline-flex items-center justify-center px-6 py-3 border border-[#02066F] rounded-xl text-base font-medium text-[#02066F] bg-white hover:bg-[#02066F]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
-                    <span class="material-icons text-sm mr-2">home</span>
-                    Retour à l'accueil
-                </a>
-                
-                <button onclick="history.back()" 
-                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
-                    <span class="material-icons text-sm mr-2">arrow_back</span>
-                    Retour à la page précédente
-                </button>
-            </div>
-
-            <!-- Statut du service -->
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-8">
-                <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
-                    <span class="material-icons text-[#02066F] mr-2">monitoring</span>
-                    Statut des services
-                </h3>
-                
-                <div class="space-y-3 text-sm">
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600 font-lato">Site web</span>
-                        <div class="flex items-center">
-                            <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                            <span class="text-red-600 font-medium font-lato">Problème détecté</span>
-                        </div>
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
+        
+        <!-- Header avec logo -->
+        <div class="text-center mb-8 sm:mb-10">
+            <div class="flex items-center justify-center mb-6 sm:mb-8">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-lg">
+                        <span class="material-icons text-white text-xl sm:text-2xl lg:text-3xl">home</span>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600 font-lato">Base de données</span>
-                        <div class="flex items-center">
-                            <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-                            <span class="text-yellow-600 font-medium font-lato">En cours de vérification</span>
-                        </div>
+                    <div class="text-left">
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#02066F] font-lato leading-tight">
+                            RepAvi Lodges
+                        </h1>
+                        <p class="text-gray-500 text-xs sm:text-sm lg:text-base font-medium mt-1">
+                            Système de Gestion
+                        </p>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-600 font-lato">Paiements</span>
-                        <div class="flex items-center">
-                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                            <span class="text-green-600 font-medium font-lato">Opérationnel</span>
-                        </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Illustration d'erreur -->
+        <div class="text-center mb-8 sm:mb-10">
+            <div class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 mx-auto mb-6 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                <span class="material-icons text-4xl sm:text-5xl lg:text-6xl text-white">warning</span>
+            </div>
+            
+            <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 font-lato">
+                Erreur technique
+            </h2>
+            
+            <p class="text-gray-600 text-sm sm:text-base lg:text-lg mb-8 px-4">
+                Une erreur inattendue s'est produite sur nos serveurs. 
+                Nos équipes techniques ont été automatiquement alertées et travaillent à résoudre le problème.
+            </p>
+        </div>
+
+        <!-- Code d'erreur -->
+        <div class="bg-red-50 border border-red-200 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-8">
+            <div class="flex items-center justify-center mb-3">
+                <span class="material-icons text-red-500 mr-2">bug_report</span>
+                <span class="text-red-700 font-medium font-lato text-sm sm:text-base">Erreur 500 - Erreur interne du serveur</span>
+            </div>
+            <p class="text-red-600 text-xs sm:text-sm font-lato text-center">
+                Veuillez réessayer dans quelques minutes. Si le problème persiste, contactez notre support.
+            </p>
+        </div>
+
+        <!-- Actions suggérées -->
+        <div class="space-y-3 sm:space-y-4 mb-8">
+            <button onclick="location.reload()" 
+                    class="w-full inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-lg sm:rounded-xl text-sm sm:text-base font-medium text-white bg-[#02066F] hover:bg-[#030a8a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">refresh</span>
+                Réessayer
+            </button>
+            
+            <a href="/" 
+               class="w-full inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-[#02066F] rounded-lg sm:rounded-xl text-sm sm:text-base font-medium text-[#02066F] bg-white hover:bg-[#02066F]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">home</span>
+                Retour à l'accueil
+            </a>
+            
+            <button onclick="history.back()" 
+                    class="w-full inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">arrow_back</span>
+                Retour à la page précédente
+            </button>
+        </div>
+
+        <!-- Statut du service -->
+        <div class="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 mb-8">
+            <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato">
+                <span class="material-icons text-[#02066F] mr-2">monitoring</span>
+                Statut des services
+            </h3>
+            
+            <div class="space-y-3 text-sm">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 font-lato">Site web</span>
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                        <span class="text-red-600 font-medium font-lato text-xs sm:text-sm">Problème détecté</span>
                     </div>
                 </div>
                 
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <p class="text-xs text-gray-500 font-lato">
-                        Dernière mise à jour : <span id="currentTime"></span>
-                    </p>
-                </div>
-            </div>
-
-            <!-- Informations de contact -->
-            <div class="bg-[#02066F]/5 rounded-2xl p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
-                    <span class="material-icons text-[#02066F] mr-2">headset_mic</span>
-                    Besoin d'aide immédiate ?
-                </h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div class="text-center p-3 bg-white rounded-lg border border-[#02066F]/10">
-                        <span class="material-icons text-[#02066F] mb-2">mail</span>
-                        <p class="text-gray-600 font-lato">Email</p>
-                        <a href="mailto:support@repavi.com" 
-                           class="text-[#02066F] hover:text-[#030a8a] font-medium font-lato transition-colors">
-                            support@repavi.com
-                        </a>
-                    </div>
-                    <div class="text-center p-3 bg-white rounded-lg border border-[#02066F]/10">
-                        <span class="material-icons text-[#02066F] mb-2">phone</span>
-                        <p class="text-gray-600 font-lato">Téléphone</p>
-                        <a href="tel:+33123456789" 
-                           class="text-[#02066F] hover:text-[#030a8a] font-medium font-lato transition-colors">
-                            +33 1 23 45 67 89
-                        </a>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 font-lato">Base de données</span>
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                        <span class="text-yellow-600 font-medium font-lato text-xs sm:text-sm">En vérification</span>
                     </div>
                 </div>
                 
-                <div class="mt-4 text-center">
-                    <p class="text-xs text-gray-500 font-lato">
-                        Support disponible 24h/7j pour les urgences techniques
-                    </p>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 font-lato">Paiements</span>
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-green-600 font-medium font-lato text-xs sm:text-sm">Opérationnel</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- Message d'excuses -->
-            <div class="mt-8 text-center">
-                <p class="text-gray-500 text-sm font-lato">
-                    Nous nous excusons pour la gêne occasionnée et mettons tout en œuvre pour résoudre ce problème rapidement.
-                </p>
-                <p class="text-gray-400 text-xs mt-2 font-lato">
-                    Équipe technique RepAvi Lodges
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <p class="text-xs text-gray-500 font-lato">
+                    Dernière mise à jour : <span id="currentTime"></span>
                 </p>
             </div>
         </div>
-    </div>
 
-    <script>
-        // Afficher l'heure actuelle
-        document.getElementById('currentTime').textContent = new Date().toLocaleString('fr-FR');
-        
-        // Auto-refresh après 30 secondes
-        setTimeout(function() {
-            if (confirm('Voulez-vous réessayer de charger la page ?')) {
-                location.reload();
-            }
-        }, 30000);
-    </script>
-</body>
-</html>
+        <!-- Informations de contact -->
+        <div class="bg-[#02066F]/5 rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
+            <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato">
+                <span class="material-icons text-[#02066F] mr-2">headset_mic</span>
+                Besoin d'aide immédiate ?
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
+                <div class="text-center p-3 bg-white rounded-lg border border-[#02066F]/10">
+                    <span class="material-icons text-[#02066F] mb-2 text-lg">mail</span>
+                    <p class="text-gray-600 font-lato text-xs sm:text-sm">Email</p>
+                    <a href="mailto:support@repavi.com" 
+                       class="text-[#02066F] hover:text-[#030a8a] font-medium font-lato transition-colors text-xs sm:text-sm block truncate">
+                        support@repavi.com
+                    </a>
+                </div>
+                <div class="text-center p-3 bg-white rounded-lg border border-[#02066F]/10">
+                    <span class="material-icons text-[#02066F] mb-2 text-lg">phone</span>
+                    <p class="text-gray-600 font-lato text-xs sm:text-sm">Téléphone</p>
+                    <a href="tel:+33123456789" 
+                       class="text-[#02066F] hover:text-[#030a8a] font-medium font-lato transition-colors text-xs sm:text-sm">
+                        +33 1 23 45 67 89
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <p class="text-xs text-gray-500 font-lato">
+                    Support disponible 24h/7j pour les urgences techniques
+                </p>
+            </div>
+        </div>
+
+        <!-- Message d'excuses -->
+        <div class="text-center">
+            <p class="text-gray-500 text-xs sm:text-sm font-lato mb-2">
+                Nous nous excusons pour la gêne occasionnée et mettons tout en œuvre pour résoudre ce problème rapidement.
+            </p>
+            <p class="text-gray-400 text-xs font-lato">
+                Équipe technique RepAvi Lodges
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8">
+            <p class="text-xs text-gray-400 font-lato">
+                Version 2.1.0 • © 2024 RepAvi Lodges • Tous droits réservés
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Afficher l'heure actuelle
+    document.getElementById('currentTime').textContent = new Date().toLocaleString('fr-FR');
+    
+    // Auto-refresh après 30 secondes
+    setTimeout(function() {
+        if (confirm('Voulez-vous réessayer de charger la page ?')) {
+            location.reload();
+        }
+    }, 30000);
+</script>
+{% endblock %}

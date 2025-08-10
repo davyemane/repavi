@@ -15,41 +15,42 @@
 {% endblock %}
 
 {% block content %}
+<div class="px-4 sm:px-6 lg:px-8">
 <!-- Stats -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 font-lato">Total Factures</p>
-                <p class="text-2xl font-bold text-gray-900 font-lato">{{ total_factures }}</p>
+                <p class="text-xs sm:text-sm text-gray-600 font-lato">Total Factures</p>
+                <p class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 font-lato">{{ total_factures }}</p>
             </div>
-            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-[#02066F]">receipt</span>
+            <div class="w-8 h-8 sm:w-12 sm:h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F] text-sm sm:text-base">receipt</span>
             </div>
         </div>
     </div>
     
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 font-lato">Montant Total</p>
-                <p class="text-2xl font-bold text-green-600 font-lato">{{ montant_total|floatformat:0 }}</p>
+                <p class="text-xs sm:text-sm text-gray-600 font-lato">Montant Total</p>
+                <p class="text-lg sm:text-xl md:text-2xl font-bold text-green-600 font-lato">{{ montant_total|floatformat:0 }}</p>
                 <p class="text-xs text-gray-500 font-lato">FCFA</p>
             </div>
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-green-600">payments</span>
+            <div class="w-8 h-8 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-green-600 text-sm sm:text-base">payments</span>
             </div>
         </div>
     </div>
     
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 sm:col-span-2 md:col-span-1">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 font-lato">Ce Mois</p>
-                <p class="text-2xl font-bold text-orange-600 font-lato">{{ factures_mois }}</p>
+                <p class="text-xs sm:text-sm text-gray-600 font-lato">Ce Mois</p>
+                <p class="text-lg sm:text-xl md:text-2xl font-bold text-orange-600 font-lato">{{ factures_mois }}</p>
             </div>
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-orange-600">today</span>
+            <div class="w-8 h-8 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-orange-600 text-sm sm:text-base">today</span>
             </div>
         </div>
     </div>
@@ -57,12 +58,13 @@
 
 <!-- Liste factures -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900 font-lato">Factures générées</h2>
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+        <h2 class="text-base sm:text-lg font-semibold text-gray-900 font-lato">Factures générées</h2>
     </div>
 
     {% if factures %}
-    <div class="overflow-x-auto">
+    <!-- Version desktop -->
+    <div class="hidden md:block overflow-x-auto">
         <table class="w-full">
             <thead class="bg-gray-50">
                 <tr>
@@ -112,11 +114,54 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Version mobile -->
+    <div class="md:hidden divide-y divide-gray-200">
+        {% for facture in factures %}
+        <div class="p-4">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="text-sm font-medium text-gray-900 font-lato">{{ facture.numero_facture }}</div>
+                    <div class="text-xs text-gray-500 font-lato">{{ facture.date_emission|date:"d/m/Y" }}</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-medium text-gray-900 font-lato">{{ facture.montant_total|floatformat:0 }} FCFA</div>
+                    {% if facture.frais_supplementaires > 0 %}
+                    <div class="text-xs text-orange-600 font-lato">+{{ facture.frais_supplementaires|floatformat:0 }} frais</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="text-sm font-medium text-gray-900 font-lato">
+                    {{ facture.reservation.client.nom }} {{ facture.reservation.client.prenom }}
+                </div>
+                <div class="text-xs text-gray-500 font-lato">{{ facture.reservation.client.telephone }}</div>
+                <div class="text-xs text-gray-500 font-lato">
+                    {{ facture.reservation.appartement.numero }} • {{ facture.reservation.date_arrivee|date:"d/m/Y" }}
+                </div>
+            </div>
+            
+            <div class="flex space-x-2">
+                <a href="{% url 'facturation:apercu' facture.pk %}" 
+                   class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-xs font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+                    <span class="material-icons text-xs mr-1">visibility</span>
+                    Voir
+                </a>
+                <a href="{% url 'facturation:telecharger_pdf' facture.pk %}" 
+                   class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors font-lato">
+                    <span class="material-icons text-xs mr-1">download</span>
+                    PDF
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
     {% else %}
-    <div class="px-6 py-12 text-center">
-        <span class="material-icons text-gray-400 text-4xl mb-4">receipt_long</span>
-        <h3 class="text-lg font-medium text-gray-900 mb-2 font-lato">Aucune facture</h3>
-        <p class="text-gray-500 mb-6 font-lato">Commencez par générer votre première facture</p>
+    <div class="px-4 sm:px-6 py-8 sm:py-12 text-center">
+        <span class="material-icons text-gray-400 text-3xl sm:text-4xl mb-4">receipt_long</span>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2 font-lato">Aucune facture</h3>
+        <p class="text-gray-500 mb-4 sm:mb-6 font-lato">Commencez par générer votre première facture</p>
         <a href="{% url 'facturation:generer' %}" 
            class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] font-lato">
             <span class="material-icons text-sm mr-2">add</span>
@@ -124,5 +169,6 @@
         </a>
     </div>
     {% endif %}
+</div>
 </div>
 {% endblock %}

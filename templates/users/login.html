@@ -5,21 +5,21 @@
 
 {% block content %}
 <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8 font-lato">
-    <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg">
+    <div class="w-full max-w-xs sm:max-w-md lg:max-w-lg">
         
         <!-- Header Section -->
-        <div class="text-center mb-8 sm:mb-10">
+        <div class="text-center mb-6 sm:mb-8 lg:mb-10">
             <!-- Logo and Brand -->
-            <div class="flex items-center justify-center mb-6 sm:mb-8">
-                <div class="flex items-center space-x-4">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-lg">
-                        <span class="material-icons text-white text-2xl sm:text-3xl">home</span>
+            <div class="flex items-center justify-center mb-4 sm:mb-6 lg:mb-8">
+                <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-lg">
+                        <span class="material-icons text-white text-xl sm:text-2xl lg:text-3xl">home</span>
                     </div>
-                    <div class="text-left">
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#02066F] font-lato leading-tight">
+                    <div class="text-center sm:text-left">
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#02066F] font-lato leading-tight">
                             RepAvi Lodges
                         </h1>
-                        <p class="text-gray-500 text-sm sm:text-base font-medium mt-1">
+                        <p class="text-gray-500 text-xs sm:text-sm lg:text-base font-medium mt-1">
                             Système de Gestion
                         </p>
                     </div>
@@ -28,24 +28,24 @@
             
             <!-- Page Title -->
             <div class="space-y-2">
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 font-lato">Accès Gestionnaires</h2>
-                <p class="text-gray-600 text-sm sm:text-base">Connectez-vous à votre espace de gestion</p>
+                <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 font-lato">Accès Gestionnaires</h2>
+                <p class="text-gray-600 text-xs sm:text-sm lg:text-base">Connectez-vous à votre espace de gestion</p>
             </div>
         </div>
 
         <!-- Login Form -->
-        <div class="bg-white rounded-lg shadow-lg p-6 sm:p-8 border border-gray-200">
+        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 border border-gray-200">
             
             {% if form.errors %}
             <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
-                <div class="flex items-center space-x-3">
-                    <span class="material-icons text-red-500 text-lg">error_outline</span>
+                <div class="flex items-start space-x-3">
+                    <span class="material-icons text-red-500 text-lg flex-shrink-0 mt-0.5">error_outline</span>
                     <span class="font-medium">Identifiants incorrects. Veuillez réessayer.</span>
                 </div>
             </div>
             {% endif %}
 
-            <form method="post" class="space-y-6">
+            <form method="post" class="space-y-5 sm:space-y-6">
                 {% csrf_token %}
                 
                 <!-- Username Field -->
@@ -56,7 +56,7 @@
                     <div class="relative">
                         <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">person</span>
                         <input type="text" name="username" 
-                               class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400 font-lato"
+                               class="w-full pl-11 pr-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400 font-lato text-sm sm:text-base"
                                placeholder="Votre nom d'utilisateur"
                                required
                                autocomplete="username">
@@ -71,14 +71,14 @@
                     <div class="relative">
                         <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">lock</span>
                         <input type="password" name="password" id="password-input"
-                               class="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400 font-lato"
+                               class="w-full pl-11 pr-12 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-400 font-lato text-sm sm:text-base"
                                placeholder="••••••••"
                                required
                                autocomplete="current-password">
                         <button type="button" onclick="togglePassword()" 
                                 class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#02066F] transition-colors duration-200 p-1 rounded-md hover:bg-gray-100"
                                 tabindex="-1">
-                            <span class="material-icons text-lg" id="eye-icon">visibility</span>
+                            <span class="material-icons text-base sm:text-lg" id="eye-icon">visibility</span>
                         </button>
                     </div>
                 </div>
@@ -94,8 +94,8 @@
 
                 <!-- Submit Button -->
                 <button type="submit" 
-                        class="w-full bg-[#02066F] hover:bg-[#030a8a] active:bg-[#01044d] text-white py-3.5 rounded-lg transition-all duration-200 font-semibold font-lato flex items-center justify-center space-x-2 shadow-md hover:shadow-lg active:scale-[0.98]">
-                    <span class="material-icons text-lg">login</span>
+                        class="w-full bg-[#02066F] hover:bg-[#030a8a] active:bg-[#01044d] text-white py-2.5 sm:py-3.5 rounded-lg transition-all duration-200 font-semibold font-lato flex items-center justify-center space-x-2 shadow-md hover:shadow-lg active:scale-[0.98] text-sm sm:text-base">
+                    <span class="material-icons text-base sm:text-lg">login</span>
                     <span>Se connecter</span>
                 </button>
 
@@ -109,20 +109,20 @@
         </div>
 
         <!-- System Information -->
-        <div class="text-center mt-8">
-            <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-8">
-                <div class="flex items-center space-x-2 text-gray-500 text-sm">
+        <div class="text-center mt-6 sm:mt-8">
+            <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-6 lg:space-x-8">
+                <div class="flex items-center space-x-2 text-gray-500 text-xs sm:text-sm">
                     <span class="material-icons text-sm text-green-500">verified_user</span>
                     <span class="font-lato font-medium">Système sécurisé</span>
                 </div>
-                <div class="flex items-center space-x-2 text-gray-500 text-sm">
+                <div class="flex items-center space-x-2 text-gray-500 text-xs sm:text-sm">
                     <span class="material-icons text-sm text-[#02066F]">support_agent</span>
                     <span class="font-lato font-medium">Support 24/7</span>
                 </div>
             </div>
             
             <!-- Footer -->
-            <div class="mt-6 text-xs text-gray-400 font-lato">
+            <div class="mt-4 sm:mt-6 text-xs text-gray-400 font-lato">
                 Version 2.1.0 • © 2024 RepAvi Lodges • Tous droits réservés
             </div>
         </div>

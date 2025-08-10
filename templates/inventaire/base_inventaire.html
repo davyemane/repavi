@@ -80,6 +80,7 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    padding: 1rem;
 }
 
 .modal-overlay.active {
@@ -90,9 +91,9 @@
 .modal-content {
     background: white;
     border-radius: 12px;
-    padding: 24px;
+    padding: 1.5rem;
     max-width: 500px;
-    width: 90%;
+    width: 100%;
     transform: scale(0.9);
     transition: transform 0.3s ease;
 }
@@ -109,6 +110,25 @@
     
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .modal-content {
+        padding: 1rem;
+        margin: 1rem;
+    }
+    
+    .action-rapide {
+        @apply text-xs px-2 py-1;
+    }
+}
+
+@media (max-width: 640px) {
+    .modal-overlay {
+        padding: 0.5rem;
+    }
+    
+    .modal-content {
+        padding: 1rem;
     }
 }
 
@@ -271,8 +291,8 @@ function exporterInventaire(appartementId = null) {
 <!-- Modal pour changement d'état avec commentaire selon cahier -->
 <div id="modal-changement-etat" class="modal-overlay">
     <div class="modal-content">
-        <div class="flex items-center justify-between mb-6">
-            <h3 id="modal-titre" class="text-lg font-semibold text-gray-900 font-lato">Changer l'état</h3>
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 id="modal-titre" class="text-base sm:text-lg font-semibold text-gray-900 font-lato">Changer l'état</h3>
             <button onclick="fermerModalEtat()" class="text-gray-400 hover:text-gray-600">
                 <span class="material-icons">close</span>
             </button>
@@ -281,29 +301,29 @@ function exporterInventaire(appartementId = null) {
         <form id="form-changement-etat" method="get" class="space-y-4">
             <div>
                 <label class="block text-sm font-semibold text-gray-900 mb-3 font-lato">Nouvel état</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <label class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:border-green-300 hover:bg-green-50">
+                <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                    <label class="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 border rounded-lg cursor-pointer hover:border-green-300 hover:bg-green-50">
                         <input type="radio" name="etat" value="bon" class="text-green-600 focus:ring-green-500">
                         <span class="indicateur-etat indicateur-bon"></span>
-                        <span class="font-lato">Bon</span>
+                        <span class="font-lato text-sm sm:text-base">Bon</span>
                     </label>
                     
-                    <label class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50">
+                    <label class="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 border rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50">
                         <input type="radio" name="etat" value="usage" class="text-blue-600 focus:ring-blue-500">
                         <span class="indicateur-etat indicateur-usage"></span>
-                        <span class="font-lato">Usage</span>
+                        <span class="font-lato text-sm sm:text-base">Usage</span>
                     </label>
                     
-                    <label class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:border-orange-300 hover:bg-orange-50">
+                    <label class="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 border rounded-lg cursor-pointer hover:border-orange-300 hover:bg-orange-50">
                         <input type="radio" name="etat" value="defectueux" class="text-orange-600 focus:ring-orange-500">
                         <span class="indicateur-etat indicateur-defectueux"></span>
-                        <span class="font-lato">Défectueux</span>
+                        <span class="font-lato text-sm sm:text-base">Défectueux</span>
                     </label>
                     
-                    <label class="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:border-red-300 hover:bg-red-50">
+                    <label class="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 border rounded-lg cursor-pointer hover:border-red-300 hover:bg-red-50">
                         <input type="radio" name="etat" value="hors_service" class="text-red-600 focus:ring-red-500">
                         <span class="indicateur-etat indicateur-hors-service"></span>
-                        <span class="font-lato">Hors service</span>
+                        <span class="font-lato text-sm sm:text-base">Hors service</span>
                     </label>
                 </div>
             </div>
@@ -317,7 +337,7 @@ function exporterInventaire(appartementId = null) {
                           placeholder="Raison du changement d'état..."></textarea>
             </div>
             
-            <div class="flex space-x-3 pt-4">
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-2 sm:pt-4">
                 <button type="submit" 
                         class="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
                     <span class="material-icons text-sm">save</span>

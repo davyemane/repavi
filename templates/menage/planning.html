@@ -8,65 +8,68 @@
 {% block page_subtitle %}Gestion des tâches de nettoyage{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'menage:historique' %}" 
-   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
-    <span class="material-icons text-sm mr-2">history</span>
-    Historique
-</a>
-<button onclick="showProgrammerModal()" 
-        class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
-    <span class="material-icons text-sm mr-2">schedule</span>
-    Programmer Ménage
-</button>
+<div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+    <a href="{% url 'menage:historique' %}" 
+       class="inline-flex items-center justify-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">history</span>
+        Historique
+    </a>
+    <button onclick="showProgrammerModal()" 
+            class="inline-flex items-center justify-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">schedule</span>
+        Programmer Ménage
+    </button>
+</div>
 {% endblock %}
 
 {% block content %}
+<div class="px-4 sm:px-6 lg:px-8">
 <!-- Stats -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+<div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 font-lato">Urgentes</p>
-                <p class="text-2xl font-bold text-red-600 font-lato">{{ taches_urgentes.count }}</p>
+                <p class="text-xs sm:text-sm text-gray-600 font-lato">Urgentes</p>
+                <p class="text-lg sm:text-xl md:text-2xl font-bold text-red-600 font-lato">{{ taches_urgentes.count }}</p>
             </div>
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-red-600">error</span>
+            <div class="w-8 h-8 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-red-600 text-sm sm:text-base">error</span>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 font-lato">En cours</p>
-                <p class="text-2xl font-bold text-[#02066F] font-lato">{{ taches_en_cours.count }}</p>
+                <p class="text-xs sm:text-sm text-gray-600 font-lato">En cours</p>
+                <p class="text-lg sm:text-xl md:text-2xl font-bold text-[#02066F] font-lato">{{ taches_en_cours.count }}</p>
             </div>
-            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-[#02066F]">hourglass_empty</span>
+            <div class="w-8 h-8 sm:w-12 sm:h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F] text-sm sm:text-base">hourglass_empty</span>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 font-lato">À venir</p>
-                <p class="text-2xl font-bold text-orange-600 font-lato">{{ taches_a_venir.count }}</p>
+                <p class="text-xs sm:text-sm text-gray-600 font-lato">À venir</p>
+                <p class="text-lg sm:text-xl md:text-2xl font-bold text-orange-600 font-lato">{{ taches_a_venir.count }}</p>
             </div>
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-orange-600">schedule</span>
+            <div class="w-8 h-8 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-orange-600 text-sm sm:text-base">schedule</span>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-sm text-gray-600 font-lato">Ce mois</p>
-                <p class="text-2xl font-bold text-green-600 font-lato">{{ taches_terminees_mois }}</p>
+                <p class="text-xs sm:text-sm text-gray-600 font-lato">Ce mois</p>
+                <p class="text-lg sm:text-xl md:text-2xl font-bold text-green-600 font-lato">{{ taches_terminees_mois }}</p>
             </div>
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-green-600">check_circle</span>
+            <div class="w-8 h-8 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-green-600 text-sm sm:text-base">check_circle</span>
             </div>
         </div>
     </div>
@@ -75,29 +78,29 @@
 <!-- Tâches urgentes -->
 {% if taches_urgentes %}
 <div class="bg-white rounded-lg border border-red-200 mb-6">
-    <div class="bg-red-50 px-6 py-4 border-b border-red-200">
-        <h2 class="text-lg font-semibold text-red-900 font-lato flex items-center space-x-2">
+    <div class="bg-red-50 px-4 sm:px-6 py-4 border-b border-red-200">
+        <h2 class="text-base sm:text-lg font-semibold text-red-900 font-lato flex items-center space-x-2">
             <span class="material-icons">error</span>
             <span>Tâches urgentes ({{ taches_urgentes.count }})</span>
         </h2>
     </div>
     <div class="divide-y divide-gray-200">
         {% for tache in taches_urgentes %}
-        <div class="p-6 hover:bg-gray-50">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                        <span class="material-icons text-red-600">cleaning_services</span>
+        <div class="p-4 sm:p-6 hover:bg-gray-50">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-8 h-8 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-red-600 text-sm sm:text-base">cleaning_services</span>
                     </div>
                     <div>
                         <h3 class="font-semibold text-gray-900 font-lato">{{ tache.appartement.numero }}</h3>
-                        <p class="text-gray-600 font-lato">{{ tache.appartement.get_type_logement_display }}</p>
+                        <p class="text-gray-600 text-sm font-lato">{{ tache.appartement.get_type_logement_display }}</p>
                         <p class="text-red-600 text-sm font-lato">Prévu: {{ tache.date_prevue|date:"d/m/Y" }}</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <a href="{% url 'menage:checklist' tache.pk %}" 
-                       class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-lato">
+                       class="inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-lato text-sm">
                         <span class="material-icons text-sm mr-2">play_arrow</span>
                         Commencer
                     </a>
@@ -112,34 +115,34 @@
 <!-- Tâches en cours -->
 {% if taches_en_cours %}
 <div class="bg-white rounded-lg border border-gray-200 mb-6">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900 font-lato flex items-center space-x-2">
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+        <h2 class="text-base sm:text-lg font-semibold text-gray-900 font-lato flex items-center space-x-2">
             <span class="material-icons text-[#02066F]">hourglass_empty</span>
             <span>En cours ({{ taches_en_cours.count }})</span>
         </h2>
     </div>
     <div class="divide-y divide-gray-200">
         {% for tache in taches_en_cours %}
-        <div class="p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                        <span class="material-icons text-[#02066F]">cleaning_services</span>
+        <div class="p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-8 h-8 sm:w-12 sm:h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-[#02066F] text-sm sm:text-base">cleaning_services</span>
                     </div>
                     <div>
                         <h3 class="font-semibold text-gray-900 font-lato">{{ tache.appartement.numero }}</h3>
-                        <p class="text-gray-600 font-lato">Par: {{ tache.personnel.first_name }}</p>
+                        <p class="text-gray-600 text-sm font-lato">Par: {{ tache.personnel.first_name }}</p>
                         <p class="text-[#02066F] text-sm font-lato">Démarré le {{ tache.date_debut|date:"d/m/Y" }}</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <a href="{% url 'menage:checklist' tache.pk %}" 
-                       class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg hover:bg-[#02066F]/5 transition-colors font-lato">
+                       class="inline-flex items-center justify-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg hover:bg-[#02066F]/5 transition-colors font-lato text-sm">
                         <span class="material-icons text-sm mr-2">edit</span>
                         Check-list
                     </a>
                     <a href="{% url 'menage:terminer' tache.pk %}" 
-                       class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-lato">
+                       class="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-lato text-sm">
                         <span class="material-icons text-sm mr-2">check</span>
                         Terminer
                     </a>
@@ -153,8 +156,8 @@
 
 <!-- Tâches à venir -->
 <div class="bg-white rounded-lg border border-gray-200">
-    <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900 font-lato flex items-center space-x-2">
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+        <h2 class="text-base sm:text-lg font-semibold text-gray-900 font-lato flex items-center space-x-2">
             <span class="material-icons text-orange-600">schedule</span>
             <span>À venir ({{ taches_a_venir.count }})</span>
         </h2>
@@ -162,21 +165,21 @@
     {% if taches_a_venir %}
     <div class="divide-y divide-gray-200">
         {% for tache in taches_a_venir %}
-        <div class="p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                        <span class="material-icons text-orange-600">cleaning_services</span>
+        <div class="p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-8 h-8 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-orange-600 text-sm sm:text-base">cleaning_services</span>
                     </div>
                     <div>
                         <h3 class="font-semibold text-gray-900 font-lato">{{ tache.appartement.numero }}</h3>
-                        <p class="text-gray-600 font-lato">{{ tache.appartement.get_type_logement_display }}</p>
+                        <p class="text-gray-600 text-sm font-lato">{{ tache.appartement.get_type_logement_display }}</p>
                         <p class="text-orange-600 text-sm font-lato">Prévu: {{ tache.date_prevue|date:"d/m/Y" }}</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <a href="{% url 'menage:checklist' tache.pk %}" 
-                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-lato">
+                       class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-lato text-sm">
                         <span class="material-icons text-sm mr-2">list</span>
                         Check-list
                     </a>
@@ -186,10 +189,10 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="p-12 text-center">
-        <span class="material-icons text-gray-400 text-4xl mb-4">event_available</span>
-        <h3 class="text-lg font-medium text-gray-900 mb-2 font-lato">Aucune tâche programmée</h3>
-        <p class="text-gray-500 mb-6 font-lato">Programmez des tâches de ménage pour vos appartements</p>
+    <div class="p-8 sm:p-12 text-center">
+        <span class="material-icons text-gray-400 text-3xl sm:text-4xl mb-4">event_available</span>
+        <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2 font-lato">Aucune tâche programmée</h3>
+        <p class="text-gray-500 mb-4 sm:mb-6 font-lato">Programmez des tâches de ménage pour vos appartements</p>
         <button onclick="showProgrammerModal()" 
                 class="inline-flex items-center px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
             <span class="material-icons text-sm mr-2">schedule</span>
@@ -200,17 +203,19 @@
 </div>
 
 <!-- Modal programmer ménage -->
-<div id="programmerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 class="text-lg font-semibold mb-4 font-lato">Sélectionner un appartement</h3>
-            {% for apt in appartements_disponibles %}
-            <a href="{% url 'menage:programmer' apt.pk %}" 
-               class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <div class="font-medium font-lato">{{ apt.numero }}</div>
-                <div class="text-sm text-gray-600 font-lato">{{ apt.get_type_logement_display }}</div>
-            </a>
-            {% endfor %}
+<div id="programmerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 p-4">
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="bg-white rounded-lg max-w-md w-full p-4 sm:p-6">
+            <h3 class="text-base sm:text-lg font-semibold mb-4 font-lato">Sélectionner un appartement</h3>
+            <div class="space-y-2 sm:space-y-3 max-h-60 overflow-y-auto">
+                {% for apt in appartements_disponibles %}
+                <a href="{% url 'menage:programmer' apt.pk %}" 
+                   class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="font-medium font-lato">{{ apt.numero }}</div>
+                    <div class="text-sm text-gray-600 font-lato">{{ apt.get_type_logement_display }}</div>
+                </a>
+                {% endfor %}
+            </div>
             <div class="mt-4">
                 <button onclick="hideProgrammerModal()" 
                         class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-lato">
@@ -219,6 +224,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <script>
@@ -229,5 +235,19 @@ function showProgrammerModal() {
 function hideProgrammerModal() {
     document.getElementById('programmerModal').classList.add('hidden');
 }
+
+// Fermer le modal en cliquant en dehors
+document.getElementById('programmerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideProgrammerModal();
+    }
+});
+
+// Fermer le modal avec Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideProgrammerModal();
+    }
+});
 </script>
 {% endblock %}

@@ -1,47 +1,67 @@
-{% extends 'base.html' %}
+{% extends 'base_empty.html' %}
 {% load static %}
 
 {% block title %}Erreur de sécurité - RepAvi Lodges{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 flex flex-col justify-center">
-    <div class="max-w-md mx-auto px-4 text-center">
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
+        
+        <!-- Header avec logo -->
+        <div class="text-center mb-8 sm:mb-10">
+            <div class="flex items-center justify-center mb-6 sm:mb-8">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-lg">
+                        <span class="material-icons text-white text-xl sm:text-2xl lg:text-3xl">home</span>
+                    </div>
+                    <div class="text-left">
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#02066F] font-lato leading-tight">
+                            RepAvi Lodges
+                        </h1>
+                        <p class="text-gray-500 text-xs sm:text-sm lg:text-base font-medium mt-1">
+                            Système de Gestion
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Illustration d'erreur -->
-        <div class="mb-8">
-            <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center">
-                <span class="material-icons text-6xl text-white">security</span>
+        <div class="text-center mb-8 sm:mb-10">
+            <div class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 mx-auto mb-6 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
+                <span class="material-icons text-4xl sm:text-5xl lg:text-6xl text-white">security</span>
             </div>
             
-            <h1 class="text-3xl font-bold text-gray-900 mb-4 font-lato">
+            <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 font-lato">
                 Erreur de sécurité
-            </h1>
+            </h2>
             
-            <p class="text-gray-600 text-lg mb-8 font-lato">
+            <p class="text-gray-600 text-sm sm:text-base lg:text-lg mb-8 px-4">
                 Votre session a expiré ou la requête est invalide pour des raisons de sécurité. 
                 Veuillez réessayer votre action.
             </p>
         </div>
 
         <!-- Explication technique -->
-        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl p-4 sm:p-6 mb-8">
             <div class="flex items-center justify-center mb-3">
                 <span class="material-icons text-yellow-600 mr-2">shield</span>
-                <span class="text-yellow-800 font-medium font-lato">Protection CSRF activée</span>
+                <span class="text-yellow-800 font-medium font-lato text-sm sm:text-base">Protection CSRF activée</span>
             </div>
-            <p class="text-yellow-700 text-sm font-lato">
+            <p class="text-yellow-700 text-xs sm:text-sm font-lato text-center">
                 Cette erreur survient pour protéger vos données contre les attaques malveillantes. 
                 C'est un mécanisme de sécurité normal.
             </p>
         </div>
 
         <!-- Solutions suggérées -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-8">
-            <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
+        <div class="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 mb-8">
+            <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato">
                 <span class="material-icons text-[#02066F] mr-2">lightbulb</span>
                 Solutions recommandées
             </h3>
             
-            <div class="space-y-4 text-sm text-left">
+            <div class="space-y-3 sm:space-y-4 text-xs sm:text-sm">
                 <div class="flex items-start space-x-3">
                     <div class="w-6 h-6 bg-[#02066F]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                         <span class="text-[#02066F] font-bold text-xs">1</span>
@@ -75,37 +95,37 @@
         </div>
 
         <!-- Actions suggérées -->
-        <div class="space-y-4 mb-8">
+        <div class="space-y-3 sm:space-y-4 mb-8">
             <button onclick="location.reload()" 
-                    class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl text-base font-medium text-white bg-[#02066F] hover:bg-[#030a8a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+                    class="w-full inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-lg sm:rounded-xl text-sm sm:text-base font-medium text-white bg-[#02066F] hover:bg-[#030a8a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
                 <span class="material-icons text-sm mr-2">refresh</span>
                 Actualiser la page
             </button>
             
             <button onclick="history.back()" 
-                    class="w-full inline-flex items-center justify-center px-6 py-3 border border-[#02066F] rounded-xl text-base font-medium text-[#02066F] bg-white hover:bg-[#02066F]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+                    class="w-full inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-[#02066F] rounded-lg sm:rounded-xl text-sm sm:text-base font-medium text-[#02066F] bg-white hover:bg-[#02066F]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
                 <span class="material-icons text-sm mr-2">arrow_back</span>
                 Retour à la page précédente
             </button>
             
             <a href="{% url 'home:index' %}" 
-               class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
+               class="w-full inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#02066F] transition-colors font-lato">
                 <span class="material-icons text-sm mr-2">home</span>
                 Retour à l'accueil
             </a>
         </div>
 
         <!-- Informations techniques -->
-        <div class="bg-[#02066F]/5 rounded-2xl p-6 mb-8">
-            <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
+        <div class="bg-[#02066F]/5 rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
+            <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato">
                 <span class="material-icons text-[#02066F] mr-2">info</span>
                 Informations techniques
             </h3>
             
-            <div class="grid grid-cols-1 gap-3 text-sm">
+            <div class="grid grid-cols-1 gap-3 text-xs sm:text-sm">
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600 font-lato">Code d'erreur :</span>
-                    <span class="font-mono text-gray-900 bg-white px-2 py-1 rounded">403</span>
+                    <span class="font-mono text-gray-900 bg-white px-2 py-1 rounded text-xs">403</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600 font-lato">Type :</span>
@@ -119,27 +139,34 @@
         </div>
 
         <!-- Contact support si problème persiste -->
-        <div class="bg-gray-100 rounded-2xl p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4 font-lato">
+        <div class="bg-gray-100 rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
+            <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato">
                 Le problème persiste ?
             </h3>
             
-            <p class="text-gray-600 text-sm mb-4 font-lato">
+            <p class="text-gray-600 text-xs sm:text-sm mb-4 font-lato text-center">
                 Si cette erreur continue d'apparaître, notre équipe support peut vous aider.
             </p>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <a href="mailto:support@repavi.com" 
-                   class="inline-flex items-center justify-center px-4 py-2 text-[#02066F] hover:text-[#030a8a] text-sm font-medium transition-colors font-lato">
+                   class="inline-flex items-center justify-center px-4 py-2 text-[#02066F] hover:text-[#030a8a] text-xs sm:text-sm font-medium transition-colors font-lato">
                     <span class="material-icons text-sm mr-2">mail</span>
                     Contacter le support
                 </a>
                 <a href="tel:+33123456789" 
-                   class="inline-flex items-center justify-center px-4 py-2 text-[#02066F] hover:text-[#030a8a] text-sm font-medium transition-colors font-lato">
+                   class="inline-flex items-center justify-center px-4 py-2 text-[#02066F] hover:text-[#030a8a] text-xs sm:text-sm font-medium transition-colors font-lato">
                     <span class="material-icons text-sm mr-2">phone</span>
                     Appeler le support
                 </a>
             </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center">
+            <p class="text-xs text-gray-400 font-lato">
+                Version 2.1.0 • © 2024 RepAvi Lodges • Tous droits réservés
+            </p>
         </div>
     </div>
 </div>

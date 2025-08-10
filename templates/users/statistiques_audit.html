@@ -3,167 +3,191 @@
 
 {% block title %}Statistiques d'Audit - RepAvi Lodges{% endblock %}
 
-{% block content %}
-<div class="flex h-screen bg-gray-50">
-    <aside class="w-64 bg-white border-r border-gray-200 p-6">
-        <div class="flex items-center space-x-3 mb-6">
-            <div class="w-10 h-10 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-[#02066F]">security</span>
-            </div>
-            <h1 class="font-bold text-lg text-gray-900 font-lato">Audit Système</h1>
-        </div>
-        
-        <nav class="space-y-2">
-            <a href="{% url 'users:journal_actions' %}" 
-               class="flex items-center space-x-3 p-3 text-gray-600 hover:bg-[#02066F]/5 hover:text-[#02066F] rounded-lg transition-colors font-lato">
-                <span class="material-icons text-sm">security</span>
-                <span>Journal</span>
-            </a>
-            <a href="{% url 'users:statistiques_audit' %}" 
-               class="flex items-center space-x-3 p-3 bg-[#02066F]/10 text-[#02066F] rounded-lg font-medium font-lato">
-                <span class="material-icons text-sm">analytics</span>
-                <span>Statistiques</span>
-            </a>
-        </nav>
-    </aside>
+{% block page_title %}Statistiques d'Audit{% endblock %}
+{% block page_subtitle %}Analyse de l'activité système{% endblock %}
 
-    <main class="flex-1 overflow-y-auto">
-        <header class="bg-white border-b border-gray-200 p-6">
+{% block header_actions %}
+<a href="{% url 'users:journal_actions' %}" 
+   class="inline-flex items-center px-3 lg:px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">security</span>
+    <span class="hidden sm:inline">Journal</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-4 lg:space-y-6">
+    
+    <!-- Header avec navigation audit -->
+    <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-[#02066F] text-sm">analytics</span>
+                <div class="w-10 h-10 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F]">analytics</span>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 font-lato">Statistiques d'Audit</h1>
-                    <p class="text-gray-600 font-lato">Analyse de l'activité système</p>
+                    <h1 class="text-lg lg:text-xl font-bold text-gray-900 font-lato">Audit Système</h1>
+                    <p class="text-xs lg:text-sm text-gray-500 font-lato">Analyse de l'activité système</p>
                 </div>
             </div>
-        </header>
+            
+            <nav class="flex space-x-2">
+                <a href="{% url 'users:journal_actions' %}" class="px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg font-lato text-sm lg:text-base">
+                    <span class="material-icons text-sm mr-2">security</span>
+                    <span class="hidden sm:inline">Journal</span>
+                </a>
+                <a href="{% url 'users:statistiques_audit' %}" class="px-3 py-2 bg-[#02066F]/10 text-[#02066F] rounded-lg font-medium font-lato text-sm lg:text-base">
+                    <span class="material-icons text-sm mr-2">analytics</span>
+                    <span class="hidden sm:inline">Statistiques</span>
+                </a>
+            </nav>
+        </div>
+    </div>
 
-        <div class="p-6 space-y-6">
-            <!-- Métriques principales -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-[#02066F]">security</span>
-                        </div>
-                    </div>
-                    <div class="text-3xl font-bold text-gray-900 font-lato">{{ stats.total_actions }}</div>
-                    <div class="text-sm text-gray-600 font-lato">Actions totales</div>
-                </div>
-
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-green-600">today</span>
-                        </div>
-                    </div>
-                    <div class="text-3xl font-bold text-gray-900 font-lato">{{ stats.actions_today }}</div>
-                    <div class="text-sm text-gray-600 font-lato">Aujourd'hui</div>
-                </div>
-
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-orange-600">calendar_view_week</span>
-                        </div>
-                    </div>
-                    <div class="text-3xl font-bold text-gray-900 font-lato">{{ stats.actions_week }}</div>
-                    <div class="text-sm text-gray-600 font-lato">Cette semaine</div>
-                </div>
-
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-purple-600">calendar_month</span>
-                        </div>
-                    </div>
-                    <div class="text-3xl font-bold text-gray-900 font-lato">{{ stats.actions_month }}</div>
-                    <div class="text-sm text-gray-600 font-lato">Ce mois</div>
+    <!-- Métriques principales -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+        <div class="bg-white rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F] text-lg lg:text-xl">security</span>
                 </div>
             </div>
+            <div class="text-2xl lg:text-3xl font-bold text-gray-900 font-lato">{{ stats.total_actions }}</div>
+            <div class="text-xs lg:text-sm text-gray-600 font-lato">Actions totales</div>
+        </div>
 
-            <!-- Graphiques -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Actions par type -->
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-900 font-lato">Actions par type</h3>
-                    <div class="space-y-3">
-                        {% for action in stats.actions_by_type %}
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <span class="w-3 h-3 rounded-full
-                                    {% if action.action == 'create' %}bg-green-500
-                                    {% elif action.action == 'update' %}bg-[#02066F]
-                                    {% elif action.action == 'delete' %}bg-red-500
-                                    {% elif action.action == 'login' %}bg-purple-500
-                                    {% else %}bg-gray-500{% endif %}"></span>
-                                <span class="text-sm font-medium text-gray-700 font-lato">
-                                    {% if action.action == 'create' %}➕ Créations
-                                    {% elif action.action == 'update' %}✏️ Modifications
-                                    {% elif action.action == 'delete' %}🗑️ Suppressions
-                                    {% elif action.action == 'login' %}🔑 Connexions
-                                    {% else %}{{ action.action|title }}{% endif %}
-                                </span>
-                            </div>
-                            <span class="text-lg font-bold text-[#02066F] font-lato">{{ action.count }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Utilisateurs les plus actifs -->
-                <div class="bg-white rounded-xl p-6 border border-gray-200">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-900 font-lato">👤 Utilisateurs les plus actifs</h3>
-                    <div class="space-y-3">
-                        {% for user in stats.actions_by_user %}
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 bg-[#02066F]/10 rounded-full flex items-center justify-center">
-                                    <span class="material-icons text-[#02066F] text-sm">person</span>
-                                </div>
-                                <span class="text-sm font-medium text-gray-700 font-lato">{{ user.utilisateur__username }}</span>
-                            </div>
-                            <span class="text-lg font-bold text-[#02066F] font-lato">{{ user.count }}</span>
-                        </div>
-                        {% endfor %}
-                    </div>
+        <div class="bg-white rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-green-600 text-lg lg:text-xl">today</span>
                 </div>
             </div>
+            <div class="text-2xl lg:text-3xl font-bold text-gray-900 font-lato">{{ stats.actions_today }}</div>
+            <div class="text-xs lg:text-sm text-gray-600 font-lato">Aujourd'hui</div>
+        </div>
 
-            <!-- Modèles les plus modifiés -->
-            <div class="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 class="text-lg font-semibold mb-4 text-gray-900 font-lato">📦 Modèles les plus modifiés</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {% for model in stats.actions_by_model %}
-                    <div class="flex items-center justify-between p-4 bg-[#02066F]/5 rounded-lg border border-[#02066F]/10">
-                        <div class="flex items-center space-x-3">
-                            <span class="text-sm font-medium text-gray-700 font-lato">{{ model.model_name }}</span>
-                        </div>
-                        <span class="text-lg font-bold text-[#02066F] font-lato">{{ model.count }}</span>
-                    </div>
-                    {% endfor %}
+        <div class="bg-white rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-orange-600 text-lg lg:text-xl">calendar_view_week</span>
                 </div>
             </div>
+            <div class="text-2xl lg:text-3xl font-bold text-gray-900 font-lato">{{ stats.actions_week }}</div>
+            <div class="text-xs lg:text-sm text-gray-600 font-lato">Cette semaine</div>
+        </div>
 
-            <!-- Activité récente -->
-            <div class="bg-white rounded-xl p-6 border border-gray-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 font-lato">⚡ Activité des dernières heures</h3>
-                    <a href="{% url 'users:journal_actions' %}" 
-                       class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato transition-colors">
-                        Voir le journal complet →
-                    </a>
+        <div class="bg-white rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-purple-600 text-lg lg:text-xl">calendar_month</span>
                 </div>
-                <div class="text-center py-8 text-gray-500">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="material-icons text-4xl text-gray-400">timeline</span>
+            </div>
+            <div class="text-2xl lg:text-3xl font-bold text-gray-900 font-lato">{{ stats.actions_month }}</div>
+            <div class="text-xs lg:text-sm text-gray-600 font-lato">Ce mois</div>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+        <!-- Actions par type -->
+        <div class="bg-white rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-200">
+            <h3 class="text-base lg:text-lg font-semibold mb-4 text-gray-900 font-lato">Actions par type</h3>
+            <div class="space-y-3">
+                {% for action in stats.actions_by_type %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-3 h-3 rounded-full
+                            {% if action.action == 'create' %}bg-green-500
+                            {% elif action.action == 'update' %}bg-[#02066F]
+                            {% elif action.action == 'delete' %}bg-red-500
+                            {% elif action.action == 'login' %}bg-purple-500
+                            {% else %}bg-gray-500{% endif %}"></span>
+                        <span class="text-sm font-medium text-gray-700 font-lato">
+                            {% if action.action == 'create' %}➕ Créations
+                            {% elif action.action == 'update' %}✏️ Modifications
+                            {% elif action.action == 'delete' %}🗑️ Suppressions
+                            {% elif action.action == 'login' %}🔑 Connexions
+                            {% else %}{{ action.action|title }}{% endif %}
+                        </span>
                     </div>
-                    <p class="font-lato">Graphique d'activité à implémenter</p>
+                    <span class="text-base lg:text-lg font-bold text-[#02066F] font-lato">{{ action.count }}</span>
                 </div>
+                {% endfor %}
             </div>
         </div>
-    </main>
+
+        <!-- Utilisateurs les plus actifs -->
+        <div class="bg-white rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-200">
+            <h3 class="text-base lg:text-lg font-semibold mb-4 text-gray-900 font-lato">👤 Utilisateurs les plus actifs</h3>
+            <div class="space-y-3">
+                {% for user in stats.actions_by_user %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-[#02066F]/10 rounded-full flex items-center justify-center">
+                            <span class="material-icons text-[#02066F] text-sm">person</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 font-lato truncate">{{ user.utilisateur__username }}</span>
+                    </div>
+                    <span class="text-base lg:text-lg font-bold text-[#02066F] font-lato">{{ user.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modèles les plus modifiés -->
+    <div class="bg-white rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-200">
+        <h3 class="text-base lg:text-lg font-semibold mb-4 text-gray-900 font-lato">📦 Modèles les plus modifiés</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
+            {% for model in stats.actions_by_model %}
+            <div class="flex items-center justify-between p-3 lg:p-4 bg-[#02066F]/5 rounded-lg border border-[#02066F]/10">
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm font-medium text-gray-700 font-lato truncate">{{ model.model_name }}</span>
+                </div>
+                <span class="text-base lg:text-lg font-bold text-[#02066F] font-lato">{{ model.count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Activité récente -->
+    <div class="bg-white rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-200">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 space-y-2 sm:space-y-0">
+            <h3 class="text-base lg:text-lg font-semibold text-gray-900 font-lato">⚡ Activité des dernières heures</h3>
+            <a href="{% url 'users:journal_actions' %}" 
+               class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato transition-colors">
+                Voir le journal complet →
+            </a>
+        </div>
+        <div class="text-center py-12">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-icons text-4xl text-gray-400">timeline</span>
+            </div>
+            <p class="font-lato text-sm lg:text-base text-gray-500">Graphique d'activité à implémenter</p>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="bg-gradient-to-r from-[#02066F] to-blue-600 rounded-lg lg:rounded-xl p-4 lg:p-6 text-white">
+        <h3 class="text-base lg:text-lg font-semibold mb-4 font-lato">🔧 Actions rapides</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
+            <a href="{% url 'users:journal_actions' %}" 
+               class="flex items-center space-x-3 p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                <span class="material-icons text-lg">security</span>
+                <span class="font-medium font-lato text-sm lg:text-base">Consulter le journal</span>
+            </a>
+            
+            <a href="{% url 'users:liste_gestionnaires' %}" 
+               class="flex items-center space-x-3 p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                <span class="material-icons text-lg">supervisor_account</span>
+                <span class="font-medium font-lato text-sm lg:text-base">Gérer les utilisateurs</span>
+            </a>
+            
+            <button onclick="location.reload()" 
+                    class="flex items-center space-x-3 p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-colors w-full text-left">
+                <span class="material-icons text-lg">refresh</span>
+                <span class="font-medium font-lato text-sm lg:text-base">Actualiser les stats</span>
+            </button>
+        </div>
+    </div>
 </div>
 {% endblock %}

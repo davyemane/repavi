@@ -18,21 +18,21 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-lg border border-gray-200 p-8">
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 md:p-8">
         
         <!-- Header du formulaire -->
-        <div class="flex items-center space-x-4 mb-8">
-            <div class="w-16 h-16 bg-[#02066F] rounded-xl flex items-center justify-center">
-                <span class="material-icons text-white text-2xl">add</span>
+        <div class="flex items-center space-x-4 mb-6 sm:mb-8">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-[#02066F] rounded-xl flex items-center justify-center">
+                <span class="material-icons text-white text-lg sm:text-2xl">add</span>
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-gray-900 font-lato">Nouvel Équipement</h2>
+                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 font-lato">Nouvel Équipement</h2>
                 <p class="text-gray-600 font-lato">Ajout pour {{ appartement.numero }}</p>
             </div>
         </div>
         
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-4 sm:space-y-6">
             {% csrf_token %}
             
             <!-- Nom de l'équipement -->
@@ -87,17 +87,17 @@
                 <label for="{{ form.photo.id_for_label }}" class="block text-sm font-semibold text-gray-900 mb-2 font-lato">
                     {{ form.photo.label }}
                 </label>
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-[#02066F] transition-colors">
+                <div class="mt-1 flex justify-center px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-[#02066F] transition-colors">
                     <div class="space-y-1 text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <svg class="mx-auto h-8 h-8 sm:h-12 sm:w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <div class="flex text-sm text-gray-600">
+                        <div class="flex flex-col sm:flex-row sm:items-center text-sm text-gray-600">
                             <label for="{{ form.photo.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-[#02066F] hover:text-[#030a8a] focus-within:outline-none font-lato">
                                 <span>Choisir une photo</span>
                                 {{ form.photo }}
                             </label>
-                            <p class="pl-1 font-lato">ou glisser-déposer</p>
+                            <p class="sm:pl-1 font-lato">ou glisser-déposer</p>
                         </div>
                         <p class="text-xs text-gray-500 font-lato">PNG, JPG, WEBP jusqu'à 10MB</p>
                     </div>
@@ -120,7 +120,7 @@
             </div>
             
             <!-- Actions -->
-            <div class="flex space-x-4 pt-6">
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4 sm:pt-6">
                 <button type="submit" 
                         class="flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-medium font-lato">
                     <span class="material-icons text-sm">save</span>
@@ -137,12 +137,12 @@
     </div>
     
     <!-- Équipements suggérés selon cahier -->
-    <div class="mt-8 bg-gray-50 rounded-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Équipements Suggérés</h3>
+    <div class="mt-6 sm:mt-8 bg-gray-50 rounded-lg p-4 sm:p-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4 font-lato">Équipements Suggérés</h3>
         <p class="text-sm text-gray-600 mb-4 font-lato">
             Cliquez sur un équipement pour pré-remplir le nom :
         </p>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {% for equipement in equipements_sugges %}
             <button type="button" 
                     onclick="document.getElementById('{{ form.nom.id_for_label }}').value='{{ equipement }}'"

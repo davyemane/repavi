@@ -10,15 +10,15 @@
 {% block page_subtitle %}{{ appartement.numero }} • {{ appartement.get_type_logement_display }} • {{ valeur_totale|floatformat:0 }} FCFA{% endblock %}
 
 {% block header_actions %}
-<div class="flex space-x-3">
+<div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
     <button onclick="window.location.href='{% url 'inventaire:pdf_appartement' appartement.pk %}'" 
-            class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+            class="inline-flex items-center justify-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
         <span class="material-icons text-sm mr-2">print</span>
         Imprimer Rapport
     </button>
     
     <a href="{% url 'inventaire:appartement' appartement.pk %}" 
-       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+       class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
         <span class="material-icons text-sm mr-2">arrow_back</span>
         Retour Inventaire
     </a>
@@ -26,15 +26,16 @@
 {% endblock %}
 
 {% block content %}
+<div class="px-4 sm:px-6 lg:px-8">
 <!-- En-tête appartement -->
-<div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-    <div class="flex items-center justify-between">
+<div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6 sm:mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 bg-gradient-to-br from-[#02066F] to-green-600 rounded-xl flex items-center justify-center">
-                <span class="material-icons text-white text-2xl">calculate</span>
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-[#02066F] to-green-600 rounded-xl flex items-center justify-center">
+                <span class="material-icons text-white text-lg sm:text-2xl">calculate</span>
             </div>
             <div>
-                <h2 class="text-2xl font-bold text-gray-900 font-lato">Évaluation Financière</h2>
+                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 font-lato">Évaluation Financière</h2>
                 <p class="text-gray-600 font-lato">{{ appartement.numero }} - {{ appartement.get_type_logement_display }}</p>
                 {% if appartement.maison %}
                 <p class="text-sm text-gray-500 font-lato">{{ appartement.maison }}</p>
@@ -42,37 +43,37 @@
             </div>
         </div>
         
-        <div class="text-right">
-            <div class="text-3xl font-bold text-[#02066F] font-lato">{{ equipements.count }}</div>
+        <div class="text-left sm:text-right">
+            <div class="text-2xl sm:text-3xl font-bold text-[#02066F] font-lato">{{ equipements.count }}</div>
             <div class="text-gray-600 font-lato">équipements évalués</div>
         </div>
     </div>
 </div>
 
 <!-- Valeur totale principale -->
-<div class="bg-gradient-to-r from-green-50 to-[#02066F]/5 rounded-lg border border-green-200 p-8 mb-8 text-center">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Valeur Totale de l'Inventaire</h3>
-    <div class="text-5xl font-bold text-green-600 mb-2 font-lato">{{ valeur_totale|floatformat:0 }}</div>
-    <div class="text-green-700 text-xl font-lato">FCFA</div>
-    <p class="text-gray-600 mt-4 font-lato">
+<div class="bg-gradient-to-r from-green-50 to-[#02066F]/5 rounded-lg border border-green-200 p-6 sm:p-8 mb-6 sm:mb-8 text-center">
+    <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4 font-lato">Valeur Totale de l'Inventaire</h3>
+    <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-green-600 mb-2 font-lato">{{ valeur_totale|floatformat:0 }}</div>
+    <div class="text-green-700 text-lg sm:text-xl font-lato">FCFA</div>
+    <p class="text-gray-600 mt-4 text-sm sm:text-base font-lato">
         Basée sur les prix d'achat selon cahier des charges • 
         <span class="font-semibold">{{ equipements.count }} équipements</span>
     </p>
 </div>
 
 <!-- Répartition par état selon cahier -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
     {% for etat_code, etat_data in valeurs_par_etat.items %}
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 {% if etat_code == 'bon' %}bg-green-100{% elif etat_code == 'usage' %}bg-blue-100{% elif etat_code == 'defectueux' %}bg-orange-100{% else %}bg-red-100{% endif %} rounded-lg flex items-center justify-center">
-                <span class="w-4 h-4 rounded-full {% if etat_code == 'bon' %}bg-green-500{% elif etat_code == 'usage' %}bg-blue-500{% elif etat_code == 'defectueux' %}bg-orange-500{% else %}bg-red-500{% endif %}"></span>
+            <div class="w-8 h-8 sm:w-12 sm:h-12 {% if etat_code == 'bon' %}bg-green-100{% elif etat_code == 'usage' %}bg-blue-100{% elif etat_code == 'defectueux' %}bg-orange-100{% else %}bg-red-100{% endif %} rounded-lg flex items-center justify-center">
+                <span class="w-3 h-3 sm:w-4 sm:h-4 rounded-full {% if etat_code == 'bon' %}bg-green-500{% elif etat_code == 'usage' %}bg-blue-500{% elif etat_code == 'defectueux' %}bg-orange-500{% else %}bg-red-500{% endif %}"></span>
             </div>
             <span class="text-sm font-medium {% if etat_code == 'bon' %}text-green-600{% elif etat_code == 'usage' %}text-blue-600{% elif etat_code == 'defectueux' %}text-orange-600{% else %}text-red-600{% endif %} font-lato">{{ etat_data.count }}</span>
         </div>
         
-        <h4 class="font-semibold text-gray-900 mb-2 font-lato">{{ etat_data.nom }}</h4>
-        <div class="text-2xl font-bold {% if etat_code == 'bon' %}text-green-600{% elif etat_code == 'usage' %}text-blue-600{% elif etat_code == 'defectueux' %}text-orange-600{% else %}text-red-600{% endif %} font-lato">
+        <h4 class="font-semibold text-gray-900 mb-2 text-sm sm:text-base font-lato">{{ etat_data.nom }}</h4>
+        <div class="text-lg sm:text-xl md:text-2xl font-bold {% if etat_code == 'bon' %}text-green-600{% elif etat_code == 'usage' %}text-blue-600{% elif etat_code == 'defectueux' %}text-orange-600{% else %}text-red-600{% endif %} font-lato">
             {{ etat_data.valeur|floatformat:0 }}
         </div>
         <div class="text-xs text-gray-500 font-lato">FCFA</div>
@@ -96,9 +97,9 @@
 
 <!-- Détail par équipement -->
 {% if equipements %}
-<div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-8">
-    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900 font-lato">Détail par Équipement</h3>
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6 sm:mb-8">
+    <div class="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 font-lato">Détail par Équipement</h3>
     </div>
     
     <!-- Version mobile -->
@@ -107,7 +108,7 @@
         <div class="p-4">
             <div class="flex items-center justify-between mb-2">
                 <h4 class="font-semibold text-gray-900 font-lato">{{ equipement.nom }}</h4>
-                <span class="text-lg font-bold text-[#02066F] font-lato">{{ equipement.prix_achat|floatformat:0 }} FCFA</span>
+                <span class="text-base sm:text-lg font-bold text-[#02066F] font-lato">{{ equipement.prix_achat|floatformat:0 }} FCFA</span>
             </div>
             
             <div class="flex items-center justify-between">
@@ -190,10 +191,10 @@
 {% endif %}
 
 <!-- Analyse et recommandations selon cahier -->
-<div class="grid md:grid-cols-2 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
     <!-- Analyse de l'état -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Analyse de l'État</h3>
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4 font-lato">Analyse de l'État</h3>
         
         <div class="space-y-4">
             {% for etat_code, etat_data in valeurs_par_etat.items %}
@@ -233,8 +234,8 @@
     </div>
     
     <!-- Recommandations -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Recommandations</h3>
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4 font-lato">Recommandations</h3>
         
         <div class="space-y-4">
             {% if valeurs_par_etat.defectueux.count > 0 %}
@@ -291,9 +292,9 @@
 </div>
 
 <!-- Actions rapides -->
-<div class="mt-8 bg-gray-50 rounded-lg p-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Actions Rapides</h3>
-    <div class="grid md:grid-cols-3 gap-4">
+<div class="mt-6 sm:mt-8 bg-gray-50 rounded-lg p-4 sm:p-6">
+    <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4 font-lato">Actions Rapides</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <a href="{% url 'inventaire:ajouter_equipement' appartement.pk %}" 
            class="flex items-center space-x-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-[#02066F] hover:bg-[#02066F]/5 transition-colors">
             <span class="material-icons text-[#02066F]">add</span>
@@ -324,7 +325,7 @@
 </div>
 
 <!-- Note de bas de page selon cahier -->
-<div class="mt-8 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
+<div class="mt-6 sm:mt-8 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
     <div class="flex items-start space-x-2 text-[#02066F]">
         <span class="material-icons text-sm mt-0.5">info</span>
         <div class="text-sm font-lato">
@@ -333,6 +334,7 @@
             pas de calculs complexes. Focus sur la simplicité d'usage et le changement d'état en 1 clic.
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
 
