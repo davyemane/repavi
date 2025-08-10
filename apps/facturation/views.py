@@ -1,23 +1,19 @@
-# apps/facturation/views.py - Facturation PDF selon cahier
+# ==========================================
+# apps/facturation/views.py - Facturation avec service
+# ==========================================
+from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.http import HttpResponse, FileResponse
-from django.template.loader import get_template
-from django.conf import settings
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-from io import BytesIO
-from datetime import datetime
+from django.http import FileResponse, Http404
+from django.urls import reverse
+
+from apps.notifications.services import NotificationService
+from apps.users.views import is_gestionnaire
+from apps.reservations.models import Reservation
 from .models import Facture
 from .forms import FactureForm
-from apps.reservations.models import Reservation
-
-def is_gestionnaire(user):
-    return user.is_authenticated and user.profil in ['gestionnaire', 'super_admin']
+from .services import FacturationService
 
 @login_required
 @user_passes_test(is_gestionnaire)
@@ -28,240 +24,183 @@ def liste_factures(request):
         'reservation__appartement'
     ).order_by('-date_creation')
     
+    # Stats
+    stats = {
+        'total_factures': factures.count(),
+        'montant_total': sum(f.montant_total for f in factures),
+        'factures_mois': factures.filter(date_creation__month=timezone.now().month).count()
+    }
+    
     context = {
         'factures': factures,
+        **stats
     }
     return render(request, 'facturation/liste.html', context)
 
 @login_required
 @user_passes_test(is_gestionnaire)
 def generer_facture(request):
-    """
-    Génération facture PDF selon cahier des charges
-    Facture PDF avec logo RepAvi Lodges
-    """
-    # Réservations facturables (terminées sans facture)
-    reservations_facturables = Reservation.objects.filter(
-        statut='terminee'
-    ).exclude(
-        facture__isnull=False
-    ).select_related('client', 'appartement')
+    """Générer nouvelle facture"""
+    reservations_facturables = FacturationService.get_reservations_facturables()
     
     if request.method == 'POST':
         reservation_id = request.POST.get('reservation_id')
+        frais_supplementaires = request.POST.get('frais_supplementaires', 0)
+        
         if not reservation_id:
             messages.error(request, 'Veuillez sélectionner une réservation')
             return redirect('facturation:generer')
         
-        reservation = get_object_or_404(Reservation, pk=reservation_id)
-        
-        # Créer la facture selon cahier
-        facture = Facture.objects.create(
-            reservation=reservation,
-            frais_supplementaires=float(request.POST.get('frais_supplementaires', 0)),
-            gestionnaire=request.user
-        )
-        
-        # Générer le PDF selon cahier
-        pdf_file = generer_pdf_facture(facture)
-        facture.fichier_pdf.save(
-            f'facture_{facture.numero_facture}.pdf',
-            pdf_file,
-            save=True
-        )
-        
-        messages.success(request, f'Facture {facture.numero_facture} générée avec succès !')
-        return redirect('facturation:apercu', pk=facture.pk)
+        try:
+            reservation = get_object_or_404(Reservation, pk=reservation_id)
+            
+            # Vérifier si facture existe déjà
+            if hasattr(reservation, 'facture'):
+                messages.warning(request, 'Une facture existe déjà pour cette réservation')
+                return redirect('facturation:apercu', pk=reservation.facture.pk)
+            
+            # Créer facture via service
+            facture = FacturationService.creer_facture(
+                reservation=reservation,
+                frais_supplementaires=frais_supplementaires,
+                gestionnaire=request.user
+            )
+            # notification pour les gestionnaires
+            NotificationService.notify_facture_created(facture, request.user)
+            
+            messages.success(request, f'Facture {facture.numero_facture} générée avec succès !')
+            return redirect('facturation:apercu', pk=facture.pk)
+            
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la génération : {str(e)}')
     
-    form = FactureForm()
     context = {
-        'form': form,
         'reservations_facturables': reservations_facturables,
+        'form': FactureForm()
     }
     return render(request, 'facturation/generer.html', context)
 
 @login_required
 @user_passes_test(is_gestionnaire)
 def generer_facture_reservation(request, reservation_pk):
-    """Générer facture directement depuis une réservation"""
+    """Générer facture depuis réservation"""
     reservation = get_object_or_404(Reservation, pk=reservation_pk)
     
-    # Vérifier si facture existe déjà
+    # Vérifier si facture existe
     if hasattr(reservation, 'facture'):
-        messages.info(request, 'Une facture existe déjà pour cette réservation')
+        messages.info(request, 'Facture déjà existante')
         return redirect('facturation:apercu', pk=reservation.facture.pk)
     
-    # Créer facture selon cahier
-    facture = Facture.objects.create(
-        reservation=reservation,
-        gestionnaire=request.user
-    )
+    # Vérifier statut
+    if reservation.statut != 'terminee':
+        messages.error(request, 'La réservation doit être terminée pour facturer')
+        return redirect('reservations:detail', pk=reservation.pk)
     
-    # Générer PDF
-    pdf_file = generer_pdf_facture(facture)
-    facture.fichier_pdf.save(
-        f'facture_{facture.numero_facture}.pdf',
-        pdf_file,
-        save=True
-    )
+    try:
+        facture = FacturationService.creer_facture(
+            reservation=reservation,
+            gestionnaire=request.user
+        )
+        
+        messages.success(request, f'Facture {facture.numero_facture} générée !')
+        return redirect('facturation:apercu', pk=facture.pk)
+        
+    except Exception as e:
+        messages.error(request, f'Erreur : {str(e)}')
+        return redirect('reservations:detail', pk=reservation.pk)
+
+@login_required
+@user_passes_test(is_gestionnaire)
+def apercu_facture(request, pk):
+    """Aperçu facture"""
+    facture = get_object_or_404(Facture, pk=pk)
     
-    messages.success(request, f'Facture {facture.numero_facture} générée !')
-    return redirect('facturation:apercu', pk=facture.pk)
+    # Calculs pour l'aperçu
+    context = {
+        'facture': facture,
+        'reservation': facture.reservation,
+        'client': facture.reservation.client,
+        'appartement': facture.reservation.appartement,
+        'peut_regenerer': True,
+    }
+    return render(request, 'facturation/apercu.html', context)
 
 @login_required
 @user_passes_test(is_gestionnaire)
 def telecharger_pdf(request, pk):
-    """Télécharger le PDF de la facture"""
+    """Télécharger PDF facture"""
     facture = get_object_or_404(Facture, pk=pk)
     
-    if not facture.fichier_pdf:
-        # Régénérer si fichier manquant
-        pdf_file = generer_pdf_facture(facture)
-        facture.fichier_pdf.save(
-            f'facture_{facture.numero_facture}.pdf',
-            pdf_file,
-            save=True
+    # Régénérer si fichier manquant
+    if not facture.fichier_pdf or not facture.fichier_pdf.storage.exists(facture.fichier_pdf.name):
+        try:
+            FacturationService.regenerer_pdf(facture)
+            messages.info(request, 'PDF régénéré automatiquement')
+        except Exception as e:
+            messages.error(request, f'Erreur génération PDF : {str(e)}')
+            return redirect('facturation:apercu', pk=pk)
+    
+    try:
+        return FileResponse(
+            facture.fichier_pdf.open('rb'),
+            as_attachment=True,
+            filename=f'Facture_{facture.numero_facture}.pdf'
         )
-    
-    return FileResponse(
-        facture.fichier_pdf,
-        as_attachment=True,
-        filename=f'Facture_{facture.numero_facture}.pdf'
-    )
+    except FileNotFoundError:
+        raise Http404("Fichier PDF non trouvé")
 
-def generer_pdf_facture(facture):
-    """
-    Génération PDF selon cahier des charges
-    Informations complètes : client, séjour, détail coûts, plan paiement
-    """
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
-    styles = getSampleStyleSheet()
-    story = []
-    
-    # En-tête RepAvi Lodges selon cahier
-    story.append(Paragraph(
-        '<b>REPAVI LODGES</b><br/>Gestion de maisons meublées<br/>Douala, Cameroun',
-        styles['Normal']
-    ))
-    story.append(Spacer(1, 20))
-    
-    # Numéro facture automatique selon cahier
-    story.append(Paragraph(
-        f'<b>FACTURE N° {facture.numero_facture}</b><br/>'
-        f'Date d\'émission : {facture.date_emission.strftime("%d/%m/%Y")}',
-        styles['Normal']
-    ))
-    story.append(Spacer(1, 30))
-    
-    # Informations client selon cahier
-    client = facture.reservation.client
-    story.append(Paragraph('<b>INFORMATIONS CLIENT :</b>', styles['Normal']))
-    story.append(Paragraph(
-        f'{client.prenom} {client.nom}<br/>'
-        f'Téléphone : {client.telephone}<br/>'
-        f'Email : {client.email}<br/>'
-        f'Adresse : {client.adresse_residence}',
-        styles['Normal']
-    ))
-    story.append(Spacer(1, 20))
-    
-    # Détail du séjour selon cahier
-    reservation = facture.reservation
-    story.append(Paragraph('<b>DÉTAIL DU SÉJOUR :</b>', styles['Normal']))
-    story.append(Paragraph(
-        f'Appartement : {reservation.appartement.numero} ({reservation.appartement.get_type_logement_display()})<br/>'
-        f'Maison : {reservation.appartement.maison}<br/>'
-        f'Dates : {reservation.date_arrivee.strftime("%d/%m/%Y")} → {reservation.date_depart.strftime("%d/%m/%Y")}<br/>'
-        f'Nombre de nuits : {reservation.nombre_nuits}',
-        styles['Normal']
-    ))
-    story.append(Spacer(1, 30))
-    
-    # Détail des coûts selon cahier
-    data_table = [
-        ['Description', 'Quantité', 'Prix Unitaire', 'Total'],
-        [
-            f'Séjour {reservation.appartement.numero}',
-            f'{reservation.nombre_nuits} nuits',
-            f'{reservation.appartement.prix_par_nuit:,.0f} FCFA',
-            f'{reservation.prix_total:,.0f} FCFA'
-        ]
-    ]
-    
-    # Frais supplémentaires si applicable
-    if facture.frais_supplementaires > 0:
-        data_table.append([
-            'Frais supplémentaires',
-            '1',
-            f'{facture.frais_supplementaires:,.0f} FCFA',
-            f'{facture.frais_supplementaires:,.0f} FCFA'
-        ])
-    
-    # Total selon cahier
-    data_table.append([
-        '', '', 'TOTAL À PAYER',
-        f'{facture.montant_total:,.0f} FCFA'
-    ])
-    
-    table = Table(data_table)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, -1), (-1, -1), colors.lightblue),
-        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-    
-    story.append(table)
-    story.append(Spacer(1, 30))
-    
-    # Plan de paiement si échéancé selon cahier
-    from apps.paiements.models import EcheancierPaiement
-    echeances = EcheancierPaiement.objects.filter(reservation=reservation)
-    
-    if echeances.exists():
-        story.append(Paragraph('<b>PLAN DE PAIEMENT :</b>', styles['Normal']))
-        for echeance in echeances:
-            statut_text = "✅ Payé" if echeance.statut == 'paye' else "⏳ En attente"
-            story.append(Paragraph(
-                f'• {echeance.get_type_paiement_display()} : {echeance.montant_prevu:,.0f} FCFA '
-                f'(Échéance : {echeance.date_echeance.strftime("%d/%m/%Y")}) - {statut_text}',
-                styles['Normal']
-            ))
-    
-    # Construire le PDF
-    doc.build(story)
-    buffer.seek(0)
-    
-    return buffer
-
-#appercu de la facture
 @login_required
 @user_passes_test(is_gestionnaire)
-def apercu_facture(request, pk):
-    """Aperçu de la facture selon cahier"""
+def regenerer_pdf(request, pk):
+    """Régénérer PDF"""
     facture = get_object_or_404(Facture, pk=pk)
     
-    # Historique des séjours selon cahier
-    reservations = Reservation.objects.filter(facture=facture).order_by('-date_arrivee')
+    try:
+        FacturationService.regenerer_pdf(facture)
+        messages.success(request, 'PDF régénéré avec succès !')
+    except Exception as e:
+        messages.error(request, f'Erreur régénération : {str(e)}')
     
-    context = {
-        'facture': facture,
-        'reservations': reservations,
+    return redirect('facturation:apercu', pk=pk)
+
+@login_required
+@user_passes_test(is_gestionnaire)
+def supprimer_facture(request, pk):
+    """Supprimer facture"""
+    facture = get_object_or_404(Facture, pk=pk)
+    
+    if request.method == 'POST':
+        numero = facture.numero_facture
+        
+        # Supprimer fichier PDF
+        if facture.fichier_pdf:
+            facture.fichier_pdf.delete()
+        
+        facture.delete()
+        
+        messages.success(request, f'Facture {numero} supprimée')
+        return redirect('facturation:liste')
+    
+    context = {'facture': facture}
+    return render(request, 'facturation/confirmer_suppression.html', context)
+
+# API/AJAX endpoints
+@login_required
+@user_passes_test(is_gestionnaire)
+def api_factures_stats(request):
+    """API: Stats facturation"""
+    from django.http import JsonResponse
+    from django.utils import timezone
+    
+    factures = Facture.objects.all()
+    
+    stats = {
+        'total_factures': factures.count(),
+        'montant_total': float(sum(f.montant_total for f in factures)),
+        'factures_mois': factures.filter(
+            date_creation__month=timezone.now().month
+        ).count(),
+        'reservations_facturables': FacturationService.get_reservations_facturables().count()
     }
-    return render(request, 'facturation/apercu_facture.html', context)
-
-@login_required
-@user_passes_test(is_gestionnaire)
-def regenerer_facture(request, pk):
-    """Régénérer la facture selon cahier"""
-    facture = get_object_or_404(Facture, pk=pk)
-    buffer = generer_facture(facture)
-    response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="facture_{facture.id}.pdf"'
-    return response
+    
+    return JsonResponse(stats)

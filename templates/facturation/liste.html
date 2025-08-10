@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Factures - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Facturation{% endblock %}
+{% block page_subtitle %}Gestion des factures PDF{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'facturation:generer' %}" 
+   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">add</span>
+    Nouvelle Facture
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Total Factures</p>
+                <p class="text-2xl font-bold text-gray-900 font-lato">{{ total_factures }}</p>
+            </div>
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">receipt</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Montant Total</p>
+                <p class="text-2xl font-bold text-green-600 font-lato">{{ montant_total|floatformat:0 }}</p>
+                <p class="text-xs text-gray-500 font-lato">FCFA</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-green-600">payments</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Ce Mois</p>
+                <p class="text-2xl font-bold text-orange-600 font-lato">{{ factures_mois }}</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-orange-600">today</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste factures -->
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900 font-lato">Factures générées</h2>
+    </div>
+
+    {% if factures %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase font-lato">Facture</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase font-lato">Client</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase font-lato">Réservation</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase font-lato">Montant</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase font-lato">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase font-lato">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for facture in factures %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 font-lato">{{ facture.numero_facture }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 font-lato">
+                            {{ facture.reservation.client.nom }} {{ facture.reservation.client.prenom }}
+                        </div>
+                        <div class="text-sm text-gray-500 font-lato">{{ facture.reservation.client.telephone }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 font-lato">{{ facture.reservation.appartement.numero }}</div>
+                        <div class="text-sm text-gray-500 font-lato">{{ facture.reservation.date_arrivee|date:"d/m/Y" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900 font-lato">{{ facture.montant_total|floatformat:0 }} FCFA</div>
+                        {% if facture.frais_supplementaires > 0 %}
+                        <div class="text-xs text-orange-600 font-lato">+{{ facture.frais_supplementaires|floatformat:0 }} frais</div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-lato">
+                        {{ facture.date_emission|date:"d/m/Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex items-center space-x-2">
+                            <a href="{% url 'facturation:apercu' facture.pk %}" 
+                               class="text-[#02066F] hover:text-[#030a8a] font-lato">Voir</a>
+                            <a href="{% url 'facturation:telecharger_pdf' facture.pk %}" 
+                               class="text-green-600 hover:text-green-700 font-lato">PDF</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="px-6 py-12 text-center">
+        <span class="material-icons text-gray-400 text-4xl mb-4">receipt_long</span>
+        <h3 class="text-lg font-medium text-gray-900 mb-2 font-lato">Aucune facture</h3>
+        <p class="text-gray-500 mb-6 font-lato">Commencez par générer votre première facture</p>
+        <a href="{% url 'facturation:generer' %}" 
+           class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] font-lato">
+            <span class="material-icons text-sm mr-2">add</span>
+            Nouvelle Facture
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

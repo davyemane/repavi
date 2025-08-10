@@ -64,6 +64,7 @@ LOCAL_APPS = [
     'apps.comptabilite.apps.ComptabiliteConfig',   # Comptabilité simple selon cahier
     'apps.menage.apps.MenageConfig',         # Planning ménage basique selon cahier
     'apps.facturation.apps.FacturationConfig',    # Facturation PDF selon cahier 
+    'apps.notifications.apps.NotificationsConfig',  # Notifications simples
 ]
 
 # Liste finale des applications

@@ -8,8 +8,9 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta, date
+from apps.notifications.services import NotificationService
 
-from apps.users.views import is_gestionnaire
+from apps.users.views import is_gestionnaire, is_super_admin
 from .models import Reservation
 from .forms import ReservationForm
 
@@ -106,6 +107,9 @@ def creer_reservation(request):
                 
                 # Sauvegarde avec validation
                 reservation.save()
+
+                NotificationService.notify_reservation_created(reservation, request.user)
+
                 
                 # Créer l'échéancier de paiement automatiquement
                 from .services import ReservationService
@@ -178,7 +182,7 @@ def verifier_disponibilite(request):
             'message': f'Disponible - {nombre_nuits} nuits × {appartement.prix_par_nuit} FCFA'
         })        
     
-    
+
     except Exception as e:
         return JsonResponse({'error': str(e)})
 
@@ -319,7 +323,7 @@ def annuler_reservation(request, pk):
     return render(request, 'reservations/annuler.html', {'reservation': reservation})
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_super_admin)
 def supprimer_reservation(request, pk):
     """Supprimer réservation avec log détaillé"""
     reservation = get_object_or_404(Reservation, pk=pk)
@@ -358,3 +362,24 @@ def get_client_ip(request):
     if x_forwarded_for:
         return x_forwarded_for.split(',')[0]
     return request.META.get('REMOTE_ADDR')
+
+
+@login_required
+@user_passes_test(is_gestionnaire)
+def changer_statut_reservation(request, pk):
+    """Changer le statut d'une réservation"""
+    reservation = get_object_or_404(Reservation, pk=pk)
+    nouveau_statut = request.GET.get('statut')
+    
+    if nouveau_statut in ['confirmee', 'en_cours', 'terminee', 'annulee']:
+        reservation.statut = nouveau_statut
+        reservation.save()
+        
+        messages.success(request, f'Statut changé vers "{reservation.get_statut_display()}"')
+        
+        # Auto-générer tâche ménage si terminée
+        if nouveau_statut == 'terminee':
+            from apps.menage.views import generer_tache_apres_depart
+            generer_tache_apres_depart(request, reservation.pk)
+    
+    return redirect('reservations:arrivees_jour')

@@ -19,5 +19,5 @@ urlpatterns = [
     path('<int:pk>/apercu/', views.apercu_facture, name='apercu'),
     
     # Gestion
-    path('<int:pk>/regenerer/', views.regenerer_facture, name='regenerer'),
+    path('<int:pk>/regenerer/', views.regenerer_pdf, name='regenerer'),
 ]

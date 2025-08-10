@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Q
 
+from apps.notifications.services import NotificationService
 from apps.users.views import is_gestionnaire
 from .models import Appartement, PhotoAppartement
 from apps.appartements.forms import AppartementForm, PhotoAppartementForm
@@ -76,6 +77,9 @@ def creer_appartement(request):
         form = AppartementForm(request.POST)
         if form.is_valid():
             appartement = form.save()
+
+            # Notification pour les gestionnaires
+            NotificationService.notify_appartement_created(appartement, request.user)
             messages.success(request, f'Appartement {appartement.numero} créé avec succès !')
             return redirect('appartements:detail', pk=appartement.pk)
     else:
@@ -97,6 +101,8 @@ def modifier_appartement(request, pk):
         form = AppartementForm(request.POST, instance=appartement)
         if form.is_valid():
             form.save()
+            # Notification pour les gestionnaires
+            NotificationService.notify_appartement_updated(appartement, request.user)
             messages.success(request, f'Appartement {appartement.numero} modifié avec succès !')
             return redirect('appartements:detail', pk=appartement.pk)
     else:
@@ -119,6 +125,8 @@ def changer_statut_appartement(request, pk):
     if nouveau_statut in dict(Appartement.STATUT_CHOICES):
         appartement.statut = nouveau_statut
         appartement.save()
+        # Notification pour les gestionnaires
+        NotificationService.notify_appartement_updated(appartement, request.user)
         messages.success(request, f'Statut de {appartement.numero} changé en {appartement.get_statut_display()}')
     
     return redirect('appartements:liste')
@@ -173,6 +181,8 @@ def supprimer_photo(request, photo_pk):
     
     if request.method == 'POST':
         photo.delete()
+        # Notification pour les gestionnaires
+        NotificationService.notify_photo_deleted(photo, request.user)
         messages.success(request, f'Photo supprimée avec succès !')
         return redirect('appartements:photos')
     

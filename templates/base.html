@@ -191,14 +191,13 @@
                                 </a>
                                 {% endif %}
                                 <hr class="my-1">
-<form action="{% url 'logout' %}" method="post" class="m-0">
-    {% csrf_token %}
-    <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left">
-        <span class="material-icons text-sm">logout</span>
-        <span class="font-lato">Déconnexion</span>
-    </button>
-</form>
-                                
+                                <form action="{% url 'logout' %}" method="post" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left">
+                                        <span class="material-icons text-sm">logout</span>
+                                        <span class="font-lato">Déconnexion</span>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -226,9 +225,43 @@
                         <!-- Page-specific header actions -->
                         {% endblock %}
 
-                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons">notifications</span>
-                        </button>
+                        <!-- Système Notifications -->
+                        <div class="relative" id="notification-center">
+                            <!-- Bouton notifications -->
+                            <button onclick="toggleNotifications()" 
+                                    class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors relative">
+                                <span class="material-icons">notifications</span>
+                                <span id="notification-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full hidden items-center justify-center">
+                                    0
+                                </span>
+                            </button>
+
+                            <!-- Dropdown -->
+                            <div id="notification-dropdown" class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+                                <!-- Header -->
+                                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                                    <h3 class="font-semibold text-gray-900 font-lato">Notifications</h3>
+                                    <button onclick="markAllAsRead()" class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">
+                                        Tout marquer lu
+                                    </button>
+                                </div>
+
+                                <!-- Liste notifications -->
+                                <div id="notification-list" class="max-h-96 overflow-y-auto">
+                                    <div class="p-4 text-center text-gray-500 font-lato">
+                                        Chargement...
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="border-t border-gray-200 p-3">
+                                    <a href="{% url 'notifications:all' %}" 
+                                       class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">
+                                        Voir toutes les notifications →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
 
                         <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons">refresh</span>
@@ -273,6 +306,153 @@
             </main>
         </div>
     </div>
+
+    <!-- Messages Django cachés pour JavaScript -->
+    <div class="django-messages hidden">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Scripts Notifications -->
+    <script>
+    let notificationDropdownOpen = false;
+
+    function toggleNotifications() {
+        const dropdown = document.getElementById('notification-dropdown');
+        notificationDropdownOpen = !notificationDropdownOpen;
+        
+        if (notificationDropdownOpen) {
+            dropdown.classList.remove('hidden');
+            loadNotifications();
+        } else {
+            dropdown.classList.add('hidden');
+        }
+    }
+
+    // Fermer dropdown si clic extérieur
+    document.addEventListener('click', function(e) {
+        const center = document.getElementById('notification-center');
+        if (!center.contains(e.target) && notificationDropdownOpen) {
+            document.getElementById('notification-dropdown').classList.add('hidden');
+            notificationDropdownOpen = false;
+        }
+    });
+
+    function loadNotifications() {
+        fetch('/api/notifications/', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateNotificationsList(data.notifications);
+            updateNotificationBadge(data.unread_count);
+        });
+    }
+
+    function updateNotificationsList(notifications) {
+        const list = document.getElementById('notification-list');
+        
+        if (notifications.length === 0) {
+            list.innerHTML = `
+                <div class="p-8 text-center">
+                    <span class="material-icons text-gray-400 text-3xl mb-2">notifications_none</span>
+                    <p class="text-gray-500 font-lato">Aucune notification</p>
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = notifications.map(notif => `
+            <div class="p-4 border-b border-gray-100 hover:bg-gray-50 ${notif.read ? 'opacity-75' : ''}" 
+                 onclick="markAsRead(${notif.id}, '${notif.url}')">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-${notif.color}-100 rounded-full flex items-center justify-center">
+                            <span class="material-icons text-${notif.color}-600 text-sm">${notif.icon}</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-gray-900 font-lato ${notif.read ? '' : 'font-bold'}">${notif.title}</p>
+                            <span class="text-xs text-gray-500 font-lato">${notif.time_ago}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 font-lato mt-1">${notif.message}</p>
+                        ${notif.url ? `
+                            <div class="mt-2">
+                                <span class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato cursor-pointer">
+                                    ${notif.url_text} →
+                                </span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${!notif.read ? '<div class="w-2 h-2 bg-[#02066F] rounded-full"></div>' : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateNotificationBadge(count) {
+        const badge = document.getElementById('notification-badge');
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+        } else {
+            badge.classList.add('hidden');
+            badge.classList.remove('flex');
+        }
+    }
+
+    function markAsRead(notificationId, url) {
+        fetch(`/api/notifications/${notificationId}/read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(() => {
+            if (url && url !== 'undefined') {
+                window.location.href = url;
+            } else {
+                loadNotifications();
+            }
+        });
+    }
+
+    function markAllAsRead() {
+        fetch('/api/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(() => loadNotifications());
+    }
+
+    // Polling pour nouvelles notifications
+    setInterval(() => {
+        if (!notificationDropdownOpen) {
+            fetch('/api/notifications/count/')
+                .then(response => response.json())
+                .then(data => updateNotificationBadge(data.count));
+        }
+    }, 30000);
+
+    // Charger le compteur au démarrage
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/api/notifications/count/')
+            .then(response => response.json())
+            .then(data => updateNotificationBadge(data.count))
+            .catch(() => {}); // Ignorer erreurs si pas encore configuré
+    });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

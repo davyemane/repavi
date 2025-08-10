@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Facture {{ facture.numero_facture }} - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Facture {{ facture.numero_facture }}{% endblock %}
+{% block page_subtitle %}{{ client.nom }} {{ client.prenom }} • {{ facture.date_emission|date:"d F Y" }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'facturation:liste' %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour Liste
+</a>
+<a href="{% url 'facturation:telecharger_pdf' facture.pk %}" 
+   class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">download</span>
+    Télécharger PDF
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Actions rapides -->
+    <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-600 font-lato">Actions :</span>
+                <a href="{% url 'facturation:regenerer_pdf' facture.pk %}" 
+                   class="text-[#02066F] hover:text-[#030a8a] text-sm font-lato">Régénérer PDF</a>
+                <a href="{% url 'reservations:detail' reservation.pk %}" 
+                   class="text-gray-600 hover:text-gray-800 text-sm font-lato">Voir Réservation</a>
+            </div>
+            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full font-lato">
+                Générée
+            </span>
+        </div>
+    </div>
+
+    <!-- Aperçu facture -->
+    <div class="bg-white rounded-lg border border-gray-200 p-8">
+        <!-- En-tête -->
+        <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-[#02066F] rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-white text-2xl">home</span>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 font-lato">RepAvi Lodges</h1>
+                    <p class="text-gray-600 font-lato">Gestion de maisons meublées</p>
+                    <p class="text-gray-600 text-sm font-lato">Douala, Cameroun</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <h2 class="text-2xl font-bold text-gray-900 font-lato">FACTURE</h2>
+                <p class="text-lg font-medium text-[#02066F] font-lato">{{ facture.numero_facture }}</p>
+                <p class="text-gray-600 text-sm font-lato">{{ facture.date_emission|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Informations -->
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <div>
+                <h3 class="font-bold text-gray-900 mb-4 font-lato">Informations Client</h3>
+                <div class="space-y-1 text-gray-600 font-lato">
+                    <p class="font-medium text-gray-900">{{ client.prenom }} {{ client.nom }}</p>
+                    <p>{{ client.telephone }}</p>
+                    <p>{{ client.email|default:"Email non renseigné" }}</p>
+                    <p>{{ client.adresse_residence|default:"Adresse non renseignée" }}</p>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="font-bold text-gray-900 mb-4 font-lato">Détails du Séjour</h3>
+                <div class="space-y-1 text-gray-600 font-lato">
+                    <p><span class="font-medium">Appartement :</span> {{ appartement.numero }} ({{ appartement.get_type_logement_display }})</p>
+                    <p><span class="font-medium">Maison :</span> {{ appartement.maison }}</p>
+                    <p><span class="font-medium">Dates :</span> {{ reservation.date_arrivee|date:"d/m/Y" }} → {{ reservation.date_depart|date:"d/m/Y" }}</p>
+                    <p><span class="font-medium">Durée :</span> {{ reservation.nombre_nuits }} nuit(s)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Détail facturation -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden mb-6">
+            <div class="bg-gray-50 p-4 border-b border-gray-200">
+                <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-600 font-lato">
+                    <div>Description</div>
+                    <div>Quantité</div>
+                    <div>Prix Unitaire</div>
+                    <div class="text-right">Total</div>
+                </div>
+            </div>
+            
+            <div class="divide-y divide-gray-100">
+                <div class="p-4">
+                    <div class="grid grid-cols-4 gap-4 text-sm font-lato">
+                        <div>Séjour {{ appartement.numero }}</div>
+                        <div>{{ reservation.nombre_nuits }} nuits</div>
+                        <div>{{ appartement.prix_par_nuit|floatformat:0 }} FCFA</div>
+                        <div class="text-right font-medium">{{ facture.montant_sejour|floatformat:0 }} FCFA</div>
+                    </div>
+                </div>
+                
+                {% if facture.frais_supplementaires > 0 %}
+                <div class="p-4 bg-blue-50">
+                    <div class="grid grid-cols-4 gap-4 text-sm font-lato">
+                        <div>Frais supplémentaires</div>
+                        <div>1</div>
+                        <div>{{ facture.frais_supplementaires|floatformat:0 }} FCFA</div>
+                        <div class="text-right font-medium">{{ facture.frais_supplementaires|floatformat:0 }} FCFA</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="bg-[#02066F]/10 p-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-bold text-gray-900 font-lato">MONTANT TOTAL</span>
+                    <span class="text-2xl font-bold text-[#02066F] font-lato">{{ facture.montant_total|floatformat:0 }} FCFA</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan de paiement -->
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <h3 class="font-bold text-amber-900 mb-3 font-lato">Plan de Paiement</h3>
+            <div class="space-y-2 text-amber-800 text-sm font-lato">
+                {% for echeance in reservation.echeanciers.all %}
+                <div class="flex justify-between items-center">
+                    <span>• {{ echeance.get_type_paiement_display }} :</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-medium">{{ echeance.montant_prevu|floatformat:0 }} FCFA</span>
+                        {% if echeance.statut == 'paye' %}
+                        <span class="text-green-600">✅</span>
+                        {% else %}
+                        <span class="text-orange-600">⏳</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer info -->
+    <div class="mt-6 text-center text-gray-500 text-sm font-lato">
+        Facture générée le {{ facture.date_creation|date:"d/m/Y à H:i" }} par {{ facture.gestionnaire.first_name|default:facture.gestionnaire.username }}
+    </div>
+</div>
+{% endblock %}

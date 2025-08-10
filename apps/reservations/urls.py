@@ -24,5 +24,6 @@ urlpatterns = [
     path('arrivees-jour/', views.arrivees_du_jour, name='arrivees_jour'),
     path('departs-jour/', views.departs_du_jour, name='departs_jour'),
     path('<int:pk>/supprimer/', views.supprimer_reservation, name='supprimer'),
+    path('<int:pk>/changer-statut/', views.changer_statut_reservation, name='changer_statut'),
 
 ]

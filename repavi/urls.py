@@ -26,6 +26,9 @@ urlpatterns = [
     path('comptabilite/', include('apps.comptabilite.urls')),
     path('menage/', include('apps.menage.urls')),
     path('facturation/', include('apps.facturation.urls')),
+    path('notifications/', include('apps.notifications.urls')),
+    path('api/notifications/', include('apps.notifications.urls')),
+
     
     # Gestion utilisateurs (pour super admin)
     path('users/', include('apps.users.urls')),

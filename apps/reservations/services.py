@@ -13,10 +13,10 @@ class ReservationService:
         """Créer l'échéancier de paiement automatique selon cahier"""
         from apps.paiements.models import EcheancierPaiement
         
-        # Supprimer ancien échéancier si modification
+        # Supprimer ancien échéancier pour éviter les bugs de calcul
         EcheancierPaiement.objects.filter(reservation=reservation).delete()
         
-        # Acompte (40% selon cahier) - CORRECTION
+        # Acompte (40% selon cahier)
         acompte = reservation.prix_total * Decimal('0.4')
         EcheancierPaiement.objects.create(
             reservation=reservation,
@@ -25,7 +25,7 @@ class ReservationService:
             date_echeance=reservation.date_arrivee - timedelta(days=7)
         )
         
-        # Solde (60% selon cahier) - CORRECTION
+        # Solde (60% selon cahier) - CORRECTION : toujours 60%, pas recalcul
         solde = reservation.prix_total * Decimal('0.6')
         EcheancierPaiement.objects.create(
             reservation=reservation,

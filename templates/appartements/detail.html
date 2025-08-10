@@ -16,7 +16,7 @@
     <span class="material-icons text-sm mr-2">edit</span>
     Modifier
 </a>
-<a href="{% url 'appartements:photos' appartement.pk %}" 
+<a href="{% url 'appartements:photos' %}" 
    class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
     <span class="material-icons text-sm mr-2">photo_camera</span>
     Photos
@@ -166,7 +166,7 @@
             </div>
             
             <div class="mt-4 text-center">
-                <a href="{% url 'appartements:photos' appartement.pk %}" 
+                <a href="{% url 'appartements:photos' %}" 
                    class="inline-flex items-center space-x-2 text-[#02066F] hover:text-[#030a8a] font-lato">
                     <span class="material-icons text-sm">add_a_photo</span>
                     <span>Gérer les photos</span>
