@@ -44,7 +44,7 @@
 
 <body class="h-full bg-gray-50 font-lato">
     <!-- Mobile menu overlay -->
-    <div id="mobile-menu-overlay" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden lg:hidden"></div>
+    <div id="mobile-menu-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 hidden lg:hidden"></div>
     
     <div class="flex h-screen overflow-hidden">
         
@@ -54,7 +54,7 @@
         </button>
         
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="flex flex-col h-full">
                 
                 <!-- Logo Section -->
@@ -144,10 +144,8 @@
                             <span class="font-lato text-sm lg:text-base">Facturation</span>
                         </a>
 
-                        <!-- Administration Section (Super Admin uniquement) -->
                         {% if user.profil == 'super_admin' %}
                         <div class="border-t border-gray-200 my-4"></div>
-                        
                         <div class="px-3 py-2">
                             <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider font-lato">
                                 Administration
@@ -219,7 +217,6 @@
                 </div>
             </div>
         </aside>
-
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col lg:ml-64">
             
@@ -237,13 +234,10 @@
                     </div>
 
                     <div class="flex items-center space-x-2 lg:space-x-3">
-                        {% block header_actions %}
-                        <!-- Page-specific header actions -->
-                        {% endblock %}
+                        {% block header_actions %}{% endblock %}
 
-                        <!-- Système Notifications -->
+                        <!-- Notifications -->
                         <div class="relative" id="notification-center">
-                            <!-- Bouton notifications -->
                             <button onclick="toggleNotifications()" 
                                     class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors relative">
                                 <span class="material-icons text-lg lg:text-xl">notifications</span>
@@ -254,22 +248,17 @@
 
                             <!-- Dropdown -->
                             <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 lg:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
-                                <!-- Header -->
                                 <div class="flex items-center justify-between p-4 border-b border-gray-200">
                                     <h3 class="font-semibold text-gray-900 font-lato">Notifications</h3>
                                     <button onclick="markAllAsRead()" class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">
                                         Tout marquer lu
                                     </button>
                                 </div>
-
-                                <!-- Liste notifications -->
                                 <div id="notification-list" class="max-h-96 overflow-y-auto">
                                     <div class="p-4 text-center text-gray-500 font-lato">
                                         Chargement...
                                     </div>
                                 </div>
-
-                                <!-- Footer -->
                                 <div class="border-t border-gray-200 p-3">
                                     <a href="{% url 'notifications:all' %}" 
                                        class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">
@@ -289,8 +278,6 @@
             <!-- Scrollable Content -->
             <main class="flex-1 overflow-y-auto pt-16 lg:pt-20 bg-gray-50">
                 <div class="p-4 lg:p-6">
-                    
-                    <!-- Breadcrumb -->
                     {% block breadcrumb %}
                     <nav class="flex items-center space-x-2 text-gray-600 mb-6 font-lato text-sm">
                         <a href="{% url 'dashboard' %}" class="hover:text-[#02066F] truncate">Dashboard</a>
@@ -300,7 +287,6 @@
                     </nav>
                     {% endblock %}
 
-                    <!-- Messages -->
                     {% if messages %}
                     <div class="mb-6 space-y-3">
                         {% for message in messages %}
@@ -314,16 +300,13 @@
                     </div>
                     {% endif %}
 
-                    <!-- Page Content -->
-                    {% block content %}
-                    <!-- Page-specific content goes here -->
-                    {% endblock %}
+                    {% block content %}{% endblock %}
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Messages Django cachés pour JavaScript -->
+    <!-- Messages Django cachés -->
     <div class="django-messages hidden">
         {% if messages %}
             {% for message in messages %}
@@ -332,9 +315,8 @@
         {% endif %}
     </div>
 
-    <!-- Scripts Notifications -->
+    <!-- Scripts -->
     <script>
-    // Mobile menu functionality
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const closeSidebar = document.getElementById('close-sidebar');
     const sidebar = document.getElementById('sidebar');
@@ -349,7 +331,6 @@
     closeSidebar.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', toggleSidebar);
 
-    // Close sidebar on window resize if desktop
     window.addEventListener('resize', () => {
         if (window.innerWidth >= 1024) {
             sidebar.classList.remove('-translate-x-full');
@@ -357,13 +338,10 @@
         }
     });
 
-    // Notification system
     let notificationDropdownOpen = false;
-
     function toggleNotifications() {
         const dropdown = document.getElementById('notification-dropdown');
         notificationDropdownOpen = !notificationDropdownOpen;
-        
         if (notificationDropdownOpen) {
             dropdown.classList.remove('hidden');
             loadNotifications();
@@ -372,7 +350,6 @@
         }
     }
 
-    // Fermer dropdown si clic extérieur
     document.addEventListener('click', function(e) {
         const center = document.getElementById('notification-center');
         if (!center.contains(e.target) && notificationDropdownOpen) {
@@ -382,12 +359,8 @@
     });
 
     function loadNotifications() {
-        fetch('/api/notifications/', {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
+        fetch('/api/notifications/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
         .then(data => {
             updateNotificationsList(data.notifications);
             updateNotificationBadge(data.unread_count);
@@ -396,7 +369,6 @@
 
     function updateNotificationsList(notifications) {
         const list = document.getElementById('notification-list');
-        
         if (notifications.length === 0) {
             list.innerHTML = `
                 <div class="p-8 text-center">
@@ -406,7 +378,6 @@
             `;
             return;
         }
-
         list.innerHTML = notifications.map(notif => `
             <div class="p-4 border-b border-gray-100 hover:bg-gray-50 ${notif.read ? 'opacity-75' : ''}" 
                  onclick="markAsRead(${notif.id}, '${notif.url}')">
@@ -448,15 +419,14 @@
         }
     }
 
-    function markAsRead(notificationId, url) {
-        fetch(`/api/notifications/${notificationId}/read/`, {
+    function markAsRead(id, url) {
+        fetch(`/api/notifications/${id}/read/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
                 'X-Requested-With': 'XMLHttpRequest'
             }
-        })
-        .then(() => {
+        }).then(() => {
             if (url && url !== 'undefined') {
                 window.location.href = url;
             } else {
@@ -472,25 +442,22 @@
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
                 'X-Requested-With': 'XMLHttpRequest'
             }
-        })
-        .then(() => loadNotifications());
+        }).then(() => loadNotifications());
     }
 
-    // Polling pour nouvelles notifications
     setInterval(() => {
         if (!notificationDropdownOpen) {
             fetch('/api/notifications/count/')
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => updateNotificationBadge(data.count));
         }
     }, 30000);
 
-    // Charger le compteur au démarrage
     document.addEventListener('DOMContentLoaded', function() {
         fetch('/api/notifications/count/')
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => updateNotificationBadge(data.count))
-            .catch(() => {}); // Ignorer erreurs si pas encore configuré
+            .catch(() => {});
     });
     </script>
 

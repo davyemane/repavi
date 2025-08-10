@@ -37,110 +37,61 @@
         body {
             font-family: 'Lato', sans-serif;
         }
+        
+        /* Transition pour la sidebar */
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* Overlay pour mobile */
+        .sidebar-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        /* Animation pour l'icône hamburger */
+        .hamburger-line {
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+        
+        .hamburger-active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        
+        .hamburger-active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
     </style>
-
-    <script>
-// Système notifications
-let notificationDropdownOpen = false;
-
-function toggleNotifications() {
-    const dropdown = document.getElementById('notification-dropdown');
-    notificationDropdownOpen = !notificationDropdownOpen;
-    dropdown.classList.toggle('hidden');
-    if (notificationDropdownOpen) loadNotifications();
-}
-
-function loadNotifications() {
-    fetch('/api/notifications/')
-        .then(response => response.json())
-        .then(data => {
-            updateNotificationsList(data.notifications);
-            updateNotificationBadge(data.unread_count);
-        });
-}
-
-function updateNotificationsList(notifications) {
-    const list = document.getElementById('notification-list');
-    list.innerHTML = notifications.length ? notifications.map(n => `
-        <div class="p-4 border-b hover:bg-gray-50 ${n.read ? 'opacity-75' : ''}" onclick="markAsRead(${n.id}, '${n.url}')">
-            <div class="flex items-start space-x-3">
-                <div class="w-8 h-8 bg-${n.color}-100 rounded-full flex items-center justify-center">
-                    <span class="material-icons text-${n.color}-600 text-sm">${n.icon}</span>
-                </div>
-                <div class="flex-1">
-                    <p class="text-sm font-medium ${n.read ? '' : 'font-bold'}">${n.title}</p>
-                    <p class="text-sm text-gray-600 mt-1">${n.message}</p>
-                    ${n.url ? `<span class="text-sm text-[#02066F] cursor-pointer">${n.url_text} →</span>` : ''}
-                </div>
-            </div>
-        </div>
-    `).join('') : '<div class="p-8 text-center"><span class="material-icons text-gray-400 text-3xl mb-2">notifications_none</span><p class="text-gray-500">Aucune notification</p></div>';
-}
-
-function updateNotificationBadge(count) {
-    const badge = document.getElementById('notification-badge');
-    if (count > 0) {
-        badge.textContent = count > 99 ? '99+' : count;
-        badge.classList.remove('hidden');
-        badge.classList.add('flex');
-    } else {
-        badge.classList.add('hidden');
-    }
-}
-
-function markAsRead(id, url) {
-    fetch(`/api/notifications/${id}/read/`, {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}'}})
-        .then(() => url ? window.location.href = url : loadNotifications());
-}
-
-// Polling
-setInterval(() => {
-    if (!notificationDropdownOpen) {
-        fetch('/api/notifications/count/')
-            .then(r => r.json())
-            .then(d => updateNotificationBadge(d.count));
-    }
-}, 30000);
-
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-    fetch('/api/notifications/count/')
-        .then(r => r.json())
-        .then(d => updateNotificationBadge(d.count))
-        .catch(() => {});
-});
-</script>
 </head>
 
 <body class="h-full bg-gray-50 font-lato">
-    <!-- Mobile menu overlay -->
-    <div id="mobile-menu-overlay" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden lg:hidden"></div>
-    
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn" class="fixed top-4 left-4 z-50 lg:hidden bg-white p-2 rounded-lg shadow-lg border border-gray-200">
-            <span class="material-icons text-[#02066F]">menu</span>
-        </button>
+        <!-- Overlay pour mobile -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden sidebar-overlay opacity-0 invisible"></div>
         
         <!-- Fixed Sidebar -->
-        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-50 sidebar-transition transform -translate-x-full lg:translate-x-0">
             <div class="flex flex-col h-full">
                 
                 <!-- Logo Section -->
-                <div class="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 lg:w-10 h-8 lg:h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-white text-base lg:text-lg">home</span>
+                        <div class="w-10 h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-white text-lg">home</span>
                         </div>
                         <div>
-                            <h1 class="font-bold text-base lg:text-lg text-[#02066F] font-lato">RepAvi Lodges</h1>
+                            <h1 class="font-bold text-lg text-[#02066F] font-lato">RepAvi Lodges</h1>
                             <p class="text-xs text-gray-500 font-lato">Système de Gestion</p>
                         </div>
                     </div>
                     
-                    <!-- Close button for mobile -->
-                    <button id="close-sidebar" class="lg:hidden p-1 text-gray-400 hover:text-[#02066F]">
+                    <!-- Bouton fermer sur mobile -->
+                    <button id="closeSidebar" class="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
                         <span class="material-icons">close</span>
                     </button>
                 </div>
@@ -151,25 +102,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="{% url 'dashboard' %}" 
                            class="flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-colors">
                             <span class="material-icons text-sm">dashboard</span>
-                            <span class="font-lato text-sm lg:text-base">Dashboard</span>
+                            <span class="font-lato">Dashboard</span>
                         </a>
 
                         <a href="{% url 'appartements:liste' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">apartment</span>
-                            <span class="font-lato text-sm lg:text-base">Appartements</span>
+                            <span class="font-lato">Appartements</span>
                         </a>
 
                         <a href="{% url 'clients:liste' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">people</span>
-                            <span class="font-lato text-sm lg:text-base">Clients</span>
+                            <span class="font-lato">Clients</span>
                         </a>
 
                         <a href="{% url 'reservations:calendrier' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">event</span>
-                            <span class="font-lato text-sm lg:text-base">Réservations</span>
+                            <span class="font-lato">Réservations</span>
                             {% if reservations_aujourd_hui > 0 %}
                             <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ reservations_aujourd_hui }}</span>
                             {% endif %}
@@ -178,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="{% url 'paiements:echeancier' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">payments</span>
-                            <span class="font-lato text-sm lg:text-base">Paiements</span>
+                            <span class="font-lato">Paiements</span>
                             {% if paiements_retard > 0 %}
                             <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ paiements_retard }}</span>
                             {% endif %}
@@ -190,13 +141,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="{% url 'inventaire:general' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">inventory</span>
-                            <span class="font-lato text-sm lg:text-base">Inventaire</span>
+                            <span class="font-lato">Inventaire</span>
                         </a>
 
                         <a href="{% url 'menage:planning' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">cleaning_services</span>
-                            <span class="font-lato text-sm lg:text-base">Ménage</span>
+                            <span class="font-lato">Ménage</span>
                             {% if taches_menage_urgentes > 0 %}
                             <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ taches_menage_urgentes }}</span>
                             {% endif %}
@@ -205,13 +156,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="{% url 'comptabilite:rapport_mensuel' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">account_balance</span>
-                            <span class="font-lato text-sm lg:text-base">Comptabilité</span>
+                            <span class="font-lato">Comptabilité</span>
                         </a>
 
                         <a href="{% url 'facturation:generer' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">receipt</span>
-                            <span class="font-lato text-sm lg:text-base">Facturation</span>
+                            <span class="font-lato">Facturation</span>
                         </a>
 
                         <!-- Administration Section (Super Admin uniquement) -->
@@ -227,20 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="{% url 'users:liste_gestionnaires' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">supervisor_account</span>
-                            <span class="font-lato text-sm lg:text-base">Gestion Gestionnaires</span>
+                            <span class="font-lato">Gestion Gestionnaires</span>
                             <span class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full font-lato">Admin</span>
                         </a>
 
                         <a href="{% url 'users:historique' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons text-sm">history</span>
-                            <span class="font-lato text-sm lg:text-base">Historique Activités</span>
+                            <span class="font-lato">Historique Activités</span>
                         </a>
                         
                         <a href="{% url 'users:journal_actions' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg">
                             <span class="material-icons text-sm">security</span>
-                            <span class="font-lato text-sm lg:text-base">Journal d'audit</span>
+                            <span class="font-lato">Journal d'audit</span>
                         </a>
                         {% endif %}
                     </div>
@@ -249,12 +200,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- User Menu -->
                 <div class="border-t border-gray-200 p-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 lg:w-10 h-8 lg:h-10 bg-[#02066F] rounded-full flex items-center justify-center">
+                        <div class="w-10 h-10 bg-[#02066F] rounded-full flex items-center justify-center">
                             <span class="material-icons text-white text-sm">person</span>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-gray-900 font-lato truncate">{{ user.first_name|default:user.username }}</p>
-                            <p class="text-xs text-gray-500 font-lato truncate">{{ user.get_profil_display }}</p>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-900 font-lato">{{ user.first_name|default:user.username }}</p>
+                            <p class="text-xs text-gray-500 font-lato">{{ user.get_profil_display }}</p>
                         </div>
                         <div class="relative group">
                             <button class="p-1 text-gray-400 hover:text-[#02066F] transition-colors">
@@ -263,16 +214,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="absolute bottom-full right-0 mb-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                                 <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 first:rounded-t-lg">
                                     <span class="material-icons text-sm">account_circle</span>
-                                    <span class="font-lato text-sm">Mon Profil</span>
+                                    <span class="font-lato">Mon Profil</span>
                                 </a>
                                 {% if user.profil == 'super_admin' %}
                                 <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
                                     <span class="material-icons text-sm">supervisor_account</span>
-                                    <span class="font-lato text-sm">Gestionnaires</span>
+                                    <span class="font-lato">Gestionnaires</span>
                                 </a>
                                 <a href="{% url 'users:creer_gestionnaire' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
                                     <span class="material-icons text-sm">person_add</span>
-                                    <span class="font-lato text-sm">Nouveau Gestionnaire</span>
+                                    <span class="font-lato">Nouveau Gestionnaire</span>
                                 </a>
                                 {% endif %}
                                 <hr class="my-1">
@@ -280,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     {% csrf_token %}
                                     <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left">
                                         <span class="material-icons text-sm">logout</span>
-                                        <span class="font-lato text-sm">Déconnexion</span>
+                                        <span class="font-lato">Déconnexion</span>
                                     </button>
                                 </form>
                             </div>
@@ -294,120 +245,112 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="flex-1 flex flex-col lg:ml-64">
             
             <!-- Fixed Header -->
-            <header class="bg-white border-b border-gray-200 px-4 lg:px-6 py-4 fixed w-full z-20" style="left: 0; width: 100%;">
-                <div class="flex items-center justify-between ml-0 lg:ml-64">
-                    <div class="flex-1 ml-12 lg:ml-0">
-                        <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 font-lato">
-                            Bonjour {{ user.first_name|default:user.username }} ! 👋
-                        </h1>
-                        <p class="text-gray-600 font-lato text-xs sm:text-sm lg:text-base">
-                            Voici un aperçu de votre activité - {{ mois_actuel|date:"F Y" }}
-                            {% if user.profil == 'super_admin' %}
-                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                Super Administrateur
-                            </span>
-                            {% endif %}
-                        </p>
+            <header class="bg-white border-b border-gray-200 px-6 py-4 fixed w-full z-20 lg:left-64 lg:w-[calc(100%-256px)]">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <!-- Bouton hamburger pour mobile -->
+                        <button id="menuToggle" class="lg:hidden p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg">
+                            <div class="w-6 h-6 flex flex-col justify-center items-center space-y-1">
+                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
+                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
+                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
+                            </div>
+                        </button>
+                        
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 font-lato">
+                                Bonjour {{ user.first_name|default:user.username }} ! 👋
+                            </h1>
+                            <p class="text-gray-600 font-lato">
+                                Voici un aperçu de votre activité - {{ mois_actuel|date:"F Y" }}
+                                {% if user.profil == 'super_admin' %}
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    Super Administrateur
+                                </span>
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="flex items-center space-x-2 lg:space-x-3">
+                    <div class="flex items-center space-x-3">
                         {% if user.profil == 'super_admin' %}
                         <a href="{% url 'users:creer_gestionnaire' %}"
-                           class="hidden sm:inline-flex items-center px-3 lg:px-4 py-2 border border-[#02066F] rounded-lg text-xs lg:text-sm font-medium text-[#02066F] bg-[#02066F]/5 hover:bg-[#02066F]/10 transition-colors font-lato">
+                           class="hidden sm:inline-flex items-center px-4 py-2 border border-[#02066F] rounded-lg text-sm font-medium text-[#02066F] bg-[#02066F]/5 hover:bg-[#02066F]/10 transition-colors font-lato">
                             <span class="material-icons text-sm mr-2">person_add</span>
-                            <span class="hidden lg:inline">Nouveau Gestionnaire</span>
-                            <span class="lg:hidden">Nouveau</span>
+                            Nouveau Gestionnaire
                         </a>
                         {% endif %}
 
-                        <!-- Système notifications -->
-                        <div class="relative" id="notification-center">
-                            <button onclick="toggleNotifications()" 
-                                    class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors relative">
-                                <span class="material-icons text-lg lg:text-xl">notifications</span>
-                                <span id="notification-badge" class="absolute -top-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 bg-red-500 text-white text-xs rounded-full hidden items-center justify-center">0</span>
-                            </button>
-
-                            <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 lg:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
-                                <div class="flex items-center justify-between p-4 border-b border-gray-200">
-                                    <h3 class="font-semibold text-gray-900 font-lato">Notifications</h3>
-                                    <button onclick="markAllAsRead()" class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">Tout marquer lu</button>
-                                </div>
-                                <div id="notification-list" class="max-h-96 overflow-y-auto">
-                                    <div class="p-4 text-center text-gray-500 font-lato">Chargement...</div>
-                                </div>
-                                <div class="border-t border-gray-200 p-3">
-                                    <a href="{% url 'notifications:all' %}" class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">Voir toutes les notifications →</a>
-                                </div>
-                            </div>
-                        </div>
-                        
                         <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-lg lg:text-xl">refresh</span>
+                            <span class="material-icons">notifications</span>
+                        </button>
+
+                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                            <span class="material-icons">refresh</span>
                         </button>
                     </div>
                 </div>
             </header>
 
             <!-- Scrollable Content -->
-            <main class="flex-1 overflow-y-auto pt-16 lg:pt-20 bg-gray-50">
-                <div class="p-4 lg:p-6 space-y-4 lg:space-y-6">
+            <main class="flex-1 overflow-y-auto pt-20 bg-gray-50">
+                <div class="p-6 space-y-6">
                     
                     <!-- KPIs Section -->
                     <div>
-                        <h2 class="text-base lg:text-lg font-semibold text-gray-900 mb-4 font-lato">Indicateurs Clés</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Indicateurs Clés</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             
                             <!-- Total Appartements -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
                                 <div class="flex items-center justify-between mb-4">
-                                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                                        <span class="material-icons text-[#02066F] text-lg lg:text-xl">apartment</span>
+                                    <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                                        <span class="material-icons text-[#02066F] text-xl">apartment</span>
                                     </div>
                                     <span class="material-icons text-green-500">trending_up</span>
                                 </div>
-                                <div class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_appartements }}</div>
+                                <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_appartements }}</div>
                                 <div class="text-sm text-gray-600 mb-2 font-lato">Appartements Total</div>
                                 <div class="text-xs text-green-600 font-lato">{{ appartements_disponibles }} disponibles</div>
                             </div>
 
                             <!-- Réservations -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
                                 <div class="flex items-center justify-between mb-4">
-                                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                        <span class="material-icons text-green-600 text-lg lg:text-xl">event</span>
+                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <span class="material-icons text-green-600 text-xl">event</span>
                                     </div>
                                     {% if reservations_aujourd_hui > 0 %}
                                     <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                     {% endif %}
                                 </div>
-                                <div class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1 font-lato">{{ reservations_ce_mois }}</div>
+                                <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ reservations_ce_mois }}</div>
                                 <div class="text-sm text-gray-600 mb-2 font-lato">Réservations ce mois</div>
                                 <div class="text-xs text-green-600 font-lato">{{ reservations_aujourd_hui }} aujourd'hui</div>
                             </div>
 
                             <!-- Clients -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
                                 <div class="flex items-center justify-between mb-4">
-                                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                        <span class="material-icons text-purple-600 text-lg lg:text-xl">people</span>
+                                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <span class="material-icons text-purple-600 text-xl">people</span>
                                     </div>
                                     <span class="text-purple-500 text-sm font-medium font-lato">+{{ nouveaux_clients_mois }}</span>
                                 </div>
-                                <div class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_clients }}</div>
+                                <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_clients }}</div>
                                 <div class="text-sm text-gray-600 mb-2 font-lato">Clients Total</div>
                                 <div class="text-xs text-purple-600 font-lato">{{ nouveaux_clients_mois }} nouveaux ce mois</div>
                             </div>
 
                             <!-- Revenus -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6 hover:shadow-md transition-shadow">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
                                 <div class="flex items-center justify-between mb-4">
-                                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                                        <span class="material-icons text-orange-600 text-lg lg:text-xl">payments</span>
+                                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <span class="material-icons text-orange-600 text-xl">payments</span>
                                     </div>
                                     <div class="text-green-500 text-sm font-medium font-lato">FCFA</div>
                                 </div>
-                                <div class="text-xl lg:text-3xl font-bold text-gray-900 mb-1 font-lato">{{ revenus_mois|floatformat:0 }}</div>
+                                <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ revenus_mois|floatformat:0 }}</div>
                                 <div class="text-sm text-gray-600 mb-2 font-lato">Revenus ce mois</div>
                                 <div class="text-xs text-green-600 font-lato">Taux occupation: {{ taux_occupation }}%</div>
                             </div>
@@ -415,24 +358,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                     <!-- Charts and Details Section -->
-                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
+                    <div class="grid lg:grid-cols-3 gap-6">
                         
                         <!-- Left Column - Charts -->
-                        <div class="xl:col-span-2 space-y-4 lg:space-y-6">
+                        <div class="lg:col-span-2 space-y-6">
                             
                             <!-- Occupation Chart -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                                <div class="flex items-center justify-between mb-6">
                                     <div>
-                                        <h3 class="text-base lg:text-lg font-semibold text-gray-900 font-lato">Taux d'Occupation</h3>
+                                        <h3 class="text-lg font-semibold text-gray-900 font-lato">Taux d'Occupation</h3>
                                         <p class="text-gray-600 text-sm font-lato">État actuel du parc immobilier</p>
                                     </div>
                                 </div>
 
                                 <div class="flex items-center justify-center mb-6">
                                     <!-- Simple Progress Circle -->
-                                    <div class="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48">
-                                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
+                                    <div class="relative w-48 h-48">
+                                        <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 200 200">
                                             <!-- Background circle -->
                                             <circle cx="100" cy="100" r="75" fill="none" stroke="#f3f4f6" stroke-width="12" />
                                             <!-- Progress circle -->
@@ -445,49 +388,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
                                         <div class="absolute inset-0 flex items-center justify-center">
                                             <div class="text-center">
-                                                <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 font-lato">{{ taux_occupation }}%</div>
+                                                <div class="text-4xl font-bold text-gray-900 font-lato">{{ taux_occupation }}%</div>
                                                 <div class="text-sm text-gray-600 font-lato">Occupé</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-3 gap-2 lg:gap-4">
-                                    <div class="text-center p-2 lg:p-3 bg-green-50 rounded-lg border border-green-100">
-                                        <div class="text-lg lg:text-xl font-bold text-green-600 font-lato">{{ appartements_disponibles }}</div>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="text-center p-3 bg-green-50 rounded-lg border border-green-100">
+                                        <div class="text-xl font-bold text-green-600 font-lato">{{ appartements_disponibles }}</div>
                                         <div class="text-xs text-green-600 font-lato">Disponibles</div>
                                     </div>
-                                    <div class="text-center p-2 lg:p-3 bg-[#02066F]/5 rounded-lg border border-[#02066F]/20">
-                                        <div class="text-lg lg:text-xl font-bold text-[#02066F] font-lato">{{ appartements_occupes }}</div>
+                                    <div class="text-center p-3 bg-[#02066F]/5 rounded-lg border border-[#02066F]/20">
+                                        <div class="text-xl font-bold text-[#02066F] font-lato">{{ appartements_occupes }}</div>
                                         <div class="text-xs text-[#02066F] font-lato">Occupés</div>
                                     </div>
-                                    <div class="text-center p-2 lg:p-3 bg-orange-50 rounded-lg border border-orange-100">
-                                        <div class="text-lg lg:text-xl font-bold text-orange-600 font-lato">{{ appartements_maintenance }}</div>
+                                    <div class="text-center p-3 bg-orange-50 rounded-lg border border-orange-100">
+                                        <div class="text-xl font-bold text-orange-600 font-lato">{{ appartements_maintenance }}</div>
                                         <div class="text-xs text-orange-600 font-lato">Maintenance</div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Revenue Chart -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                                <div class="flex items-center justify-between mb-6">
                                     <div>
-                                        <h3 class="text-base lg:text-lg font-semibold text-gray-900 font-lato">Revenus Hebdomadaires</h3>
+                                        <h3 class="text-lg font-semibold text-gray-900 font-lato">Revenus Hebdomadaires</h3>
                                         <p class="text-gray-600 text-sm font-lato">Performance des 7 derniers jours</p>
                                     </div>
                                 </div>
-                                <div class="h-48 lg:h-64">
+                                <div class="h-64">
                                     <canvas id="revenusChart"></canvas>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Right Column - Actions & Alerts -->
-                        <div class="space-y-4 lg:space-y-6">
+                        <div class="space-y-6">
                             
                             <!-- Quick Actions -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato text-sm lg:text-base">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
                                     <span class="material-icons text-[#02066F]">flash_on</span>
                                     <span>Actions Rapides</span>
                                 </h3>
@@ -497,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                        class="w-full flex items-center justify-between p-3 bg-[#02066F]/5 text-[#02066F] rounded-lg hover:bg-[#02066F]/10 transition-colors">
                                         <span class="flex items-center space-x-3">
                                             <span class="material-icons text-sm">add_circle</span>
-                                            <span class="font-medium font-lato text-sm lg:text-base">Nouvelle réservation</span>
+                                            <span class="font-medium font-lato">Nouvelle réservation</span>
                                         </span>
                                         <span class="material-icons text-sm">arrow_forward</span>
                                     </a>
@@ -506,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                        class="w-full flex items-center justify-between p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors">
                                         <span class="flex items-center space-x-3">
                                             <span class="material-icons text-sm">person_add</span>
-                                            <span class="font-medium font-lato text-sm lg:text-base">Nouveau client</span>
+                                            <span class="font-medium font-lato">Nouveau client</span>
                                         </span>
                                         <span class="material-icons text-sm">arrow_forward</span>
                                     </a>
@@ -515,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                        class="w-full flex items-center justify-between p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors">
                                         <span class="flex items-center space-x-3">
                                             <span class="material-icons text-sm">add_home</span>
-                                            <span class="font-medium font-lato text-sm lg:text-base">Nouvel appartement</span>
+                                            <span class="font-medium font-lato">Nouvel appartement</span>
                                         </span>
                                         <span class="material-icons text-sm">arrow_forward</span>
                                     </a>
@@ -527,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                            class="w-full flex items-center justify-between p-3 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors">
                                             <span class="flex items-center space-x-3">
                                                 <span class="material-icons text-sm">supervisor_account</span>
-                                                <span class="font-medium font-lato text-sm lg:text-base">Nouveau gestionnaire</span>
+                                                <span class="font-medium font-lato">Nouveau gestionnaire</span>
                                             </span>
                                             <span class="material-icons text-sm">arrow_forward</span>
                                         </a>
@@ -537,8 +480,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
 
                             <!-- Alerts -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato text-sm lg:text-base">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
                                     <span class="material-icons text-red-600">warning</span>
                                     <span>Alertes Importantes</span>
                                 </h3>
@@ -547,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     {% if arrivees_aujourd_hui %}
                                     <div class="flex items-center space-x-3 p-3 bg-[#02066F]/5 rounded-lg border border-[#02066F]/20">
                                         <span class="material-icons text-[#02066F] text-sm">event_available</span>
-                                        <div class="flex-1 min-w-0">
+                                        <div class="flex-1">
                                             <p class="text-sm font-medium text-gray-900 font-lato">{{ arrivees_aujourd_hui.count }} arrivée(s) aujourd'hui</p>
                                             <p class="text-xs text-gray-600 font-lato">Appartements à préparer</p>
                                         </div>
@@ -560,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     {% if paiements_retard > 0 %}
                                     <div class="flex items-center space-x-3 p-3 bg-red-50 rounded-lg border border-red-100">
                                         <span class="material-icons text-red-600 text-sm">error</span>
-                                        <div class="flex-1 min-w-0">
+                                        <div class="flex-1">
                                             <p class="text-sm font-medium text-gray-900 font-lato">{{ paiements_retard }} paiement(s) en retard</p>
                                             <p class="text-xs text-gray-600 font-lato">Nécessite un suivi</p>
                                         </div>
@@ -573,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     {% if taches_menage_urgentes > 0 %}
                                     <div class="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-100">
                                         <span class="material-icons text-orange-600 text-sm">cleaning_services</span>
-                                        <div class="flex-1 min-w-0">
+                                        <div class="flex-1">
                                             <p class="text-sm font-medium text-gray-900 font-lato">{{ taches_menage_urgentes }} ménage(s) urgent(s)</p>
                                             <p class="text-xs text-gray-600 font-lato">À traiter rapidement</p>
                                         </div>
@@ -585,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     
                                     {% if not arrivees_aujourd_hui and not paiements_retard and not taches_menage_urgentes %}
                                     <div class="text-center py-6">
-                                        <span class="material-icons text-green-500 text-3xl lg:text-4xl mb-2">check_circle</span>
+                                        <span class="material-icons text-green-500 text-4xl mb-2">check_circle</span>
                                         <p class="text-sm text-gray-600 font-lato">Aucune alerte urgente</p>
                                     </div>
                                     {% endif %}
@@ -593,8 +536,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
 
                             <!-- Quick Stats -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato text-sm lg:text-base">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
                                     <span class="material-icons text-green-600">analytics</span>
                                     <span>Stats Rapides</span>
                                 </h3>
@@ -641,30 +584,67 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script>
-        // Mobile menu functionality
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const closeSidebar = document.getElementById('close-sidebar');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('mobile-menu-overlay');
-
-        function toggleSidebar() {
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
-        }
-
-        mobileMenuBtn.addEventListener('click', toggleSidebar);
-        closeSidebar.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
-
-        // Close sidebar on window resize if desktop
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 1024) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.add('hidden');
-            }
-        });
-
         document.addEventListener('DOMContentLoaded', function() {
+            // Éléments DOM
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Fonction pour ouvrir la sidebar
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('opacity-0', 'invisible');
+                sidebarOverlay.classList.add('opacity-100', 'visible');
+                menuToggle.classList.add('hamburger-active');
+                document.body.classList.add('overflow-hidden'); // Empêche le scroll du body
+            }
+
+            // Fonction pour fermer la sidebar
+            function closeSidebarFn() {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.remove('opacity-100', 'visible');
+                sidebarOverlay.classList.add('opacity-0', 'invisible');
+                menuToggle.classList.remove('hamburger-active');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            // Event listeners
+            menuToggle.addEventListener('click', function() {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    openSidebar();
+                } else {
+                    closeSidebarFn();
+                }
+            });
+
+            closeSidebar.addEventListener('click', closeSidebarFn);
+            sidebarOverlay.addEventListener('click', closeSidebarFn);
+
+            // Fermer la sidebar avec Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+                    closeSidebarFn();
+                }
+            });
+
+            // Gestion du redimensionnement de la fenêtre
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) { // lg breakpoint
+                    // Sur desktop, s'assurer que la sidebar est visible
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebarOverlay.classList.remove('opacity-100', 'visible');
+                    sidebarOverlay.classList.add('opacity-0', 'invisible');
+                    menuToggle.classList.remove('hamburger-active');
+                    document.body.classList.remove('overflow-hidden');
+                } else {
+                    // Sur mobile, fermer la sidebar si elle est ouverte
+                    if (!sidebar.classList.contains('-translate-x-full')) {
+                        closeSidebarFn();
+                    }
+                }
+            });
+
             // Revenue Chart - Données du backend
             const revenusCtx = document.getElementById('revenusChart');
 
@@ -742,7 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Animation des compteurs (optionnelle)
-            const counters = document.querySelectorAll('.text-2xl.font-bold, .text-xl.font-bold, .text-3xl.font-bold');
+            const counters = document.querySelectorAll('.text-3xl.font-bold');
             counters.forEach(counter => {
                 const target = parseInt(counter.textContent.replace(/\D/g, ''));
                 if (target > 0 && target < 1000) {
