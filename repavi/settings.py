@@ -446,13 +446,10 @@ if IS_PRODUCTION:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
     
     # Optimisations base de données
-    DATABASES['default']['OPTIONS'].update({
-        'MAX_CONNS': 20,
-        'OPTIONS': {
-            'MAX_CONNS': 20,
-            'sslmode': 'require',
-        }
-    })
+    DATABASES['default']['OPTIONS'] = {
+        'sslmode': 'require',
+    }
+
 
 # === FONCTIONNALITÉS EXCLUES du cahier ===
 # Ces fonctionnalités sont EXPLICITEMENT exclues du cahier des charges
