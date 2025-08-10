@@ -166,3 +166,39 @@ def log_action(action, model_name, object_repr, object_id=None):
             return result
         return wrapper
     return decorator
+
+# apps/users/signals.py
+from django.contrib.auth.signals import user_logged_in
+from django.contrib.sessions.models import Session
+
+def on_user_logged_in(sender, user, request, **kwargs):
+    # Supprimer autres sessions
+    Session.objects.filter(session_data__contains=f'"_auth_user_id":"{user.pk}"').exclude(
+        session_key=request.session.session_key
+    ).delete()
+    
+    user.session_key = request.session.session_key
+    user.save()
+
+user_logged_in.connect(on_user_logged_in)
+
+def log_model_change(sender, instance, created, **kwargs):
+    # Récupérer l'utilisateur depuis le middleware ou request
+    user = getattr(instance, '_current_user', None)
+    
+    # Vérifier que c'est un vrai utilisateur
+    if not user or not user.is_authenticated or user.is_anonymous:
+        return  # Ignorer le logging
+    
+    try:
+        from .models import ActionLog
+        ActionLog.objects.create(
+            utilisateur=user,
+            action='create' if created else 'update',
+            model_name=sender.__name__,
+            object_id=str(instance.pk),
+            # ... autres champs
+        )
+    except Exception as e:
+        # Logging silencieux en cas d'erreur
+        pass

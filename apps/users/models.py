@@ -19,6 +19,8 @@ class User(AbstractUser):
     )
     telephone = models.CharField(max_length=20, blank=True)
     date_creation = models.DateTimeField(auto_now_add=True)
+    session_key = models.CharField(max_length=40, blank=True, null=True)
+    derniere_activite = models.DateTimeField(auto_now=True)
     
     def is_super_admin(self):
         return self.profil == 'super_admin'
@@ -83,3 +85,5 @@ class ActionLog(models.Model):
     def __str__(self):
         user_str = self.utilisateur.username if self.utilisateur else 'Anonyme'
         return f"{user_str} - {self.get_action_display()} {self.model_name} - {self.timestamp}"
+
+

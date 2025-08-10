@@ -87,6 +87,8 @@ MIDDLEWARE = [
     'apps.users.middleware.CurrentUserMiddleware', 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.users.middleware.SingleSessionMiddleware',
+
    
 ]
 

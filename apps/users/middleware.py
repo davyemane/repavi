@@ -1,4 +1,5 @@
 # apps/users/middleware.py
+from django.contrib import messages
 import threading
 from django.utils.deprecation import MiddlewareMixin
 
@@ -55,3 +56,26 @@ def get_client_ip(request):
     if x_forwarded_for:
         return x_forwarded_for.split(',')[0].strip()
     return request.META.get('REMOTE_ADDR')
+
+from django.contrib.auth import logout
+from django.contrib.sessions.models import Session
+
+class SingleSessionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.user.is_authenticated:
+            stored_session_key = getattr(request.user, 'session_key', None)
+            current_session_key = request.session.session_key
+            
+            if stored_session_key and stored_session_key != current_session_key:
+                Session.objects.filter(session_key=stored_session_key).delete()
+                messages.warning(request, 'Vous avez été déconnecté car quelqu\'un s\'est connecté avec votre compte.')
+                logout(request)
+                return self.get_response(request)
+            
+            request.user.session_key = current_session_key
+            request.user.save()
+        
+        return self.get_response(request)
