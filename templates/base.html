@@ -5,12 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}RepAvi Lodges - Système de Gestion{% endblock %}</title>
-
-    <!-- Favicon RepAvi - Ajoutez dans la section <head> -->
+    
+    <!-- Favicon RepAvi -->
     <link rel="icon" type="image/svg+xml" href="{% static 'images/logorepavie.svg' %}">
     <link rel="alternate icon" href="{% static 'images/logorepavie.ico' %}">
     <link rel="apple-touch-icon" href="{% static 'images/logorepavie-180.png' %}">
-    <link rel="manifest" href="{% static 'manifest.json' %}">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,16 +136,41 @@
             }
         }
         
-        /* Amélioration des hover effects */
-        .nav-item {
+        /* Transition pour la sidebar */
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        /* Overlay pour mobile */
+        .sidebar-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        /* Animation pour l'icône hamburger */
+        .hamburger-line {
             transition: all 0.3s ease;
+            transform-origin: center;
         }
         
-        .nav-item:hover {
-            transform: translateX(4px);
+        .hamburger-active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
         }
         
-        /* Ombres personnalisées */
+        .hamburger-active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+        
+        /* Amélioration des cartes avec transparence */
+        .card-with-bg {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(1px);
+        }
+        
+        /* Ombres personnalisées RepAvi */
         .shadow-repavi {
             box-shadow: 0 4px 6px -1px rgba(2, 6, 111, 0.1), 0 2px 4px -1px rgba(2, 6, 111, 0.06);
         }
@@ -155,39 +179,34 @@
             box-shadow: 0 10px 15px -3px rgba(2, 6, 111, 0.1), 0 4px 6px -2px rgba(2, 6, 111, 0.05);
         }
     </style>
-    
+
     {% block extra_css %}{% endblock %}
 </head>
 
 <body class="h-full font-lato">
-    <!-- Mobile menu overlay -->
-    <div id="mobile-menu-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 hidden lg:hidden"></div>
-    
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn" class="fixed top-4 left-4 z-50 lg:hidden bg-transparent-white p-2 rounded-lg shadow-repavi border border-gray-200">
-            <span class="material-icons text-[#02066F]">menu</span>
-        </button>
+        <!-- Overlay pour mobile -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden sidebar-overlay opacity-0 invisible"></div>
         
-        <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 sidebar-bg border-r border-gray-200 flex-shrink-0 fixed h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-repavi-lg">
+        <!-- Fixed Sidebar -->
+        <aside id="sidebar" class="w-64 sidebar-bg border-r border-gray-200 flex-shrink-0 fixed h-full z-50 sidebar-transition transform -translate-x-full lg:translate-x-0 shadow-repavi-lg">
             <div class="flex flex-col h-full">
                 
-                <!-- Logo Section RepAvi -->
-                <div class="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200 bg-transparent-white">
+                <!-- Logo Section -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-transparent-white">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-repavi">
-                            <span class="material-icons text-white text-base lg:text-lg">home</span>
+                        <div class="w-10 h-10 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-repavi">
+                            <span class="material-icons text-white text-lg">home</span>
                         </div>
                         <div>
-                            <h1 class="font-bold text-base lg:text-lg text-[#02066F] font-lato">RepAvi Lodges</h1>
+                            <h1 class="font-bold text-lg text-[#02066F] font-lato">RepAvi Lodges</h1>
                             <p class="text-xs text-gray-500 font-lato">Système de Gestion</p>
                         </div>
                     </div>
                     
-                    <!-- Close button for mobile -->
-                    <button id="close-sidebar" class="lg:hidden p-1 text-gray-400 hover:text-[#02066F] transition-colors">
+                    <!-- Bouton fermer sur mobile -->
+                    <button id="closeSidebar" class="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                         <span class="material-icons">close</span>
                     </button>
                 </div>
@@ -196,89 +215,130 @@
                 <nav class="flex-1 overflow-y-auto py-4 px-3">
                     <div class="space-y-1">
                         <a href="{% url 'dashboard' %}" 
-                           class="nav-item flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300">
+                           class="{% block nav_dashboard %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
                             <span class="material-icons text-sm">dashboard</span>
-                            <span class="font-lato text-sm lg:text-base">Dashboard</span>
+                            <span class="font-lato">Dashboard</span>
                         </a>
 
                         <a href="{% url 'appartements:liste' %}"
-                           class="nav-item {% block nav_appartements %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
+                           class="{% block nav_appartements %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
                             <span class="material-icons text-sm">apartment</span>
-                            <span class="font-lato text-sm lg:text-base">Appartements</span>
+                            <span class="font-lato">Appartements</span>
                         </a>
 
                         <a href="{% url 'clients:liste' %}"
-                           class="nav-item {% block nav_clients %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
+                           class="{% block nav_clients %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
                             <span class="material-icons text-sm">people</span>
-                            <span class="font-lato text-sm lg:text-base">Clients</span>
+                            <span class="font-lato">Clients</span>
                         </a>
 
                         <a href="{% url 'reservations:calendrier' %}"
-                           class="nav-item {% block nav_reservations %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
+                           class="{% block nav_reservations %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
                             <span class="material-icons text-sm">event</span>
-                            <span class="font-lato text-sm lg:text-base">Réservations</span>
+                            <span class="font-lato">Réservations</span>
+                            {% if reservations_aujourd_hui > 0 %}
+                            <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ reservations_aujourd_hui }}</span>
+                            {% endif %}
                         </a>
 
                         <a href="{% url 'paiements:echeancier' %}"
-                           class="nav-item {% block nav_paiements %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
-                            <span class="material-icons text-sm">payment</span>
-                            <span class="font-lato text-sm lg:text-base">Paiements</span>
+                           class="{% block nav_paiements %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
+                            <span class="material-icons text-sm">payments</span>
+                            <span class="font-lato">Paiements</span>
+                            {% if paiements_retard > 0 %}
+                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ paiements_retard }}</span>
+                            {% endif %}
                         </a>
+
+                        <!-- Divider -->
+                        <div class="border-t border-gray-200 my-4"></div>
 
                         <a href="{% url 'inventaire:general' %}"
-                           class="nav-item {% block nav_inventaire %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
+                           class="{% block nav_inventaire %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
                             <span class="material-icons text-sm">inventory</span>
-                            <span class="font-lato text-sm lg:text-base">Inventaire</span>
-                        </a>
-
-                        <a href="{% url 'comptabilite:rapport_mensuel' %}"
-                           class="nav-item {% block nav_comptabilite %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
-                            <span class="material-icons text-sm">account_balance</span>
-                            <span class="font-lato text-sm lg:text-base">Comptabilité</span>
+                            <span class="font-lato">Inventaire</span>
                         </a>
 
                         <a href="{% url 'menage:planning' %}"
-                           class="nav-item {% block nav_menage %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
+                           class="{% block nav_menage %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
                             <span class="material-icons text-sm">cleaning_services</span>
-                            <span class="font-lato text-sm lg:text-base">Ménage</span>
+                            <span class="font-lato">Ménage</span>
+                            {% if taches_menage_urgentes > 0 %}
+                            <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ taches_menage_urgentes }}</span>
+                            {% endif %}
                         </a>
 
-                        <a href="{% url 'facturation:liste' %}"
-                           class="nav-item {% block nav_facturation %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
-                            <span class="material-icons text-sm">receipt</span>
-                            <span class="font-lato text-sm lg:text-base">Facturation</span>
+                        <a href="{% url 'comptabilite:rapport_mensuel' %}"
+                           class="{% block nav_comptabilite %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
+                            <span class="material-icons text-sm">account_balance</span>
+                            <span class="font-lato">Comptabilité</span>
                         </a>
+
+                        <a href="{% url 'facturation:dashboard' %}"
+                           class="{% block nav_facturation %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
+                            <span class="material-icons text-sm">receipt</span>
+                            <span class="font-lato">Facturation</span>
+                        </a>
+
+                        <!-- Administration Section (Super Admin uniquement) -->
+                        {% if user.profil == 'super_admin' %}
+                        <div class="border-t border-gray-200 my-4"></div>
+                        
+                        <div class="px-3 py-2">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider font-lato">
+                                Administration
+                            </h4>
+                        </div>
+
+                        <a href="{% url 'users:liste_gestionnaires' %}"
+                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                            <span class="material-icons text-sm">supervisor_account</span>
+                            <span class="font-lato">Gestion Gestionnaires</span>
+                            <span class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full font-lato">Admin</span>
+                        </a>
+
+                        <a href="{% url 'users:historique' %}"
+                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                            <span class="material-icons text-sm">history</span>
+                            <span class="font-lato">Historique Activités</span>
+                        </a>
+                        
+                        <a href="{% url 'users:journal_actions' %}"
+                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg">
+                            <span class="material-icons text-sm">security</span>
+                            <span class="font-lato">Journal d'audit</span>
+                        </a>
+                        {% endif %}
                     </div>
                 </nav>
 
-                <!-- User Section -->
+                <!-- User Menu -->
                 <div class="border-t border-gray-200 p-4 bg-transparent-white">
-                    <div class="relative">
-                        <button id="user-menu-btn" class="flex items-center w-full space-x-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
-                            <div class="w-8 h-8 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-full flex items-center justify-center shadow-repavi">
-                                <span class="material-icons text-white text-sm">person</span>
-                            </div>
-                            <div class="flex-1 text-left">
-                                <p class="text-sm font-medium text-gray-900 font-lato truncate">{{ user.get_full_name|default:user.username }}</p>
-                                <p class="text-xs text-gray-500 font-lato">{{ user.get_profil_display }}</p>
-                            </div>
-                            <span class="material-icons text-sm transition-transform duration-200" id="user-menu-icon">expand_more</span>
-                        </button>
-                        
-                        <div id="user-menu" class="hidden absolute bottom-full left-0 w-full mb-2 bg-transparent-white rounded-lg shadow-repavi-lg border border-gray-200 py-1">
-                            <div class="px-4 py-2 border-b border-gray-100">
-                                <p class="text-sm font-medium text-gray-900 font-lato truncate">{{ user.get_full_name|default:user.username }}</p>
-                                <p class="text-xs text-gray-500 font-lato">{{ user.email }}</p>
-                            </div>
-                            <div class="py-1">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-full flex items-center justify-center shadow-repavi">
+                            <span class="material-icons text-white text-sm">person</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-900 font-lato">{{ user.first_name|default:user.username }}</p>
+                            <p class="text-xs text-gray-500 font-lato">{{ user.get_profil_display }}</p>
+                        </div>
+                        <div class="relative group">
+                            <button class="p-1 text-gray-400 hover:text-[#02066F] transition-colors">
+                                <span class="material-icons text-sm">more_vert</span>
+                            </button>
+                            <div class="absolute bottom-full right-0 mb-2 w-48 bg-transparent-white border border-gray-200 rounded-lg shadow-repavi-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 first:rounded-t-lg transition-colors">
+                                    <span class="material-icons text-sm">account_circle</span>
+                                    <span class="font-lato">Mon Profil</span>
+                                </a>
                                 {% if user.profil == 'super_admin' %}
                                 <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors">
-                                    <span class="material-icons text-sm">manage_accounts</span>
-                                    <span class="font-lato text-sm">Gestionnaires</span>
+                                    <span class="material-icons text-sm">supervisor_account</span>
+                                    <span class="font-lato">Gestionnaires</span>
                                 </a>
                                 <a href="{% url 'users:creer_gestionnaire' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors">
                                     <span class="material-icons text-sm">person_add</span>
-                                    <span class="font-lato text-sm">Nouveau Gestionnaire</span>
+                                    <span class="font-lato">Nouveau Gestionnaire</span>
                                 </a>
                                 {% endif %}
                                 <hr class="my-1">
@@ -286,7 +346,7 @@
                                     {% csrf_token %}
                                     <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left transition-colors">
                                         <span class="material-icons text-sm">logout</span>
-                                        <span class="font-lato text-sm">Déconnexion</span>
+                                        <span class="font-lato">Déconnexion</span>
                                     </button>
                                 </form>
                             </div>
@@ -295,141 +355,154 @@
                 </div>
             </div>
         </aside>
-        
+
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col lg:ml-64">
             
             <!-- Fixed Header -->
-            <header class="header-bg border-b border-gray-200 px-4 lg:px-6 py-4 fixed w-full z-20 shadow-repavi" style="left: 0; width: 100%;" 
-                    class="lg:left-64 lg:w-[calc(100%-16rem)]">
-                <div class="flex items-center justify-between ml-0 lg:ml-64">
-                    <div class="flex-1 ml-12 lg:ml-0">
-                        <h1 class="text-lg lg:text-2xl font-bold text-gray-900 font-lato truncate">
-                            {% block page_title %}Page Title{% endblock %}
-                        </h1>
-                        <p class="text-gray-600 font-lato text-sm lg:text-base hidden sm:block">
-                            {% block page_subtitle %}Page subtitle{% endblock %}
-                        </p>
+            <header class="header-bg border-b border-gray-200 px-6 py-4 fixed w-full z-20 lg:left-64 lg:w-[calc(100%-256px)] shadow-repavi">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <!-- Bouton hamburger pour mobile -->
+                        <button id="menuToggle" class="lg:hidden p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                            <div class="w-6 h-6 flex flex-col justify-center items-center space-y-1">
+                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
+                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
+                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
+                            </div>
+                        </button>
+                        
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 font-lato">
+                                {% block page_title %}Bonjour {{ user.first_name|default:user.username }} !{% endblock %}
+                            </h1>
+                            <p class="text-gray-600 font-lato">
+                                {% block page_subtitle %}Voici un aperçu de votre activité{% endblock %}
+                                {% if user.profil == 'super_admin' %}
+                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    Super Administrateur
+                                </span>
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="flex items-center space-x-2 lg:space-x-3">
-                        {% block header_actions %}{% endblock %}
+                    <div class="flex items-center space-x-3">
+                        {% block header_actions %}
+                        {% if user.profil == 'super_admin' %}
+                        <a href="{% url 'users:creer_gestionnaire' %}"
+                           class="hidden sm:inline-flex items-center px-4 py-2 border border-[#02066F] rounded-lg text-sm font-medium text-[#02066F] bg-[#02066F]/5 hover:bg-[#02066F]/10 transition-colors font-lato">
+                            <span class="material-icons text-sm mr-2">person_add</span>
+                            Nouveau Gestionnaire
+                        </a>
+                        {% endif %}
+                        {% endblock %}
+
+                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                            <span class="material-icons">notifications</span>
+                        </button>
+
+                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                            <span class="material-icons">refresh</span>
+                        </button>
                     </div>
                 </div>
             </header>
-            
-            <!-- Main Content -->
-            <main class="flex-1 overflow-auto pt-20 p-4 lg:p-6">
-                <!-- Messages -->
-                {% if messages %}
-                <div class="mb-4 lg:mb-6 space-y-2">
-                    {% for message in messages %}
-                    <div class="px-4 py-3 rounded-lg text-sm font-medium font-lato shadow-repavi bg-transparent-white
-                        {% if message.tags == 'success' %}border-l-4 border-green-500 text-green-800
-                        {% elif message.tags == 'error' %}border-l-4 border-red-500 text-red-800
-                        {% elif message.tags == 'warning' %}border-l-4 border-yellow-500 text-yellow-800
-                        {% else %}border-l-4 border-blue-500 text-blue-800{% endif %}">
-                        <div class="flex items-center space-x-2">
-                            <span class="material-icons text-sm">
-                                {% if message.tags == 'success' %}check_circle
-                                {% elif message.tags == 'error' %}error
-                                {% elif message.tags == 'warning' %}warning
-                                {% else %}info{% endif %}
-                            </span>
-                            <span>{{ message }}</span>
+
+            <!-- Scrollable Content -->
+            <main class="flex-1 overflow-y-auto pt-20">
+                <div class="p-6 space-y-6">
+                    
+                    <!-- Messages -->
+                    {% if messages %}
+                        <div class="space-y-3">
+                            {% for message in messages %}
+                                <div class="bg-{% if message.tags == 'error' %}red{% elif message.tags == 'warning' %}yellow{% elif message.tags == 'success' %}green{% else %}blue{% endif %}-50 border border-{% if message.tags == 'error' %}red{% elif message.tags == 'warning' %}yellow{% elif message.tags == 'success' %}green{% else %}blue{% endif %}-200 text-{% if message.tags == 'error' %}red{% elif message.tags == 'warning' %}yellow{% elif message.tags == 'success' %}green{% else %}blue{% endif %}-800 px-4 py-3 rounded-lg flex items-center font-lato">
+                                    <span class="material-icons mr-3 text-sm">
+                                        {% if message.tags == 'error' %}error
+                                        {% elif message.tags == 'warning' %}warning
+                                        {% elif message.tags == 'success' %}check_circle
+                                        {% else %}info{% endif %}
+                                    </span>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
                         </div>
+                    {% endif %}
+
+                    {% block content %}
+                    <div class="text-center py-12">
+                        <h2 class="text-2xl font-bold text-gray-900 font-lato">Bienvenue sur RepAvi Lodges</h2>
+                        <p class="text-gray-600 font-lato">Système de gestion hôtelière</p>
                     </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                
-                <!-- Page Content -->
-                <div class="space-y-4 lg:space-y-6">
-                    {% block content %}{% endblock %}
+                    {% endblock %}
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- JavaScript for Mobile Menu and Interactions -->
     <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('mobile-menu-overlay');
-        const closeSidebar = document.getElementById('close-sidebar');
-        
-        function openSidebar() {
-            sidebar.classList.remove('-translate-x-full');
-            overlay.classList.remove('hidden');
-        }
-        
-        function closeSidebarFn() {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        }
-        
-        mobileMenuBtn?.addEventListener('click', openSidebar);
-        closeSidebar?.addEventListener('click', closeSidebarFn);
-        overlay?.addEventListener('click', closeSidebarFn);
-        
-        // User menu toggle
-        const userMenuBtn = document.getElementById('user-menu-btn');
-        const userMenu = document.getElementById('user-menu');
-        const userMenuIcon = document.getElementById('user-menu-icon');
-        
-        userMenuBtn?.addEventListener('click', function() {
-            userMenu.classList.toggle('hidden');
-            userMenuIcon.style.transform = userMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-        });
-        
-        // Close user menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!userMenuBtn?.contains(event.target) && !userMenu?.contains(event.target)) {
-                userMenu?.classList.add('hidden');
-                if (userMenuIcon) {
-                    userMenuIcon.style.transform = 'rotate(0deg)';
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Éléments DOM
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Fonction pour ouvrir la sidebar
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('opacity-0', 'invisible');
+                sidebarOverlay.classList.add('opacity-100', 'visible');
+                menuToggle.classList.add('hamburger-active');
+                document.body.classList.add('overflow-hidden'); // Empêche le scroll du body
             }
-        });
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', function(event) {
-            // Escape to close sidebar and menus
-            if (event.key === 'Escape') {
-                closeSidebarFn();
-                userMenu?.classList.add('hidden');
-                if (userMenuIcon) {
-                    userMenuIcon.style.transform = 'rotate(0deg)';
-                }
+
+            // Fonction pour fermer la sidebar
+            function closeSidebarFn() {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.remove('opacity-100', 'visible');
+                sidebarOverlay.classList.add('opacity-0', 'invisible');
+                menuToggle.classList.remove('hamburger-active');
+                document.body.classList.remove('overflow-hidden');
             }
-        });
-        
-        // Smooth animations for page load
-        window.addEventListener('load', function() {
-            document.body.style.opacity = '0';
-            document.body.style.transition = 'opacity 0.3s ease-in-out';
-            setTimeout(() => {
-                document.body.style.opacity = '1';
-            }, 100);
-        });
-        
-        // Active navigation highlighting
-        function setActiveNav() {
-            const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll('.nav-item');
-            
-            navLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && currentPath.startsWith(href) && href !== '/') {
-                    link.classList.add('text-[#02066F]', 'bg-[#02066F]/10', 'font-medium');
-                    link.classList.remove('text-gray-600');
+
+            // Event listeners
+            menuToggle.addEventListener('click', function() {
+                if (sidebar.classList.contains('-translate-x-full')) {
+                    openSidebar();
+                } else {
+                    closeSidebarFn();
                 }
             });
-        }
-        
-        // Call on page load
-        document.addEventListener('DOMContentLoaded', setActiveNav);
+
+            closeSidebar.addEventListener('click', closeSidebarFn);
+            sidebarOverlay.addEventListener('click', closeSidebarFn);
+
+            // Fermer la sidebar avec Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
+                    closeSidebarFn();
+                }
+            });
+
+            // Gestion du redimensionnement de la fenêtre
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) { // lg breakpoint
+                    // Sur desktop, s'assurer que la sidebar est visible
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebarOverlay.classList.remove('opacity-100', 'visible');
+                    sidebarOverlay.classList.add('opacity-0', 'invisible');
+                    menuToggle.classList.remove('hamburger-active');
+                    document.body.classList.remove('overflow-hidden');
+                } else {
+                    // Sur mobile, fermer la sidebar si elle est ouverte
+                    if (!sidebar.classList.contains('-translate-x-full')) {
+                        closeSidebarFn();
+                    }
+                }
+            });
+        });
     </script>
     
     {% block extra_js %}{% endblock %}

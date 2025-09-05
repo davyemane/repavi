@@ -4,7 +4,12 @@
 from django.db import models
 from django.conf import settings
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, date, timedelta
+
+
+def get_date_echeance_defaut():
+    """Retourne la date d'échéance par défaut (aujourd'hui + 30 jours)"""
+    return date.today() + timedelta(days=30)
 
 class Facture(models.Model):
     """
@@ -34,14 +39,14 @@ class Facture(models.Model):
     
     # Informations facture
     date_emission = models.DateTimeField(auto_now_add=True)
-    date_echeance = models.DateField()
+    date_echeance = models.DateField(default=get_date_echeance_defaut)  # ✅ CORRIGÉ : Date + 30 jours
     statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='emise')
     
     # Montants
-    montant_ht = models.DecimalField(max_digits=10, decimal_places=2)
+    montant_ht = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     taux_tva = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('19.25'))  # TVA Cameroun
-    montant_tva = models.DecimalField(max_digits=10, decimal_places=2)
-    montant_ttc = models.DecimalField(max_digits=10, decimal_places=2)
+    montant_tva = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    montant_ttc = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
     # Détails supplémentaires
     frais_menage = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -114,63 +119,11 @@ class Facture(models.Model):
             
         return {
             'appartement': self.reservation.appartement.numero,
-            'type_logement': self.reservation.appartement.get_type_logement_display(),
             'date_arrivee': self.reservation.date_arrivee,
             'date_depart': self.reservation.date_depart,
             'nombre_nuits': self.reservation.nombre_nuits,
-            'prix_par_nuit': self.reservation.appartement.prix_par_nuit,
-            'montant_sejour': self.reservation.prix_total,
+            'prix_nuit': self.reservation.appartement.prix_nuit,
         }
-    
-    def get_lignes_facture(self):
-        """Retourne les lignes de facturation détaillées"""
-        lignes = []
-        
-        if self.reservation:
-            # Ligne principale du séjour
-            lignes.append({
-                'designation': f"Séjour - Appartement {self.reservation.appartement.numero}",
-                'description': f"Du {self.reservation.date_arrivee.strftime('%d/%m/%Y')} au {self.reservation.date_depart.strftime('%d/%m/%Y')}",
-                'quantite': self.reservation.nombre_nuits,
-                'unite': 'nuit(s)',
-                'prix_unitaire': self.reservation.appartement.prix_par_nuit,
-                'montant': self.reservation.prix_total,
-            })
-            
-            # Frais de ménage
-            if self.frais_menage > 0:
-                lignes.append({
-                    'designation': 'Frais de ménage',
-                    'description': 'Nettoyage de fin de séjour',
-                    'quantite': 1,
-                    'unite': 'forfait',
-                    'prix_unitaire': self.frais_menage,
-                    'montant': self.frais_menage,
-                })
-            
-            # Frais de service
-            if self.frais_service > 0:
-                lignes.append({
-                    'designation': 'Frais de service',
-                    'description': 'Frais administratifs',
-                    'quantite': 1,
-                    'unite': 'forfait',
-                    'prix_unitaire': self.frais_service,
-                    'montant': self.frais_service,
-                })
-            
-            # Remise
-            if self.remise > 0:
-                lignes.append({
-                    'designation': 'Remise',
-                    'description': 'Réduction accordée',
-                    'quantite': 1,
-                    'unite': 'forfait',
-                    'prix_unitaire': -self.remise,
-                    'montant': -self.remise,
-                })
-        
-        return lignes
 
 
 class ParametresFacturation(models.Model):
@@ -178,53 +131,37 @@ class ParametresFacturation(models.Model):
     Paramètres globaux pour la facturation RepAvi
     """
     # Informations entreprise
-    nom_entreprise = models.CharField(max_length=100, default="RepAvi Lodges")
+    nom_entreprise = models.CharField(max_length=200, default="RepAvi Lodges")
     adresse = models.TextField(default="Yaoundé, Cameroun")
-    telephone = models.CharField(max_length=20, default="+237 XXX XXX XXX")
-    email = models.EmailField(default="contact@repavilodges.com")
-    site_web = models.URLField(blank=True)
+    telephone = models.CharField(max_length=50, default="+237 XXX XXX XXX")
+    email = models.EmailField(default="contact@repavi.com")
     
-    # Informations légales
+    # Paramètres fiscaux
     numero_contribuable = models.CharField(max_length=50, blank=True)
-    numero_rccm = models.CharField(max_length=50, blank=True)
+    taux_tva_defaut = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('19.25'))
     
-    # Paramètres de facturation
-    taux_tva_defaut = models.DecimalField(
-        max_digits=5, 
-        decimal_places=2, 
-        default=Decimal('19.25'),
-        help_text="Taux TVA par défaut (%)"
-    )
-    frais_menage_defaut = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=Decimal('5000'),
-        help_text="Frais de ménage par défaut (FCFA)"
-    )
-    
-    # Conditions de paiement
-    delai_paiement_jours = models.IntegerField(
-        default=30,
-        help_text="Délai de paiement en jours"
-    )
-    conditions_generales = models.TextField(
-        default="Paiement à réception de facture. Pénalités de retard applicables."
-    )
-    
-    # Mentions légales
-    mentions_legales = models.TextField(
-        default="RepAvi Lodges - Société de droit camerounais"
+    # Templates
+    footer_facture = models.TextField(
+        default="Merci de votre confiance. RepAvi Lodges - Votre séjour, notre priorité."
     )
     
     class Meta:
-        verbose_name = 'Paramètres de facturation'
-        verbose_name_plural = 'Paramètres de facturation'
+        verbose_name = "Paramètres Facturation"
+        verbose_name_plural = "Paramètres Facturation"
     
     def __str__(self):
-        return self.nom_entreprise
+        return f"Paramètres {self.nom_entreprise}"
     
     @classmethod
     def get_parametres(cls):
-        """Récupère les paramètres (singleton)"""
-        parametres, created = cls.objects.get_or_create(pk=1)
+        """Récupère ou crée les paramètres par défaut"""
+        parametres, created = cls.objects.get_or_create(
+            pk=1,
+            defaults={
+                'nom_entreprise': 'RepAvi Lodges',
+                'adresse': 'Yaoundé, Cameroun',
+                'telephone': '+237 XXX XXX XXX',
+                'email': 'contact@repavi.com',
+            }
+        )
         return parametres

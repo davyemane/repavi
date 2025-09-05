@@ -1,858 +1,397 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - RepAvi Lodges</title>
-    
-    <!-- Favicon RepAvi -->
-    <link rel="icon" type="image/svg+xml" href="{% static 'images/logorepavie.svg' %}">
-    <link rel="alternate icon" href="{% static 'images/logorepavie.ico' %}">
-    <link rel="apple-touch-icon" href="{% static 'images/logorepavie-180.png' %}">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'lato': ['Lato', 'sans-serif'],
-                    },
-                    colors: {
-                        'primary': '#02066F',
-                        'primary-hover': '#030a8a',
-                        'primary-light': '#02066F20',
-                    }
-                }
-            }
-        }
-    </script>
 
-    <style>
-        body {
-            font-family: 'Lato', sans-serif;
-            background-image: url('{% static "images/logorepavie.svg" %}');
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: 25%;
-            background-attachment: fixed;
-            background-color: #f9fafb;
-            position: relative;
-        }
-        
-        /* Overlay pour atténuer le logo RepAvi */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(249, 250, 251, 0.85);
-            z-index: -1;
-            pointer-events: none;
-        }
-        
-        /* Responsive du logo en arrière-plan */
-        @media (max-width: 1024px) {
-            body {
-                background-size: 30%;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                background-size: 40%;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                background-size: 50%;
-            }
-        }
-        
-        /* Transparence pour les éléments */
-        .bg-transparent-white {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(2px);
-        }
-        
-        .sidebar-bg {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(3px);
-        }
-        
-        .header-bg {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(2px);
-        }
-        
-        /* Animation subtile du logo (optionnel) */
-        @media (prefers-reduced-motion: no-preference) {
-            body {
-                animation: breathe 12s ease-in-out infinite;
-            }
-            
-            @keyframes breathe {
-                0%, 100% {
-                    background-size: 25%;
-                }
-                50% {
-                    background-size: 26%;
-                }
-            }
-            
-            @media (max-width: 1024px) {
-                @keyframes breathe {
-                    0%, 100% { background-size: 30%; }
-                    50% { background-size: 31%; }
-                }
-            }
-            
-            @media (max-width: 768px) {
-                @keyframes breathe {
-                    0%, 100% { background-size: 40%; }
-                    50% { background-size: 41%; }
-                }
-            }
-            
-            @media (max-width: 480px) {
-                @keyframes breathe {
-                    0%, 100% { background-size: 50%; }
-                    50% { background-size: 51%; }
-                }
-            }
-        }
-        
-        /* Transition pour la sidebar */
-        .sidebar-transition {
-            transition: transform 0.3s ease-in-out;
-        }
-        
-        /* Overlay pour mobile */
-        .sidebar-overlay {
-            transition: opacity 0.3s ease-in-out;
-        }
-        
-        /* Animation pour l'icône hamburger */
-        .hamburger-line {
-            transition: all 0.3s ease;
-            transform-origin: center;
-        }
-        
-        .hamburger-active .hamburger-line:nth-child(1) {
-            transform: rotate(45deg) translate(6px, 6px);
-        }
-        
-        .hamburger-active .hamburger-line:nth-child(2) {
-            opacity: 0;
-        }
-        
-        .hamburger-active .hamburger-line:nth-child(3) {
-            transform: rotate(-45deg) translate(6px, -6px);
-        }
-        
-        /* Amélioration des cartes avec transparence */
-        .card-with-bg {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(1px);
-        }
-        
-        /* Ombres personnalisées RepAvi */
-        .shadow-repavi {
-            box-shadow: 0 4px 6px -1px rgba(2, 6, 111, 0.1), 0 2px 4px -1px rgba(2, 6, 111, 0.06);
-        }
-        
-        .shadow-repavi-lg {
-            box-shadow: 0 10px 15px -3px rgba(2, 6, 111, 0.1), 0 4px 6px -2px rgba(2, 6, 111, 0.05);
-        }
-    </style>
-</head>
+{% block nav_dashboard %}
+flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-colors
+{% endblock %}
 
-<body class="h-full font-lato">
-    <div class="flex h-screen overflow-hidden">
+{% block title %}Dashboard - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Bonjour {{ user.first_name|default:user.username }} ! 👋{% endblock %}
+{% block page_subtitle %}Voici un aperçu de votre activité - {{ mois_actuel|date:"F Y" }}{% endblock %}
+
+{% block content %}
+<!-- KPIs Section -->
+<div>
+    <h2 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Indicateurs Clés</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        <!-- Overlay pour mobile -->
-        <div id="sidebarOverlay" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden sidebar-overlay opacity-0 invisible"></div>
-        
-        <!-- Fixed Sidebar -->
-        <aside id="sidebar" class="w-64 sidebar-bg border-r border-gray-200 flex-shrink-0 fixed h-full z-50 sidebar-transition transform -translate-x-full lg:translate-x-0 shadow-repavi-lg">
-            <div class="flex flex-col h-full">
-                
-                <!-- Logo Section -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-transparent-white">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-repavi">
-                            <span class="material-icons text-white text-lg">home</span>
-                        </div>
-                        <div>
-                            <h1 class="font-bold text-lg text-[#02066F] font-lato">RepAvi Lodges</h1>
-                            <p class="text-xs text-gray-500 font-lato">Système de Gestion</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Bouton fermer sur mobile -->
-                    <button id="closeSidebar" class="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                        <span class="material-icons">close</span>
-                    </button>
+        <!-- Total Appartements -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F] text-xl">apartment</span>
                 </div>
+                <span class="material-icons text-green-500">trending_up</span>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_appartements }}</div>
+            <div class="text-sm text-gray-600 mb-2 font-lato">Appartements Total</div>
+            <div class="text-xs text-green-600 font-lato">{{ appartements_disponibles }} disponibles</div>
+        </div>
 
-                <!-- Navigation Menu -->
-                <nav class="flex-1 overflow-y-auto py-4 px-3">
-                    <div class="space-y-1">
-                        <a href="{% url 'dashboard' %}" 
-                           class="flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-colors">
-                            <span class="material-icons text-sm">dashboard</span>
-                            <span class="font-lato">Dashboard</span>
-                        </a>
+        <!-- Réservations -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-green-600 text-xl">event</span>
+                </div>
+                {% if reservations_aujourd_hui > 0 %}
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                {% endif %}
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ reservations_ce_mois }}</div>
+            <div class="text-sm text-gray-600 mb-2 font-lato">Réservations ce mois</div>
+            <div class="text-xs text-green-600 font-lato">{{ reservations_aujourd_hui }} aujourd'hui</div>
+        </div>
 
-                        <a href="{% url 'appartements:liste' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">apartment</span>
-                            <span class="font-lato">Appartements</span>
-                        </a>
+        <!-- Clients -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-purple-600 text-xl">people</span>
+                </div>
+                <span class="text-purple-500 text-sm font-medium font-lato">+{{ nouveaux_clients_mois }}</span>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_clients }}</div>
+            <div class="text-sm text-gray-600 mb-2 font-lato">Clients Total</div>
+            <div class="text-xs text-purple-600 font-lato">{{ nouveaux_clients_mois }} nouveaux ce mois</div>
+        </div>
 
-                        <a href="{% url 'clients:liste' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">people</span>
-                            <span class="font-lato">Clients</span>
-                        </a>
+        <!-- Revenus -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-orange-600 text-xl">payments</span>
+                </div>
+                <div class="text-green-500 text-sm font-medium font-lato">FCFA</div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ revenus_mois|floatformat:0 }}</div>
+            <div class="text-sm text-gray-600 mb-2 font-lato">Revenus ce mois</div>
+            <div class="text-xs text-green-600 font-lato">Taux occupation: {{ taux_occupation }}%</div>
+        </div>
+    </div>
+</div>
 
-                        <a href="{% url 'reservations:calendrier' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">event</span>
-                            <span class="font-lato">Réservations</span>
-                            {% if reservations_aujourd_hui > 0 %}
-                            <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ reservations_aujourd_hui }}</span>
-                            {% endif %}
-                        </a>
+<!-- Charts and Details Section -->
+<div class="grid lg:grid-cols-3 gap-6">
+    
+    <!-- Left Column - Charts -->
+    <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Occupation Chart -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 font-lato">Taux d'Occupation</h3>
+                    <p class="text-gray-600 text-sm font-lato">État actuel du parc immobilier</p>
+                </div>
+            </div>
 
-                        <a href="{% url 'paiements:echeancier' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">payments</span>
-                            <span class="font-lato">Paiements</span>
-                            {% if paiements_retard > 0 %}
-                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ paiements_retard }}</span>
-                            {% endif %}
-                        </a>
+            <div class="flex items-center justify-center mb-6">
+                <!-- Simple Progress Circle -->
+                <div class="relative w-48 h-48">
+                    <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 200 200">
+                        <!-- Background circle -->
+                        <circle cx="100" cy="100" r="75" fill="none" stroke="#f3f4f6" stroke-width="12" />
+                        <!-- Progress circle -->
+                        <circle cx="100" cy="100" r="75" fill="none" stroke="#10b981" stroke-width="12"
+                                stroke-dasharray="471" 
+                                stroke-dashoffset="calc(471 - (471 * {{ taux_occupation }} / 100))"
+                                stroke-linecap="round" 
+                                class="transition-all duration-1000 ease-out" />
+                    </svg>
 
-                        <!-- Divider -->
-                        <div class="border-t border-gray-200 my-4"></div>
-
-                        <a href="{% url 'inventaire:general' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">inventory</span>
-                            <span class="font-lato">Inventaire</span>
-                        </a>
-
-                        <a href="{% url 'menage:planning' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">cleaning_services</span>
-                            <span class="font-lato">Ménage</span>
-                            {% if taches_menage_urgentes > 0 %}
-                            <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ taches_menage_urgentes }}</span>
-                            {% endif %}
-                        </a>
-
-                        <a href="{% url 'comptabilite:rapport_mensuel' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">account_balance</span>
-                            <span class="font-lato">Comptabilité</span>
-                        </a>
-
-                        <a href="{% url 'facturation:generer' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">receipt</span>
-                            <span class="font-lato">Facturation</span>
-                        </a>
-
-                        <!-- Administration Section (Super Admin uniquement) -->
-                        {% if user.profil == 'super_admin' %}
-                        <div class="border-t border-gray-200 my-4"></div>
-                        
-                        <div class="px-3 py-2">
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider font-lato">
-                                Administration
-                            </h4>
-                        </div>
-
-                        <a href="{% url 'users:liste_gestionnaires' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">supervisor_account</span>
-                            <span class="font-lato">Gestion Gestionnaires</span>
-                            <span class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full font-lato">Admin</span>
-                        </a>
-
-                        <a href="{% url 'users:historique' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">history</span>
-                            <span class="font-lato">Historique Activités</span>
-                        </a>
-                        
-                        <a href="{% url 'users:journal_actions' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg">
-                            <span class="material-icons text-sm">security</span>
-                            <span class="font-lato">Journal d'audit</span>
-                        </a>
-                        {% endif %}
-                    </div>
-                </nav>
-
-                <!-- User Menu -->
-                <div class="border-t border-gray-200 p-4 bg-transparent-white">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-full flex items-center justify-center shadow-repavi">
-                            <span class="material-icons text-white text-sm">person</span>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-900 font-lato">{{ user.first_name|default:user.username }}</p>
-                            <p class="text-xs text-gray-500 font-lato">{{ user.get_profil_display }}</p>
-                        </div>
-                        <div class="relative group">
-                            <button class="p-1 text-gray-400 hover:text-[#02066F] transition-colors">
-                                <span class="material-icons text-sm">more_vert</span>
-                            </button>
-                            <div class="absolute bottom-full right-0 mb-2 w-48 bg-transparent-white border border-gray-200 rounded-lg shadow-repavi-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 first:rounded-t-lg transition-colors">
-                                    <span class="material-icons text-sm">account_circle</span>
-                                    <span class="font-lato">Mon Profil</span>
-                                </a>
-                                {% if user.profil == 'super_admin' %}
-                                <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors">
-                                    <span class="material-icons text-sm">supervisor_account</span>
-                                    <span class="font-lato">Gestionnaires</span>
-                                </a>
-                                <a href="{% url 'users:creer_gestionnaire' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors">
-                                    <span class="material-icons text-sm">person_add</span>
-                                    <span class="font-lato">Nouveau Gestionnaire</span>
-                                </a>
-                                {% endif %}
-                                <hr class="my-1">
-                                <form action="{% url 'logout' %}" method="post" class="m-0">
-                                    {% csrf_token %}
-                                    <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left transition-colors">
-                                        <span class="material-icons text-sm">logout</span>
-                                        <span class="font-lato">Déconnexion</span>
-                                    </button>
-                                </form>
-                            </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-gray-900 font-lato">{{ taux_occupation }}%</div>
+                            <div class="text-sm text-gray-600 font-lato">Occupé</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </aside>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col lg:ml-64">
-            
-            <!-- Fixed Header -->
-            <header class="header-bg border-b border-gray-200 px-6 py-4 fixed w-full z-20 lg:left-64 lg:w-[calc(100%-256px)] shadow-repavi">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <!-- Bouton hamburger pour mobile -->
-                        <button id="menuToggle" class="lg:hidden p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <div class="w-6 h-6 flex flex-col justify-center items-center space-y-1">
-                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
-                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
-                                <span class="hamburger-line w-6 h-0.5 bg-current"></span>
-                            </div>
-                        </button>
-                        
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900 font-lato">
-                                Bonjour {{ user.first_name|default:user.username }} ! 👋
-                            </h1>
-                            <p class="text-gray-600 font-lato">
-                                Voici un aperçu de votre activité - {{ mois_actuel|date:"F Y" }}
-                                {% if user.profil == 'super_admin' %}
-                                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                    Super Administrateur
-                                </span>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center space-x-3">
-                        {% if user.profil == 'super_admin' %}
-                        <a href="{% url 'users:creer_gestionnaire' %}"
-                           class="hidden sm:inline-flex items-center px-4 py-2 border border-[#02066F] rounded-lg text-sm font-medium text-[#02066F] bg-[#02066F]/5 hover:bg-[#02066F]/10 transition-colors font-lato">
-                            <span class="material-icons text-sm mr-2">person_add</span>
-                            Nouveau Gestionnaire
-                        </a>
-                        {% endif %}
-
-                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons">notifications</span>
-                        </button>
-
-                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons">refresh</span>
-                        </button>
-                    </div>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="text-center p-3 bg-green-50/90 backdrop-blur-sm rounded-lg border border-green-100">
+                    <div class="text-xl font-bold text-green-600 font-lato">{{ appartements_disponibles }}</div>
+                    <div class="text-xs text-green-600 font-lato">Disponibles</div>
                 </div>
-            </header>
-
-            <!-- Scrollable Content -->
-            <main class="flex-1 overflow-y-auto pt-20">
-                <div class="p-6 space-y-6">
-                    
-                    <!-- KPIs Section -->
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Indicateurs Clés</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            
-                            <!-- Total Appartements -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                                        <span class="material-icons text-[#02066F] text-xl">apartment</span>
-                                    </div>
-                                    <span class="material-icons text-green-500">trending_up</span>
-                                </div>
-                                <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_appartements }}</div>
-                                <div class="text-sm text-gray-600 mb-2 font-lato">Appartements Total</div>
-                                <div class="text-xs text-green-600 font-lato">{{ appartements_disponibles }} disponibles</div>
-                            </div>
-
-                            <!-- Réservations -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                        <span class="material-icons text-green-600 text-xl">event</span>
-                                    </div>
-                                    {% if reservations_aujourd_hui > 0 %}
-                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                    {% endif %}
-                                </div>
-                                <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ reservations_ce_mois }}</div>
-                                <div class="text-sm text-gray-600 mb-2 font-lato">Réservations ce mois</div>
-                                <div class="text-xs text-green-600 font-lato">{{ reservations_aujourd_hui }} aujourd'hui</div>
-                            </div>
-
-                            <!-- Clients -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                        <span class="material-icons text-purple-600 text-xl">people</span>
-                                    </div>
-                                    <span class="text-purple-500 text-sm font-medium font-lato">+{{ nouveaux_clients_mois }}</span>
-                                </div>
-                                <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_clients }}</div>
-                                <div class="text-sm text-gray-600 mb-2 font-lato">Clients Total</div>
-                                <div class="text-xs text-purple-600 font-lato">{{ nouveaux_clients_mois }} nouveaux ce mois</div>
-                            </div>
-
-                            <!-- Revenus -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                                        <span class="material-icons text-orange-600 text-xl">payments</span>
-                                    </div>
-                                    <div class="text-green-500 text-sm font-medium font-lato">FCFA</div>
-                                </div>
-                                <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ revenus_mois|floatformat:0 }}</div>
-                                <div class="text-sm text-gray-600 mb-2 font-lato">Revenus ce mois</div>
-                                <div class="text-xs text-green-600 font-lato">Taux occupation: {{ taux_occupation }}%</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Charts and Details Section -->
-                    <div class="grid lg:grid-cols-3 gap-6">
-                        
-                        <!-- Left Column - Charts -->
-                        <div class="lg:col-span-2 space-y-6">
-                            
-                            <!-- Occupation Chart -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
-                                <div class="flex items-center justify-between mb-6">
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-900 font-lato">Taux d'Occupation</h3>
-                                        <p class="text-gray-600 text-sm font-lato">État actuel du parc immobilier</p>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center justify-center mb-6">
-                                    <!-- Simple Progress Circle -->
-                                    <div class="relative w-48 h-48">
-                                        <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 200 200">
-                                            <!-- Background circle -->
-                                            <circle cx="100" cy="100" r="75" fill="none" stroke="#f3f4f6" stroke-width="12" />
-                                            <!-- Progress circle -->
-                                            <circle cx="100" cy="100" r="75" fill="none" stroke="#10b981" stroke-width="12"
-                                                    stroke-dasharray="471" 
-                                                    stroke-dashoffset="calc(471 - (471 * {{ taux_occupation }} / 100))"
-                                                    stroke-linecap="round" 
-                                                    class="transition-all duration-1000 ease-out" />
-                                        </svg>
-
-                                        <div class="absolute inset-0 flex items-center justify-center">
-                                            <div class="text-center">
-                                                <div class="text-4xl font-bold text-gray-900 font-lato">{{ taux_occupation }}%</div>
-                                                <div class="text-sm text-gray-600 font-lato">Occupé</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-3 gap-4">
-                                    <div class="text-center p-3 bg-green-50/90 backdrop-blur-sm rounded-lg border border-green-100">
-                                        <div class="text-xl font-bold text-green-600 font-lato">{{ appartements_disponibles }}</div>
-                                        <div class="text-xs text-green-600 font-lato">Disponibles</div>
-                                    </div>
-                                    <div class="text-center p-3 bg-[#02066F]/5 backdrop-blur-sm rounded-lg border border-[#02066F]/20">
-                                        <div class="text-xl font-bold text-[#02066F] font-lato">{{ appartements_occupes }}</div>
-                                        <div class="text-xs text-[#02066F] font-lato">Occupés</div>
-                                    </div>
-                                    <div class="text-center p-3 bg-orange-50/90 backdrop-blur-sm rounded-lg border border-orange-100">
-                                        <div class="text-xl font-bold text-orange-600 font-lato">{{ appartements_maintenance }}</div>
-                                        <div class="text-xs text-orange-600 font-lato">Maintenance</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Revenue Chart -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
-                                <div class="flex items-center justify-between mb-6">
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-900 font-lato">Revenus Hebdomadaires</h3>
-                                        <p class="text-gray-600 text-sm font-lato">Performance des 7 derniers jours</p>
-                                    </div>
-                                </div>
-                                <div class="h-64">
-                                    <canvas id="revenusChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column - Actions & Alerts -->
-                        <div class="space-y-6">
-                            
-                            <!-- Quick Actions -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
-                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
-                                    <span class="material-icons text-[#02066F]">flash_on</span>
-                                    <span>Actions Rapides</span>
-                                </h3>
-
-                                <div class="space-y-3">
-                                    <a href="{% url 'reservations:nouvelle' %}" 
-                                       class="w-full flex items-center justify-between p-3 bg-[#02066F]/5 text-[#02066F] rounded-lg hover:bg-[#02066F]/10 transition-colors">
-                                        <span class="flex items-center space-x-3">
-                                            <span class="material-icons text-sm">add_circle</span>
-                                            <span class="font-medium font-lato">Nouvelle réservation</span>
-                                        </span>
-                                        <span class="material-icons text-sm">arrow_forward</span>
-                                    </a>
-
-                                    <a href="{% url 'clients:nouveau' %}"
-                                       class="w-full flex items-center justify-between p-3 bg-green-50/90 backdrop-blur-sm text-green-600 rounded-lg hover:bg-green-100/90 transition-colors">
-                                        <span class="flex items-center space-x-3">
-                                            <span class="material-icons text-sm">person_add</span>
-                                            <span class="font-medium font-lato">Nouveau client</span>
-                                        </span>
-                                        <span class="material-icons text-sm">arrow_forward</span>
-                                    </a>
-
-                                    <a href="{% url 'appartements:creer' %}"
-                                       class="w-full flex items-center justify-between p-3 bg-purple-50/90 backdrop-blur-sm text-purple-600 rounded-lg hover:bg-purple-100/90 transition-colors">
-                                        <span class="flex items-center space-x-3">
-                                            <span class="material-icons text-sm">add_home</span>
-                                            <span class="font-medium font-lato">Nouvel appartement</span>
-                                        </span>
-                                        <span class="material-icons text-sm">arrow_forward</span>
-                                    </a>
-
-                                    <!-- Actions Super Admin -->
-                                    {% if user.profil == 'super_admin' %}
-                                    <div class="border-t border-gray-200 pt-3 mt-3">
-                                        <a href="{% url 'users:creer_gestionnaire' %}"
-                                           class="w-full flex items-center justify-between p-3 bg-indigo-50/90 backdrop-blur-sm text-indigo-600 rounded-lg hover:bg-indigo-100/90 transition-colors">
-                                            <span class="flex items-center space-x-3">
-                                                <span class="material-icons text-sm">supervisor_account</span>
-                                                <span class="font-medium font-lato">Nouveau gestionnaire</span>
-                                            </span>
-                                            <span class="material-icons text-sm">arrow_forward</span>
-                                        </a>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Alerts -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
-                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
-                                    <span class="material-icons text-red-600">warning</span>
-                                    <span>Alertes Importantes</span>
-                                </h3>
-
-                                <div class="space-y-3">
-                                    {% if arrivees_aujourd_hui %}
-                                    <div class="flex items-center space-x-3 p-3 bg-[#02066F]/5 backdrop-blur-sm rounded-lg border border-[#02066F]/20">
-                                        <span class="material-icons text-[#02066F] text-sm">event_available</span>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium text-gray-900 font-lato">{{ arrivees_aujourd_hui.count }} arrivée(s) aujourd'hui</p>
-                                            <p class="text-xs text-gray-600 font-lato">Appartements à préparer</p>
-                                        </div>
-                                        <a href="{% url 'reservations:arrivees_jour' %}" class="text-[#02066F] hover:text-[#030a8a]">
-                                            <span class="material-icons text-sm">arrow_forward</span>
-                                        </a>
-                                    </div>
-                                    {% endif %}
-                                    
-                                    {% if paiements_retard > 0 %}
-                                    <div class="flex items-center space-x-3 p-3 bg-red-50/90 backdrop-blur-sm rounded-lg border border-red-100">
-                                        <span class="material-icons text-red-600 text-sm">error</span>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium text-gray-900 font-lato">{{ paiements_retard }} paiement(s) en retard</p>
-                                            <p class="text-xs text-gray-600 font-lato">Nécessite un suivi</p>
-                                        </div>
-                                        <a href="{% url 'paiements:retards' %}" class="text-red-600 hover:text-red-700">
-                                            <span class="material-icons text-sm">arrow_forward</span>
-                                        </a>
-                                    </div>
-                                    {% endif %}
-                                    
-                                    {% if taches_menage_urgentes > 0 %}
-                                    <div class="flex items-center space-x-3 p-3 bg-orange-50/90 backdrop-blur-sm rounded-lg border border-orange-100">
-                                        <span class="material-icons text-orange-600 text-sm">cleaning_services</span>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium text-gray-900 font-lato">{{ taches_menage_urgentes }} ménage(s) urgent(s)</p>
-                                            <p class="text-xs text-gray-600 font-lato">À traiter rapidement</p>
-                                        </div>
-                                        <a href="{% url 'menage:urgentes' %}" class="text-orange-600 hover:text-orange-700">
-                                            <span class="material-icons text-sm">arrow_forward</span>
-                                        </a>
-                                    </div>
-                                    {% endif %}
-                                    
-                                    {% if not arrivees_aujourd_hui and not paiements_retard and not taches_menage_urgentes %}
-                                    <div class="text-center py-6">
-                                        <span class="material-icons text-green-500 text-4xl mb-2">check_circle</span>
-                                        <p class="text-sm text-gray-600 font-lato">Aucune alerte urgente</p>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <!-- Quick Stats -->
-                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
-                                <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
-                                    <span class="material-icons text-green-600">analytics</span>
-                                    <span>Stats Rapides</span>
-                                </h3>
-
-                                <div class="space-y-4">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-600 font-lato">Équipements défectueux</span>
-                                        <span class="font-semibold text-red-600 font-lato">{{ equipements_defectueux }}</span>
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-600 font-lato">Paiements en attente</span>
-                                        <span class="font-semibold text-orange-600 font-lato">{{ paiements_en_attente }}</span>
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-600 font-lato">Réservations actives</span>
-                                        <span class="font-semibold text-green-600 font-lato">{{ reservations_actives }}</span>
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-600 font-lato">Taux de satisfaction</span>
-                                        <span class="font-semibold text-[#02066F] font-lato">--%</span>
-                                    </div>
-
-                                    <!-- Stats Super Admin -->
-                                    {% if user.profil == 'super_admin' %}
-                                    <div class="border-t border-gray-200 pt-4 mt-4">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-600 font-lato">Total gestionnaires</span>
-                                            <span class="font-semibold text-purple-600 font-lato">{{ total_gestionnaires|default:0 }}</span>
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="text-center p-3 bg-[#02066F]/5 backdrop-blur-sm rounded-lg border border-[#02066F]/20">
+                    <div class="text-xl font-bold text-[#02066F] font-lato">{{ appartements_occupes }}</div>
+                    <div class="text-xs text-[#02066F] font-lato">Occupés</div>
                 </div>
-            </main>
+                <div class="text-center p-3 bg-orange-50/90 backdrop-blur-sm rounded-lg border border-orange-100">
+                    <div class="text-xl font-bold text-orange-600 font-lato">{{ appartements_maintenance }}</div>
+                    <div class="text-xs text-orange-600 font-lato">Maintenance</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 font-lato">Revenus Hebdomadaires</h3>
+                    <p class="text-gray-600 text-sm font-lato">Performance des 7 derniers jours</p>
+                </div>
+            </div>
+            <div class="h-64">
+                <canvas id="revenusChart"></canvas>
+            </div>
         </div>
     </div>
 
-    <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Éléments DOM
-            const sidebar = document.getElementById('sidebar');
-            const menuToggle = document.getElementById('menuToggle');
-            const closeSidebar = document.getElementById('closeSidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
+    <!-- Right Column - Actions & Alerts -->
+    <div class="space-y-6">
+        
+        <!-- Quick Actions -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-[#02066F]">flash_on</span>
+                <span>Actions Rapides</span>
+            </h3>
 
-            // Fonction pour ouvrir la sidebar
-            function openSidebar() {
-                sidebar.classList.remove('-translate-x-full');
-                sidebarOverlay.classList.remove('opacity-0', 'invisible');
-                sidebarOverlay.classList.add('opacity-100', 'visible');
-                menuToggle.classList.add('hamburger-active');
-                document.body.classList.add('overflow-hidden'); // Empêche le scroll du body
-            }
+            <div class="space-y-3">
+                <a href="{% url 'reservations:nouvelle' %}" 
+                   class="w-full flex items-center justify-between p-3 bg-[#02066F]/5 text-[#02066F] rounded-lg hover:bg-[#02066F]/10 transition-colors">
+                    <span class="flex items-center space-x-3">
+                        <span class="material-icons text-sm">add_circle</span>
+                        <span class="font-medium font-lato">Nouvelle réservation</span>
+                    </span>
+                    <span class="material-icons text-sm">arrow_forward</span>
+                </a>
 
-            // Fonction pour fermer la sidebar
-            function closeSidebarFn() {
-                sidebar.classList.add('-translate-x-full');
-                sidebarOverlay.classList.remove('opacity-100', 'visible');
-                sidebarOverlay.classList.add('opacity-0', 'invisible');
-                menuToggle.classList.remove('hamburger-active');
-                document.body.classList.remove('overflow-hidden');
-            }
+                <a href="{% url 'clients:nouveau' %}"
+                   class="w-full flex items-center justify-between p-3 bg-green-50/90 backdrop-blur-sm text-green-600 rounded-lg hover:bg-green-100/90 transition-colors">
+                    <span class="flex items-center space-x-3">
+                        <span class="material-icons text-sm">person_add</span>
+                        <span class="font-medium font-lato">Nouveau client</span>
+                    </span>
+                    <span class="material-icons text-sm">arrow_forward</span>
+                </a>
 
-            // Event listeners
-            menuToggle.addEventListener('click', function() {
-                if (sidebar.classList.contains('-translate-x-full')) {
-                    openSidebar();
-                } else {
-                    closeSidebarFn();
-                }
-            });
+                <a href="{% url 'appartements:creer' %}"
+                   class="w-full flex items-center justify-between p-3 bg-purple-50/90 backdrop-blur-sm text-purple-600 rounded-lg hover:bg-purple-100/90 transition-colors">
+                    <span class="flex items-center space-x-3">
+                        <span class="material-icons text-sm">add_home</span>
+                        <span class="font-medium font-lato">Nouvel appartement</span>
+                    </span>
+                    <span class="material-icons text-sm">arrow_forward</span>
+                </a>
 
-            closeSidebar.addEventListener('click', closeSidebarFn);
-            sidebarOverlay.addEventListener('click', closeSidebarFn);
+                <!-- Actions Super Admin -->
+                {% if user.profil == 'super_admin' %}
+                <div class="border-t border-gray-200 pt-3 mt-3">
+                    <a href="{% url 'users:creer_gestionnaire' %}"
+                       class="w-full flex items-center justify-between p-3 bg-indigo-50/90 backdrop-blur-sm text-indigo-600 rounded-lg hover:bg-indigo-100/90 transition-colors">
+                        <span class="flex items-center space-x-3">
+                            <span class="material-icons text-sm">supervisor_account</span>
+                            <span class="font-medium font-lato">Nouveau gestionnaire</span>
+                        </span>
+                        <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
-            // Fermer la sidebar avec Escape
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && !sidebar.classList.contains('-translate-x-full')) {
-                    closeSidebarFn();
-                }
-            });
+        <!-- Alerts -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-red-600">warning</span>
+                <span>Alertes Importantes</span>
+            </h3>
 
-            // Gestion du redimensionnement de la fenêtre
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 1024) { // lg breakpoint
-                    // Sur desktop, s'assurer que la sidebar est visible
-                    sidebar.classList.remove('-translate-x-full');
-                    sidebarOverlay.classList.remove('opacity-100', 'visible');
-                    sidebarOverlay.classList.add('opacity-0', 'invisible');
-                    menuToggle.classList.remove('hamburger-active');
-                    document.body.classList.remove('overflow-hidden');
-                } else {
-                    // Sur mobile, fermer la sidebar si elle est ouverte
-                    if (!sidebar.classList.contains('-translate-x-full')) {
-                        closeSidebarFn();
-                    }
-                }
-            });
+            <div class="space-y-3">
+                {% if arrivees_aujourd_hui %}
+                <div class="flex items-center space-x-3 p-3 bg-[#02066F]/5 backdrop-blur-sm rounded-lg border border-[#02066F]/20">
+                    <span class="material-icons text-[#02066F] text-sm">event_available</span>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 font-lato">{{ arrivees_aujourd_hui.count }} arrivée(s) aujourd'hui</p>
+                        <p class="text-xs text-gray-600 font-lato">Appartements à préparer</p>
+                    </div>
+                    <a href="{% url 'reservations:arrivees_jour' %}" class="text-[#02066F] hover:text-[#030a8a]">
+                        <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if paiements_retard > 0 %}
+                <div class="flex items-center space-x-3 p-3 bg-red-50/90 backdrop-blur-sm rounded-lg border border-red-100">
+                    <span class="material-icons text-red-600 text-sm">error</span>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 font-lato">{{ paiements_retard }} paiement(s) en retard</p>
+                        <p class="text-xs text-gray-600 font-lato">Nécessite un suivi</p>
+                    </div>
+                    <a href="{% url 'paiements:retards' %}" class="text-red-600 hover:text-red-700">
+                        <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if taches_menage_urgentes > 0 %}
+                <div class="flex items-center space-x-3 p-3 bg-orange-50/90 backdrop-blur-sm rounded-lg border border-orange-100">
+                    <span class="material-icons text-orange-600 text-sm">cleaning_services</span>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 font-lato">{{ taches_menage_urgentes }} ménage(s) urgent(s)</p>
+                        <p class="text-xs text-gray-600 font-lato">À traiter rapidement</p>
+                    </div>
+                    <a href="{% url 'menage:urgentes' %}" class="text-orange-600 hover:text-orange-700">
+                        <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if not arrivees_aujourd_hui and not paiements_retard and not taches_menage_urgentes %}
+                <div class="text-center py-6">
+                    <span class="material-icons text-green-500 text-4xl mb-2">check_circle</span>
+                    <p class="text-sm text-gray-600 font-lato">Aucune alerte urgente</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
-            // Revenue Chart - Données du backend
-            const revenusCtx = document.getElementById('revenusChart');
+        <!-- Quick Stats -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+                <span class="material-icons text-green-600">analytics</span>
+                <span>Stats Rapides</span>
+            </h3>
 
-            if (revenusCtx) {
-                // Données à récupérer depuis le backend Django
-                const joursData = {{ jours_semaine|safe }};
-                const revenusData = {{ revenus_semaine|safe }};
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600 font-lato">Équipements défectueux</span>
+                    <span class="font-semibold text-red-600 font-lato">{{ equipements_defectueux }}</span>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600 font-lato">Paiements en attente</span>
+                    <span class="font-semibold text-orange-600 font-lato">{{ paiements_en_attente }}</span>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600 font-lato">Réservations actives</span>
+                    <span class="font-semibold text-green-600 font-lato">{{ reservations_actives }}</span>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600 font-lato">Taux de satisfaction</span>
+                    <span class="font-semibold text-[#02066F] font-lato">--%</span>
+                </div>
 
-                new Chart(revenusCtx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: joursData,
-                        datasets: [{
-                            label: 'Revenus (FCFA)',
-                            data: revenusData,
-                            backgroundColor: '#02066F',
-                            borderRadius: 6,
-                            borderWidth: 0
-                        }]
+                <!-- Stats Super Admin -->
+                {% if user.profil == 'super_admin' %}
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600 font-lato">Total gestionnaires</span>
+                        <span class="font-semibold text-purple-600 font-lato">{{ total_gestionnaires|default:0 }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Revenue Chart - Données du backend
+    const revenusCtx = document.getElementById('revenusChart');
+
+    if (revenusCtx) {
+        // Données à récupérer depuis le backend Django
+        const joursData = {{ jours_semaine|safe }};
+        const revenusData = {{ revenus_semaine|safe }};
+
+        new Chart(revenusCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: joursData,
+                datasets: [{
+                    label: 'Revenus (FCFA)',
+                    data: revenusData,
+                    backgroundColor: '#02066F',
+                    borderRadius: 6,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(17, 24, 39, 0.8)',
-                                titleColor: '#ffffff',
-                                bodyColor: '#ffffff',
-                                cornerRadius: 8,
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.parsed.y.toLocaleString('fr-FR') + ' FCFA';
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    color: '#6b7280',
-                                    font: {
-                                        family: 'Lato'
-                                    }
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: '#f3f4f6'
-                                },
-                                ticks: {
-                                    color: '#6b7280',
-                                    font: {
-                                        family: 'Lato'
-                                    },
-                                    callback: function(value) {
-                                        if (value >= 1000000) {
-                                            return (value / 1000000).toLocaleString('fr-FR') + 'M';
-                                        } else if (value >= 1000) {
-                                            return (value / 1000).toLocaleString('fr-FR') + 'k';
-                                        }
-                                        return value.toLocaleString('fr-FR');
-                                    }
-                                }
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y.toLocaleString('fr-FR') + ' FCFA';
                             }
                         }
                     }
-                });
-            }
-
-            // Animation des compteurs (optionnelle)
-            const counters = document.querySelectorAll('.text-3xl.font-bold');
-            counters.forEach(counter => {
-                const target = parseInt(counter.textContent.replace(/\D/g, ''));
-                if (target > 0 && target < 1000) {
-                    let current = 0;
-                    const increment = target / 30;
-                    const timer = setInterval(() => {
-                        current += increment;
-                        if (current >= target) {
-                            counter.textContent = target.toLocaleString('fr-FR');
-                            clearInterval(timer);
-                        } else {
-                            counter.textContent = Math.floor(current).toLocaleString('fr-FR');
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                family: 'Lato'
+                            }
                         }
-                    }, 50);
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f3f4f6'
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                family: 'Lato'
+                            },
+                            callback: function(value) {
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toLocaleString('fr-FR') + 'M';
+                                } else if (value >= 1000) {
+                                    return (value / 1000).toLocaleString('fr-FR') + 'k';
+                                }
+                                return value.toLocaleString('fr-FR');
+                            }
+                        }
+                    }
                 }
-            });
+            }
         });
-    </script>
-</body>
-</html>
+    }
+
+    // Animation des compteurs
+    const counters = document.querySelectorAll('.text-3xl.font-bold');
+    counters.forEach(counter => {
+        const target = parseInt(counter.textContent.replace(/\D/g, ''));
+        if (target > 0 && target < 1000) {
+            let current = 0;
+            const increment = target / 30;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target.toLocaleString('fr-FR');
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current).toLocaleString('fr-FR');
+                }
+            }, 50);
+        }
+    });
+});
+</script>
+{% endblock %}

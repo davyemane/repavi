@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block nav_facturation %}
+flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-all duration-300
+{% endblock %}
+
+{% block title %}Dashboard Facturation - RepAvi Lodges{% endblock %}
+{% block page_title %}Dashboard Facturation{% endblock %}
+{% block page_subtitle %}{{ mois_actuel|date:"F Y" }} • Vue d'ensemble de la facturation{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-3">
+    <a href="{% url 'facturation:liste' %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">list</span>
+        Liste complète
+    </a>
+    
+    <a href="{% url 'facturation:parametres' %}" 
+       class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">settings</span>
+        Paramètres
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Statistiques du mois -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Factures ce mois</p>
+                <p class="text-3xl font-bold text-[#02066F] font-lato">{{ stats.total_factures_mois }}</p>
+            </div>
+            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-[#02066F]">receipt</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Montant total</p>
+                <p class="text-3xl font-bold text-green-600 font-lato">{{ stats.montant_total_mois|floatformat:0 }}</p>
+                <p class="text-xs text-gray-500 font-lato">FCFA</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-green-600">attach_money</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Factures payées</p>
+                <p class="text-3xl font-bold text-blue-600 font-lato">{{ stats.factures_payees }}</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-blue-600">check_circle</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600 font-lato">Taux de paiement</p>
+                <p class="text-3xl font-bold text-purple-600 font-lato">{{ stats.taux_paiement }}%</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <span class="material-icons text-purple-600">trending_up</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Factures en retard -->
+{% if factures_retard %}
+<div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+    <div class="flex items-center mb-4">
+        <span class="material-icons text-red-600 mr-3">warning</span>
+        <h3 class="text-lg font-semibold text-red-800 font-lato">Factures en retard ({{ factures_retard|length }})</h3>
+    </div>
+    
+    <div class="grid gap-3">
+        {% for facture in factures_retard %}
+        <div class="bg-white rounded-lg p-4 flex items-center justify-between">
+            <div>
+                <p class="font-semibold text-gray-900 font-lato">{{ facture.numero }}</p>
+                <p class="text-sm text-gray-600 font-lato">{{ facture.client.prenom }} {{ facture.client.nom }}</p>
+                <p class="text-xs text-red-600 font-lato">Échue le {{ facture.date_echeance|date:"d/m/Y" }}</p>
+            </div>
+            <div class="text-right">
+                <p class="font-bold text-gray-900 font-lato">{{ facture.montant_ttc|floatformat:0 }} FCFA</p>
+                <a href="{% url 'facturation:detail' facture.pk %}" 
+                   class="text-sm text-[#02066F] hover:underline font-lato">Voir détails</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Contenu principal en deux colonnes -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Dernières factures -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 font-lato">Dernières factures</h3>
+            <a href="{% url 'facturation:liste' %}" 
+               class="text-sm text-[#02066F] hover:underline font-lato">Voir toutes</a>
+        </div>
+        
+        <div class="space-y-4">
+            {% for facture in dernieres_factures %}
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-3">
+                        <p class="font-semibold text-gray-900 font-lato">{{ facture.numero }}</p>
+                        <span class="px-2 py-1 text-xs rounded-full font-lato
+                            {% if facture.statut == 'payee' %}bg-green-100 text-green-800
+                            {% elif facture.statut == 'emise' %}bg-blue-100 text-blue-800
+                            {% elif facture.statut == 'brouillon' %}bg-gray-100 text-gray-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ facture.get_statut_display }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 font-lato">{{ facture.client.prenom }} {{ facture.client.nom }}</p>
+                    <p class="text-xs text-gray-500 font-lato">{{ facture.date_emission|date:"d/m/Y" }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-900 font-lato">{{ facture.montant_ttc|floatformat:0 }} FCFA</p>
+                    <a href="{% url 'facturation:detail' facture.pk %}" 
+                       class="text-sm text-[#02066F] hover:underline font-lato">Détails</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-8">
+                <span class="material-icons text-gray-400 text-4xl mb-2">receipt</span>
+                <p class="text-gray-500 font-lato">Aucune facture pour le moment</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Actions rapides -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6 font-lato">Actions rapides</h3>
+        
+        <div class="space-y-4">
+            <a href="{% url 'reservations:calendrier' %}" 
+               class="flex items-center p-4 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors">
+                <span class="material-icons mr-4">add_business</span>
+                <div>
+                    <p class="font-semibold font-lato">Nouvelle facture</p>
+                    <p class="text-sm opacity-90 font-lato">À partir d'une réservation</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'facturation:parametres' %}" 
+               class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <span class="material-icons mr-4 text-gray-600">settings</span>
+                <div>
+                    <p class="font-semibold text-gray-900 font-lato">Paramètres</p>
+                    <p class="text-sm text-gray-600 font-lato">Configuration de la facturation</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'facturation:liste' %}?statut=emise" 
+               class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <span class="material-icons mr-4 text-gray-600">pending_actions</span>
+                <div>
+                    <p class="font-semibold text-gray-900 font-lato">Factures en attente</p>
+                    <p class="text-sm text-gray-600 font-lato">{{ stats.factures_en_attente }} facture(s) à recouvrer</p>
+                </div>
+            </a>
+            
+            <div class="flex items-center p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <span class="material-icons mr-4 text-gray-400">info</span>
+                <div>
+                    <p class="font-semibold text-gray-900 font-lato">Rappel</p>
+                    <p class="text-sm text-gray-600 font-lato">Les factures sont générées automatiquement après réservation</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Résumé mensuel -->
+        <div class="mt-8 p-4 bg-gradient-to-r from-[#02066F] to-[#030a8a] rounded-lg text-white">
+            <h4 class="font-semibold font-lato mb-2">Résumé {{ mois_actuel|date:"F Y" }}</h4>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="opacity-90 font-lato">Factures émises</p>
+                    <p class="font-bold font-lato">{{ stats.total_factures_mois }}</p>
+                </div>
+                <div>
+                    <p class="opacity-90 font-lato">Montant facturé</p>
+                    <p class="font-bold font-lato">{{ stats.montant_total_mois|floatformat:0 }} FCFA</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
