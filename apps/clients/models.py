@@ -18,7 +18,10 @@ class Client(models.Model):
         upload_to='clients/documents/',
         verbose_name='Pièce d\'identité (photo)'
     )
-    
+
+    # numero cni ou passeport
+    numero_identite = models.CharField(max_length=100, verbose_name='Numéro de CNI ou Passeport')
+
     # Adresse (selon cahier)
     adresse_residence = models.TextField(verbose_name='Résidence habituelle')
     

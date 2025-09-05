@@ -46,11 +46,6 @@ THIRD_PARTY_APPS = [
     'axes'
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'axes.backends.AxesStandaloneBackend',  # Ajoute ceci en premier
-    'django.contrib.auth.backends.ModelBackend',  # ou ton backend d’authentification principal
-]
-
 
 # Apps de développement
 if DEBUG:
@@ -92,10 +87,24 @@ MIDDLEWARE = [
    
 ]
 
-AXES_FAILURE_LIMIT = 3
-AXES_COOLOFF_TIME = 300  # secondes (5 minutes)
-AXES_LOCK_OUT_AT_FAILURE = True
-AXES_RESET_ON_SUCCESS = True
+
+# Configuration axes conditionnelle
+if IS_PRODUCTION:
+    AUTHENTICATION_BACKENDS = [
+        'axes.backends.AxesStandaloneBackend',
+        'django.contrib.auth.backends.ModelBackend',
+    ]
+    
+    # Configuration axes pour la production
+    AXES_FAILURE_LIMIT = 3
+    AXES_COOLOFF_TIME = 300  # 5 minutes
+    AXES_LOCK_OUT_AT_FAILURE = True
+    AXES_RESET_ON_SUCCESS = True
+else:
+    # Configuration par défaut sans axes
+    AUTHENTICATION_BACKENDS = [
+        'django.contrib.auth.backends.ModelBackend',
+    ]
 
 
 # Middleware de développement
