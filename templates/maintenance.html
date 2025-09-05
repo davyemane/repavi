@@ -1,62 +1,60 @@
+{% extends 'base_empty.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance en cours - RepAvi Lodges</title>
-    <meta name="description" content="Site en maintenance - RepAvi Lodges">
 
-    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% block title %}Maintenance - RepAvi Lodges{% endblock %}
 
-    <style>
-        body {
-            font-family: 'Lato', sans-serif;
-        }
-        .font-lato {
-            font-family: 'Lato', sans-serif;
-        }
-        .maintenance-animation {
-            animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-        .progress-bar {
-            animation: progress 8s ease-in-out infinite;
-        }
-        @keyframes progress {
-            0% { width: 0%; }
-            50% { width: 75%; }
-            100% { width: 100%; }
-        }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-900 antialiased">
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center px-4 sm:px-6 lg:px-8">
-        <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
+{% block extra_css %}
+<style>
+/* Animation de maintenance */
+.maintenance-animation {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Effet sur le logo de maintenance */
+.maintenance-logo {
+    animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Overlay pour le contenu de maintenance */
+.maintenance-content {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full">
+        <div class="maintenance-content rounded-2xl lg:rounded-3xl p-8 sm:p-12 lg:p-16 text-center shadow-2xl border border-gray-200">
             
-            <!-- Header avec logo -->
-            <div class="text-center mb-8 sm:mb-10">
-                <div class="flex items-center justify-center mb-6 sm:mb-8">
-                    <div class="flex items-center space-x-3 sm:space-x-4">
-                        <div class="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-lg">
-                            <span class="material-icons text-white text-xl sm:text-2xl lg:text-3xl">home</span>
+            <!-- Header avec logo RepAvi -->
+            <div class="mb-8 sm:mb-12">
+                <div class="flex justify-center mb-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-[#02066F] rounded-xl flex items-center justify-center">
+                            <span class="material-icons text-2xl sm:text-3xl text-white">home</span>
                         </div>
                         <div class="text-left">
-                            <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#02066F] font-lato leading-tight">
+                            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#02066F] font-lato leading-tight">
                                 RepAvi Lodges
                             </h1>
                             <p class="text-gray-500 text-xs sm:text-sm lg:text-base font-medium mt-1">
@@ -70,7 +68,7 @@
             <!-- Illustration de maintenance -->
             <div class="text-center mb-8 sm:mb-10">
                 <div class="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 mx-auto mb-6 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-full flex items-center justify-center maintenance-animation shadow-lg">
-                    <span class="material-icons text-4xl sm:text-5xl lg:text-6xl text-white">build</span>
+                    <span class="material-icons text-4xl sm:text-5xl lg:text-6xl text-white maintenance-logo">build</span>
                 </div>
                 
                 <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 font-lato">
@@ -81,204 +79,56 @@
                     Nous effectuons actuellement une maintenance programmée pour améliorer votre expérience. 
                     Le site sera de nouveau disponible très bientôt !
                 </p>
-            </div>
-
-            <!-- Barre de progression -->
-            <div class="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 mb-8">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-base sm:text-lg font-medium text-gray-900 font-lato">
-                        <span class="material-icons text-[#02066F] mr-2">settings</span>
-                        Progression de la maintenance
+                
+                <!-- Informations de contact -->
+                <div class="bg-gray-50 rounded-xl p-6 mt-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">
+                        Besoin d'assistance ?
                     </h3>
-                    <span class="text-xs sm:text-sm text-gray-500 font-lato" id="progress-text">En cours...</span>
-                </div>
-                
-                <div class="w-full bg-gray-200 rounded-full h-2 sm:h-3 mb-4">
-                    <div class="progress-bar bg-gradient-to-r from-[#02066F] to-[#030a8a] h-2 sm:h-3 rounded-full"></div>
-                </div>
-                
-                <div class="text-xs sm:text-sm text-gray-600 font-lato text-center">
-                    <p>Mise à jour des serveurs et amélioration des performances</p>
-                </div>
-            </div>
-
-            <!-- Informations sur la maintenance -->
-            <div class="bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
-                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato">
-                    <span class="material-icons text-[#02066F] mr-2">info</span>
-                    Informations sur la maintenance
-                </h3>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-700">
-                    <div class="font-lato">
-                        <strong>Début :</strong> 02:00 CET
-                    </div>
-                    <div class="font-lato">
-                        <strong>Fin prévue :</strong> 04:00 CET
-                    </div>
-                    <div class="font-lato">
-                        <strong>Durée :</strong> ~2 heures
-                    </div>
-                    <div class="font-lato">
-                        <strong>Statut :</strong> 
-                        <span class="inline-flex items-center">
-                            <span class="w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
-                            En cours
-                        </span>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-center space-x-3 text-gray-600">
+                            <span class="material-icons text-sm">phone</span>
+                            <span class="font-lato">+237 XXX XXX XXX</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-3 text-gray-600">
+                            <span class="material-icons text-sm">email</span>
+                            <span class="font-lato">support@repavilodges.com</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Améliorations apportées -->
-            <div class="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 mb-8">
-                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato">
-                    <span class="material-icons text-green-600 mr-2">rocket_launch</span>
-                    Améliorations en cours
-                </h3>
                 
-                <div class="grid grid-cols-1 gap-3 text-xs sm:text-sm">
-                    <div class="flex items-center">
-                        <span class="material-icons text-green-500 mr-3 text-base">check_circle</span>
-                        <span class="text-gray-700 font-lato">Optimisation des performances</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="material-icons text-green-500 mr-3 text-base">check_circle</span>
-                        <span class="text-gray-700 font-lato">Mise à jour de sécurité</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="material-icons text-[#02066F] mr-3 animate-spin text-base">sync</span>
-                        <span class="text-gray-700 font-lato">Amélioration de l'interface</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="material-icons text-orange-500 mr-3 text-base">schedule</span>
-                        <span class="text-gray-700 font-lato">Nouvelles fonctionnalités</span>
-                    </div>
+                <!-- Statut estimé -->
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-gray-500 font-lato">
+                        Temps estimé de maintenance : <strong class="text-[#02066F]">30 minutes</strong>
+                    </p>
+                    <p class="text-xs text-gray-400 font-lato mt-2">
+                        Dernière mise à jour : {{ "now"|date:"d/m/Y à H:i" }}
+                    </p>
                 </div>
-            </div>
-
-            <!-- Temps d'attente estimé -->
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-2xl p-4 sm:p-6 mb-8">
-                <h3 class="text-base sm:text-lg font-medium text-yellow-900 mb-3 font-lato">
-                    <span class="material-icons text-yellow-600 mr-2">schedule</span>
-                    Temps d'attente estimé
-                </h3>
-                
-                <div class="text-2xl sm:text-3xl font-bold text-yellow-800 mb-2 font-lato text-center" id="countdown">
-                    -- : -- : --
-                </div>
-                
-                <p class="text-yellow-700 text-xs sm:text-sm font-lato text-center">
-                    Le site sera automatiquement rechargé dès la fin de la maintenance
-                </p>
-            </div>
-
-            <!-- Actions alternatives -->
-            <div class="space-y-4 mb-8">
-                <div class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato text-center">
-                    En attendant, vous pouvez :
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <a href="mailto:contact@repavi.com" 
-                       class="flex items-center justify-center px-4 sm:px-6 py-3 bg-white border border-[#02066F] text-[#02066F] rounded-lg sm:rounded-xl hover:bg-[#02066F]/5 transition-colors font-lato text-sm sm:text-base">
-                        <span class="material-icons text-sm mr-2">mail</span>
-                        Nous contacter
-                    </a>
-                    
-                    <a href="tel:+33123456789" 
-                       class="flex items-center justify-center px-4 sm:px-6 py-3 bg-white border border-[#02066F] text-[#02066F] rounded-lg sm:rounded-xl hover:bg-[#02066F]/5 transition-colors font-lato text-sm sm:text-base">
-                        <span class="material-icons text-sm mr-2">phone</span>
-                        Appeler le support
-                    </a>
-                </div>
-                
-                <button onclick="location.reload()" 
-                        class="w-full flex items-center justify-center px-4 sm:px-6 py-3 bg-[#02066F] text-white rounded-lg sm:rounded-xl font-medium hover:bg-[#030a8a] transition-colors font-lato text-sm sm:text-base">
-                    <span class="material-icons text-sm mr-2">refresh</span>
-                    Actualiser la page
-                </button>
-            </div>
-
-            <!-- Réseaux sociaux -->
-            <div class="bg-gray-100 rounded-lg sm:rounded-2xl p-4 sm:p-6">
-                <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-4 font-lato text-center">
-                    Suivez-nous pour les dernières nouvelles
-                </h3>
-                
-                <div class="flex justify-center space-x-4 sm:space-x-6">
-                    <a href="#" class="text-gray-400 hover:text-[#02066F] transition-colors">
-                        <span class="material-icons text-xl sm:text-2xl">facebook</span>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-[#02066F] transition-colors">
-                        <span class="material-icons text-xl sm:text-2xl">alternate_email</span>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-[#02066F] transition-colors">
-                        <span class="material-icons text-xl sm:text-2xl">photo_camera</span>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-[#02066F] transition-colors">
-                        <span class="material-icons text-xl sm:text-2xl">business</span>
-                    </a>
-                </div>
-                
-                <p class="text-gray-500 text-xs sm:text-sm mt-4 font-lato text-center">
-                    Merci pour votre patience ! 💙
-                </p>
-            </div>
-
-            <!-- Footer -->
-            <div class="text-center mt-8">
-                <p class="text-xs text-gray-400 font-lato">
-                    Version 2.1.0 • © 2024 RepAvi Lodges • Tous droits réservés
-                </p>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Countdown timer (estimation)
-        function updateCountdown() {
-            const targetTime = new Date();
-            targetTime.setHours(4, 0, 0, 0); // 4:00 AM
-            
-            if (targetTime <= new Date()) {
-                targetTime.setDate(targetTime.getDate() + 1);
-            }
-            
-            const now = new Date();
-            const timeLeft = targetTime - now;
-            
-            if (timeLeft > 0) {
-                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                
-                document.getElementById('countdown').textContent = 
-                    `${hours.toString().padStart(2, '0')} : ${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')}`;
-            } else {
-                document.getElementById('countdown').textContent = '00 : 00 : 00';
-                document.getElementById('progress-text').textContent = 'Terminé !';
-                // Auto-reload après la fin prévue
-                setTimeout(() => location.reload(), 5000);
-            }
+<!-- Script pour auto-refresh -->
+<script>
+    // Auto-refresh toutes les 5 minutes pour vérifier si la maintenance est terminée
+    setTimeout(function() {
+        window.location.reload();
+    }, 300000); // 5 minutes
+    
+    // Affichage du temps de maintenance
+    let startTime = new Date();
+    function updateTime() {
+        let now = new Date();
+        let elapsed = Math.floor((now - startTime) / 1000 / 60);
+        let timeElement = document.querySelector('.maintenance-time');
+        if (timeElement) {
+            timeElement.textContent = `${elapsed} minute(s)`;
         }
-        
-        // Mettre à jour toutes les secondes
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-        
-        // Auto-refresh toutes les 30 secondes pour vérifier si la maintenance est finie
-        setInterval(() => {
-            // Dans un vrai environnement, vous pourriez faire un appel AJAX pour vérifier le statut
-            // location.reload();
-        }, 30000);
-        
-        // Simuler la progression
-        let progress = 0;
-        setInterval(() => {
-            progress += Math.random() * 5;
-            if (progress > 100) progress = 100;
-            document.getElementById('progress-text').textContent = `${Math.round(progress)}% terminé`;
-        }, 2000);
-    </script>
-</body>
-</html>
+    }
+    
+    setInterval(updateTime, 60000); // Mise à jour chaque minute
+</script>
+{% endblock %}

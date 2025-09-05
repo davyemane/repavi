@@ -1,206 +1,332 @@
 # ==========================================
-# apps/facturation/views.py - Facturation avec service
+# apps/facturation/views.py
 # ==========================================
-from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.http import FileResponse, Http404
+from django.http import HttpResponse, Http404
+from django.template.loader import get_template
+from django.conf import settings
 from django.urls import reverse
+from datetime import datetime, timedelta
+import os
+from io import BytesIO
 
-from apps.notifications.services import NotificationService
+# Import pour PDF
+try:
+    from weasyprint import HTML, CSS
+    from weasyprint.text.fonts import FontConfiguration
+    WEASYPRINT_AVAILABLE = True
+except ImportError:
+    WEASYPRINT_AVAILABLE = False
+
 from apps.users.views import is_gestionnaire
 from apps.reservations.models import Reservation
-from .models import Facture
-from .forms import FactureForm
-from .services import FacturationService
+from .models import Facture, ParametresFacturation
+
 
 @login_required
 @user_passes_test(is_gestionnaire)
 def liste_factures(request):
-    """Liste des factures générées"""
-    factures = Facture.objects.select_related(
-        'reservation__client',
-        'reservation__appartement'
-    ).order_by('-date_creation')
+    """Liste des factures RepAvi"""
+    factures = Facture.objects.select_related('client', 'reservation').all()
     
-    # Stats
-    stats = {
-        'total_factures': factures.count(),
-        'montant_total': sum(f.montant_total for f in factures),
-        'factures_mois': factures.filter(date_creation__month=timezone.now().month).count()
-    }
+    # Filtres
+    statut = request.GET.get('statut')
+    if statut:
+        factures = factures.filter(statut=statut)
+    
+    mois = request.GET.get('mois')
+    if mois:
+        try:
+            annee, mois_num = mois.split('-')
+            factures = factures.filter(
+                date_emission__year=int(annee),
+                date_emission__month=int(mois_num)
+            )
+        except ValueError:
+            pass
     
     context = {
         'factures': factures,
-        **stats
+        'statut_filtre': statut,
+        'mois_filtre': mois,
+        'statuts': Facture.STATUT_CHOICES,
     }
     return render(request, 'facturation/liste.html', context)
 
+
 @login_required
 @user_passes_test(is_gestionnaire)
-def generer_facture(request):
-    """Générer nouvelle facture"""
-    reservations_facturables = FacturationService.get_reservations_facturables()
-    
-    if request.method == 'POST':
-        reservation_id = request.POST.get('reservation_id')
-        frais_supplementaires = request.POST.get('frais_supplementaires', 0)
-        
-        if not reservation_id:
-            messages.error(request, 'Veuillez sélectionner une réservation')
-            return redirect('facturation:generer')
-        
-        try:
-            reservation = get_object_or_404(Reservation, pk=reservation_id)
-            
-            # Vérifier si facture existe déjà
-            if hasattr(reservation, 'facture'):
-                messages.warning(request, 'Une facture existe déjà pour cette réservation')
-                return redirect('facturation:apercu', pk=reservation.facture.pk)
-            
-            # Créer facture via service
-            facture = FacturationService.creer_facture(
-                reservation=reservation,
-                frais_supplementaires=frais_supplementaires,
-                gestionnaire=request.user
-            )
-            # notification pour les gestionnaires
-            NotificationService.notify_facture_created(facture, request.user)
-            
-            messages.success(request, f'Facture {facture.numero_facture} générée avec succès !')
-            return redirect('facturation:apercu', pk=facture.pk)
-            
-        except Exception as e:
-            messages.error(request, f'Erreur lors de la génération : {str(e)}')
+def detail_facture(request, pk):
+    """Détail d'une facture"""
+    facture = get_object_or_404(Facture, pk=pk)
     
     context = {
-        'reservations_facturables': reservations_facturables,
-        'form': FactureForm()
+        'facture': facture,
+        'lignes': facture.get_lignes_facture(),
+        'details_sejour': facture.get_details_sejour(),
+        'parametres': ParametresFacturation.get_parametres(),
     }
-    return render(request, 'facturation/generer.html', context)
+    return render(request, 'facturation/detail.html', context)
+
 
 @login_required
 @user_passes_test(is_gestionnaire)
 def generer_facture_reservation(request, reservation_pk):
-    """Générer facture depuis réservation"""
+    """Génère une facture pour une réservation"""
     reservation = get_object_or_404(Reservation, pk=reservation_pk)
     
-    # Vérifier si facture existe
+    # Vérifier qu'il n'y a pas déjà une facture
     if hasattr(reservation, 'facture'):
-        messages.info(request, 'Facture déjà existante')
-        return redirect('facturation:apercu', pk=reservation.facture.pk)
+        messages.warning(request, 'Une facture existe déjà pour cette réservation.')
+        return redirect('facturation:detail', pk=reservation.facture.pk)
     
-    # Vérifier statut
-    if reservation.statut != 'terminee':
-        messages.error(request, 'La réservation doit être terminée pour facturer')
-        return redirect('reservations:detail', pk=reservation.pk)
-    
-    try:
-        facture = FacturationService.creer_facture(
+    if request.method == 'POST':
+        # Récupérer les paramètres par défaut
+        parametres = ParametresFacturation.get_parametres()
+        
+        # Créer la facture
+        facture = Facture(
             reservation=reservation,
-            gestionnaire=request.user
+            client=reservation.client,
+            date_echeance=datetime.now().date() + timedelta(days=parametres.delai_paiement_jours),
+            frais_menage=float(request.POST.get('frais_menage', parametres.frais_menage_defaut)),
+            frais_service=float(request.POST.get('frais_service', 0)),
+            remise=float(request.POST.get('remise', 0)),
+            notes=request.POST.get('notes', ''),
+            cree_par=request.user,
         )
+        facture.save()
         
-        messages.success(request, f'Facture {facture.numero_facture} générée !')
-        return redirect('facturation:apercu', pk=facture.pk)
-        
-    except Exception as e:
-        messages.error(request, f'Erreur : {str(e)}')
-        return redirect('reservations:detail', pk=reservation.pk)
+        messages.success(request, f'Facture {facture.numero} générée avec succès !')
+        return redirect('facturation:detail', pk=facture.pk)
+    
+    # Affichage du formulaire
+    parametres = ParametresFacturation.get_parametres()
+    context = {
+        'reservation': reservation,
+        'parametres': parametres,
+    }
+    return render(request, 'facturation/generer.html', context)
+
 
 @login_required
 @user_passes_test(is_gestionnaire)
-def apercu_facture(request, pk):
-    """Aperçu facture"""
+def facture_pdf(request, pk):
+    """Génère le PDF d'une facture"""
+    if not WEASYPRINT_AVAILABLE:
+        messages.error(request, 'La génération PDF n\'est pas disponible. Veuillez installer WeasyPrint.')
+        return redirect('facturation:detail', pk=pk)
+    
     facture = get_object_or_404(Facture, pk=pk)
     
-    # Calculs pour l'aperçu
+    # Contexte pour le template PDF
     context = {
         'facture': facture,
-        'reservation': facture.reservation,
-        'client': facture.reservation.client,
-        'appartement': facture.reservation.appartement,
-        'peut_regenerer': True,
+        'lignes': facture.get_lignes_facture(),
+        'details_sejour': facture.get_details_sejour(),
+        'parametres': ParametresFacturation.get_parametres(),
+        'date_impression': datetime.now(),
     }
-    return render(request, 'facturation/apercu.html', context)
-
-@login_required
-@user_passes_test(is_gestionnaire)
-def telecharger_pdf(request, pk):
-    """Télécharger PDF facture"""
-    facture = get_object_or_404(Facture, pk=pk)
     
-    # Régénérer si fichier manquant
-    if not facture.fichier_pdf or not facture.fichier_pdf.storage.exists(facture.fichier_pdf.name):
-        try:
-            FacturationService.regenerer_pdf(facture)
-            messages.info(request, 'PDF régénéré automatiquement')
-        except Exception as e:
-            messages.error(request, f'Erreur génération PDF : {str(e)}')
-            return redirect('facturation:apercu', pk=pk)
+    # Rendu du template HTML
+    template = get_template('facturation/facture_pdf.html')
+    html_string = template.render(context)
     
+    # Configuration des polices
+    font_config = FontConfiguration()
+    
+    # CSS pour le PDF
+    css_content = """
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+    """
+    
+    # Génération du PDF
     try:
-        return FileResponse(
-            facture.fichier_pdf.open('rb'),
-            as_attachment=True,
-            filename=f'Facture_{facture.numero_facture}.pdf'
-        )
-    except FileNotFoundError:
-        raise Http404("Fichier PDF non trouvé")
-
-@login_required
-@user_passes_test(is_gestionnaire)
-def regenerer_pdf(request, pk):
-    """Régénérer PDF"""
-    facture = get_object_or_404(Facture, pk=pk)
-    
-    try:
-        FacturationService.regenerer_pdf(facture)
-        messages.success(request, 'PDF régénéré avec succès !')
+        html = HTML(string=html_string)
+        css = CSS(string=css_content, font_config=font_config)
+        pdf_file = html.write_pdf(stylesheets=[css], font_config=font_config)
+        
+        # Réponse HTTP avec le PDF
+        response = HttpResponse(pdf_file, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Facture_{facture.numero}.pdf"'
+        
+        return response
+        
     except Exception as e:
-        messages.error(request, f'Erreur régénération : {str(e)}')
-    
-    return redirect('facturation:apercu', pk=pk)
+        messages.error(request, f'Erreur lors de la génération du PDF : {str(e)}')
+        return redirect('facturation:detail', pk=pk)
+
 
 @login_required
 @user_passes_test(is_gestionnaire)
-def supprimer_facture(request, pk):
-    """Supprimer facture"""
+def facture_preview(request, pk):
+    """Aperçu HTML de la facture (pour debug)"""
+    facture = get_object_or_404(Facture, pk=pk)
+    
+    context = {
+        'facture': facture,
+        'lignes': facture.get_lignes_facture(),
+        'details_sejour': facture.get_details_sejour(),
+        'parametres': ParametresFacturation.get_parametres(),
+        'date_impression': datetime.now(),
+        'preview': True,  # Pour afficher des styles différents
+    }
+    
+    return render(request, 'facturation/facture_pdf.html', context)
+
+
+@login_required
+@user_passes_test(is_gestionnaire)
+def modifier_facture(request, pk):
+    """Modifier une facture"""
+    facture = get_object_or_404(Facture, pk=pk)
+    
+    if facture.statut == 'payee':
+        messages.error(request, 'Impossible de modifier une facture payée.')
+        return redirect('facturation:detail', pk=pk)
+    
+    if request.method == 'POST':
+        # Mise à jour des champs
+        facture.frais_menage = float(request.POST.get('frais_menage', 0))
+        facture.frais_service = float(request.POST.get('frais_service', 0))
+        facture.remise = float(request.POST.get('remise', 0))
+        facture.notes = request.POST.get('notes', '')
+        facture.conditions_paiement = request.POST.get('conditions_paiement', facture.conditions_paiement)
+        
+        # Nouveau statut
+        nouveau_statut = request.POST.get('statut')
+        if nouveau_statut in dict(Facture.STATUT_CHOICES):
+            facture.statut = nouveau_statut
+        
+        facture.save()
+        
+        messages.success(request, 'Facture modifiée avec succès !')
+        return redirect('facturation:detail', pk=pk)
+    
+    context = {
+        'facture': facture,
+        'statuts': Facture.STATUT_CHOICES,
+    }
+    return render(request, 'facturation/modifier.html', context)
+
+
+@login_required
+@user_passes_test(is_gestionnaire)
+def marquer_payee(request, pk):
+    """Marquer une facture comme payée"""
     facture = get_object_or_404(Facture, pk=pk)
     
     if request.method == 'POST':
-        numero = facture.numero_facture
+        facture.statut = 'payee'
+        facture.save()
         
-        # Supprimer fichier PDF
-        if facture.fichier_pdf:
-            facture.fichier_pdf.delete()
-        
-        facture.delete()
-        
-        messages.success(request, f'Facture {numero} supprimée')
-        return redirect('facturation:liste')
+        messages.success(request, f'Facture {facture.numero} marquée comme payée !')
     
-    context = {'facture': facture}
-    return render(request, 'facturation/confirmer_suppression.html', context)
+    return redirect('facturation:detail', pk=pk)
 
-# API/AJAX endpoints
+
 @login_required
 @user_passes_test(is_gestionnaire)
-def api_factures_stats(request):
-    """API: Stats facturation"""
-    from django.http import JsonResponse
-    from django.utils import timezone
+def annuler_facture(request, pk):
+    """Annuler une facture"""
+    facture = get_object_or_404(Facture, pk=pk)
     
-    factures = Facture.objects.all()
+    if facture.statut == 'payee':
+        messages.error(request, 'Impossible d\'annuler une facture payée.')
+        return redirect('facturation:detail', pk=pk)
     
+    if request.method == 'POST':
+        facture.statut = 'annulee'
+        facture.save()
+        
+        messages.success(request, f'Facture {facture.numero} annulée !')
+    
+    return redirect('facturation:detail', pk=pk)
+
+
+@login_required
+@user_passes_test(is_gestionnaire)
+def parametres_facturation(request):
+    """Gestion des paramètres de facturation"""
+    parametres = ParametresFacturation.get_parametres()
+    
+    if request.method == 'POST':
+        # Mise à jour des paramètres
+        parametres.nom_entreprise = request.POST.get('nom_entreprise')
+        parametres.adresse = request.POST.get('adresse')
+        parametres.telephone = request.POST.get('telephone')
+        parametres.email = request.POST.get('email')
+        parametres.site_web = request.POST.get('site_web', '')
+        parametres.numero_contribuable = request.POST.get('numero_contribuable', '')
+        parametres.numero_rccm = request.POST.get('numero_rccm', '')
+        parametres.taux_tva_defaut = float(request.POST.get('taux_tva_defaut'))
+        parametres.frais_menage_defaut = float(request.POST.get('frais_menage_defaut'))
+        parametres.delai_paiement_jours = int(request.POST.get('delai_paiement_jours'))
+        parametres.conditions_generales = request.POST.get('conditions_generales')
+        parametres.mentions_legales = request.POST.get('mentions_legales')
+        
+        parametres.save()
+        
+        messages.success(request, 'Paramètres de facturation mis à jour !')
+        return redirect('facturation:parametres')
+    
+    context = {
+        'parametres': parametres,
+    }
+    return render(request, 'facturation/parametres.html', context)
+
+
+@login_required
+@user_passes_test(is_gestionnaire)
+def dashboard_facturation(request):
+    """Dashboard de facturation avec statistiques"""
+    # Statistiques du mois en cours
+    maintenant = datetime.now()
+    factures_mois = Facture.objects.filter(
+        date_emission__year=maintenant.year,
+        date_emission__month=maintenant.month
+    )
+    
+    # Calculs des statistiques
     stats = {
-        'total_factures': factures.count(),
-        'montant_total': float(sum(f.montant_total for f in factures)),
-        'factures_mois': factures.filter(
-            date_creation__month=timezone.now().month
-        ).count(),
-        'reservations_facturables': FacturationService.get_reservations_facturables().count()
+        'total_factures_mois': factures_mois.count(),
+        'montant_total_mois': sum(f.montant_ttc for f in factures_mois),
+        'factures_payees': factures_mois.filter(statut='payee').count(),
+        'factures_en_attente': factures_mois.filter(statut='emise').count(),
+        'taux_paiement': 0,
     }
     
-    return JsonResponse(stats)
+    if stats['total_factures_mois'] > 0:
+        stats['taux_paiement'] = round(
+            (stats['factures_payees'] / stats['total_factures_mois']) * 100, 1
+        )
+    
+    # Dernières factures
+    dernieres_factures = Facture.objects.select_related(
+        'client', 'reservation'
+    ).order_by('-date_emission')[:10]
+    
+    # Factures en retard
+    factures_retard = Facture.objects.filter(
+        statut='emise',
+        date_echeance__lt=datetime.now().date()
+    ).select_related('client')
+    
+    context = {
+        'stats': stats,
+        'dernieres_factures': dernieres_factures,
+        'factures_retard': factures_retard,
+        'mois_actuel': maintenant,
+    }
+    
+    return render(request, 'facturation/dashboard.html', context)

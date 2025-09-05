@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle facture générée - RepAvi Lodges</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9fafb;
+        }
+        
+        .email-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #02066F 0%, #030a8a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .notification-badge {
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .facture-info {
+            background: #f8f9fa;
+            border-left: 4px solid #02066F;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .label {
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .value {
+            color: #02066F;
+            font-weight: bold;
+        }
+        
+        .montant {
+            font-size: 18px;
+            color: #02066F;
+            font-weight: bold;
+        }
+        
+        .client-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .sejour-info {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #02066F;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 10px 5px;
+            text-align: center;
+        }
+        
+        .button:hover {
+            background: #030a8a;
+        }
+        
+        .button-secondary {
+            background: #6b7280;
+        }
+        
+        .actions {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .status-active {
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .status-emise {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .email-container {
+                padding: 20px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .button {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        
+        <!-- En-tête RepAvi -->
+        <div class="header">
+            <h1>RepAvi Lodges</h1>
+            <p>Système de Gestion Hôtelière</p>
+        </div>
+        
+        <!-- Badge de notification -->
+        <div class="notification-badge">
+            📄 Nouvelle Facture Générée
+        </div>
+        
+        <!-- Message principal -->
+        <h2 style="color: #02066F; margin-bottom: 15px;">Bonjour,</h2>
+        
+        <p>Une nouvelle facture a été générée automatiquement dans le système RepAvi Lodges.</p>
+        
+        <!-- Informations de la facture -->
+        <div class="facture-info">
+            <h3 style="margin-top: 0; color: #02066F;">📋 Détails de la Facture</h3>
+            
+            <div class="info-row">
+                <span class="label">Numéro de facture :</span>
+                <span class="value">{{ facture.numero }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Date d'émission :</span>
+                <span class="value">{{ facture.date_emission|date:"d/m/Y" }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Date d'échéance :</span>
+                <span class="value">{{ facture.date_echeance|date:"d/m/Y" }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Statut :</span>
+                <span class="status-emise">{{ facture.get_statut_display }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Montant TTC :</span>
+                <span class="montant">{{ facture.montant_ttc|floatformat:0 }} FCFA</span>
+            </div>
+        </div>
+        
+        <!-- Informations client -->
+        <div class="client-info">
+            <h4 style="margin-top: 0; color: #02066F;">👤 Client</h4>
+            <strong>{{ client.prenom }} {{ client.nom }}</strong><br>
+            📧 {{ client.email }}<br>
+            📞 {{ client.telephone }}
+        </div>
+        
+        <!-- Informations séjour -->
+        <div class="sejour-info">
+            <h4 style="margin-top: 0; color: #02066F;">🏠 Séjour</h4>
+            <strong>Appartement {{ reservation.appartement.numero }}</strong><br>
+            📅 {{ reservation.date_arrivee|date:"d/m/Y" }} → {{ reservation.date_depart|date:"d/m/Y" }}<br>
+            🌙 {{ reservation.nombre_nuits }} nuit(s)
+        </div>
+        
+        <!-- Actions -->
+        <div class="actions">
+            <a href="{{ site_url }}{% url 'facturation:detail' facture.pk %}" class="button">
+                👁️ Voir la Facture
+            </a>
+            
+            <a href="{{ site_url }}{% url 'facturation:pdf' facture.pk %}" class="button button-secondary">
+                📄 Télécharger PDF
+            </a>
+        </div>
+        
+        <!-- Message de fin -->
+        <p><strong>Action requise :</strong> Veuillez vérifier la facture et procéder à son envoi au client si tout est correct.</p>
+        
+        <p>Vous pouvez accéder à toutes vos factures depuis l'interface d'administration RepAvi Lodges.</p>
+        
+        <!-- Pied de page -->
+        <div class="footer">
+            <p>
+                <strong>RepAvi Lodges</strong><br>
+                Système de Gestion Hôtelière<br>
+                Email envoyé automatiquement le {{ "now"|date:"d/m/Y à H:i" }}
+            </p>
+            
+            <p style="margin-top: 15px;">
+                <a href="{{ site_url }}" style="color: #02066F;">Accéder au système</a>
+            </p>
+        </div>
+        
+    </div>
+</body>
+</html>

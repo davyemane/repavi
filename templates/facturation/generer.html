@@ -1,369 +1,227 @@
-<!-- ========================================== -->
-<!-- templates/facturation/generer.html -->
-<!-- ========================================== -->
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Génération Facture - RepAvi Lodges{% endblock %}
-
-{% block page_title %}Génération de Facture{% endblock %}
-{% block page_subtitle %}Facture PDF automatique selon cahier des charges{% endblock %}
+{% block title %}Générer Facture - RepAvi Lodges{% endblock %}
+{% block page_title %}Générer une Facture{% endblock %}
+{% block page_subtitle %}Création de facture pour la réservation {{ reservation.numero|default:reservation.pk }}{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'facturation:liste' %}" 
+<a href="{% url 'reservations:detail' reservation.pk %}" 
    class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
     <span class="material-icons text-sm mr-2">arrow_back</span>
-    Retour Liste
+    Retour Réservation
 </a>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-<!-- Sélection réservation -->
-    <form method="post" class="space-y-6 sm:space-y-8">
+<div class="max-w-4xl">
+    <form method="post" class="space-y-8">
         {% csrf_token %}
         
-        <!-- Sélection réservation -->
-        <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center space-x-2 font-lato">
-                <span class="material-icons text-[#02066F]">event</span>
-                <span>Sélectionner la Réservation</span>
-            </h2>
-            
-            <div class="space-y-3 sm:space-y-4">
-                {% for reservation in reservations_facturables %}
-                <label class="flex items-center p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-[#02066F] transition-colors cursor-pointer font-lato">
-                    <input type="radio" name="reservation_id" value="{{ reservation.pk }}" 
-                           class="w-4 h-4 text-[#02066F] border-gray-300 focus:ring-[#02066F]"
-                           onchange="afficherApercu({{ reservation.pk }})">
-                    <div class="ml-3 sm:ml-4 flex-1">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-                            <div>
-                                <div class="font-medium text-gray-900 font-lato">
-                                    {{ reservation.client.prenom }} {{ reservation.client.nom }}
-                                </div>
-                                <div class="text-gray-600 text-sm font-lato">
-                                    {{ reservation.appartement.numero }} • {{ reservation.date_arrivee|date:"d/m/Y" }} → {{ reservation.date_depart|date:"d/m/Y" }}
-                                </div>
-                            </div>
-                            <div class="text-left sm:text-right">
-                                <div class="font-bold text-gray-900 font-lato">{{ reservation.prix_total|floatformat:0 }} FCFA</div>
-                                <div class="text-gray-600 text-sm font-lato">{{ reservation.nombre_nuits }} nuits</div>
-                            </div>
-                        </div>
-                    </div>
-                </label>
-                {% empty %}
-                <div class="text-center py-6 sm:py-8">
-                    <span class="material-icons text-gray-400 text-3xl sm:text-4xl mb-4">receipt_long</span>
-                    <p class="text-gray-600 font-lato">Aucune réservation à facturer</p>
+        <!-- Informations de la réservation -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F]">event</span>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <!-- Frais supplémentaires selon cahier -->
-        <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6" id="section-frais" style="display: none;">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center space-x-2 font-lato">
-                <span class="material-icons text-[#02066F]">add_circle</span>
-                <span>Frais Supplémentaires</span>
-            </h2>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.frais_supplementaires.label }}</label>
-                {{ form.frais_supplementaires }}
-                {% if form.frais_supplementaires.help_text %}
-                <p class="text-gray-500 text-sm mt-1 font-lato">{{ form.frais_supplementaires.help_text }}</p>
-                {% endif %}
-            </div>
-        </div>
-        
-        <!-- Aperçu facture selon cahier -->
-        <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6" id="apercu-facture" style="display: none;">
-            <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center space-x-2 font-lato">
-                <span class="material-icons text-[#02066F]">preview</span>
-                <span>Aperçu de la Facture</span>
-            </h2>
-            
-            <!-- Simule le PDF selon cahier -->
-            <div class="border border-gray-300 rounded-lg p-4 sm:p-6 bg-white">
-                
-                <!-- En-tête RepAvi Lodges -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 pb-3 sm:pb-4 border-b border-gray-200 space-y-3 sm:space-y-0">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 sm:w-12 sm:h-12 bg-[#02066F] rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-white text-sm sm:text-base">home</span>
-                        </div>
-                        <div>
-                            <div class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 font-lato">RepAvi Lodges</div>
-                            <div class="text-gray-600 text-xs sm:text-sm font-lato">Gestion de maisons meublées</div>
-                        </div>
-                    </div>
-                    <div class="text-left sm:text-right">
-                        <div class="font-bold text-gray-900 font-lato">FACTURE</div>
-                        <div class="text-gray-600 text-xs sm:text-sm font-lato" id="numero-facture">N° FAC2025-XXXX</div>
-                    </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 font-lato">Informations du Séjour</h2>
+                    <p class="text-gray-600 font-lato">Détails de la réservation à facturer</p>
                 </div>
-                
-                <!-- Informations client et séjour selon cahier -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="space-y-4">
                     <div>
-                        <h4 class="font-bold text-gray-900 mb-3 font-lato">Informations Client</h4>
-                        <div id="info-client" class="text-gray-600 text-sm space-y-1 font-lato">
-                            <!-- Rempli par JavaScript -->
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Client</label>
+                        <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                            <div class="font-medium text-gray-900 font-lato">{{ reservation.client.prenom }} {{ reservation.client.nom }}</div>
+                            <div class="text-sm text-gray-600 font-lato">{{ reservation.client.email }}</div>
                         </div>
                     </div>
                     
                     <div>
-                        <h4 class="font-bold text-gray-900 mb-3 font-lato">Détails du Séjour</h4>
-                        <div id="info-sejour" class="text-gray-600 text-sm space-y-1 font-lato">
-                            <!-- Rempli par JavaScript -->
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Appartement</label>
+                        <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                            <div class="font-medium text-gray-900 font-lato">{{ reservation.appartement.numero }}</div>
+                            <div class="text-sm text-gray-600 font-lato">{{ reservation.appartement.get_type_logement_display }}</div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Détail des coûts selon cahier -->
-                <div class="border border-gray-200 rounded-lg overflow-hidden mb-4 sm:mb-6">
-                    <!-- Version desktop -->
-                    <div class="hidden sm:block">
-                        <div class="bg-gray-50 p-3 border-b border-gray-200">
-                            <div class="grid grid-cols-4 gap-4 text-sm font-medium text-gray-600 font-lato">
-                                <div>Description</div>
-                                <div>Quantité</div>
-                                <div>Prix Unitaire</div>
-                                <div class="text-right">Total</div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Période</label>
+                        <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                            <div class="font-medium text-gray-900 font-lato">
+                                {{ reservation.date_arrivee|date:"d/m/Y" }} → {{ reservation.date_depart|date:"d/m/Y" }}
                             </div>
-                        </div>
-                        
-                        <div id="lignes-facture" class="divide-y divide-gray-100">
-                            <!-- Rempli par JavaScript -->
+                            <div class="text-sm text-gray-600 font-lato">{{ reservation.nombre_nuits }} nuit(s)</div>
                         </div>
                     </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Montant du séjour</label>
+                        <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                            <div class="font-medium text-gray-900 font-lato">{{ reservation.prix_total|floatformat:0 }} FCFA</div>
+                            <div class="text-sm text-gray-600 font-lato">{{ reservation.appartement.prix_par_nuit|floatformat:0 }} FCFA/nuit</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    <!-- Version mobile -->
-                    <div class="sm:hidden">
-                        <div class="bg-gray-50 p-3 border-b border-gray-200">
-                            <div class="text-sm font-medium text-gray-600 font-lato">Détail</div>
-                        </div>
-                        
-                        <div id="lignes-facture-mobile" class="divide-y divide-gray-100">
-                            <!-- Rempli par JavaScript -->
-                        </div>
+        <!-- Frais supplémentaires -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-orange-600">add_circle</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 font-lato">Frais Supplémentaires</h2>
+                    <p class="text-gray-600 font-lato">Ajoutez des frais additionnels si nécessaire</p>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Frais de ménage</label>
+                    <div class="relative">
+                        <input type="number" 
+                               name="frais_menage" 
+                               value="{{ parametres.frais_menage_defaut }}"
+                               step="500"
+                               min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                        <span class="absolute right-3 top-3 text-gray-500 text-sm font-lato">FCFA</span>
                     </div>
-                    
-                    <!-- Total -->
-                    <div class="bg-[#02066F]/5 p-3 sm:p-4">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-gray-900 text-sm sm:text-base font-lato">MONTANT TOTAL</span>
-                            <span class="text-lg sm:text-xl md:text-2xl font-bold text-[#02066F] font-lato" id="total-facture">0 FCFA</span>
-                        </div>
-                    </div>
+                    <p class="text-xs text-gray-500 mt-1 font-lato">Frais de nettoyage de fin de séjour</p>
                 </div>
                 
-                <!-- Plan de paiement si échéancé selon cahier -->
-                <div id="plan-paiement" class="bg-orange-50 p-3 sm:p-4 rounded-lg">
-                    <h4 class="font-bold text-orange-800 mb-3 font-lato">Plan de Paiement</h4>
-                    <div id="echeances-facture" class="space-y-2 text-orange-700 text-sm font-lato">
-                        <!-- Rempli par JavaScript -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Frais de service</label>
+                    <div class="relative">
+                        <input type="number" 
+                               name="frais_service" 
+                               value="0"
+                               step="500"
+                               min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                        <span class="absolute right-3 top-3 text-gray-500 text-sm font-lato">FCFA</span>
                     </div>
+                    <p class="text-xs text-gray-500 mt-1 font-lato">Frais administratifs (optionnel)</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Remise</label>
+                    <div class="relative">
+                        <input type="number" 
+                               name="remise" 
+                               value="0"
+                               step="500"
+                               min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                        <span class="absolute right-3 top-3 text-gray-500 text-sm font-lato">FCFA</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 font-lato">Réduction accordée (optionnel)</p>
                 </div>
             </div>
         </div>
-        
+
+        <!-- Calcul automatique des totaux -->
+        <div class="bg-[#02066F]/5 rounded-lg border border-[#02066F]/20 p-6">
+            <h3 class="font-semibold text-[#02066F] mb-4 flex items-center space-x-2 font-lato">
+                <span class="material-icons">calculate</span>
+                <span>Aperçu des Totaux</span>
+            </h3>
+            
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="text-sm text-gray-600 font-lato">Sous-total HT</div>
+                    <div id="montant-ht" class="text-lg font-bold text-gray-900 font-lato">{{ reservation.prix_total|floatformat:0 }} FCFA</div>
+                </div>
+                
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="text-sm text-gray-600 font-lato">TVA ({{ parametres.taux_tva_defaut }}%)</div>
+                    <div id="montant-tva" class="text-lg font-bold text-gray-900 font-lato">-</div>
+                </div>
+                
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="text-sm text-gray-600 font-lato">Total TTC</div>
+                    <div id="montant-ttc" class="text-lg font-bold text-[#02066F] font-lato">-</div>
+                </div>
+                
+                <div class="text-center p-3 bg-[#02066F] text-white rounded-lg">
+                    <div class="text-sm opacity-90 font-lato">À Facturer</div>
+                    <div id="montant-final" class="text-lg font-bold font-lato">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Notes (optionnel)</label>
+            <textarea name="notes" 
+                      rows="4"
+                      placeholder="Ajoutez des notes pour cette facture..."
+                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato"></textarea>
+            <p class="text-xs text-gray-500 mt-1 font-lato">Ces notes apparaîtront sur la facture PDF</p>
+        </div>
+
         <!-- Actions -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white rounded-lg border border-gray-200 p-4 sm:p-6 space-y-3 sm:space-y-0" id="actions-facture" style="display: none;">
-            <a href="{% url 'facturation:liste' %}" 
-               class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors font-medium font-lato">
+        <div class="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-6">
+            <a href="{% url 'reservations:detail' reservation.pk %}" 
+               class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors font-medium font-lato">
                 <span class="material-icons text-sm mr-2">arrow_back</span>
                 <span>Annuler</span>
             </a>
             
             <button type="submit" 
-                    class="inline-flex items-center justify-center px-8 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-medium font-lato">
-                <span class="material-icons text-sm mr-2">picture_as_pdf</span>
-                <span>Générer Facture PDF</span>
+                    class="inline-flex items-center px-8 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-medium font-lato">
+                <span class="material-icons text-sm mr-2">receipt</span>
+                <span>Générer la Facture</span>
             </button>
         </div>
     </form>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-// Données des réservations pour JavaScript
-const reservationsData = {
-    {% for reservation in reservations_facturables %}
-    {{ reservation.pk }}: {
-        client: {
-            nom: "{{ reservation.client.nom }}",
-            prenom: "{{ reservation.client.prenom }}",
-            telephone: "{{ reservation.client.telephone }}",
-            email: "{{ reservation.client.email }}",
-            adresse: "{{ reservation.client.adresse_residence|truncatechars:50 }}"
-        },
-        sejour: {
-            appartement: "{{ reservation.appartement.numero }}",
-            type: "{{ reservation.appartement.get_type_logement_display }}",
-            maison: "{{ reservation.appartement.maison }}",
-            arrivee: "{{ reservation.date_arrivee|date:'d/m/Y' }}",
-            depart: "{{ reservation.date_depart|date:'d/m/Y' }}",
-            nuits: {{ reservation.nombre_nuits }},
-            prix_nuit: {{ reservation.appartement.prix_par_nuit }},
-            prix_total: {{ reservation.prix_total }}
-        }
-    },
-    {% endfor %}
-};
-
-function afficherApercu(reservationId) {
-    const data = reservationsData[reservationId];
-    if (!data) return;
-    
-    // Afficher les sections
-    document.getElementById('section-frais').style.display = 'block';
-    document.getElementById('apercu-facture').style.display = 'block';
-    document.getElementById('actions-facture').style.display = 'flex';
-    
-    // Générer numéro de facture
-    const year = new Date().getFullYear();
-    const numero = `FAC${year}-${String(Math.floor(Math.random() * 9999)).padStart(4, '0')}`;
-    document.getElementById('numero-facture').textContent = `N° ${numero}`;
-    
-    // Informations client
-    document.getElementById('info-client').innerHTML = `
-        <div><strong>${data.client.prenom} ${data.client.nom}</strong></div>
-        <div>${data.client.telephone}</div>
-        <div>${data.client.email}</div>
-        <div>${data.client.adresse}</div>
-    `;
-    
-    // Informations séjour
-    document.getElementById('info-sejour').innerHTML = `
-        <div><strong>Appartement :</strong> ${data.sejour.appartement} (${data.sejour.type})</div>
-        <div><strong>Maison :</strong> ${data.sejour.maison}</div>
-        <div><strong>Dates :</strong> ${data.sejour.arrivee} → ${data.sejour.depart}</div>
-        <div><strong>Durée :</strong> ${data.sejour.nuits} nuit(s)</div>
-    `;
-    
-    // Lignes de facturation selon cahier - Version desktop
-    const lignesFacture = `
-        <div class="p-3">
-            <div class="grid grid-cols-4 gap-4 text-sm font-lato">
-                <div>Séjour ${data.sejour.appartement}</div>
-                <div>${data.sejour.nuits} nuits</div>
-                <div>${data.sejour.prix_nuit.toLocaleString('fr-FR')} FCFA</div>
-                <div class="text-right font-medium">${data.sejour.prix_total.toLocaleString('fr-FR')} FCFA</div>
-            </div>
-        </div>
-    `;
-    
-    // Lignes de facturation - Version mobile
-    const lignesFactureMobile = `
-        <div class="p-3">
-            <div class="flex justify-between mb-1">
-                <span class="text-sm font-medium">Séjour ${data.sejour.appartement}</span>
-                <span class="text-sm font-medium">${data.sejour.prix_total.toLocaleString('fr-FR')} FCFA</span>
-            </div>
-            <div class="text-xs text-gray-600">${data.sejour.nuits} nuits × ${data.sejour.prix_nuit.toLocaleString('fr-FR')} FCFA</div>
-        </div>
-    `;
-    
-    document.getElementById('lignes-facture').innerHTML = lignesFacture;
-    document.getElementById('lignes-facture-mobile').innerHTML = lignesFactureMobile;
-    
-    // Total
-    calculerTotal(data.sejour.prix_total);
-    
-    // Plan de paiement (40% + 60% selon cahier)
-    const acompte = data.sejour.prix_total * 0.4;
-    const solde = data.sejour.prix_total * 0.6;
-    
-    document.getElementById('echeances-facture').innerHTML = `
-        <div class="flex justify-between">
-            <span>• Acompte (40%) :</span>
-            <span class="font-medium">${acompte.toLocaleString('fr-FR')} FCFA</span>
-        </div>
-        <div class="flex justify-between">
-            <span>• Solde (60%) :</span>
-            <span class="font-medium">${solde.toLocaleString('fr-FR')} FCFA</span>
-        </div>
-    `;
-}
-
-function calculerTotal(prixSejour) {
-    const fraisSupp = parseFloat(document.querySelector('input[name="frais_supplementaires"]').value) || 0;
-    const total = prixSejour + fraisSupp;
-    
-    document.getElementById('total-facture').textContent = total.toLocaleString('fr-FR') + ' FCFA';
-    
-    // Reconstruire les lignes de facture
-    const selectedReservation = document.querySelector('input[name="reservation_id"]:checked');
-    if (selectedReservation) {
-        const reservationId = selectedReservation.value;
-        const data = reservationsData[reservationId];
-        
-        let lignesFacture = `
-            <div class="p-3">
-                <div class="grid grid-cols-4 gap-4 text-sm font-lato">
-                    <div>Séjour ${data.sejour.appartement}</div>
-                    <div>${data.sejour.nuits} nuits</div>
-                    <div>${data.sejour.prix_nuit.toLocaleString('fr-FR')} FCFA</div>
-                    <div class="text-right font-medium">${data.sejour.prix_total.toLocaleString('fr-FR')} FCFA</div>
-                </div>
-            </div>
-        `;
-
-        let lignesFactureMobile = `
-            <div class="p-3">
-                <div class="flex justify-between mb-1">
-                    <span class="text-sm font-medium">Séjour ${data.sejour.appartement}</span>
-                    <span class="text-sm font-medium">${data.sejour.prix_total.toLocaleString('fr-FR')} FCFA</span>
-                </div>
-                <div class="text-xs text-gray-600">${data.sejour.nuits} nuits × ${data.sejour.prix_nuit.toLocaleString('fr-FR')} FCFA</div>
-            </div>
-        `;
-        
-        // Ajouter ligne frais supplémentaires si besoin
-        if (fraisSupp > 0) {
-            lignesFacture += `
-                <div class="p-3 bg-[#02066F]/5">
-                    <div class="grid grid-cols-4 gap-4 text-sm font-lato">
-                        <div>Frais supplémentaires</div>
-                        <div>1</div>
-                        <div>${fraisSupp.toLocaleString('fr-FR')} FCFA</div>
-                        <div class="text-right font-medium">${fraisSupp.toLocaleString('fr-FR')} FCFA</div>
-                    </div>
-                </div>
-            `;
-
-            lignesFactureMobile += `
-                <div class="p-3 bg-[#02066F]/5">
-                    <div class="flex justify-between">
-                        <span class="text-sm font-medium">Frais supplémentaires</span>
-                        <span class="text-sm font-medium">${fraisSupp.toLocaleString('fr-FR')} FCFA</span>
-                    </div>
-                </div>
-            `;
-        }
-        
-        document.getElementById('lignes-facture').innerHTML = lignesFacture;
-        document.getElementById('lignes-facture-mobile').innerHTML = lignesFactureMobile;
-    }
-}
-
-// Event listener frais supplémentaires
+// Calcul automatique des totaux
 document.addEventListener('DOMContentLoaded', function() {
-    const fraisInput = document.querySelector('input[name="frais_supplementaires"]');
-    if (fraisInput) {
-        fraisInput.addEventListener('input', function() {
-            const selectedReservation = document.querySelector('input[name="reservation_id"]:checked');
-            if (selectedReservation) {
-                const reservationId = selectedReservation.value;
-                const data = reservationsData[reservationId];
-                calculerTotal(data.sejour.prix_total);
-            }
-        });
+    const prixSejour = {{ reservation.prix_total }};
+    const tauxTva = {{ parametres.taux_tva_defaut }};
+    
+    const fraisMenageInput = document.querySelector('input[name="frais_menage"]');
+    const fraisServiceInput = document.querySelector('input[name="frais_service"]');
+    const remiseInput = document.querySelector('input[name="remise"]');
+    
+    const montantHtElement = document.getElementById('montant-ht');
+    const montantTvaElement = document.getElementById('montant-tva');
+    const montantTtcElement = document.getElementById('montant-ttc');
+    const montantFinalElement = document.getElementById('montant-final');
+    
+    function calculerTotaux() {
+        const fraisMenage = parseFloat(fraisMenageInput.value) || 0;
+        const fraisService = parseFloat(fraisServiceInput.value) || 0;
+        const remise = parseFloat(remiseInput.value) || 0;
+        
+        const montantHt = prixSejour + fraisMenage + fraisService - remise;
+        const montantTva = montantHt * (tauxTva / 100);
+        const montantTtc = montantHt + montantTva;
+        
+        montantHtElement.textContent = Math.round(montantHt).toLocaleString('fr-FR') + ' FCFA';
+        montantTvaElement.textContent = Math.round(montantTva).toLocaleString('fr-FR') + ' FCFA';
+        montantTtcElement.textContent = Math.round(montantTtc).toLocaleString('fr-FR') + ' FCFA';
+        montantFinalElement.textContent = Math.round(montantTtc).toLocaleString('fr-FR') + ' FCFA';
     }
+    
+    // Calcul initial
+    calculerTotaux();
+    
+    // Recalculer à chaque modification
+    fraisMenageInput.addEventListener('input', calculerTotaux);
+    fraisServiceInput.addEventListener('input', calculerTotaux);
+    remiseInput.addEventListener('input', calculerTotaux);
 });
 </script>
 {% endblock %}

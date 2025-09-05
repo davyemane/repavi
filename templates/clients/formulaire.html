@@ -62,6 +62,17 @@
                     <div class="text-red-600 text-sm mt-1 font-lato">{{ form.email.errors.0 }}</div>
                     {% endif %}
                 </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.numero_identite.label }}</label>
+                    {{ form.numero_identite }}
+                    {% if form.numero_identite.help_text %}
+                    <p class="text-gray-500 text-sm mt-1 font-lato">{{ form.numero_identite.help_text }}</p>
+                    {% endif %}
+                    {% if form.numero_identite.errors %}
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.numero_identite.errors.0 }}</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
         

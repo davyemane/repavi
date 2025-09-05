@@ -1,9 +1,15 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - RepAvi Lodges</title>
+    
+    <!-- Favicon RepAvi -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/logorepavie.svg' %}">
+    <link rel="alternate icon" href="{% static 'images/logorepavie.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logorepavie-180.png' %}">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,6 +42,98 @@
     <style>
         body {
             font-family: 'Lato', sans-serif;
+            background-image: url('{% static "images/logorepavie.svg" %}');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 25%;
+            background-attachment: fixed;
+            background-color: #f9fafb;
+            position: relative;
+        }
+        
+        /* Overlay pour atténuer le logo RepAvi */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(249, 250, 251, 0.85);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Responsive du logo en arrière-plan */
+        @media (max-width: 1024px) {
+            body {
+                background-size: 30%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                background-size: 40%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                background-size: 50%;
+            }
+        }
+        
+        /* Transparence pour les éléments */
+        .bg-transparent-white {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+        }
+        
+        .sidebar-bg {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(3px);
+        }
+        
+        .header-bg {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+        }
+        
+        /* Animation subtile du logo (optionnel) */
+        @media (prefers-reduced-motion: no-preference) {
+            body {
+                animation: breathe 12s ease-in-out infinite;
+            }
+            
+            @keyframes breathe {
+                0%, 100% {
+                    background-size: 25%;
+                }
+                50% {
+                    background-size: 26%;
+                }
+            }
+            
+            @media (max-width: 1024px) {
+                @keyframes breathe {
+                    0%, 100% { background-size: 30%; }
+                    50% { background-size: 31%; }
+                }
+            }
+            
+            @media (max-width: 768px) {
+                @keyframes breathe {
+                    0%, 100% { background-size: 40%; }
+                    50% { background-size: 41%; }
+                }
+            }
+            
+            @media (max-width: 480px) {
+                @keyframes breathe {
+                    0%, 100% { background-size: 50%; }
+                    50% { background-size: 51%; }
+                }
+            }
         }
         
         /* Transition pour la sidebar */
@@ -65,23 +163,38 @@
         .hamburger-active .hamburger-line:nth-child(3) {
             transform: rotate(-45deg) translate(6px, -6px);
         }
+        
+        /* Amélioration des cartes avec transparence */
+        .card-with-bg {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(1px);
+        }
+        
+        /* Ombres personnalisées RepAvi */
+        .shadow-repavi {
+            box-shadow: 0 4px 6px -1px rgba(2, 6, 111, 0.1), 0 2px 4px -1px rgba(2, 6, 111, 0.06);
+        }
+        
+        .shadow-repavi-lg {
+            box-shadow: 0 10px 15px -3px rgba(2, 6, 111, 0.1), 0 4px 6px -2px rgba(2, 6, 111, 0.05);
+        }
     </style>
 </head>
 
-<body class="h-full bg-gray-50 font-lato">
+<body class="h-full font-lato">
     <div class="flex h-screen overflow-hidden">
         
         <!-- Overlay pour mobile -->
         <div id="sidebarOverlay" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden sidebar-overlay opacity-0 invisible"></div>
         
         <!-- Fixed Sidebar -->
-        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-50 sidebar-transition transform -translate-x-full lg:translate-x-0">
+        <aside id="sidebar" class="w-64 sidebar-bg border-r border-gray-200 flex-shrink-0 fixed h-full z-50 sidebar-transition transform -translate-x-full lg:translate-x-0 shadow-repavi-lg">
             <div class="flex flex-col h-full">
                 
                 <!-- Logo Section -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-transparent-white">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-repavi">
                             <span class="material-icons text-white text-lg">home</span>
                         </div>
                         <div>
@@ -91,7 +204,7 @@
                     </div>
                     
                     <!-- Bouton fermer sur mobile -->
-                    <button id="closeSidebar" class="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
+                    <button id="closeSidebar" class="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                         <span class="material-icons">close</span>
                     </button>
                 </div>
@@ -198,9 +311,9 @@
                 </nav>
 
                 <!-- User Menu -->
-                <div class="border-t border-gray-200 p-4">
+                <div class="border-t border-gray-200 p-4 bg-transparent-white">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-[#02066F] rounded-full flex items-center justify-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-full flex items-center justify-center shadow-repavi">
                             <span class="material-icons text-white text-sm">person</span>
                         </div>
                         <div class="flex-1">
@@ -211,17 +324,17 @@
                             <button class="p-1 text-gray-400 hover:text-[#02066F] transition-colors">
                                 <span class="material-icons text-sm">more_vert</span>
                             </button>
-                            <div class="absolute bottom-full right-0 mb-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 first:rounded-t-lg">
+                            <div class="absolute bottom-full right-0 mb-2 w-48 bg-transparent-white border border-gray-200 rounded-lg shadow-repavi-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 first:rounded-t-lg transition-colors">
                                     <span class="material-icons text-sm">account_circle</span>
                                     <span class="font-lato">Mon Profil</span>
                                 </a>
                                 {% if user.profil == 'super_admin' %}
-                                <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
+                                <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors">
                                     <span class="material-icons text-sm">supervisor_account</span>
                                     <span class="font-lato">Gestionnaires</span>
                                 </a>
-                                <a href="{% url 'users:creer_gestionnaire' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
+                                <a href="{% url 'users:creer_gestionnaire' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors">
                                     <span class="material-icons text-sm">person_add</span>
                                     <span class="font-lato">Nouveau Gestionnaire</span>
                                 </a>
@@ -229,7 +342,7 @@
                                 <hr class="my-1">
                                 <form action="{% url 'logout' %}" method="post" class="m-0">
                                     {% csrf_token %}
-                                    <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left">
+                                    <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left transition-colors">
                                         <span class="material-icons text-sm">logout</span>
                                         <span class="font-lato">Déconnexion</span>
                                     </button>
@@ -245,11 +358,11 @@
         <div class="flex-1 flex flex-col lg:ml-64">
             
             <!-- Fixed Header -->
-            <header class="bg-white border-b border-gray-200 px-6 py-4 fixed w-full z-20 lg:left-64 lg:w-[calc(100%-256px)]">
+            <header class="header-bg border-b border-gray-200 px-6 py-4 fixed w-full z-20 lg:left-64 lg:w-[calc(100%-256px)] shadow-repavi">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <!-- Bouton hamburger pour mobile -->
-                        <button id="menuToggle" class="lg:hidden p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg">
+                        <button id="menuToggle" class="lg:hidden p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <div class="w-6 h-6 flex flex-col justify-center items-center space-y-1">
                                 <span class="hamburger-line w-6 h-0.5 bg-current"></span>
                                 <span class="hamburger-line w-6 h-0.5 bg-current"></span>
@@ -293,7 +406,7 @@
             </header>
 
             <!-- Scrollable Content -->
-            <main class="flex-1 overflow-y-auto pt-20 bg-gray-50">
+            <main class="flex-1 overflow-y-auto pt-20">
                 <div class="p-6 space-y-6">
                     
                     <!-- KPIs Section -->
@@ -302,7 +415,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             
                             <!-- Total Appartements -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
                                         <span class="material-icons text-[#02066F] text-xl">apartment</span>
@@ -315,7 +428,7 @@
                             </div>
 
                             <!-- Réservations -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                                         <span class="material-icons text-green-600 text-xl">event</span>
@@ -330,7 +443,7 @@
                             </div>
 
                             <!-- Clients -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                                         <span class="material-icons text-purple-600 text-xl">people</span>
@@ -343,7 +456,7 @@
                             </div>
 
                             <!-- Revenus -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                                         <span class="material-icons text-orange-600 text-xl">payments</span>
@@ -364,7 +477,7 @@
                         <div class="lg:col-span-2 space-y-6">
                             
                             <!-- Occupation Chart -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
                                 <div class="flex items-center justify-between mb-6">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900 font-lato">Taux d'Occupation</h3>
@@ -396,15 +509,15 @@
                                 </div>
 
                                 <div class="grid grid-cols-3 gap-4">
-                                    <div class="text-center p-3 bg-green-50 rounded-lg border border-green-100">
+                                    <div class="text-center p-3 bg-green-50/90 backdrop-blur-sm rounded-lg border border-green-100">
                                         <div class="text-xl font-bold text-green-600 font-lato">{{ appartements_disponibles }}</div>
                                         <div class="text-xs text-green-600 font-lato">Disponibles</div>
                                     </div>
-                                    <div class="text-center p-3 bg-[#02066F]/5 rounded-lg border border-[#02066F]/20">
+                                    <div class="text-center p-3 bg-[#02066F]/5 backdrop-blur-sm rounded-lg border border-[#02066F]/20">
                                         <div class="text-xl font-bold text-[#02066F] font-lato">{{ appartements_occupes }}</div>
                                         <div class="text-xs text-[#02066F] font-lato">Occupés</div>
                                     </div>
-                                    <div class="text-center p-3 bg-orange-50 rounded-lg border border-orange-100">
+                                    <div class="text-center p-3 bg-orange-50/90 backdrop-blur-sm rounded-lg border border-orange-100">
                                         <div class="text-xl font-bold text-orange-600 font-lato">{{ appartements_maintenance }}</div>
                                         <div class="text-xs text-orange-600 font-lato">Maintenance</div>
                                     </div>
@@ -412,7 +525,7 @@
                             </div>
 
                             <!-- Revenue Chart -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
                                 <div class="flex items-center justify-between mb-6">
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900 font-lato">Revenus Hebdomadaires</h3>
@@ -429,7 +542,7 @@
                         <div class="space-y-6">
                             
                             <!-- Quick Actions -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
                                 <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
                                     <span class="material-icons text-[#02066F]">flash_on</span>
                                     <span>Actions Rapides</span>
@@ -446,7 +559,7 @@
                                     </a>
 
                                     <a href="{% url 'clients:nouveau' %}"
-                                       class="w-full flex items-center justify-between p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors">
+                                       class="w-full flex items-center justify-between p-3 bg-green-50/90 backdrop-blur-sm text-green-600 rounded-lg hover:bg-green-100/90 transition-colors">
                                         <span class="flex items-center space-x-3">
                                             <span class="material-icons text-sm">person_add</span>
                                             <span class="font-medium font-lato">Nouveau client</span>
@@ -455,7 +568,7 @@
                                     </a>
 
                                     <a href="{% url 'appartements:creer' %}"
-                                       class="w-full flex items-center justify-between p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors">
+                                       class="w-full flex items-center justify-between p-3 bg-purple-50/90 backdrop-blur-sm text-purple-600 rounded-lg hover:bg-purple-100/90 transition-colors">
                                         <span class="flex items-center space-x-3">
                                             <span class="material-icons text-sm">add_home</span>
                                             <span class="font-medium font-lato">Nouvel appartement</span>
@@ -467,7 +580,7 @@
                                     {% if user.profil == 'super_admin' %}
                                     <div class="border-t border-gray-200 pt-3 mt-3">
                                         <a href="{% url 'users:creer_gestionnaire' %}"
-                                           class="w-full flex items-center justify-between p-3 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors">
+                                           class="w-full flex items-center justify-between p-3 bg-indigo-50/90 backdrop-blur-sm text-indigo-600 rounded-lg hover:bg-indigo-100/90 transition-colors">
                                             <span class="flex items-center space-x-3">
                                                 <span class="material-icons text-sm">supervisor_account</span>
                                                 <span class="font-medium font-lato">Nouveau gestionnaire</span>
@@ -480,7 +593,7 @@
                             </div>
 
                             <!-- Alerts -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
                                 <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
                                     <span class="material-icons text-red-600">warning</span>
                                     <span>Alertes Importantes</span>
@@ -488,7 +601,7 @@
 
                                 <div class="space-y-3">
                                     {% if arrivees_aujourd_hui %}
-                                    <div class="flex items-center space-x-3 p-3 bg-[#02066F]/5 rounded-lg border border-[#02066F]/20">
+                                    <div class="flex items-center space-x-3 p-3 bg-[#02066F]/5 backdrop-blur-sm rounded-lg border border-[#02066F]/20">
                                         <span class="material-icons text-[#02066F] text-sm">event_available</span>
                                         <div class="flex-1">
                                             <p class="text-sm font-medium text-gray-900 font-lato">{{ arrivees_aujourd_hui.count }} arrivée(s) aujourd'hui</p>
@@ -501,7 +614,7 @@
                                     {% endif %}
                                     
                                     {% if paiements_retard > 0 %}
-                                    <div class="flex items-center space-x-3 p-3 bg-red-50 rounded-lg border border-red-100">
+                                    <div class="flex items-center space-x-3 p-3 bg-red-50/90 backdrop-blur-sm rounded-lg border border-red-100">
                                         <span class="material-icons text-red-600 text-sm">error</span>
                                         <div class="flex-1">
                                             <p class="text-sm font-medium text-gray-900 font-lato">{{ paiements_retard }} paiement(s) en retard</p>
@@ -514,7 +627,7 @@
                                     {% endif %}
                                     
                                     {% if taches_menage_urgentes > 0 %}
-                                    <div class="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-100">
+                                    <div class="flex items-center space-x-3 p-3 bg-orange-50/90 backdrop-blur-sm rounded-lg border border-orange-100">
                                         <span class="material-icons text-orange-600 text-sm">cleaning_services</span>
                                         <div class="flex-1">
                                             <p class="text-sm font-medium text-gray-900 font-lato">{{ taches_menage_urgentes }} ménage(s) urgent(s)</p>
@@ -536,7 +649,7 @@
                             </div>
 
                             <!-- Quick Stats -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <div class="card-with-bg rounded-lg border border-gray-200 p-6">
                                 <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
                                     <span class="material-icons text-green-600">analytics</span>
                                     <span>Stats Rapides</span>

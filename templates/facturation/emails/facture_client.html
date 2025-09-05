@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votre facture RepAvi Lodges</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9fafb;
+        }
+        
+        .email-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #02066F 0%, #030a8a 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            color: #02066F;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .facture-summary {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0f9ff 100%);
+            border: 2px solid #02066F;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .facture-numero {
+            font-size: 24px;
+            font-weight: bold;
+            color: #02066F;
+            margin-bottom: 10px;
+        }
+        
+        .facture-montant {
+            font-size: 32px;
+            font-weight: bold;
+            color: #02066F;
+            margin: 15px 0;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            border-left: 4px solid #02066F;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .value {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .sejour-details {
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .payment-info {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .payment-info h3 {
+            color: #92400e;
+            margin-top: 0;
+        }
+        
+        .contact-section {
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 2px solid #e5e7eb;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .company-info {
+            background: #02066F;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
+        
+        .company-info h4 {
+            margin-top: 0;
+            color: white;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .email-container {
+                padding: 20px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .facture-montant {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        
+        <!-- En-tête RepAvi -->
+        <div class="header">
+            <h1>RepAvi Lodges</h1>
+            <p>Excellence & Confort</p>
+        </div>
+        
+        <!-- Salutation personnalisée -->
+        <div class="greeting">
+            Bonjour {{ client.prenom }} {{ client.nom }},
+        </div>
+        
+        <!-- Message d'introduction -->
+        <p>Nous vous remercions pour votre confiance et pour avoir choisi RepAvi Lodges pour votre séjour.</p>
+        
+        <p>Veuillez trouver ci-joint votre facture détaillée :</p>
+        
+        <!-- Résumé de la facture -->
+        <div class="facture-summary">
+            <div class="facture-numero">Facture {{ facture.numero }}</div>
+            <div style="color: #666; font-size: 14px;">Émise le {{ facture.date_emission|date:"d/m/Y" }}</div>
+            <div class="facture-montant">{{ facture.montant_ttc|floatformat:0 }} FCFA</div>
+            <div style="color: #666; font-size: 14px;">Montant TTC à régler</div>
+        </div>
+        
+        <!-- Détails du séjour -->
+        <div class="sejour-details">
+            <h3 style="margin-top: 0; color: #02066F;">Détails de votre séjour</h3>
+            
+            <div class="info-row">
+                <span class="label">Appartement :</span>
+                <span class="value">{{ reservation.appartement.numero }} - {{ reservation.appartement.get_type_logement_display }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Dates :</span>
+                <span class="value">{{ reservation.date_arrivee|date:"d/m/Y" }} au {{ reservation.date_depart|date:"d/m/Y" }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Durée :</span>
+                <span class="value">{{ reservation.nombre_nuits }} nuit(s)</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Prix par nuit :</span>
+                <span class="value">{{ reservation.appartement.prix_par_nuit|floatformat:0 }} FCFA</span>
+            </div>
+        </div>
+        
+        <!-- Détail des montants -->
+        <div class="info-section">
+            <h3 style="margin-top: 0; color: #02066F;">Détail des montants</h3>
+            
+            <div class="info-row">
+                <span class="label">Montant du séjour :</span>
+                <span class="value">{{ reservation.prix_total|floatformat:0 }} FCFA</span>
+            </div>
+            
+            {% if facture.frais_menage > 0 %}
+            <div class="info-row">
+                <span class="label">Frais de ménage :</span>
+                <span class="value">{{ facture.frais_menage|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
+            
+            {% if facture.frais_service > 0 %}
+            <div class="info-row">
+                <span class="label">Frais de service :</span>
+                <span class="value">{{ facture.frais_service|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
+            
+            {% if facture.remise > 0 %}
+            <div class="info-row">
+                <span class="label">Remise accordée :</span>
+                <span class="value" style="color: #10b981;">-{{ facture.remise|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
+            
+            <div class="info-row" style="border-top: 1px solid #ddd; padding-top: 12px; margin-top: 12px;">
+                <span class="label">Sous-total HT :</span>
+                <span class="value">{{ facture.montant_ht|floatformat:0 }} FCFA</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">TVA ({{ facture.taux_tva }}%) :</span>
+                <span class="value">{{ facture.montant_tva|floatformat:0 }} FCFA</span>
+            </div>
+            
+            <div class="info-row" style="border-top: 2px solid #02066F; padding-top: 12px; margin-top: 12px;">
+                <span class="label" style="font-size: 18px; color: #02066F; font-weight: bold;">TOTAL TTC :</span>
+                <span class="value" style="font-size: 18px; color: #02066F; font-weight: bold;">{{ facture.montant_ttc|floatformat:0 }} FCFA</span>
+            </div>
+        </div>
+        
+        <!-- Informations de paiement -->
+        <div class="payment-info">
+            <h3>Informations de paiement</h3>
+            <p><strong>Date d'échéance :</strong> {{ facture.date_echeance|date:"d/m/Y" }}</p>
+            <p>{{ facture.conditions_paiement }}</p>
+            
+            <p><strong>Modes de paiement acceptés :</strong></p>
+            <ul style="margin: 10px 0;">
+                <li>Espèces (à l'accueil)</li>
+                <li>Virement bancaire</li>
+                <li>Mobile Money (Orange Money, MTN MoMo)</li>
+                <li>Chèque</li>
+            </ul>
+        </div>
+        
+        {% if facture.notes %}
+        <!-- Notes spécifiques -->
+        <div class="info-section">
+            <h3 style="margin-top: 0; color: #02066F;">Notes</h3>
+            <p>{{ facture.notes|linebreaks }}</p>
+        </div>
+        {% endif %}
+        
+        <!-- Contact -->
+        <div class="contact-section">
+            <h3 style="color: #02066F;">Besoin d'aide ?</h3>
+            <p>Notre équipe est à votre disposition pour toute question concernant votre facture.</p>
+            
+            <p>
+                <strong>Téléphone :</strong> {{ parametres.telephone }}<br>
+                <strong>Email :</strong> {{ parametres.email }}
+            </p>
+        </div>
+        
+        <!-- Message de remerciement -->
+        <p style="text-align: center; font-style: italic; color: #666; margin: 30px 0;">
+            Nous vous remercions pour votre confiance et espérons vous revoir bientôt dans nos établissements RepAvi Lodges.
+        </p>
+        
+        <!-- Informations entreprise -->
+        <div class="company-info">
+            <h4>{{ parametres.nom_entreprise }}</h4>
+            <p>{{ parametres.adresse }}</p>
+            <p>Téléphone : {{ parametres.telephone }}</p>
+            <p>Email : {{ parametres.email }}</p>
+            {% if parametres.site_web %}
+            <p>Site web : {{ parametres.site_web }}</p>
+            {% endif %}
+            
+            {% if parametres.numero_contribuable %}
+            <p style="font-size: 12px; margin-top: 15px; opacity: 0.8;">
+                N° Contribuable : {{ parametres.numero_contribuable }}
+            </p>
+            {% endif %}
+        </div>
+        
+        <!-- Pied de page -->
+        <div class="footer">
+            <p>
+                <strong>RepAvi Lodges</strong> - Excellence & Confort<br>
+                {{ parametres.mentions_legales }}
+            </p>
+            
+            <p style="margin-top: 15px; font-size: 12px;">
+                Cet email a été envoyé automatiquement le {{ "now"|date:"d/m/Y à H:i" }}<br>
+                Merci de ne pas répondre à cet email automatique.
+            </p>
+        </div>
+        
+    </div>
+</body>
+</html>

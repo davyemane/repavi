@@ -60,9 +60,9 @@
 .indicateur-defectueux { background-color: #f59e0b; }
 .indicateur-hors-service { background-color: #ef4444; }
 
-/* Style pour les cartes d'équipements */
+/* Style pour les cartes d'équipements avec fond logo */
 .equipement-card {
-    @apply bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow;
+    @apply bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow;
 }
 
 /* Modal pour changement d'état rapide */
@@ -80,7 +80,6 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
-    padding: 1rem;
 }
 
 .modal-overlay.active {
@@ -91,9 +90,11 @@
 .modal-content {
     background: white;
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 24px;
     max-width: 500px;
-    width: 100%;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
     transform: scale(0.9);
     transition: transform 0.3s ease;
 }
@@ -102,57 +103,118 @@
     transform: scale(1);
 }
 
-/* Responsive pour mobile selon cahier */
+/* Animations CSS pour les états selon cahier */
+@keyframes pulse-state {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.changing-state {
+    animation: pulse-state 1s ease-in-out;
+}
+
+/* Responsive pour tableaux inventaire */
 @media (max-width: 768px) {
-    .equipement-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .modal-content {
-        padding: 1rem;
-        margin: 1rem;
-    }
-    
-    .action-rapide {
-        @apply text-xs px-2 py-1;
-    }
-}
-
-@media (max-width: 640px) {
-    .modal-overlay {
-        padding: 0.5rem;
-    }
-    
-    .modal-content {
-        padding: 1rem;
-    }
-}
-
-/* Print styles pour rapports selon cahier */
-@media print {
-    .no-print, .action-rapide, .modal-overlay {
-        display: none !important;
+    .inventaire-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
     
     .equipement-card {
-        break-inside: avoid;
+        min-width: 280px;
+        margin-bottom: 1rem;
     }
-    
-    body {
-        font-size: 12pt;
-        line-height: 1.4;
+}
+
+/* Style pour les filtres rapides selon cahier */
+.filtre-rapide {
+    @apply inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg border transition-colors;
+}
+
+.filtre-rapide.active {
+    @apply bg-[#02066F] text-white border-[#02066F];
+}
+
+.filtre-rapide:not(.active) {
+    @apply bg-white text-gray-700 border-gray-300 hover:bg-gray-50;
+}
+
+/* Styles pour les photos d'équipements */
+.photo-equipement {
+    @apply w-16 h-16 object-cover rounded-lg border border-gray-200;
+    transition: transform 0.2s ease;
+}
+
+.photo-equipement:hover {
+    transform: scale(1.05);
+}
+
+/* Animation d'apparition des cartes */
+.equipement-card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    
-    .print-header {
-        text-align: center;
-        border-bottom: 2px solid #000;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
+
+/* Style pour les statistiques selon cahier */
+.stat-card {
+    @apply bg-white/95 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow;
+}
+
+.stat-icon {
+    @apply w-12 h-12 rounded-lg flex items-center justify-center text-xl;
+}
+
+/* Loading states pour les actions rapides */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #02066F;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Style pour les notifications selon cahier */
+.notification-inventaire {
+    @apply fixed top-20 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.notification-inventaire.show {
+    transform: translateX(0);
+}
+
+/* Compatibilité avec le logo en arrière-plan */
+.content-overlay {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(2px);
 }
 </style>
 {% endblock %}

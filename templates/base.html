@@ -1,9 +1,16 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}RepAvi Lodges - Système de Gestion{% endblock %}</title>
+
+    <!-- Favicon RepAvi - Ajoutez dans la section <head> -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/logorepavie.svg' %}">
+    <link rel="alternate icon" href="{% static 'images/logorepavie.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logorepavie-180.png' %}">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,31 +43,141 @@
     <style>
         body {
             font-family: 'Lato', sans-serif;
+            background-image: url('{% static "images/logorepavie.svg" %}');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: 25%;
+            background-attachment: fixed;
+            background-color: #f9fafb;
+            position: relative;
+        }
+        
+        /* Overlay pour atténuer le logo RepAvi */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(249, 250, 251, 0.85);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Responsive du logo en arrière-plan */
+        @media (max-width: 1024px) {
+            body {
+                background-size: 30%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                background-size: 40%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                background-size: 50%;
+            }
+        }
+        
+        /* Transparence pour les éléments */
+        .bg-transparent-white {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+        }
+        
+        .sidebar-bg {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(3px);
+        }
+        
+        .header-bg {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+        }
+        
+        /* Animation subtile du logo (optionnel) */
+        @media (prefers-reduced-motion: no-preference) {
+            body {
+                animation: breathe 12s ease-in-out infinite;
+            }
+            
+            @keyframes breathe {
+                0%, 100% {
+                    background-size: 25%;
+                }
+                50% {
+                    background-size: 26%;
+                }
+            }
+            
+            @media (max-width: 1024px) {
+                @keyframes breathe {
+                    0%, 100% { background-size: 30%; }
+                    50% { background-size: 31%; }
+                }
+            }
+            
+            @media (max-width: 768px) {
+                @keyframes breathe {
+                    0%, 100% { background-size: 40%; }
+                    50% { background-size: 41%; }
+                }
+            }
+            
+            @media (max-width: 480px) {
+                @keyframes breathe {
+                    0%, 100% { background-size: 50%; }
+                    50% { background-size: 51%; }
+                }
+            }
+        }
+        
+        /* Amélioration des hover effects */
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            transform: translateX(4px);
+        }
+        
+        /* Ombres personnalisées */
+        .shadow-repavi {
+            box-shadow: 0 4px 6px -1px rgba(2, 6, 111, 0.1), 0 2px 4px -1px rgba(2, 6, 111, 0.06);
+        }
+        
+        .shadow-repavi-lg {
+            box-shadow: 0 10px 15px -3px rgba(2, 6, 111, 0.1), 0 4px 6px -2px rgba(2, 6, 111, 0.05);
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="h-full bg-gray-50 font-lato">
+<body class="h-full font-lato">
     <!-- Mobile menu overlay -->
     <div id="mobile-menu-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 hidden lg:hidden"></div>
     
     <div class="flex h-screen overflow-hidden">
         
         <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn" class="fixed top-4 left-4 z-50 lg:hidden bg-white p-2 rounded-lg shadow-lg border border-gray-200">
+        <button id="mobile-menu-btn" class="fixed top-4 left-4 z-50 lg:hidden bg-transparent-white p-2 rounded-lg shadow-repavi border border-gray-200">
             <span class="material-icons text-[#02066F]">menu</span>
         </button>
         
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 flex-shrink-0 fixed h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <aside id="sidebar" class="w-64 sidebar-bg border-r border-gray-200 flex-shrink-0 fixed h-full z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-repavi-lg">
             <div class="flex flex-col h-full">
                 
-                <!-- Logo Section -->
-                <div class="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200">
+                <!-- Logo Section RepAvi -->
+                <div class="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200 bg-transparent-white">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 lg:w-10 h-8 lg:h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
+                        <div class="w-8 lg:w-10 h-8 lg:h-10 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-lg flex items-center justify-center shadow-repavi">
                             <span class="material-icons text-white text-base lg:text-lg">home</span>
                         </div>
                         <div>
@@ -70,7 +187,7 @@
                     </div>
                     
                     <!-- Close button for mobile -->
-                    <button id="close-sidebar" class="lg:hidden p-1 text-gray-400 hover:text-[#02066F]">
+                    <button id="close-sidebar" class="lg:hidden p-1 text-gray-400 hover:text-[#02066F] transition-colors">
                         <span class="material-icons">close</span>
                     </button>
                 </div>
@@ -79,126 +196,87 @@
                 <nav class="flex-1 overflow-y-auto py-4 px-3">
                     <div class="space-y-1">
                         <a href="{% url 'dashboard' %}" 
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                           class="nav-item flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300">
                             <span class="material-icons text-sm">dashboard</span>
                             <span class="font-lato text-sm lg:text-base">Dashboard</span>
                         </a>
 
                         <a href="{% url 'appartements:liste' %}"
-                           class="{% block nav_appartements %}flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-colors{% endblock %}">
+                           class="nav-item {% block nav_appartements %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
                             <span class="material-icons text-sm">apartment</span>
                             <span class="font-lato text-sm lg:text-base">Appartements</span>
                         </a>
 
                         <a href="{% url 'clients:liste' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                           class="nav-item {% block nav_clients %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
                             <span class="material-icons text-sm">people</span>
                             <span class="font-lato text-sm lg:text-base">Clients</span>
                         </a>
 
                         <a href="{% url 'reservations:calendrier' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                           class="nav-item {% block nav_reservations %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
                             <span class="material-icons text-sm">event</span>
                             <span class="font-lato text-sm lg:text-base">Réservations</span>
-                            {% if reservations_aujourd_hui > 0 %}
-                            <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ reservations_aujourd_hui }}</span>
-                            {% endif %}
                         </a>
 
                         <a href="{% url 'paiements:echeancier' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">payments</span>
+                           class="nav-item {% block nav_paiements %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
+                            <span class="material-icons text-sm">payment</span>
                             <span class="font-lato text-sm lg:text-base">Paiements</span>
-                            {% if paiements_retard > 0 %}
-                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ paiements_retard }}</span>
-                            {% endif %}
                         </a>
 
-                        <!-- Divider -->
-                        <div class="border-t border-gray-200 my-4"></div>
-
                         <a href="{% url 'inventaire:general' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                           class="nav-item {% block nav_inventaire %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
                             <span class="material-icons text-sm">inventory</span>
                             <span class="font-lato text-sm lg:text-base">Inventaire</span>
                         </a>
 
-                        <a href="{% url 'menage:planning' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">cleaning_services</span>
-                            <span class="font-lato text-sm lg:text-base">Ménage</span>
-                            {% if taches_menage_urgentes > 0 %}
-                            <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ taches_menage_urgentes }}</span>
-                            {% endif %}
-                        </a>
-
                         <a href="{% url 'comptabilite:rapport_mensuel' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                           class="nav-item {% block nav_comptabilite %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
                             <span class="material-icons text-sm">account_balance</span>
                             <span class="font-lato text-sm lg:text-base">Comptabilité</span>
                         </a>
 
-                        <a href="{% url 'facturation:generer' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                        <a href="{% url 'menage:planning' %}"
+                           class="nav-item {% block nav_menage %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
+                            <span class="material-icons text-sm">cleaning_services</span>
+                            <span class="font-lato text-sm lg:text-base">Ménage</span>
+                        </a>
+
+                        <a href="{% url 'facturation:liste' %}"
+                           class="nav-item {% block nav_facturation %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-all duration-300{% endblock %}">
                             <span class="material-icons text-sm">receipt</span>
                             <span class="font-lato text-sm lg:text-base">Facturation</span>
                         </a>
-
-                        {% if user.profil == 'super_admin' %}
-                        <div class="border-t border-gray-200 my-4"></div>
-                        <div class="px-3 py-2">
-                            <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider font-lato">
-                                Administration
-                            </h4>
-                        </div>
-
-                        <a href="{% url 'users:liste_gestionnaires' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">supervisor_account</span>
-                            <span class="font-lato text-sm lg:text-base">Gestion Gestionnaires</span>
-                            <span class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full font-lato">Admin</span>
-                        </a>
-
-                        <a href="{% url 'users:historique' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">history</span>
-                            <span class="font-lato text-sm lg:text-base">Historique Activités</span>
-                        </a>
-                        
-                        <a href="{% url 'users:journal_actions' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg">
-                            <span class="material-icons text-sm">security</span>
-                            <span class="font-lato text-sm lg:text-base">Journal d'audit</span>
-                        </a>
-                        {% endif %}
                     </div>
                 </nav>
 
-                <!-- User Menu -->
-                <div class="border-t border-gray-200 p-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 lg:w-10 h-8 lg:h-10 bg-[#02066F] rounded-full flex items-center justify-center">
-                            <span class="material-icons text-white text-sm">person</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-gray-900 font-lato truncate">{{ user.first_name|default:user.username }}</p>
-                            <p class="text-xs text-gray-500 font-lato truncate">{{ user.get_profil_display }}</p>
-                        </div>
-                        <div class="relative group">
-                            <button class="p-1 text-gray-400 hover:text-[#02066F] transition-colors">
-                                <span class="material-icons text-sm">more_vert</span>
-                            </button>
-                            <div class="absolute bottom-full right-0 mb-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <a href="{% url 'users:profil' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 first:rounded-t-lg">
-                                    <span class="material-icons text-sm">account_circle</span>
-                                    <span class="font-lato text-sm">Mon Profil</span>
-                                </a>
+                <!-- User Section -->
+                <div class="border-t border-gray-200 p-4 bg-transparent-white">
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center w-full space-x-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div class="w-8 h-8 bg-gradient-to-br from-[#02066F] to-[#030a8a] rounded-full flex items-center justify-center shadow-repavi">
+                                <span class="material-icons text-white text-sm">person</span>
+                            </div>
+                            <div class="flex-1 text-left">
+                                <p class="text-sm font-medium text-gray-900 font-lato truncate">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-500 font-lato">{{ user.get_profil_display }}</p>
+                            </div>
+                            <span class="material-icons text-sm transition-transform duration-200" id="user-menu-icon">expand_more</span>
+                        </button>
+                        
+                        <div id="user-menu" class="hidden absolute bottom-full left-0 w-full mb-2 bg-transparent-white rounded-lg shadow-repavi-lg border border-gray-200 py-1">
+                            <div class="px-4 py-2 border-b border-gray-100">
+                                <p class="text-sm font-medium text-gray-900 font-lato truncate">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-500 font-lato">{{ user.email }}</p>
+                            </div>
+                            <div class="py-1">
                                 {% if user.profil == 'super_admin' %}
-                                <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
-                                    <span class="material-icons text-sm">supervisor_account</span>
+                                <a href="{% url 'users:liste_gestionnaires' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors">
+                                    <span class="material-icons text-sm">manage_accounts</span>
                                     <span class="font-lato text-sm">Gestionnaires</span>
                                 </a>
-                                <a href="{% url 'users:creer_gestionnaire' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50">
+                                <a href="{% url 'users:creer_gestionnaire' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 transition-colors">
                                     <span class="material-icons text-sm">person_add</span>
                                     <span class="font-lato text-sm">Nouveau Gestionnaire</span>
                                 </a>
@@ -206,7 +284,7 @@
                                 <hr class="my-1">
                                 <form action="{% url 'logout' %}" method="post" class="m-0">
                                     {% csrf_token %}
-                                    <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left">
+                                    <button type="submit" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 last:rounded-b-lg w-full text-left transition-colors">
                                         <span class="material-icons text-sm">logout</span>
                                         <span class="font-lato text-sm">Déconnexion</span>
                                     </button>
@@ -217,11 +295,12 @@
                 </div>
             </div>
         </aside>
+        
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col lg:ml-64">
             
             <!-- Fixed Header -->
-            <header class="bg-white border-b border-gray-200 px-4 lg:px-6 py-4 fixed w-full z-20" style="left: 0; width: 100%;" 
+            <header class="header-bg border-b border-gray-200 px-4 lg:px-6 py-4 fixed w-full z-20 shadow-repavi" style="left: 0; width: 100%;" 
                     class="lg:left-64 lg:w-[calc(100%-16rem)]">
                 <div class="flex items-center justify-between ml-0 lg:ml-64">
                     <div class="flex-1 ml-12 lg:ml-0">
@@ -235,232 +314,124 @@
 
                     <div class="flex items-center space-x-2 lg:space-x-3">
                         {% block header_actions %}{% endblock %}
-
-                        <!-- Notifications -->
-                        <div class="relative" id="notification-center">
-                            <button onclick="toggleNotifications()" 
-                                    class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors relative">
-                                <span class="material-icons text-lg lg:text-xl">notifications</span>
-                                <span id="notification-badge" class="absolute -top-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 bg-red-500 text-white text-xs rounded-full hidden items-center justify-center">
-                                    0
-                                </span>
-                            </button>
-
-                            <!-- Dropdown -->
-                            <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 lg:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
-                                <div class="flex items-center justify-between p-4 border-b border-gray-200">
-                                    <h3 class="font-semibold text-gray-900 font-lato">Notifications</h3>
-                                    <button onclick="markAllAsRead()" class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">
-                                        Tout marquer lu
-                                    </button>
-                                </div>
-                                <div id="notification-list" class="max-h-96 overflow-y-auto">
-                                    <div class="p-4 text-center text-gray-500 font-lato">
-                                        Chargement...
-                                    </div>
-                                </div>
-                                <div class="border-t border-gray-200 p-3">
-                                    <a href="{% url 'notifications:all' %}" 
-                                       class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">
-                                        Voir toutes les notifications →
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-lg lg:text-xl">refresh</span>
-                        </button>
                     </div>
                 </div>
             </header>
-
-            <!-- Scrollable Content -->
-            <main class="flex-1 overflow-y-auto pt-16 lg:pt-20 bg-gray-50">
-                <div class="p-4 lg:p-6">
-                    {% block breadcrumb %}
-                    <nav class="flex items-center space-x-2 text-gray-600 mb-6 font-lato text-sm">
-                        <a href="{% url 'dashboard' %}" class="hover:text-[#02066F] truncate">Dashboard</a>
-                        <span class="material-icons text-sm">chevron_right</span>
-                        <a href="{% url 'appartements:liste' %}" class="hover:text-[#02066F] truncate">Appartements</a>
-                        {% block breadcrumb_extra %}{% endblock %}
-                    </nav>
-                    {% endblock %}
-
-                    {% if messages %}
-                    <div class="mb-6 space-y-3">
-                        {% for message in messages %}
-                        <div class="flex items-start p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-[#02066F]/5 text-[#02066F] border border-[#02066F]/20{% endif %}">
-                            <span class="material-icons mr-3 flex-shrink-0">
-                                {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+            
+            <!-- Main Content -->
+            <main class="flex-1 overflow-auto pt-20 p-4 lg:p-6">
+                <!-- Messages -->
+                {% if messages %}
+                <div class="mb-4 lg:mb-6 space-y-2">
+                    {% for message in messages %}
+                    <div class="px-4 py-3 rounded-lg text-sm font-medium font-lato shadow-repavi bg-transparent-white
+                        {% if message.tags == 'success' %}border-l-4 border-green-500 text-green-800
+                        {% elif message.tags == 'error' %}border-l-4 border-red-500 text-red-800
+                        {% elif message.tags == 'warning' %}border-l-4 border-yellow-500 text-yellow-800
+                        {% else %}border-l-4 border-blue-500 text-blue-800{% endif %}">
+                        <div class="flex items-center space-x-2">
+                            <span class="material-icons text-sm">
+                                {% if message.tags == 'success' %}check_circle
+                                {% elif message.tags == 'error' %}error
+                                {% elif message.tags == 'warning' %}warning
+                                {% else %}info{% endif %}
                             </span>
-                            <span class="font-lato text-sm lg:text-base">{{ message }}</span>
+                            <span>{{ message }}</span>
                         </div>
-                        {% endfor %}
                     </div>
-                    {% endif %}
-
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Page Content -->
+                <div class="space-y-4 lg:space-y-6">
                     {% block content %}{% endblock %}
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Messages Django cachés -->
-    <div class="django-messages hidden">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    </div>
-
-    <!-- Scripts -->
+    <!-- JavaScript for Mobile Menu and Interactions -->
     <script>
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const closeSidebar = document.getElementById('close-sidebar');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('mobile-menu-overlay');
-
-    function toggleSidebar() {
-        sidebar.classList.toggle('-translate-x-full');
-        overlay.classList.toggle('hidden');
-    }
-
-    mobileMenuBtn.addEventListener('click', toggleSidebar);
-    closeSidebar.addEventListener('click', toggleSidebar);
-    overlay.addEventListener('click', toggleSidebar);
-
-    window.addEventListener('resize', () => {
-        if (window.innerWidth >= 1024) {
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-menu-overlay');
+        const closeSidebar = document.getElementById('close-sidebar');
+        
+        function openSidebar() {
             sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        }
+        
+        function closeSidebarFn() {
+            sidebar.classList.add('-translate-x-full');
             overlay.classList.add('hidden');
         }
-    });
-
-    let notificationDropdownOpen = false;
-    function toggleNotifications() {
-        const dropdown = document.getElementById('notification-dropdown');
-        notificationDropdownOpen = !notificationDropdownOpen;
-        if (notificationDropdownOpen) {
-            dropdown.classList.remove('hidden');
-            loadNotifications();
-        } else {
-            dropdown.classList.add('hidden');
-        }
-    }
-
-    document.addEventListener('click', function(e) {
-        const center = document.getElementById('notification-center');
-        if (!center.contains(e.target) && notificationDropdownOpen) {
-            document.getElementById('notification-dropdown').classList.add('hidden');
-            notificationDropdownOpen = false;
-        }
-    });
-
-    function loadNotifications() {
-        fetch('/api/notifications/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(r => r.json())
-        .then(data => {
-            updateNotificationsList(data.notifications);
-            updateNotificationBadge(data.unread_count);
+        
+        mobileMenuBtn?.addEventListener('click', openSidebar);
+        closeSidebar?.addEventListener('click', closeSidebarFn);
+        overlay?.addEventListener('click', closeSidebarFn);
+        
+        // User menu toggle
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userMenuIcon = document.getElementById('user-menu-icon');
+        
+        userMenuBtn?.addEventListener('click', function() {
+            userMenu.classList.toggle('hidden');
+            userMenuIcon.style.transform = userMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         });
-    }
-
-    function updateNotificationsList(notifications) {
-        const list = document.getElementById('notification-list');
-        if (notifications.length === 0) {
-            list.innerHTML = `
-                <div class="p-8 text-center">
-                    <span class="material-icons text-gray-400 text-3xl mb-2">notifications_none</span>
-                    <p class="text-gray-500 font-lato">Aucune notification</p>
-                </div>
-            `;
-            return;
-        }
-        list.innerHTML = notifications.map(notif => `
-            <div class="p-4 border-b border-gray-100 hover:bg-gray-50 ${notif.read ? 'opacity-75' : ''}" 
-                 onclick="markAsRead(${notif.id}, '${notif.url}')">
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-${notif.color}-100 rounded-full flex items-center justify-center">
-                            <span class="material-icons text-${notif.color}-600 text-sm">${notif.icon}</span>
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm font-medium text-gray-900 font-lato ${notif.read ? '' : 'font-bold'} truncate">${notif.title}</p>
-                            <span class="text-xs text-gray-500 font-lato flex-shrink-0 ml-2">${notif.time_ago}</span>
-                        </div>
-                        <p class="text-sm text-gray-600 font-lato mt-1">${notif.message}</p>
-                        ${notif.url ? `
-                            <div class="mt-2">
-                                <span class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato cursor-pointer">
-                                    ${notif.url_text} →
-                                </span>
-                            </div>
-                        ` : ''}
-                    </div>
-                    ${!notif.read ? '<div class="w-2 h-2 bg-[#02066F] rounded-full flex-shrink-0"></div>' : ''}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function updateNotificationBadge(count) {
-        const badge = document.getElementById('notification-badge');
-        if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
-            badge.classList.remove('hidden');
-            badge.classList.add('flex');
-        } else {
-            badge.classList.add('hidden');
-            badge.classList.remove('flex');
-        }
-    }
-
-    function markAsRead(id, url) {
-        fetch(`/api/notifications/${id}/read/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        }).then(() => {
-            if (url && url !== 'undefined') {
-                window.location.href = url;
-            } else {
-                loadNotifications();
+        
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!userMenuBtn?.contains(event.target) && !userMenu?.contains(event.target)) {
+                userMenu?.classList.add('hidden');
+                if (userMenuIcon) {
+                    userMenuIcon.style.transform = 'rotate(0deg)';
+                }
             }
         });
-    }
-
-    function markAllAsRead() {
-        fetch('/api/notifications/mark-all-read/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'X-Requested-With': 'XMLHttpRequest'
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            // Escape to close sidebar and menus
+            if (event.key === 'Escape') {
+                closeSidebarFn();
+                userMenu?.classList.add('hidden');
+                if (userMenuIcon) {
+                    userMenuIcon.style.transform = 'rotate(0deg)';
+                }
             }
-        }).then(() => loadNotifications());
-    }
-
-    setInterval(() => {
-        if (!notificationDropdownOpen) {
-            fetch('/api/notifications/count/')
-                .then(r => r.json())
-                .then(data => updateNotificationBadge(data.count));
+        });
+        
+        // Smooth animations for page load
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.3s ease-in-out';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+        
+        // Active navigation highlighting
+        function setActiveNav() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-item');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.startsWith(href) && href !== '/') {
+                    link.classList.add('text-[#02066F]', 'bg-[#02066F]/10', 'font-medium');
+                    link.classList.remove('text-gray-600');
+                }
+            });
         }
-    }, 30000);
-
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('/api/notifications/count/')
-            .then(r => r.json())
-            .then(data => updateNotificationBadge(data.count))
-            .catch(() => {});
-    });
+        
+        // Call on page load
+        document.addEventListener('DOMContentLoaded', setActiveNav);
     </script>
-
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

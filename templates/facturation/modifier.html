@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block nav_facturation %}
+flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-all duration-300
+{% endblock %}
+
+{% block title %}Modifier Facture {{ facture.numero }} - RepAvi Lodges{% endblock %}
+{% block page_title %}Modifier Facture {{ facture.numero }}{% endblock %}
+{% block page_subtitle %}{{ facture.client.prenom }} {{ facture.client.nom }} • {{ facture.date_emission|date:"d/m/Y" }}{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-3">
+    <a href="{% url 'facturation:detail' facture.pk %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">arrow_back</span>
+        Retour Détail
+    </a>
+    
+    <a href="{% url 'facturation:preview' facture.pk %}" 
+       target="_blank"
+       class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">preview</span>
+        Aperçu
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    
+    <!-- Alerte si facture payée -->
+    {% if facture.statut == 'payee' %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center space-x-3">
+            <span class="material-icons text-yellow-600">warning</span>
+            <div>
+                <h4 class="font-medium text-yellow-800">Facture payée</h4>
+                <p class="text-yellow-700 text-sm">Cette facture est marquée comme payée. Les modifications sont limitées.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+        
+        <!-- Informations de base (lecture seule) -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F]">info</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 font-lato">Informations de Base</h2>
+                    <p class="text-gray-600 font-lato">Ces informations ne peuvent pas être modifiées</p>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Numéro de facture</label>
+                        <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                            <div class="font-medium text-gray-900 font-lato">{{ facture.numero }}</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Client</label>
+                        <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                            <div class="font-medium text-gray-900 font-lato">{{ facture.client.prenom }} {{ facture.client.nom }}</div>
+                            <div class="text-sm text-gray-600 font-lato">{{ facture.client.email }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Réservation</label>
+                        <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                            <div class="font-medium text-gray-900 font-lato">Appartement {{ facture.reservation.appartement.numero }}</div>
+                            <div class="text-sm text-gray-600 font-lato">
+                                {{ facture.reservation.date_arrivee|date:"d/m/Y" }} → {{ facture.reservation.date_depart|date:"d/m/Y" }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Date d'émission</label>
+                        <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                            <div class="font-medium text-gray-900 font-lato">{{ facture.date_emission|date:"d/m/Y à H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statut de la facture -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-blue-600">flag</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 font-lato">Statut</h2>
+                    <p class="text-gray-600 font-lato">Modifier le statut de la facture</p>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Statut actuel</label>
+                    <select name="statut" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                        {% for code, nom in statuts %}
+                        <option value="{{ code }}" {% if facture.statut == code %}selected{% endif %}>{{ nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 font-lato">Statut actuel</label>
+                    <div class="bg-gray-50 px-4 py-3 rounded-lg">
+                        {% if facture.statut == 'emise' %}
+                        <span class="inline-flex px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium font-lato">
+                            {{ facture.get_statut_display }}
+                        </span>
+                        {% elif facture.statut == 'payee' %}
+                        <span class="inline-flex px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium font-lato">
+                            {{ facture.get_statut_display }}
+                        </span>
+                        {% elif facture.statut == 'annulee' %}
+                        <span class="inline-flex px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium font-lato">
+                            {{ facture.get_statut_display }}
+                        </span>
+                        {% else %}
+                        <span class="inline-flex px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium font-lato">
+                            {{ facture.get_statut_display }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Frais modifiables -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-orange-600">edit</span>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 font-lato">Frais Modifiables</h2>
+                    <p class="text-gray-600 font-lato">Ajuster les frais supplémentaires</p>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Frais de ménage</label>
+                    <div class="relative">
+                        <input type="number" 
+                               name="frais_menage" 
+                               value="{{ facture.frais_menage }}"
+                               step="500"
+                               min="0"
+                               {% if facture.statut == 'payee' %}readonly{% endif %}
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                        <span class="absolute right-3 top-3 text-gray-500 text-sm font-lato">FCFA</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Frais de service</label>
+                    <div class="relative">
+                        <input type="number" 
+                               name="frais_service" 
+                               value="{{ facture.frais_service }}"
+                               step="500"
+                               min="0"
+                               {% if facture.statut == 'payee' %}readonly{% endif %}
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                        <span class="absolute right-3 top-3 text-gray-500 text-sm font-lato">FCFA</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Remise</label>
+                    <div class="relative">
+                        <input type="number" 
+                               name="remise" 
+                               value="{{ facture.remise }}"
+                               step="500"
+                               min="0"
+                               {% if facture.statut == 'payee' %}readonly{% endif %}
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                        <span class="absolute right-3 top-3 text-gray-500 text-sm font-lato">FCFA</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aperçu des totaux -->
+        <div class="bg-[#02066F]/5 rounded-lg border border-[#02066F]/20 p-6">
+            <h3 class="font-semibold text-[#02066F] mb-4 flex items-center space-x-2 font-lato">
+                <span class="material-icons">calculate</span>
+                <span>Aperçu des Totaux</span>
+            </h3>
+            
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="text-sm text-gray-600 font-lato">Montant HT</div>
+                    <div id="montant-ht" class="text-lg font-bold text-gray-900 font-lato">{{ facture.montant_ht|floatformat:0 }} FCFA</div>
+                </div>
+                
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="text-sm text-gray-600 font-lato">TVA ({{ facture.taux_tva }}%)</div>
+                    <div id="montant-tva" class="text-lg font-bold text-gray-900 font-lato">{{ facture.montant_tva|floatformat:0 }} FCFA</div>
+                </div>
+                
+                <div class="text-center p-3 bg-white rounded-lg">
+                    <div class="text-sm text-gray-600 font-lato">Total TTC</div>
+                    <div id="montant-ttc" class="text-lg font-bold text-[#02066F] font-lato">{{ facture.montant_ttc|floatformat:0 }} FCFA</div>
+                </div>
+                
+                <div class="text-center p-3 bg-[#02066F] text-white rounded-lg">
+                    <div class="text-sm opacity-90 font-lato">Nouveau Total</div>
+                    <div id="montant-final" class="text-lg font-bold font-lato">{{ facture.montant_ttc|floatformat:0 }} FCFA</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes et conditions -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Notes</label>
+                <textarea name="notes" 
+                          rows="4"
+                          {% if facture.statut == 'payee' %}readonly{% endif %}
+                          placeholder="Notes additionnelles pour cette facture..."
+                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">{{ facture.notes }}</textarea>
+            </div>
+            
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Conditions de paiement</label>
+                <textarea name="conditions_paiement" 
+                          rows="4"
+                          {% if facture.statut == 'payee' %}readonly{% endif %}
+                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">{{ facture.conditions_paiement }}</textarea>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-6">
+            <a href="{% url 'facturation:detail' facture.pk %}" 
+               class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors font-medium font-lato">
+                <span class="material-icons text-sm mr-2">close</span>
+                <span>Annuler</span>
+            </a>
+            
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'facturation:preview' facture.pk %}" 
+                   target="_blank"
+                   class="inline-flex items-center px-6 py-3 border border-[#02066F] text-[#02066F] rounded-lg hover:bg-[#02066F]/5 transition-colors font-medium font-lato">
+                    <span class="material-icons text-sm mr-2">preview</span>
+                    <span>Aperçu</span>
+                </a>
+                
+                {% if facture.statut != 'payee' %}
+                <button type="submit" 
+                        class="inline-flex items-center px-8 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-medium font-lato">
+                    <span class="material-icons text-sm mr-2">save</span>
+                    <span>Enregistrer</span>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Calcul automatique des totaux
+document.addEventListener('DOMContentLoaded', function() {
+    const prixSejour = {{ facture.reservation.prix_total }};
+    const tauxTva = {{ facture.taux_tva }};
+    
+    const fraisMenageInput = document.querySelector('input[name="frais_menage"]');
+    const fraisServiceInput = document.querySelector('input[name="frais_service"]');
+    const remiseInput = document.querySelector('input[name="remise"]');
+    
+    const montantHtElement = document.getElementById('montant-ht');
+    const montantTvaElement = document.getElementById('montant-tva');
+    const montantTtcElement = document.getElementById('montant-ttc');
+    const montantFinalElement = document.getElementById('montant-final');
+    
+    function calculerTotaux() {
+        const fraisMenage = parseFloat(fraisMenageInput.value) || 0;
+        const fraisService = parseFloat(fraisServiceInput.value) || 0;
+        const remise = parseFloat(remiseInput.value) || 0;
+        
+        const montantHt = prixSejour + fraisMenage + fraisService - remise;
+        const montantTva = montantHt * (tauxTva / 100);
+        const montantTtc = montantHt + montantTva;
+        
+        montantHtElement.textContent = Math.round(montantHt).toLocaleString('fr-FR') + ' FCFA';
+        montantTvaElement.textContent = Math.round(montantTva).toLocaleString('fr-FR') + ' FCFA';
+        montantTtcElement.textContent = Math.round(montantTtc).toLocaleString('fr-FR') + ' FCFA';
+        montantFinalElement.textContent = Math.round(montantTtc).toLocaleString('fr-FR') + ' FCFA';
+    }
+    
+    // Recalculer à chaque modification
+    if (fraisMenageInput && !fraisMenageInput.readOnly) {
+        fraisMenageInput.addEventListener('input', calculerTotaux);
+        fraisServiceInput.addEventListener('input', calculerTotaux);
+        remiseInput.addEventListener('input', calculerTotaux);
+    }
+});
+</script>
+{% endblock %}

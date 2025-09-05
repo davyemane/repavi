@@ -14,7 +14,7 @@ class ClientForm(forms.ModelForm):
         model = Client
         fields = [
             'nom', 'prenom', 'telephone', 'email',
-            'piece_identite', 'adresse_residence',
+            'numero_identite', 'piece_identite', 'adresse_residence',
             'contact_urgence_nom', 'contact_urgence_tel'
         ]
         widgets = {
@@ -33,6 +33,10 @@ class ClientForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100',
                 'placeholder': 'email@exemple.com'
+            }),
+            'numero_identite': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100',
+                'placeholder': 'Numéro CNI, passeport...'
             }),
             'piece_identite': forms.FileInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600',
@@ -57,12 +61,14 @@ class ClientForm(forms.ModelForm):
             'prenom': 'Prénom',
             'telephone': 'Numéro de téléphone',
             'email': 'Adresse email',
+            'numero_identite': 'Numéro d\'identité',
             'piece_identite': 'Pièce d\'identité (photo)',
             'adresse_residence': 'Adresse de résidence',
             'contact_urgence_nom': 'Contact d\'urgence - Nom',
             'contact_urgence_tel': 'Contact d\'urgence - Téléphone',
         }
         help_texts = {
+            'numero_identite': 'Numéro de CNI, passeport ou autre pièce d\'identité',
             'piece_identite': 'Photo de la carte d\'identité ou passeport',
             'contact_urgence_nom': 'Personne à contacter en cas d\'urgence',
         }

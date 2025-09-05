@@ -13,15 +13,19 @@ class Client(models.Model):
     telephone = models.CharField(max_length=20, verbose_name='Téléphone')
     email = models.EmailField(verbose_name='Email')
     
+    # Numéro d'identité (CNI, Passeport, etc.)
+    numero_identite = models.CharField(
+        max_length=50, 
+        verbose_name='Numéro d\'identité',
+        help_text='Numéro de CNI, passeport ou autre pièce d\'identité'
+    )
+    
     # Document (selon cahier)
     piece_identite = models.ImageField(
         upload_to='clients/documents/',
         verbose_name='Pièce d\'identité (photo)'
     )
-
-    # numero cni ou passeport
-    numero_identite = models.CharField(max_length=100, verbose_name='Numéro de CNI ou Passeport')
-
+    
     # Adresse (selon cahier)
     adresse_residence = models.TextField(verbose_name='Résidence habituelle')
     
