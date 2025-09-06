@@ -87,7 +87,7 @@ def generer_facture_reservation(request, reservation_pk):
         # Récupérer les paramètres par défaut
         parametres = ParametresFacturation.get_parametres()
         
-        # Créer la facture
+        # Créer la facture - CORRECTION: Assigner cree_par
         facture = Facture(
             reservation=reservation,
             client=reservation.client,
@@ -96,7 +96,7 @@ def generer_facture_reservation(request, reservation_pk):
             frais_service=float(request.POST.get('frais_service', 0)),
             remise=float(request.POST.get('remise', 0)),
             notes=request.POST.get('notes', ''),
-            cree_par=request.user,
+            cree_par=request.user,  # ← CORRECTION: Assigner l'utilisateur
         )
         facture.save()
         
@@ -115,7 +115,7 @@ def generer_facture_reservation(request, reservation_pk):
 @login_required
 @user_passes_test(is_gestionnaire)
 def facture_pdf(request, pk):
-    """Génère le PDF d'une facture"""
+    """Génère le PDF d'une facture - VERSION AMÉLIORÉE"""
     if not WEASYPRINT_AVAILABLE:
         messages.error(request, 'La génération PDF n\'est pas disponible. Veuillez installer WeasyPrint.')
         return redirect('facturation:detail', pk=pk)
@@ -129,8 +129,8 @@ def facture_pdf(request, pk):
         'details_sejour': facture.get_details_sejour(),
         'parametres': ParametresFacturation.get_parametres(),
         'date_impression': datetime.now(),
-        'user': request.user,  # ← Ajoutez cette ligne
-
+        'user': request.user,
+        'STATIC_URL': settings.STATIC_URL,  # ← AJOUT: Pour les images
     }
     
     # Rendu du template HTML
@@ -140,22 +140,116 @@ def facture_pdf(request, pk):
     # Configuration des polices
     font_config = FontConfiguration()
     
-    # CSS pour le PDF
-    css_content = """
-        @page {
+    # CSS amélioré pour le PDF avec filigrane
+    css_content = f"""
+        @page {{
             size: A4;
-            margin: 1cm;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
+            margin: 15mm 12mm;
+        }}
+        
+        body {{
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 11px;
             line-height: 1.4;
-        }
+            color: #1f2937;
+            position: relative;
+        }}
+        
+        /* Filigrane en CSS (fallback si l'image ne charge pas) */
+        body::before {{
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="20" fill="rgba(2,6,111,0.03)" text-anchor="middle">RepAvi</text></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            z-index: -1;
+            pointer-events: none;
+        }}
+        
+        .container {{
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.98);
+        }}
+        
+        /* Styles optimisés pour WeasyPrint */
+        .header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 0;
+            border-bottom: 3px solid #02066F;
+            margin-bottom: 25px;
+        }}
+        
+        .logo-section {{
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }}
+        
+        .company-info h1 {{
+            font-size: 24px;
+            font-weight: bold;
+            color: #02066F;
+            margin: 0;
+        }}
+        
+        .facture-title {{
+            background: #02066F;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }}
+        
+        .facture-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }}
+        
+        .facture-table th {{
+            background: #02066F;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }}
+        
+        .facture-table td {{
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }}
+        
+        .totaux-table {{
+            border: 2px solid #02066F;
+            margin-left: auto;
+            margin-top: 20px;
+        }}
+        
+        .totaux-table td {{
+            padding: 8px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }}
+        
+        .total-final td {{
+            background: #02066F;
+            color: white;
+            font-weight: bold;
+        }}
     """
     
     # Génération du PDF
     try:
-        html = HTML(string=html_string)
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
         css = CSS(string=css_content, font_config=font_config)
         pdf_file = html.write_pdf(stylesheets=[css], font_config=font_config)
         
@@ -173,7 +267,7 @@ def facture_pdf(request, pk):
 @login_required
 @user_passes_test(is_gestionnaire)
 def facture_preview(request, pk):
-    """Aperçu HTML de la facture (pour debug)"""
+    """Aperçu HTML de la facture (pour debug) - VERSION AMÉLIORÉE"""
     facture = get_object_or_404(Facture, pk=pk)
     
     context = {
@@ -182,10 +276,14 @@ def facture_preview(request, pk):
         'details_sejour': facture.get_details_sejour(),
         'parametres': ParametresFacturation.get_parametres(),
         'date_impression': datetime.now(),
+        'user': request.user,
+        'STATIC_URL': settings.STATIC_URL,  # ← AJOUT: Pour les images
         'preview': True,  # Pour afficher des styles différents
     }
     
     return render(request, 'facturation/facture_pdf.html', context)
+
+
 
 
 @login_required

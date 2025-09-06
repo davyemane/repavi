@@ -3,106 +3,426 @@
 <head>
     <meta charset="UTF-8">
     <title>Inventaire Général - RepAvi Lodges</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 12mm;
+        }
+
+        body {
+            font-family: "Arial", sans-serif;
+            font-size: 11px;
+            color: #1f2937;
+            background: transparent;
+            position: relative;
+        }
+
+        /* Filigrane logo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40%;
+            height: 40%;
+            background-image: url('{{ STATIC_URL }}images/logorepavie.svg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.03;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.97);
+        }
+
+        /* HEADER avec logo */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 3px solid #02066F;
+            margin-bottom: 25px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-section img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
+
+        .company-info h1 {
+            font-size: 22px;
+            font-weight: bold;
+            color: #02066F;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .company-info p {
+            font-size: 11px;
+            color: #6b7280;
+            margin: 2px 0 0 0;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .rapport-title {
+            background: #02066F;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .rapport-title h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .rapport-subtitle {
+            font-size: 13px;
+            margin: 5px 0 0 0;
+        }
+
+        .rapport-meta {
+            font-size: 10px;
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+
+        /* STATS GLOBALES */
+        .stats-section {
+            margin-bottom: 25px;
+        }
+
+        .stats-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #02066F;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stats-cell {
+            text-align: center;
+            background: white;
+            padding: 20px 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #02066F;
+        }
+
+        .stats-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #02066F;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .stats-label {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        /* TABLEAUX */
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #02066F;
+            margin: 25px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .equipement-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .equipement-table th {
+            background: #02066F;
+            color: white;
+            padding: 12px 8px;
+            font-size: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .equipement-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .equipement-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .equipement-table tr:hover {
+            background: #f3f4f6;
+        }
+
+        .equipement-table tfoot tr {
+            background: #02066F !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        .equipement-table tfoot td {
+            border-bottom: none;
+            color: white;
+        }
+
+        /* DÉTAIL APPARTEMENTS */
+        .appartement-detail {
+            break-inside: avoid;
+            margin-top: 25px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .appartement-detail h4 {
+            background: #02066F;
+            color: white;
+            padding: 8px 12px;
+            margin: -15px -15px 15px -15px;
+            border-radius: 8px 8px 0 0;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .appartement-detail .equipement-table {
+            margin-top: 10px;
+            font-size: 9px;
+        }
+
+        .appartement-detail .equipement-table th {
+            padding: 8px 6px;
+            font-size: 9px;
+        }
+
+        .appartement-detail .equipement-table td {
+            padding: 6px;
+            font-size: 9px;
+        }
+
+        /* ÉTATS ÉQUIPEMENTS */
+        .etat-bon {
+            color: #10b981;
+            font-weight: bold;
+            background: #d1fae5;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .etat-usage {
+            color: #3b82f6;
+            font-weight: bold;
+            background: #dbeafe;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .etat-defectueux {
+            color: #f59e0b;
+            font-weight: bold;
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .etat-hors-service {
+            color: #ef4444;
+            font-weight: bold;
+            background: #fee2e2;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .break-inside-avoid {
+            break-inside: avoid;
+        }
+
+        /* FOOTER */
+        .footer-info {
+            margin-top: auto;
+            background: linear-gradient(135deg, #02066F 0%, #1e40af 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .footer-info p {
+            margin: 3px 0;
+        }
+
+        .footer-info strong {
+            color: #fbbf24;
+        }
+    </style>
 </head>
 <body>
-    <!-- En-tête -->
-    <div class="header">
-        <div class="logo">RepAvi Lodges</div>
-        <div class="rapport-title">Inventaire Général du Système</div>
-        <div style="font-size: 10pt; color: #666; margin-top: 10px;">
-            Généré le {{ date_generation|date:"d/m/Y à H:i" }} par {{ utilisateur.get_full_name|default:utilisateur.username }}
-        </div>
-    </div>
+    <div class="container">
 
-    <!-- Résumé global -->
-    <div class="stats-grid">
-        <div class="stats-row">
-            <div class="stats-cell">
-                <div class="stats-number">{{ appartements_data|length }}</div>
-                <div>Appartements</div>
+        <!-- HEADER avec logo -->
+        <div class="header">
+            <div class="logo-section">
+                <img src="{{ STATIC_URL }}images/logorepavie.svg" alt="RepAvi Logo" onerror="this.style.display='none'">
+                <div class="company-info">
+                    <h1>RepAvi Lodges</h1>
+                    <p>Système de Gestion Hôtelière</p>
+                </div>
             </div>
-            <div class="stats-cell">
-                <div class="stats-number">{{ total_equipements }}</div>
-                <div>Équipements</div>
-            </div>
-            <div class="stats-cell">
-                <div class="stats-number">{{ valeur_totale|floatformat:0 }}</div>
-                <div>FCFA Total</div>
-            </div>
-            <div class="stats-cell">
-                <div class="stats-number">{{ valeur_moyenne|floatformat:0 }}</div>
-                <div>FCFA Moyen</div>
+            <div class="header-right">
+                <div style="font-size: 11px; font-weight: bold; color: #02066F;">+237 XXX XXX XXX</div>
+                <div style="font-size: 10px; color: #6b7280;">contact@repavi.com</div>
+                <div style="font-size: 10px; color: #6b7280;">Bafoussam, Cameroun</div>
             </div>
         </div>
-    </div>
 
-    <!-- Inventaire par appartement -->
-    <h3>Inventaire par Appartement</h3>
-    <table class="equipement-table">
-        <thead>
-            <tr>
-                <th>Appartement</th>
-                <th>Type</th>
-                <th>Nb Équipements</th>
-                <th>Valeur Totale (FCFA)</th>
-                <th>Valeur Moyenne (FCFA)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for data in appartements_data %}
-            <tr>
-                <td><strong>{{ data.appartement.numero }}</strong></td>
-                <td>{{ data.appartement.get_type_logement_display }}</td>
-                <td>{{ data.nb_equipements }}</td>
-                <td>{{ data.valeur_totale|floatformat:0 }}</td>
-                <td>{{ data.valeur_moyenne|floatformat:0 }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr style="background-color: #f8f9fa; font-weight: bold;">
-                <td colspan="2">TOTAL GÉNÉRAL</td>
-                <td>{{ total_equipements }}</td>
-                <td>{{ valeur_totale|floatformat:0 }}</td>
-                <td>{{ valeur_moyenne|floatformat:0 }}</td>
-            </tr>
-        </tfoot>
-    </table>
+        <!-- TITRE RAPPORT -->
+        <div class="rapport-title">
+            <h2>INVENTAIRE GÉNÉRAL DU SYSTÈME</h2>
+            <div class="rapport-subtitle">Rapport Complet de tous les Appartements</div>
+            <div class="rapport-meta">
+                Généré le {{ date_generation|date:"d/m/Y à H:i" }} par {{ utilisateur.get_full_name|default:utilisateur.username }}
+            </div>
+        </div>
 
-    <!-- Statistiques détaillées par appartement -->
-    {% for data in appartements_data %}
-    {% if data.nb_equipements > 0 %}
-    <div class="break-inside-avoid" style="margin-top: 30px;">
-        <h4>{{ data.appartement.numero }} - Détail</h4>
+        <!-- RÉSUMÉ GLOBAL -->
+        <div class="stats-section">
+            <div class="stats-title">RÉSUMÉ GLOBAL</div>
+            <div class="stats-grid">
+                <div class="stats-cell">
+                    <div class="stats-number">{{ appartements_data|length }}</div>
+                    <div class="stats-label">Appartements</div>
+                </div>
+                <div class="stats-cell">
+                    <div class="stats-number">{{ total_equipements }}</div>
+                    <div class="stats-label">Équipements</div>
+                </div>
+                <div class="stats-cell">
+                    <div class="stats-number">{{ valeur_totale|floatformat:0 }}</div>
+                    <div class="stats-label">FCFA Total</div>
+                </div>
+                <div class="stats-cell">
+                    <div class="stats-number">{{ valeur_moyenne|floatformat:0 }}</div>
+                    <div class="stats-label">FCFA Moyen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVENTAIRE PAR APPARTEMENT -->
+        <h3 class="section-title">Inventaire par Appartement</h3>
         <table class="equipement-table">
             <thead>
                 <tr>
-                    <th>Équipement</th>
-                    <th>État</th>
-                    <th>Prix d'achat</th>
-                    <th>Date d'achat</th>
+                    <th style="width: 25%;">Appartement</th>
+                    <th style="width: 25%;">Type</th>
+                    <th style="width: 20%;">Nb Équipements</th>
+                    <th style="width: 15%;">Valeur Totale</th>
+                    <th style="width: 15%;">Valeur Moyenne</th>
                 </tr>
             </thead>
             <tbody>
-                {% for equipement in data.appartement.inventaire_equipements.all %}
+                {% for data in appartements_data %}
                 <tr>
-                    <td>{{ equipement.nom }}</td>
-                    <td class="etat-{{ equipement.etat }}">{{ equipement.get_etat_display }}</td>
-                    <td>{{ equipement.prix_achat|floatformat:0 }} FCFA</td>
-                    <td>{{ equipement.date_achat|date:"d/m/Y" }}</td>
+                    <td style="font-weight: bold; text-align: left;">{{ data.appartement.numero }}</td>
+                    <td style="text-align: left;">{{ data.appartement.get_type_logement_display }}</td>
+                    <td style="font-weight: bold;">{{ data.nb_equipements }}</td>
+                    <td style="font-weight: bold;">{{ data.valeur_totale|floatformat:0 }} FCFA</td>
+                    <td style="font-weight: bold;">{{ data.valeur_moyenne|floatformat:0 }} FCFA</td>
                 </tr>
                 {% endfor %}
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">TOTAL GÉNÉRAL</td>
+                    <td>{{ total_equipements }}</td>
+                    <td>{{ valeur_totale|floatformat:0 }} FCFA</td>
+                    <td>{{ valeur_moyenne|floatformat:0 }} FCFA</td>
+                </tr>
+            </tfoot>
         </table>
-    </div>
-    {% endif %}
-    {% endfor %}
 
-    <!-- Pied de page -->
-    <div class="footer-info">
-        <p><strong>Note :</strong> Inventaire général simplifié selon cahier des charges RepAvi Lodges.</p>
-        <p><strong>Total appartements :</strong> {{ appartements_data|length }} | <strong>Total équipements :</strong> {{ total_equipements }} | <strong>Valeur totale :</strong> {{ valeur_totale|floatformat:0 }} FCFA</p>
-        <p><strong>Généré le :</strong> {{ date_generation|date:"d/m/Y à H:i" }} par {{ utilisateur.get_full_name|default:utilisateur.username }}</p>
+        <!-- DÉTAILS PAR APPARTEMENT -->
+        <h3 class="section-title">Détails par Appartement</h3>
+        {% for data in appartements_data %}
+        {% if data.nb_equipements > 0 %}
+        <div class="appartement-detail">
+            <h4>{{ data.appartement.numero }} - {{ data.appartement.get_type_logement_display }} ({{ data.nb_equipements }} équipements)</h4>
+            <table class="equipement-table">
+                <thead>
+                    <tr>
+                        <th style="width: 35%;">Équipement</th>
+                        <th style="width: 20%;">État</th>
+                        <th style="width: 25%;">Prix d'achat</th>
+                        <th style="width: 20%;">Date d'achat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for equipement in data.appartement.inventaire_equipements.all %}
+                    <tr>
+                        <td style="text-align: left; font-weight: 500;">{{ equipement.nom }}</td>
+                        <td><span class="etat-{{ equipement.etat }}">{{ equipement.get_etat_display }}</span></td>
+                        <td style="font-weight: bold;">{{ equipement.prix_achat|floatformat:0 }} FCFA</td>
+                        <td>{{ equipement.date_achat|date:"d/m/Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <!-- FOOTER -->
+        <div class="footer-info">
+            <p><strong>Note :</strong> Inventaire général simplifié selon cahier des charges RepAvi Lodges.</p>
+            <p><strong>Total appartements :</strong> {{ appartements_data|length }} | <strong>Total équipements :</strong> {{ total_equipements }} | <strong>Valeur totale :</strong> {{ valeur_totale|floatformat:0 }} FCFA</p>
+            <p><strong>Généré le :</strong> {{ date_generation|date:"d/m/Y à H:i" }} par {{ utilisateur.get_full_name|default:utilisateur.username }}</p>
+        </div>
+
     </div>
 </body>
 </html>

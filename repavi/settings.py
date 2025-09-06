@@ -609,3 +609,71 @@ if DEBUG:
         'NB_RESERVATIONS_TEST': 15,
         'GENERATE_PHOTOS': False,  # Éviter de générer des photos en test
     }
+
+
+# === FACTURATION PDF selon cahier - CORRIGÉ ===
+FACTURE_SETTINGS = {
+    # CORRECTION: Utiliser le bon fichier logo (SVG au lieu de PNG)
+    'LOGO_PATH': STATIC_ROOT / 'images' / 'logorepavie.svg',  # ← Changé de logo_repavi.png
+    'LOGO_URL': STATIC_URL + 'images/logorepavie.svg',  # ← Ajouté pour templates
+    'TEMPLATE_PDF': 'facturation/facture_pdf.html',
+    'NUMEROTATION_PREFIX': 'FAC',
+    'NUMEROTATION_YEAR': True,
+    
+    # AJOUT: Configuration pour filigrane
+    'WATERMARK_OPACITY': 0.03,
+    'WATERMARK_SIZE': '40%',
+    'COMPANY_NAME': 'RepAvi Lodges',
+    'COMPANY_TAGLINE': 'Excellence & Confort',
+}
+
+# === AJOUT: Configuration spécifique pour les PDFs ===
+PDF_SETTINGS = {
+    'DEFAULT_FONT': 'DejaVu Sans',
+    'FALLBACK_FONTS': ['Arial', 'sans-serif'],
+    'PAGE_SIZE': 'A4',
+    'MARGINS': {
+        'top': '15mm',
+        'right': '12mm',
+        'bottom': '15mm',
+        'left': '12mm',
+    },
+    'WATERMARK': {
+        'enabled': True,
+        'logo_path': 'images/logorepavie.svg',
+        'opacity': 0.03,
+        'size': '40%',
+        'position': 'center',
+    }
+}
+
+# === AJOUT: Vérification des fichiers statiques au démarrage ===
+import logging
+logger = logging.getLogger(__name__)
+
+def check_logo_files():
+    """Vérifie que les fichiers logo existent"""
+    logo_files = [
+        STATIC_ROOT / 'images' / 'logorepavie.svg',
+        STATIC_ROOT / 'images' / 'logorepavie.ico',
+        STATIC_ROOT / 'images' / 'logorepavie-180.png',
+    ]
+    
+    for logo_file in logo_files:
+        if not logo_file.exists():
+            logger.warning(f'Fichier logo manquant: {logo_file}')
+            
+    return True
+
+# Vérifier les logos seulement en développement
+if DEBUG:
+    try:
+        check_logo_files()
+    except Exception as e:
+        logger.warning(f'Impossible de vérifier les logos: {e}')
+
+# === CORRECTION: Mise à jour des paramètres pour templates ===
+TEMPLATES[0]['OPTIONS']['context_processors'].extend([
+    # Ajouté pour avoir accès aux settings FACTURE dans les templates
+    'apps.facturation.context_processors.facture_settings',
+])

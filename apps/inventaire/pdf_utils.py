@@ -12,6 +12,7 @@ from datetime import datetime
 
 from apps.appartements.models import Appartement
 from apps.users.views import is_gestionnaire
+from repavi import settings
 from .models import EquipementAppartement
 
 @login_required
@@ -46,6 +47,8 @@ def generer_pdf_inventaire(request, appartement_pk):
         'pourcentage_bon': pourcentage_bon,
         'date_generation': datetime.now(),
         'utilisateur': request.user,
+        'STATIC_URL': settings.STATIC_URL,  # ← AJOUT pour le logo
+
     }
     
     # Rendu du template
@@ -208,6 +211,8 @@ def generer_pdf_general(request):
         'valeur_moyenne': valeur_moyenne,
         'date_generation': datetime.now(),
         'utilisateur': request.user,
+        'STATIC_URL': settings.STATIC_URL,  # ← AJOUT pour le logo
+
     }
     
     template = get_template('inventaire/pdf_general.html')
