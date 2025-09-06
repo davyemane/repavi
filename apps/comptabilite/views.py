@@ -120,6 +120,18 @@ def ajouter_mouvement(request):
     }
     return render(request, 'comptabilite/ajouter_mouvement.html', context)
 
+
+def clean_int_param(value, default):
+    """Nettoie et convertit un paramètre en entier"""
+    try:
+        if isinstance(value, str):
+            # Supprimer espaces, espaces insécables, et autres caractères invisibles
+            cleaned = ''.join(c for c in value if c.isdigit())
+            return int(cleaned) if cleaned else default
+        return int(value)
+    except (ValueError, TypeError):
+        return default
+
 @login_required
 @user_passes_test(is_gestionnaire)
 def detail_appartement(request, appartement_pk):
@@ -131,9 +143,8 @@ def detail_appartement(request, appartement_pk):
     appartement = get_object_or_404(Appartement, pk=appartement_pk)
     
     # Mois sélectionné
-    annee = int(request.GET.get('annee', datetime.now().year))
-    mois = int(request.GET.get('mois', datetime.now().month))
-    
+    annee = clean_int_param(request.GET.get('annee'), datetime.now().year)
+    mois = clean_int_param(request.GET.get('mois'), datetime.now().month)    
     # Mouvements du mois
     mouvements = ComptabiliteAppartement.objects.filter(
         appartement=appartement,

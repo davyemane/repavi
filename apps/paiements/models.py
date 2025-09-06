@@ -62,10 +62,13 @@ class EcheancierPaiement(models.Model):
         # self.recalculer_echeancier_reservation()
     
     def recalculer_echeancier_reservation(self):
-        """Recalculer l'échéancier complet de la réservation après paiement"""
-        total_paye = EcheancierPaiement.objects.filter(
+        """Recalculer l'échéancier complet de la réservation après paiement - CORRIGÉ"""
+        # CORRECTION : Utiliser .get() au lieu d'accès direct à la clé
+        total_paye_result = EcheancierPaiement.objects.filter(
             reservation=self.reservation
-        ).aggregate(total=models.Sum('montant_paye'))['total'] or Decimal('0')
+        ).aggregate(total=models.Sum('montant_paye'))
+        
+        total_paye = total_paye_result.get('total') or Decimal('0')
         
         total_reservation = self.reservation.prix_total
         solde_global = total_reservation - total_paye
@@ -89,16 +92,15 @@ class EcheancierPaiement(models.Model):
     
     @classmethod
     def get_situation_reservation(cls, reservation):
-        """Obtenir la situation financière d'une réservation"""
+        """Obtenir la situation financière d'une réservation - CORRIGÉ"""
         echeances = cls.objects.filter(reservation=reservation)
         
-        total_prevu = echeances.aggregate(
-            total=models.Sum('montant_prevu')
-        )['total'] or Decimal('0')
+        # CORRECTION : Utiliser .get() au lieu d'accès direct aux clés
+        total_prevu_result = echeances.aggregate(total=models.Sum('montant_prevu'))
+        total_prevu = total_prevu_result.get('total') or Decimal('0')
         
-        total_paye = echeances.aggregate(
-            total=models.Sum('montant_paye')
-        )['total'] or Decimal('0')
+        total_paye_result = echeances.aggregate(total=models.Sum('montant_paye'))
+        total_paye = total_paye_result.get('total') or Decimal('0')
         
         return {
             'total_prevu': total_prevu,

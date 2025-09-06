@@ -1,5 +1,5 @@
 # ==========================================
-# apps/paiements/urls.py
+# apps/paiements/urls.py - URLs des paiements
 # ==========================================
 from django.urls import path
 from . import views

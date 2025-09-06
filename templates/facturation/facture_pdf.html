@@ -1,527 +1,340 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facture {{ facture.numero }} - RepAvi Lodges</title>
-    
     <style>
-        /* === STYLES REPAVI POUR PDF === */
         @page {
             size: A4;
-            margin: 2cm 1.5cm;
-            
-            @top-center {
-                content: element(header);
-            }
-            
-            @bottom-center {
-                content: element(footer);
-            }
+            margin: 15mm 12mm;
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: "Arial", sans-serif;
             font-size: 11px;
-            line-height: 1.4;
-            color: #333;
-            background-color: #fff;
+            color: #1f2937;
+            background: #fff;
         }
-        
-        /* === EN-TÊTE REPAVI === */
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
         .header {
-            position: running(header);
-            background: linear-gradient(135deg, #02066F 0%, #030a8a 100%);
+            background: #02066F;
             color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 18px 22px;
+            border-radius: 10px;
             margin-bottom: 20px;
         }
-        
-        .header-content {
+
+        .header-grid {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
-        .logo-section {
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            font-size: 20px;
-        }
-        
+
         .company-info h1 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
-        
+
         .company-info p {
-            font-size: 12px;
+            font-size: 11px;
             opacity: 0.9;
         }
-        
+
         .contact-info {
-            text-align: right;
-            font-size: 11px;
-        }
-        
-        .contact-info div {
-            margin-bottom: 3px;
-        }
-        
-        /* === PIED DE PAGE REPAVI === */
-        .footer {
-            position: running(footer);
-            background: #f8f9fa;
-            border-top: 3px solid #02066F;
-            padding: 15px 20px;
             font-size: 10px;
-            color: #666;
-            text-align: center;
-        }
-        
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .footer-left {
-            text-align: left;
-        }
-        
-        .footer-center {
-            text-align: center;
-            font-weight: bold;
-            color: #02066F;
-        }
-        
-        .footer-right {
             text-align: right;
+            line-height: 1.4;
         }
-        
-        /* === CONTENU PRINCIPAL === */
-        .main-content {
-            margin-top: 100px; /* Espace pour l'en-tête */
-            margin-bottom: 80px; /* Espace pour le pied de page */
-        }
-        
-        /* === TITRE FACTURE === */
+
+        /* TITRE FACTURE */
         .facture-title {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #02066F 0%, #030a8a 100%);
-            color: white;
-            border-radius: 10px;
+            margin: 15px 0 25px;
         }
-        
+
         .facture-title h2 {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: bold;
-            margin-bottom: 5px;
+            color: #02066F;
+            margin-bottom: 4px;
         }
-        
+
         .facture-numero {
             font-size: 16px;
-            opacity: 0.9;
+            color: #6b7280;
         }
-        
-        /* === INFORMATIONS CLIENT === */
-        .client-info-section {
+
+        /* INFO GRID */
+        .info-grid {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
+            gap: 20px;
+            margin-bottom: 25px;
         }
-        
-        .client-info, .facture-info {
-            width: 48%;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #02066F;
+
+        .info-card {
+            flex: 1;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 15px;
         }
-        
-        .client-info h3, .facture-info h3 {
+
+        .info-card h3 {
+            font-size: 13px;
             color: #02066F;
-            font-size: 14px;
             font-weight: bold;
-            margin-bottom: 10px;
-            text-transform: uppercase;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 4px;
         }
-        
-        .client-info p, .facture-info p {
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-        
+
         .client-name {
             font-weight: bold;
-            font-size: 14px !important;
-            color: #333;
+            font-size: 12px;
         }
-        
-        /* === DÉTAILS DU SÉJOUR === */
-        .sejour-details {
-            background: #e8f4fd;
-            border: 2px solid #02066F;
+
+        /* SÉJOUR */
+        .sejour-section {
+            background: #f0f7ff;
+            border: 1px solid #c7ddfa;
             border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .sejour-details h3 {
-            color: #02066F;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .sejour-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .sejour-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .sejour-label {
-            font-weight: bold;
-            color: #555;
-        }
-        
-        .sejour-value {
-            color: #02066F;
-            font-weight: bold;
-        }
-        
-        /* === TABLEAU DES LIGNES === */
-        .lignes-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .lignes-table thead {
-            background: linear-gradient(135deg, #02066F 0%, #030a8a 100%);
-            color: white;
-        }
-        
-        .lignes-table th {
-            padding: 12px 8px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        
-        .lignes-table td {
-            padding: 12px 8px;
-            border-bottom: 1px solid #eee;
-            font-size: 11px;
-        }
-        
-        .lignes-table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .text-right {
-            text-align: right !important;
-        }
-        
-        .text-center {
-            text-align: center !important;
-        }
-        
-        .montant {
-            font-weight: bold;
-            color: #02066F;
-        }
-        
-        /* === TOTAUX === */
-        .totaux-section {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 30px;
-        }
-        
-        .totaux-table {
-            width: 300px;
-            border-collapse: collapse;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        
-        .totaux-table td {
-            padding: 10px 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 12px;
-        }
-        
-        .totaux-table .label {
-            background: #f8f9fa;
-            font-weight: bold;
-            color: #555;
-            text-align: right;
-        }
-        
-        .totaux-table .montant {
-            text-align: right;
-            font-weight: bold;
-            color: #02066F;
-            background: white;
-        }
-        
-        .totaux-table .total-final {
-            background: linear-gradient(135deg, #02066F 0%, #030a8a 100%) !important;
-            color: white !important;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        /* === INFORMATIONS SUPPLÉMENTAIRES === */
-        .info-supplementaires {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-        
-        .conditions, .notes {
-            width: 48%;
-            background: #f8f9fa;
             padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #02066F;
+            margin-bottom: 20px;
         }
-        
-        .conditions h4, .notes h4 {
-            color: #02066F;
+
+        .sejour-section h3 {
             font-size: 13px;
             font-weight: bold;
             margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        
-        .conditions p, .notes p {
-            font-size: 11px;
-            line-height: 1.5;
-        }
-        
-        /* === SIGNATURE === */
-        .signature-section {
-            margin-top: 50px;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .signature-box {
-            width: 200px;
-            text-align: center;
-            border-top: 2px solid #02066F;
-            padding-top: 10px;
-        }
-        
-        .signature-label {
-            font-size: 12px;
-            font-weight: bold;
             color: #02066F;
         }
-        
-        /* === STYLES POUR PRÉVISUALISATION === */
-        {% if preview %}
-        body {
-            padding: 20px;
-            background: #f5f5f5;
+
+        .sejour-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
         }
-        
-        .main-content {
+
+        .sejour-item {
             background: white;
-            padding: 40px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            margin-top: 0;
-            margin-bottom: 0;
+            border-left: 3px solid #02066F;
+            padding: 6px 8px;
+            border-radius: 6px;
         }
-        
-        .header, .footer {
-            position: static;
-            margin: 20px 0;
+
+        .sejour-label {
+            font-size: 9px;
+            color: #6b7280;
         }
-        {% endif %}
-        
-        /* === RESPONSIVE === */
-        @media print {
-            .main-content {
-                margin-top: 0;
-                margin-bottom: 0;
-            }
-        }
-        
-        /* === UTILITAIRES === */
-        .text-bold {
+
+        .sejour-value {
+            font-size: 11px;
             font-weight: bold;
         }
-        
-        .text-primary {
-            color: #02066F;
+
+        /* TABLEAU */
+        .facture-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
         }
-        
-        .bg-primary {
+
+        .facture-table th {
             background: #02066F;
             color: white;
+            padding: 10px;
+            font-size: 10px;
+            text-align: left;
         }
-        
-        .page-break {
-            page-break-before: always;
+
+        .facture-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 10.5px;
+        }
+
+        .facture-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: bold; }
+
+        /* TOTAUX */
+        .totaux-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 25px;
+        }
+
+        .totaux-table {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 280px;
+        }
+
+        .totaux-table td {
+            padding: 7px 14px;
+            font-size: 11px;
+        }
+
+        .totaux-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .totaux-table .label {
+            color: #4b5563;
+        }
+
+        .totaux-table .montant {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .total-final td {
+            background: #02066F;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* CONDITIONS ET NOTES */
+        .bottom-grid {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            flex: 1;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 15px;
+        }
+
+        .card h4 {
+            font-size: 11px;
+            color: #02066F;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .card p {
+            font-size: 10px;
+            color: #374151;
+            line-height: 1.4;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: auto;
+            background: #1f2937;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+        }
+
+        .footer-center {
+            font-weight: bold;
+            text-align: center;
+            color: #fbbf24;
         }
     </style>
 </head>
 <body>
-    <!-- EN-TÊTE REPAVI -->
-    <div class="header">
-        <div class="header-content">
-            <div class="logo-section">
-                <div class="logo">🏠</div>
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-grid">
                 <div class="company-info">
                     <h1>{{ parametres.nom_entreprise }}</h1>
-                    <p>Système de Gestion Hôtelière</p>
+                    <p>Système de Gestion Hôtelière - Excellence & Confort</p>
+                </div>
+                <div class="contact-info">
+                    <div><strong>{{ parametres.telephone }}</strong></div>
+                    <div>{{ parametres.email }}</div>
+                    <div>{{ parametres.adresse }}</div>
                 </div>
             </div>
-            <div class="contact-info">
-                <div><strong>{{ parametres.telephone }}</strong></div>
-                <div>{{ parametres.email }}</div>
-                <div>{{ parametres.site_web|default:"www.repavilodges.com" }}</div>
-            </div>
         </div>
-    </div>
 
-    <!-- PIED DE PAGE REPAVI -->
-    <div class="footer">
-        <div class="footer-content">
-            <div class="footer-left">
-                <div>{{ parametres.mentions_legales }}</div>
-                {% if parametres.numero_contribuable %}
-                <div>N° Contribuable: {{ parametres.numero_contribuable }}</div>
-                {% endif %}
-            </div>
-            <div class="footer-center">
-                RepAvi Lodges - Excellence & Confort
-            </div>
-            <div class="footer-right">
-                <div>{{ parametres.adresse }}</div>
-                <div>Imprimé le {{ date_impression|date:"d/m/Y à H:i" }}</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CONTENU PRINCIPAL -->
-    <div class="main-content">
-        
-        <!-- TITRE DE LA FACTURE -->
+        <!-- TITRE -->
         <div class="facture-title">
             <h2>FACTURE</h2>
-            <div class="facture-numero">{{ facture.numero }}</div>
+            <div class="facture-numero">N° {{ facture.numero }}</div>
         </div>
 
-        <!-- INFORMATIONS CLIENT ET FACTURE -->
-        <div class="client-info-section">
-            <div class="client-info">
-                <h3>📧 Facturé à</h3>
+        <!-- INFOS -->
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>FACTURÉ À</h3>
                 <p class="client-name">{{ facture.client.prenom }} {{ facture.client.nom }}</p>
-                <p>{{ facture.client.email }}</p>
                 <p>{{ facture.client.telephone }}</p>
-                <p>{{ facture.client.adresse_residence }}</p>
-                {% if facture.client.numero_identite %}
-                <p><strong>ID:</strong> {{ facture.client.numero_identite }}</p>
-                {% endif %}
+                {% if facture.client.email %}<p>{{ facture.client.email }}</p>{% endif %}
+                {% if facture.client.adresse_residence %}<p>{{ facture.client.adresse_residence }}</p>{% endif %}
+                {% if facture.client.numero_identite %}<p><strong>ID:</strong> {{ facture.client.numero_identite }}</p>{% endif %}
             </div>
-            
-            <div class="facture-info">
-                <h3>📋 Informations Facture</h3>
-                <p><strong>Date d'émission:</strong> {{ facture.date_emission|date:"d/m/Y" }}</p>
-                <p><strong>Date d'échéance:</strong> {{ facture.date_echeance|date:"d/m/Y" }}</p>
-                <p><strong>Statut:</strong> 
-                    <span class="text-primary">{{ facture.get_statut_display }}</span>
-                </p>
-                <p><strong>Créée par:</strong> {{ facture.cree_par.get_full_name|default:facture.cree_par.username }}</p>
+            <div class="info-card">
+                <h3>DÉTAILS FACTURE</h3>
+                <p><strong>Émission:</strong> {{ facture.date_emission|date:"d/m/Y" }}</p>
+                <p><strong>Échéance:</strong> {{ facture.date_echeance|date:"d/m/Y" }}</p>
+                <p><strong>Statut:</strong> {{ facture.get_statut_display }}</p>
+                <p><strong>Créée par:</strong> {% if facture.cree_par %}{{ facture.cree_par.get_full_name|default:facture.cree_par.username }}{% else %}Système{% endif %}</p>
             </div>
         </div>
 
-        <!-- DÉTAILS DU SÉJOUR -->
-        <div class="sejour-details">
-            <h3>🏠 DÉTAILS DU SÉJOUR</h3>
+        <!-- SEJOUR -->
+        <div class="sejour-section">
+            <h3>DÉTAILS DU SÉJOUR</h3>
             <div class="sejour-grid">
-                <div class="sejour-item">
-                    <span class="sejour-label">Appartement:</span>
-                    <span class="sejour-value">{{ details_sejour.appartement }}</span>
-                </div>
-                <div class="sejour-item">
-                    <span class="sejour-label">Type:</span>
-                    <span class="sejour-value">{{ details_sejour.type_logement }}</span>
-                </div>
-                <div class="sejour-item">
-                    <span class="sejour-label">Arrivée:</span>
-                    <span class="sejour-value">{{ details_sejour.date_arrivee|date:"d/m/Y" }}</span>
-                </div>
-                <div class="sejour-item">
-                    <span class="sejour-label">Départ:</span>
-                    <span class="sejour-value">{{ details_sejour.date_depart|date:"d/m/Y" }}</span>
-                </div>
-                <div class="sejour-item">
-                    <span class="sejour-label">Durée:</span>
-                    <span class="sejour-value">{{ details_sejour.nombre_nuits }} nuit(s)</span>
-                </div>
-                <div class="sejour-item">
-                    <span class="sejour-label">Prix/nuit:</span>
-                    <span class="sejour-value">{{ details_sejour.prix_par_nuit|floatformat:0 }} FCFA</span>
-                </div>
+                <div class="sejour-item"><span class="sejour-label">Appartement</span><br><span class="sejour-value">{{ details_sejour.appartement }}</span></div>
+                <div class="sejour-item"><span class="sejour-label">Arrivée</span><br><span class="sejour-value">{{ details_sejour.date_arrivee|date:"d/m/Y" }}</span></div>
+                <div class="sejour-item"><span class="sejour-label">Départ</span><br><span class="sejour-value">{{ details_sejour.date_depart|date:"d/m/Y" }}</span></div>
+                <div class="sejour-item"><span class="sejour-label">Durée</span><br><span class="sejour-value">{{ details_sejour.nombre_nuits }} nuit(s)</span></div>
+                <div class="sejour-item"><span class="sejour-label">Prix/nuit</span><br><span class="sejour-value">{{ details_sejour.prix_nuit|floatformat:0 }} FCFA</span></div>
+                <div class="sejour-item"><span class="sejour-label">Personnes</span><br><span class="sejour-value">{{ facture.reservation.nombre_personnes }}</span></div>
             </div>
         </div>
 
-        <!-- TABLEAU DES LIGNES -->
-        <table class="lignes-table">
+        <!-- TABLE -->
+        <table class="facture-table">
             <thead>
                 <tr>
                     <th style="width: 35%">Désignation</th>
-                    <th style="width: 25%">Description</th>
+                    <th style="width: 30%">Description</th>
                     <th style="width: 10%" class="text-center">Qté</th>
-                    <th style="width: 15%" class="text-right">Prix Unit.</th>
-                    <th style="width: 15%" class="text-right">Montant</th>
+                    <th style="width: 12%" class="text-right">Prix Unit.</th>
+                    <th style="width: 13%" class="text-right">Montant</th>
                 </tr>
             </thead>
             <tbody>
                 {% for ligne in lignes %}
                 <tr>
-                    <td class="text-bold">{{ ligne.designation }}</td>
-                    <td>{{ ligne.description }}</td>
-                    <td class="text-center">{{ ligne.quantite }} {{ ligne.unite }}</td>
+                    <td class="font-bold">{{ ligne.description }}</td>
+                    <td>{{ ligne.detail|default:"-" }}</td>
+                    <td class="text-center">{{ ligne.quantite }}</td>
                     <td class="text-right">{{ ligne.prix_unitaire|floatformat:0 }} FCFA</td>
-                    <td class="text-right montant">{{ ligne.montant|floatformat:0 }} FCFA</td>
+                    <td class="text-right font-bold">{{ ligne.total|floatformat:0 }} FCFA</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -530,67 +343,37 @@
         <!-- TOTAUX -->
         <div class="totaux-section">
             <table class="totaux-table">
-                <tr>
-                    <td class="label">Sous-total HT:</td>
-                    <td class="montant">{{ facture.montant_ht|floatformat:0 }} FCFA</td>
-                </tr>
-                <tr>
-                    <td class="label">TVA ({{ facture.taux_tva }}%):</td>
-                    <td class="montant">{{ facture.montant_tva|floatformat:0 }} FCFA</td>
-                </tr>
-                <tr>
-                    <td class="label total-final">TOTAL TTC:</td>
-                    <td class="montant total-final">{{ facture.montant_ttc|floatformat:0 }} FCFA</td>
-                </tr>
+                <tr><td class="label">Sous-total HT:</td><td class="montant">{{ facture.montant_ht|floatformat:0 }} FCFA</td></tr>
+                <tr><td class="label">TVA ({{ facture.taux_tva }}%):</td><td class="montant">{{ facture.montant_tva|floatformat:0 }} FCFA</td></tr>
+                <tr class="total-final"><td>Total TTC</td><td class="montant">{{ facture.montant_ttc|floatformat:0 }} FCFA</td></tr>
             </table>
         </div>
 
-        <!-- INFORMATIONS SUPPLÉMENTAIRES -->
-        <div class="info-supplementaires">
-            <div class="conditions">
-                <h4>💼 Conditions de Paiement</h4>
-                <p>{{ facture.conditions_paiement }}</p>
-                
-                <h4 style="margin-top: 15px;">📋 Informations Légales</h4>
-                <p>{{ parametres.conditions_generales }}</p>
+        <!-- NOTES ET CONDITIONS -->
+        <div class="bottom-grid">
+            <div class="card">
+                <h4>Conditions de paiement</h4>
+                <p>{{ facture.conditions_paiement|default:"Paiement à réception de facture." }}</p>
+                <h4 style="margin-top: 10px;">Informations légales</h4>
+                <p>{% if parametres.numero_contribuable %}N° Contribuable: {{ parametres.numero_contribuable }}<br>{% endif %}{{ parametres.mentions_legales|default:"RepAvi Lodges - Société de gestion hôtelière." }}</p>
             </div>
-            
             {% if facture.notes %}
-            <div class="notes">
-                <h4>📝 Notes</h4>
+            <div class="card">
+                <h4>Notes</h4>
                 <p>{{ facture.notes|linebreaks }}</p>
             </div>
             {% endif %}
         </div>
 
-        <!-- SIGNATURE -->
-        <div class="signature-section">
-            <div class="signature-box">
-                <div class="signature-label">Le Client</div>
-                <div style="height: 50px;"></div>
-                <div style="border-top: 1px solid #ccc; padding-top: 5px; font-size: 10px;">
-                    Signature et date
-                </div>
-            </div>
-            
-            <div class="signature-box">
-                <div class="signature-label">RepAvi Lodges</div>
-                <div style="height: 50px;"></div>
-                <div style="border-top: 1px solid #ccc; padding-top: 5px; font-size: 10px;">
-                    Signature autorisée
-                </div>
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="footer-grid">
+                <div>{{ parametres.adresse }}<br>{{ parametres.telephone }} • {{ parametres.email }}</div>
+                <div class="footer-center">RepAvi Lodges<br>Excellence & Confort</div>
+                <div style="text-align:right;">Facture {{ facture.numero }}<br>Imprimée le {{ date_impression|date:"d/m/Y à H:i" }}</div>
             </div>
         </div>
 
-        <!-- REMERCIEMENTS -->
-        <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #02066F;">
-            <p style="font-size: 14px; color: #02066F; font-weight: bold;">
-                Merci de votre confiance ! 🙏
-            </p>
-            <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                Nous espérons vous revoir bientôt dans nos établissements RepAvi Lodges.
-            </p>
-        </div>
     </div>
 </body>
 </html>

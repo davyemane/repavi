@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Comptabilité {{ appartement.numero }} - RepAvi Lodges{% endblock %}
+{% block page_title %}Comptabilité Appartement {{ appartement.numero }}{% endblock %}
+{% block page_subtitle %}{{ mois_nom }} • Revenus - Charges = Résultat{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-3">
+    <a href="{% url 'comptabilite:rapport_mensuel' %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">arrow_back</span>
+        Retour rapport
+    </a>
+    
+    <a href="{% url 'comptabilite:ajouter_mouvement' %}?appartement={{ appartement.pk }}" 
+       class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">add</span>
+        Ajouter Mouvement
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Résumé du mois -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 font-lato">Revenus</p>
+                    <p class="text-2xl font-bold text-green-600 font-lato">{{ revenus|floatformat:0 }} FCFA</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-green-600">trending_up</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 font-lato">Charges</p>
+                    <p class="text-2xl font-bold text-red-600 font-lato">{{ charges|floatformat:0 }} FCFA</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-red-600">trending_down</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 font-lato">Résultat</p>
+                    <p class="text-2xl font-bold {% if resultat >= 0 %}text-[#02066F]{% else %}text-red-600{% endif %} font-lato">
+                        {{ resultat|floatformat:0 }} FCFA
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F]">calculate</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 font-lato">Réservations</p>
+                    <p class="text-2xl font-bold text-blue-600 font-lato">{{ reservations_mois.count }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-blue-600">event_available</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filtres par mois -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Changer de période</h3>
+        <form method="get" class="flex items-center space-x-4">
+            <select name="annee" class="px-3 py-2 border border-gray-300 rounded-lg font-lato">
+                {% for y in "2023,2024,2025,2026"|make_list %}
+                <option value="{{ y }}" {% if y|add:0 == annee %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="mois" class="px-3 py-2 border border-gray-300 rounded-lg font-lato">
+                {% for m in "1,2,3,4,5,6,7,8,9,10,11,12"|make_list %}
+                <option value="{{ m }}" {% if m|add:0 == mois %}selected{% endif %}>
+                    {% if m == "1" %}Janvier{% elif m == "2" %}Février{% elif m == "3" %}Mars
+                    {% elif m == "4" %}Avril{% elif m == "5" %}Mai{% elif m == "6" %}Juin
+                    {% elif m == "7" %}Juillet{% elif m == "8" %}Août{% elif m == "9" %}Septembre
+                    {% elif m == "10" %}Octobre{% elif m == "11" %}Novembre{% elif m == "12" %}Décembre{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-lato">
+                Appliquer
+            </button>
+        </form>
+    </div>
+
+    <!-- Mouvements du mois -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 font-lato">Mouvements comptables - {{ mois_nom }}</h3>
+        </div>
+        
+        {% if mouvements %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Libellé</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Montant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for mouvement in mouvements %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-lato">
+                            {{ mouvement.date_mouvement|date:"d/m/Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap font-lato">
+                            <span class="px-2 py-1 text-xs rounded-full 
+                                {% if mouvement.type_mouvement == 'revenu' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ mouvement.get_type_mouvement_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 font-lato">{{ mouvement.libelle }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium font-lato
+                            {% if mouvement.type_mouvement == 'revenu' %}text-green-600
+                            {% else %}text-red-600{% endif %}">
+                            {% if mouvement.type_mouvement == 'revenu' %}+{% else %}-{% endif %}{{ mouvement.montant|floatformat:0 }} FCFA
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-lato">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'comptabilite:modifier_mouvement' mouvement.pk %}" 
+                                   class="text-blue-600 hover:underline">Modifier</a>
+                                <a href="{% url 'comptabilite:supprimer_mouvement' mouvement.pk %}" 
+                                   class="text-red-600 hover:underline">Supprimer</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <span class="material-icons text-gray-400 text-4xl mb-4">receipt_long</span>
+            <h3 class="text-lg font-medium text-gray-900 mb-2 font-lato">Aucun mouvement</h3>
+            <p class="text-gray-500 mb-6 font-lato">Aucun mouvement comptable enregistré pour cette période</p>
+            <a href="{% url 'comptabilite:ajouter_mouvement' %}?appartement={{ appartement.pk }}" 
+               class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">add</span>
+                Ajouter un mouvement
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Réservations du mois -->
+    {% if reservations_mois %}
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 font-lato">Réservations - {{ mois_nom }}</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Client</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Période</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Nuits</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Montant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">Statut</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for reservation in reservations_mois %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 font-lato">
+                            {{ reservation.client.nom }} {{ reservation.client.prenom }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-lato">
+                            {{ reservation.date_arrivee|date:"d/m" }} - {{ reservation.date_depart|date:"d/m" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-lato">
+                            {{ reservation.nombre_nuits }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 font-lato">
+                            {{ reservation.prix_total|floatformat:0 }} FCFA
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap font-lato">
+                            <span class="px-2 py-1 text-xs rounded-full 
+                                {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                                {% elif reservation.statut == 'en_cours' %}bg-blue-100 text-blue-800
+                                {% elif reservation.statut == 'terminee' %}bg-purple-100 text-purple-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ reservation.get_statut_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Note selon cahier -->
+<div class="mt-8 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
+    <div class="flex items-start space-x-2 text-[#02066F]">
+        <span class="material-icons text-sm mt-0.5">info</span>
+        <div class="text-sm font-lato">
+            <strong>Comptabilité simplifiée :</strong> 
+            Addition des revenus - Soustraction des charges = Résultat. 
+            Pas de calculs complexes selon le cahier des charges.
+        </div>
+    </div>
+</div>
+{% endblock %}

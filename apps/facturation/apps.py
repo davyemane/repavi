@@ -1,24 +1,23 @@
 # ==========================================
-# apps/facturation/apps.py
+# apps/facturation/apps.py - Configuration de l'app facturation
 # ==========================================
 from django.apps import AppConfig
 
 
 class FacturationConfig(AppConfig):
-    """
-    Configuration de l'application facturation RepAvi Lodges
-    """
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.facturation'
-    verbose_name = 'Facturation RepAvi'
+    verbose_name = 'Facturation'
     
     def ready(self):
-        """
-        Code exécuté quand l'application est prête
-        """
-        # Importer les signaux pour les enregistrer
+        """Importer les signaux quand l'app est prête"""
+        import apps.facturation.signals
+        
+        # Optionnel: Créer les paramètres par défaut
         try:
-            from . import signals
-            signals.setup_signals()
-        except ImportError:
+            from .models import ParametresFacturation
+            # S'assurer qu'il y a des paramètres par défaut
+            ParametresFacturation.get_parametres()
+        except Exception:
+            # Ignorer les erreurs au démarrage (migration en cours, etc.)
             pass

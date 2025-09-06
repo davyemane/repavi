@@ -1,99 +1,68 @@
 # ==========================================
-# apps/facturation/signals.py
+# apps/facturation/signals.py - FACTURATION PAR TRANCHE
 # ==========================================
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from django.db.models import Sum
 from datetime import datetime, timedelta
+from decimal import Decimal
 import logging
 
 from apps.reservations.models import Reservation
+from apps.paiements.models import EcheancierPaiement
 from .models import Facture, ParametresFacturation
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
-@receiver(post_save, sender=Reservation)
-def generer_facture_automatique(sender, instance, created, **kwargs):
+@receiver(post_save, sender=EcheancierPaiement)
+def creer_facture_apres_chaque_paiement(sender, instance, created, **kwargs):
     """
-    Génère automatiquement une facture quand une réservation est confirmée
+    Crée une facture à chaque paiement effectué (acompte OU solde)
     """
-    # Vérifier si la réservation est confirmée et n'a pas déjà de facture
-    if (instance.statut == 'confirmee' and 
-        not hasattr(instance, 'facture') and 
-        not created):  # Pas lors de la création, seulement lors de la modification
-        
-        try:
-            # Récupérer les paramètres par défaut
-            parametres = ParametresFacturation.get_parametres()
-            
-            # Créer la facture automatiquement
-            facture = Facture.objects.create(
-                reservation=instance,
-                client=instance.client,
-                date_echeance=datetime.now().date() + timedelta(days=parametres.delai_paiement_jours),
-                frais_menage=parametres.frais_menage_defaut,
-                frais_service=0,
-                remise=0,
-                notes=f"Facture générée automatiquement le {datetime.now().strftime('%d/%m/%Y à %H:%M')}",
-                cree_par=None  # Création automatique
-            )
-            
-            logger.info(f"Facture {facture.numero} générée automatiquement pour la réservation {instance.pk}")
-            
-            # Envoyer une notification aux gestionnaires
-            notifier_facture_generee(facture)
-            
-        except Exception as e:
-            logger.error(f"Erreur lors de la génération automatique de facture pour la réservation {instance.pk}: {e}")
-
-
-@receiver(pre_save, sender=Facture)
-def calculer_montants_facture(sender, instance, **kwargs):
-    """
-    Calcule automatiquement les montants avant sauvegarde
-    """
-    if instance.reservation:
-        # Recalculer les montants
-        instance.calculer_montants()
-
-
-@receiver(post_save, sender=Facture)
-def notifier_creation_facture(sender, instance, created, **kwargs):
-    """
-    Notifie la création ou modification d'une facture
-    """
-    if created:
-        # Nouvelle facture créée
-        logger.info(f"Nouvelle facture créée: {instance.numero} pour {instance.client.nom}")
-        
-        # Optionnel: Envoyer par email
-        if getattr(settings, 'FACTURATION_EMAIL_ENABLED', False):
-            envoyer_facture_par_email(instance)
+    # Ne traiter que les paiements qui viennent d'être marqués comme payés
+    if instance.statut != 'paye':
+        return
     
-    else:
-        # Facture modifiée
-        if hasattr(instance, '_state') and instance._state.db:
-            # Récupérer l'ancienne instance pour comparer
-            try:
-                ancienne_facture = Facture.objects.get(pk=instance.pk)
-                if ancienne_facture.statut != instance.statut:
-                    # Le statut a changé
-                    logger.info(f"Statut de la facture {instance.numero} changé: {ancienne_facture.statut} → {instance.statut}")
-                    
-                    # Actions selon le nouveau statut
-                    if instance.statut == 'payee':
-                        notifier_facture_payee(instance)
-                    elif instance.statut == 'annulee':
-                        notifier_facture_annulee(instance)
-                        
-            except Facture.DoesNotExist:
-                pass
+    try:
+        # Vérifier si une facture existe déjà pour ce paiement spécifique
+        try:
+            facture_existante = Facture.objects.get(echeance_paiement=instance)
+            logger.info(f"Facture {facture_existante.numero} existe déjà pour le paiement {instance.pk}")
+            return
+        except Facture.DoesNotExist:
+            # Pas de facture pour ce paiement, continuer
+            pass
+        
+        # Récupérer les paramètres
+        parametres = ParametresFacturation.get_parametres()
+        
+        # Créer la facture pour ce paiement spécifique
+        facture = Facture.objects.create(
+            echeance_paiement=instance,
+            date_echeance=datetime.now().date() + timedelta(days=parametres.delai_paiement_jours),
+            notes=f"Facture générée automatiquement pour {instance.get_type_paiement_display().lower()} le {datetime.now().strftime('%d/%m/%Y à %H:%M')}",
+            statut='payee',  # Directement payée puisque paiement effectué
+            cree_par=None  # Création automatique
+        )
+        
+        # Calculer le contexte du paiement (soldes avant/après)
+        facture.calculer_contexte_paiement()
+        facture.save()
+        
+        logger.info(f"✅ Facture {facture.numero} créée pour {instance.get_type_paiement_display()} de {instance.montant_paye} FCFA")
+        
+        # Notifier les gestionnaires
+        notifier_facture_generee(facture)
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de la création de facture pour le paiement {instance.pk}: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 def notifier_facture_generee(facture):
@@ -101,255 +70,148 @@ def notifier_facture_generee(facture):
     Notifie les gestionnaires qu'une facture a été générée
     """
     try:
-        # Récupérer tous les gestionnaires actifs
         gestionnaires = User.objects.filter(
             profil__in=['gestionnaire', 'super_admin'],
             is_active=True,
             email__isnull=False
         ).exclude(email='')
         
-        if not gestionnaires.exists():
-            return
-        
-        # Préparer le message
-        sujet = f"RepAvi - Nouvelle facture générée: {facture.numero}"
-        
-        # Template HTML
-        contexte = {
-            'facture': facture,
-            'client': facture.client,
-            'reservation': facture.reservation,
-            'site_url': getattr(settings, 'SITE_URL', 'http://localhost:8000'),
-        }
-        
-        message_html = render_to_string('facturation/emails/facture_generee.html', contexte)
-        message_text = strip_tags(message_html)
-        
-        # Envoyer à tous les gestionnaires
-        emails_gestionnaires = [g.email for g in gestionnaires]
-        
-        send_mail(
-            subject=sujet,
-            message=message_text,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@repavilodges.com'),
-            recipient_list=emails_gestionnaires,
-            html_message=message_html,
-            fail_silently=True
-        )
-        
-        logger.info(f"Notification envoyée aux gestionnaires pour la facture {facture.numero}")
-        
-    except Exception as e:
-        logger.error(f"Erreur lors de l'envoi de notification pour la facture {facture.numero}: {e}")
-
-
-def envoyer_facture_par_email(facture):
-    """
-    Envoie la facture par email au client
-    """
-    try:
-        if not facture.client.email:
-            logger.warning(f"Pas d'email pour le client {facture.client.nom} (facture {facture.numero})")
-            return
-        
-        # Préparer le message pour le client
-        sujet = f"RepAvi Lodges - Votre facture {facture.numero}"
-        
-        contexte = {
-            'facture': facture,
-            'client': facture.client,
-            'reservation': facture.reservation,
-            'parametres': ParametresFacturation.get_parametres(),
-            'site_url': getattr(settings, 'SITE_URL', 'http://localhost:8000'),
-        }
-        
-        message_html = render_to_string('facturation/emails/facture_client.html', contexte)
-        message_text = strip_tags(message_html)
-        
-        # TODO: Attacher le PDF de la facture
-        # Il faudrait générer le PDF et l'attacher à l'email
-        
-        send_mail(
-            subject=sujet,
-            message=message_text,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@repavilodges.com'),
-            recipient_list=[facture.client.email],
-            html_message=message_html,
-            fail_silently=True
-        )
-        
-        logger.info(f"Facture {facture.numero} envoyée par email à {facture.client.email}")
-        
-    except Exception as e:
-        logger.error(f"Erreur lors de l'envoi de la facture {facture.numero} par email: {e}")
-
-
-def notifier_facture_payee(facture):
-    """
-    Notifie qu'une facture a été payée
-    """
-    try:
-        # Marquer la réservation comme payée si nécessaire
-        if hasattr(facture.reservation, 'statut_paiement'):
-            facture.reservation.statut_paiement = 'paye'
-            facture.reservation.save()
-        
-        logger.info(f"Facture {facture.numero} marquée comme payée")
-        
-        # Optionnel: Envoyer un reçu au client
-        if getattr(settings, 'FACTURATION_EMAIL_ENABLED', False):
-            envoyer_recu_paiement(facture)
+        if gestionnaires.exists():
+            # Déterminer si c'est le paiement final
+            est_final = facture.est_paiement_final
+            type_paiement = facture.get_type_facture_display()
             
-    except Exception as e:
-        logger.error(f"Erreur lors du traitement du paiement de la facture {facture.numero}: {e}")
-
-
-def notifier_facture_annulee(facture):
-    """
-    Notifie qu'une facture a été annulée
-    """
-    try:
-        logger.info(f"Facture {facture.numero} annulée")
-        
-        # Optionnel: Notifier le client de l'annulation
-        if getattr(settings, 'FACTURATION_EMAIL_ENABLED', False) and facture.client.email:
-            sujet = f"RepAvi Lodges - Annulation facture {facture.numero}"
+            sujet = f"RepAvi Lodges - Facture {type_paiement} {facture.numero}"
+            
+            # Message détaillé
             message = f"""
-            Bonjour {facture.client.prenom} {facture.client.nom},
-            
-            Nous vous informons que la facture {facture.numero} a été annulée.
-            
-            Si vous avez des questions, n'hésitez pas à nous contacter.
-            
-            Cordialement,
-            L'équipe RepAvi Lodges
+Nouvelle facture générée automatiquement :
+
+Facture : {facture.numero}
+Type : {type_paiement}
+Client : {facture.client.nom} {facture.client.prenom}
+Réservation : #{facture.reservation.pk}
+Appartement : {facture.reservation.appartement.numero}
+
+PAIEMENT :
+• Montant payé : {facture.montant_paiement} FCFA
+• Date paiement : {facture.echeance_paiement.date_paiement}
+• Mode : {facture.echeance_paiement.get_mode_paiement_display() or 'Non spécifié'}
+
+SITUATION :
+• Solde avant : {facture.solde_avant_paiement} FCFA
+• Solde après : {facture.solde_apres_paiement} FCFA
+{'• 🎉 RÉSERVATION ENTIÈREMENT PAYÉE !' if est_final else '• ⏳ Solde restant à payer'}
+
+Période : du {facture.reservation.date_arrivee} au {facture.reservation.date_depart}
+
+📄 Télécharger PDF : /facturation/{facture.pk}/pdf/
+
+RepAvi Lodges
             """
+            
+            emails_gestionnaires = [g.email for g in gestionnaires]
             
             send_mail(
                 subject=sujet,
                 message=message,
                 from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@repavilodges.com'),
-                recipient_list=[facture.client.email],
+                recipient_list=emails_gestionnaires,
                 fail_silently=True
             )
             
+            logger.info(f"📧 Notification envoyée pour facture {type_paiement} {facture.numero}")
+        
     except Exception as e:
-        logger.error(f"Erreur lors de la notification d'annulation de la facture {facture.numero}: {e}")
+        logger.error(f"❌ Erreur notification facture {facture.numero}: {e}")
 
 
-def envoyer_recu_paiement(facture):
+# Fonction utilitaire pour créer manuellement une facture
+def creer_facture_manuelle_paiement(echeance_paiement, user=None, **kwargs):
     """
-    Envoie un reçu de paiement au client
+    Crée manuellement une facture pour un paiement spécifique
     """
     try:
-        if not facture.client.email:
-            return
+        # Vérifier qu'il n'y a pas déjà une facture pour ce paiement
+        try:
+            facture_existante = Facture.objects.get(echeance_paiement=echeance_paiement)
+            raise ValueError(f"Une facture existe déjà pour ce paiement: {facture_existante.numero}")
+        except Facture.DoesNotExist:
+            pass
         
-        sujet = f"RepAvi Lodges - Reçu de paiement {facture.numero}"
+        # Vérifier que le paiement est payé
+        if echeance_paiement.statut != 'paye':
+            raise ValueError("Impossible de créer une facture pour un paiement non effectué")
         
-        contexte = {
-            'facture': facture,
-            'client': facture.client,
-            'parametres': ParametresFacturation.get_parametres(),
-            'date_paiement': datetime.now(),
+        parametres = ParametresFacturation.get_parametres()
+        
+        # Valeurs par défaut
+        defaults = {
+            'date_echeance': datetime.now().date() + timedelta(days=parametres.delai_paiement_jours),
+            'notes': f"Facture créée manuellement le {datetime.now().strftime('%d/%m/%Y à %H:%M')}",
+            'statut': 'payee',
         }
         
-        message_html = render_to_string('facturation/emails/recu_paiement.html', contexte)
-        message_text = strip_tags(message_html)
+        # Fusionner avec les kwargs fournis
+        defaults.update(kwargs)
         
-        send_mail(
-            subject=sujet,
-            message=message_text,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@repavilodges.com'),
-            recipient_list=[facture.client.email],
-            html_message=message_html,
-            fail_silently=True
+        facture = Facture.objects.create(
+            echeance_paiement=echeance_paiement,
+            cree_par=user,
+            **defaults
         )
         
-        logger.info(f"Reçu de paiement envoyé pour la facture {facture.numero}")
+        # Calculer le contexte
+        facture.calculer_contexte_paiement()
+        facture.save()
+        
+        logger.info(f"📋 Facture {facture.numero} créée manuellement pour paiement {echeance_paiement.pk}")
+        return facture
         
     except Exception as e:
-        logger.error(f"Erreur lors de l'envoi du reçu pour la facture {facture.numero}: {e}")
+        logger.error(f"❌ Erreur création facture manuelle pour paiement {echeance_paiement.pk}: {e}")
+        raise
 
 
-# Signal pour nettoyer les factures brouillons anciennes
-@receiver(post_save, sender=User)
-def nettoyer_factures_brouillons(sender, instance, **kwargs):
+# Fonction de diagnostic
+def diagnostic_factures_manquantes():
     """
-    Nettoie périodiquement les factures brouillons anciennes
-    (Se déclenche lors de la connexion d'un super admin)
+    Trouve les paiements sans facture
     """
-    if instance.profil == 'super_admin' and instance.is_active:
+    paiements_sans_facture = EcheancierPaiement.objects.filter(
+        statut='paye',
+        facture__isnull=True
+    )
+    
+    print(f"🔍 {paiements_sans_facture.count()} paiements sans facture trouvés")
+    
+    for paiement in paiements_sans_facture:
+        print(f"  - Paiement #{paiement.pk}: {paiement.get_type_paiement_display()} de {paiement.montant_paye} FCFA (Réservation #{paiement.reservation.pk})")
+    
+    return paiements_sans_facture
+
+
+def creer_factures_manquantes():
+    """
+    Crée toutes les factures manquantes pour les paiements effectués
+    """
+    paiements_sans_facture = diagnostic_factures_manquantes()
+    
+    factures_creees = 0
+    erreurs = 0
+    
+    for paiement in paiements_sans_facture:
         try:
-            # Supprimer les brouillons de plus de 7 jours
-            date_limite = datetime.now() - timedelta(days=7)
-            
-            factures_a_supprimer = Facture.objects.filter(
-                statut='brouillon',
-                date_creation__lt=date_limite
+            facture = creer_facture_manuelle_paiement(
+                echeance_paiement=paiement,
+                notes=f"Facture créée en lot pour paiement du {paiement.date_paiement}"
             )
+            print(f"✅ Facture {facture.numero} créée pour paiement #{paiement.pk}")
+            factures_creees += 1
             
-            count = factures_a_supprimer.count()
-            if count > 0:
-                factures_a_supprimer.delete()
-                logger.info(f"Nettoyage automatique: {count} factures brouillons supprimées")
-                
         except Exception as e:
-            logger.error(f"Erreur lors du nettoyage des factures brouillons: {e}")
-
-
-# Vérification des factures en retard (à appeler périodiquement)
-def verifier_factures_en_retard():
-    """
-    Fonction utilitaire pour vérifier les factures en retard
-    À appeler via une tâche cron ou Celery
-    """
-    try:
-        factures_retard = Facture.objects.filter(
-            statut='emise',
-            date_echeance__lt=datetime.now().date()
-        ).select_related('client', 'reservation')
-        
-        if factures_retard.exists():
-            # Notifier les gestionnaires
-            gestionnaires = User.objects.filter(
-                profil__in=['gestionnaire', 'super_admin'],
-                is_active=True,
-                email__isnull=False
-            ).exclude(email='')
-            
-            if gestionnaires.exists():
-                sujet = f"RepAvi - {factures_retard.count()} facture(s) en retard"
-                
-                contexte = {
-                    'factures_retard': factures_retard,
-                    'count': factures_retard.count(),
-                }
-                
-                message_html = render_to_string('facturation/emails/factures_retard.html', contexte)
-                message_text = strip_tags(message_html)
-                
-                emails_gestionnaires = [g.email for g in gestionnaires]
-                
-                send_mail(
-                    subject=sujet,
-                    message=message_text,
-                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@repavilodges.com'),
-                    recipient_list=emails_gestionnaires,
-                    html_message=message_html,
-                    fail_silently=True
-                )
-                
-                logger.info(f"Alerte envoyée: {factures_retard.count()} factures en retard")
-        
-    except Exception as e:
-        logger.error(f"Erreur lors de la vérification des factures en retard: {e}")
-
-
-# Configuration des signaux dans apps.py
-def setup_signals():
-    """
-    Configure les signaux de l'application facturation
-    """
-    # Les signaux sont automatiquement enregistrés lors de l'import de ce module
-    pass
+            print(f"❌ Erreur paiement #{paiement.pk}: {e}")
+            erreurs += 1
+    
+    print(f"\n📊 RÉSULTAT: {factures_creees} factures créées, {erreurs} erreurs")
+    return factures_creees, erreurs

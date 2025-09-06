@@ -11,6 +11,7 @@ from django.urls import reverse
 from datetime import datetime, timedelta
 import os
 from io import BytesIO
+from django.db.models import Sum
 
 # Import pour PDF
 try:
@@ -128,6 +129,8 @@ def facture_pdf(request, pk):
         'details_sejour': facture.get_details_sejour(),
         'parametres': ParametresFacturation.get_parametres(),
         'date_impression': datetime.now(),
+        'user': request.user,  # ← Ajoutez cette ligne
+
     }
     
     # Rendu du template HTML
@@ -289,23 +292,28 @@ def parametres_facturation(request):
 @login_required
 @user_passes_test(is_gestionnaire)
 def dashboard_facturation(request):
-    """Dashboard de facturation avec statistiques"""
-    # Statistiques du mois en cours
+    """Dashboard de facturation avec statistiques - CORRIGÉ"""
     maintenant = datetime.now()
+    
+    # Statistiques du mois en cours
     factures_mois = Facture.objects.filter(
         date_emission__year=maintenant.year,
         date_emission__month=maintenant.month
     )
     
-    # Calculs des statistiques
+    # CORRECTION : Variables attendues par le template
+    montant_total_result = factures_mois.aggregate(total=Sum('montant_ttc'))
+    montant_total_mois = montant_total_result.get('total') or 0
+    
     stats = {
         'total_factures_mois': factures_mois.count(),
-        'montant_total_mois': sum(f.montant_ttc for f in factures_mois),
+        'montant_total_mois': montant_total_mois,
         'factures_payees': factures_mois.filter(statut='payee').count(),
         'factures_en_attente': factures_mois.filter(statut='emise').count(),
         'taux_paiement': 0,
     }
     
+    # Calcul du taux de paiement
     if stats['total_factures_mois'] > 0:
         stats['taux_paiement'] = round(
             (stats['factures_payees'] / stats['total_factures_mois']) * 100, 1
@@ -319,8 +327,8 @@ def dashboard_facturation(request):
     # Factures en retard
     factures_retard = Facture.objects.filter(
         statut='emise',
-        date_echeance__lt=datetime.now().date()
-    ).select_related('client')
+        date_echeance__lt=maintenant.date()
+    ).select_related('client')[:5]
     
     context = {
         'stats': stats,

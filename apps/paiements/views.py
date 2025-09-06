@@ -38,7 +38,8 @@ def echeancier_paiements(request):
             date_echeance__lt=today
         )
         # Notification pour les gestionnaires
-        NotificationService.notify_paiement_overdue(paiements.first())
+        if paiements.exists():
+            NotificationService.notify_paiement_overdue(paiements.first())
     elif statut_filtre == 'paye':
         paiements = paiements.filter(statut='paye')
     
@@ -150,7 +151,9 @@ def paiements_en_retard(request):
     retard_moyen = sum([r['jours_retard'] for r in reservations_retard]) / len(reservations_retard) if reservations_retard else 0
     
     # Notification pour les gestionnaires
-    NotificationService.notify_paiement_overdue(reservations_retard[0]['echeance'])
+    if reservations_retard:
+        NotificationService.notify_paiement_overdue(reservations_retard[0]['echeance'])
+    
     context = {
         'reservations': reservations_retard,
         'total_montant_retard': total_montant_retard,
