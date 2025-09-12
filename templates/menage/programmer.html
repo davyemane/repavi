@@ -1,144 +1,313 @@
-<!-- ========================================== -->
-<!-- templates/menage/programmer.html -->
-<!-- ========================================== -->
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Programmer Ménage {{ appartement.numero }} - RepAvi Lodges{% endblock %}
+{% block nav_menage %}
+flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-all duration-300
+{% endblock %}
 
-{% block page_title %}Programmer Ménage{% endblock %}
-{% block page_subtitle %}{{ appartement.numero }} • {{ appartement.get_type_logement_display }} • {{ appartement.maison }}{% endblock %}
+{% block title %}Programmer Ménage {{ appartement.numero }} - RepAvi Lodges{% endblock %}
+{% block page_title %}Programmer Ménage - {{ appartement.numero }}{% endblock %}
+{% block page_subtitle %}{{ appartement.get_type_logement_display }} • {{ appartement.maison }}{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'appartements:detail' appartement.pk %}" 
-   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+<a href="{% url 'menage:planning' %}" 
+   class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
     <span class="material-icons text-sm mr-2">arrow_back</span>
-    Retour Appartement
+    Retour Planning
 </a>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    
-    <!-- Info appartement -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-[#02066F]">apartment</span>
-            </div>
-            <div>
-                <h2 class="text-2xl font-bold text-gray-900 font-lato">{{ appartement.numero }}</h2>
-                <p class="text-gray-600 font-lato">{{ appartement.get_type_logement_display }} • {{ appartement.maison }}</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tâches existantes -->
-    {% if taches_existantes %}
-    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-        <h3 class="font-bold text-orange-900 mb-2 font-lato">Tâches déjà programmées :</h3>
-        {% for tache in taches_existantes %}
-        <div class="flex items-center justify-between py-2">
-            <p class="text-orange-700 font-lato">• {{ tache.date_prevue|date:"d/m/Y" }} - {{ tache.get_statut_display }}</p>
-            <span class="px-2 py-1 {% if tache.statut == 'termine' %}bg-green-100 text-green-800{% elif tache.statut == 'en_cours' %}bg-[#02066F]/10 text-[#02066F]{% else %}bg-orange-100 text-orange-800{% endif %} text-xs rounded-full font-lato">
-                {{ tache.get_statut_display }}
-            </span>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    
+<div class="space-y-6">
+
     <!-- Stats rapides -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-lg border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 font-lato">Appartement</p>
+                    <p class="text-xl font-bold text-[#02066F] font-lato">{{ appartement.numero }}</p>
+                </div>
+                <span class="material-icons text-[#02066F] text-2xl">home</span>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 font-lato">Tâches Totales</p>
                     <p class="text-xl font-bold text-gray-900 font-lato">{{ taches_existantes.count }}</p>
                 </div>
-                <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-gray-600 text-sm">list</span>
-                </div>
+                <span class="material-icons text-gray-600 text-2xl">list</span>
             </div>
         </div>
         
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
+        <div class="bg-white p-6 rounded-lg border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 font-lato">En Attente</p>
-                    <p class="text-xl font-bold text-[#02066F] font-lato">{{ taches_en_attente|default:0 }}</p>
+                    <p class="text-xl font-bold text-orange-600 font-lato">{{ taches_en_attente|default:0 }}</p>
                 </div>
-                <div class="w-8 h-8 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-[#02066F] text-sm">schedule</span>
-                </div>
+                <span class="material-icons text-orange-600 text-2xl">schedule</span>
             </div>
         </div>
-    </div>
-    
-    <!-- Formulaire -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-            <span class="material-icons text-[#02066F]">schedule</span>
-            <span>Programmer Ménage</span>
-        </h3>
         
-        <form method="post" class="space-y-6">
-            {% csrf_token %}
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Date prévue</label>
-                <input type="date"
-                       name="date_prevue"
-                       min="{{ today|date:'Y-m-d' }}"
-                       required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato">
-                <p class="text-gray-500 text-sm mt-1 font-lato">La date ne peut pas être antérieure à aujourd'hui</p>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Personnel assigné (optionnel)</label>
-                <select name="personnel" 
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato">
-                    <option value="">Sélectionner un personnel...</option>
-                    {% for person in personnel_disponible %}
-                    <option value="{{ person.pk }}">{{ person.first_name }} {{ person.last_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Notes (optionnel)</label>
-                <textarea name="notes" 
-                          rows="3"
-                          placeholder="Instructions spéciales, remarques..."
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato"></textarea>
-            </div>
-            
+        <div class="bg-white p-6 rounded-lg border border-gray-200">
             <div class="flex items-center justify-between">
-                <a href="{% url 'appartements:detail' appartement.pk %}"
-                   class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors font-lato">
-                    <span class="material-icons text-sm mr-2">cancel</span>
-                    <span>Annuler</span>
-                </a>
-                
-                <button type="submit"
-                        class="inline-flex items-center px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
-                    <span class="material-icons text-sm mr-2">schedule</span>
-                    <span>Programmer</span>
-                </button>
-            </div>
-        </form>
-    </div>
-    
-    <!-- Note importante -->
-    <div class="mt-6 bg-[#02066F]/5 border border-[#02066F]/20 rounded-lg p-4">
-        <div class="flex items-start space-x-2 text-[#02066F]">
-            <span class="material-icons text-sm mt-0.5">info</span>
-            <div class="text-sm font-lato">
-                <strong>Programmation ménage :</strong> 
-                Une fois programmée, la tâche apparaîtra dans le planning ménage et pourra être assignée au personnel de nettoyage.
+                <div>
+                    <p class="text-sm text-gray-600 font-lato">Personnel</p>
+                    <p class="text-xl font-bold text-blue-600 font-lato">{{ personnel_disponible.count }}</p>
+                </div>
+                <span class="material-icons text-blue-600 text-2xl">people</span>
             </div>
         </div>
     </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Formulaire programmer nouveau ménage -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 font-lato">
+                <span class="material-icons text-[#02066F] mr-2">add_task</span>
+                Programmer Nouveau Ménage
+            </h3>
+            
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Date prévue *</label>
+                    <input type="date" 
+                           name="date_prevue" 
+                           min="{{ today|date:'Y-m-d' }}"
+                           required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Personnel assigné</label>
+                    <select name="personnel" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                        <option value="">-- Auto-assigné --</option>
+                        {% for user in personnel_disponible %}
+                        <option value="{{ user.pk }}">{{ user.get_full_name|default:user.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3 font-lato">Tâches à effectuer</label>
+                    <div class="border border-gray-300 rounded-xl p-4 max-h-64 overflow-y-auto">
+                        {% if types_taches %}
+                        <div class="space-y-3">
+                            {% for tache_type in types_taches %}
+                            <label class="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                                <input type="checkbox" 
+                                       name="taches" 
+                                       value="{{ tache_type.pk }}" 
+                                       {% if tache_type.obligatoire %}checked disabled{% endif %}
+                                       class="mt-1 rounded border-gray-300 text-[#02066F] focus:ring-[#02066F]">
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-900 font-lato">
+                                        {{ tache_type.nom }}
+                                        {% if tache_type.obligatoire %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                                    </div>
+                                    {% if tache_type.description %}
+                                    <div class="text-xs text-gray-500 font-lato mt-1">{{ tache_type.description }}</div>
+                                    {% endif %}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <div class="flex items-center space-x-4 text-xs text-gray-500 font-lato">
+                                <span><span class="text-red-500">*</span> Obligatoire</span>
+                                <button type="button" onclick="selectAllTasks()" class="text-[#02066F] hover:text-[#030a8a]">Tout sélectionner</button>
+                                <button type="button" onclick="deselectAllTasks()" class="text-[#02066F] hover:text-[#030a8a]">Tout désélectionner</button>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <span class="material-icons text-gray-400 text-2xl mb-2">task_alt</span>
+                            <p class="text-sm text-gray-500 font-lato">Aucune tâche prédéfinie</p>
+                            <p class="text-xs text-gray-400 font-lato">Configurez les tâches dans l'administration</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Notes spéciales</label>
+                    <textarea name="notes" 
+                              rows="3"
+                              placeholder="Instructions particulières, points d'attention, problèmes signalés..."
+                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato"></textarea>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full inline-flex items-center justify-center px-4 py-3 bg-[#02066F] text-white rounded-xl font-medium hover:bg-[#030a8a] transition-colors font-lato">
+                    <span class="material-icons text-sm mr-2">schedule</span>
+                    Programmer Ménage
+                </button>
+            </form>
+        </div>
+
+        <!-- Tâches existantes pour cet appartement -->
+        <div class="bg-white rounded-lg border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 font-lato">
+                    <span class="material-icons text-gray-600 mr-2">event_note</span>
+                    Tâches Programmées
+                </h3>
+            </div>
+            
+            {% if taches_existantes %}
+            <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                {% for tache in taches_existantes %}
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="material-icons text-sm {% if tache.statut == 'termine' %}text-green-600{% elif tache.statut == 'en_cours' %}text-blue-600{% else %}text-orange-600{% endif %}">
+                                {% if tache.statut == 'termine' %}check_circle{% elif tache.statut == 'en_cours' %}hourglass_empty{% else %}schedule{% endif %}
+                            </span>
+                            <span class="text-sm font-medium text-gray-900 font-lato">{{ tache.date_prevue|date:"d/m/Y" }}</span>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded-full font-lato
+                            {% if tache.statut == 'termine' %}bg-green-100 text-green-800
+                            {% elif tache.statut == 'en_cours' %}bg-blue-100 text-blue-800
+                            {% else %}bg-orange-100 text-orange-800{% endif %}">
+                            {{ tache.get_statut_display }}
+                        </span>
+                    </div>
+                    
+                    {% if tache.personnel %}
+                    <p class="text-xs text-gray-600 font-lato mb-1">
+                        <span class="material-icons text-xs mr-1">person</span>
+                        {{ tache.personnel.get_full_name|default:tache.personnel.username }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if tache.taches_a_effectuer.exists %}
+                    <div class="text-xs text-gray-500 font-lato mb-2">
+                        <span class="material-icons text-xs mr-1">task_alt</span>
+                        {{ tache.taches_a_effectuer.count }} tâche{{ tache.taches_a_effectuer.count|pluralize }}:
+                        {% for t in tache.taches_a_effectuer.all|slice:":3" %}
+                            {{ t.nom }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                        {% if tache.taches_a_effectuer.count > 3 %}...{% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if tache.notes_personnel %}
+                    <p class="text-xs text-gray-500 font-lato mb-2">{{ tache.notes_personnel|truncatechars:60 }}</p>
+                    {% endif %}
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            {% if tache.statut != 'termine' %}
+                            <a href="{% url 'menage:checklist' tache.pk %}" 
+                               class="text-xs text-[#02066F] hover:text-[#030a8a] font-lato">Check-list</a>
+                            {% endif %}
+                            
+                            {% if tache.statut == 'a_faire' and tache.date_prevue <= today %}
+                            <span class="text-xs text-red-600 font-bold font-lato">URGENT</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="p-8 text-center">
+                <span class="material-icons text-gray-400 text-4xl mb-4">event_available</span>
+                <h4 class="text-lg font-medium text-gray-900 mb-2 font-lato">Aucune tâche programmée</h4>
+                <p class="text-gray-500 font-lato">Programmez le premier ménage pour cet appartement</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tâches urgentes globales -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 font-lato">
+                    <span class="material-icons text-red-600 mr-2">priority_high</span>
+                    Tâches Urgentes (Tous Appartements)
+                </h3>
+                <a href="{% url 'menage:urgentes' %}" class="text-sm text-[#02066F] hover:text-[#030a8a] font-lato">
+                    Voir toutes →
+                </a>
+            </div>
+        </div>
+        
+        {% regroup taches_urgentes_globales by appartement as taches_par_appartement %}
+        {% if taches_par_appartement %}
+        <div class="divide-y divide-gray-200">
+            {% for group in taches_par_appartement|slice:":5" %}
+            <div class="p-4 hover:bg-red-50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-red-600 text-sm">home</span>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 font-lato">{{ group.grouper.numero }}</div>
+                            <div class="text-sm text-gray-600 font-lato">{{ group.grouper.get_type_logement_display }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-right">
+                        {% for tache in group.list %}
+                        <div class="text-sm font-medium text-red-600 font-lato">
+                            {{ tache.date_prevue|date:"d/m" }}
+                            {% if tache.date_prevue < today %}
+                                <span class="text-xs">({{ tache.date_prevue|timesince }} en retard)</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between mt-2">
+                    {% if group.list.0.personnel %}
+                    <span class="text-xs text-gray-600 font-lato">
+                        <span class="material-icons text-xs mr-1">person</span>
+                        {{ group.list.0.personnel.get_full_name|default:group.list.0.personnel.username }}
+                    </span>
+                    {% else %}
+                    <span class="text-xs text-gray-500 font-lato">Personnel non assigné</span>
+                    {% endif %}
+                    
+                    <div class="flex items-center space-x-2">
+                        <a href="{% url 'menage:checklist' group.list.0.pk %}" 
+                           class="text-xs text-white bg-red-600 hover:bg-red-700 px-2 py-1 rounded font-lato">
+                            Traiter
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-8 text-center">
+            <span class="material-icons text-green-500 text-4xl mb-4">check_circle</span>
+            <h4 class="text-lg font-medium text-gray-900 mb-2 font-lato">Aucune tâche urgente</h4>
+            <p class="text-gray-500 font-lato">Toutes les tâches sont à jour</p>
+        </div>
+        {% endif %}
+    </div>
+
 </div>
+
+<script>
+function selectAllTasks() {
+    const checkboxes = document.querySelectorAll('input[name="taches"]:not(:disabled)');
+    checkboxes.forEach(cb => cb.checked = true);
+}
+
+function deselectAllTasks() {
+    const checkboxes = document.querySelectorAll('input[name="taches"]:not(:disabled)');
+    checkboxes.forEach(cb => cb.checked = false);
+}
+</script>
 {% endblock %}

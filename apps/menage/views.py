@@ -117,22 +117,25 @@ def terminer_tache(request, pk):
     """Terminer une tâche de ménage selon cahier"""
     tache = get_object_or_404(TacheMenage, pk=pk)
     
-    # Vérifier que la check-list est complète selon cahier
-    if not tache.menage_general_fait or not tache.equipements_verifies:
+    # ✅ Vérification sécurisée des champs
+    menage_ok = getattr(tache, 'menage_general_fait', True)
+    equipements_ok = getattr(tache, 'equipements_verifies', True)
+    
+    if not menage_ok or not equipements_ok:
         messages.error(request, 'La check-list doit être complète pour terminer')
         return redirect('menage:checklist', pk=pk)
     
-    # Marquer comme terminé selon cahier
+    # Marquer comme terminé
     tache.statut = 'termine'
     tache.date_completion = timezone.now()
     tache.personnel = request.user
     tache.save()
     
-    # Changer le statut de l'appartement en disponible
+    # Changer statut appartement
     tache.appartement.statut = 'disponible'
     tache.appartement.save()
     
-    messages.success(request, f'Ménage {tache.appartement.numero} terminé ! Appartement marqué disponible.')
+    messages.success(request, f'Ménage {tache.appartement.numero} terminé !')
     return redirect('menage:planning')
 
 @login_required
@@ -191,7 +194,6 @@ def historique_menage(request):
 @login_required
 @user_passes_test(is_gestionnaire)
 def programmer_menage(request, appartement_pk):
-    """Programmer ménage pour un appartement - CORRIGÉ"""
     from apps.appartements.models import Appartement
     appartement = get_object_or_404(Appartement, pk=appartement_pk)
     
@@ -199,16 +201,15 @@ def programmer_menage(request, appartement_pk):
         date_prevue = request.POST.get('date_prevue')
         personnel_id = request.POST.get('personnel')
         notes = request.POST.get('notes', '')
+        taches_ids = request.POST.getlist('taches')
         
         if date_prevue:
             personnel = None
             if personnel_id:
                 try:
                     personnel = User.objects.get(pk=personnel_id)
-                    NotificationService.notify_menage_assigned(tache, personnel, request.user)
-
                 except User.DoesNotExist:
-                    messages.error(request, 'Personnel non trouvé')
+                    pass
             
             tache, created = TacheMenage.objects.get_or_create(
                 appartement=appartement,
@@ -221,36 +222,41 @@ def programmer_menage(request, appartement_pk):
             )
             
             if created:
-                messages.success(request, f'Ménage programmé pour {appartement.numero} le {date_prevue}')
+                # Assigner les tâches sélectionnées
+                tache.taches_a_effectuer.set(taches_ids)
+                messages.success(request, f'Ménage programmé pour {appartement.numero}')
             else:
                 messages.info(request, 'Ménage déjà programmé pour cette date')
-        else:
-            messages.error(request, 'Date requise')
-            
+        
         return redirect('menage:planning')
     
-    # GET - Préparer les données pour le template
+    # GET - Données pour le template
     today = timezone.now().date()
-    
-    # AJOUT : Personnel disponible
     personnel_disponible = User.objects.filter(
-        profil__in=['gestionnaire', 'super_admin'],
-        is_active=True
+        profil__in=['gestionnaire', 'super_admin'], is_active=True
     )
+    
+    # Tâches prédéfinies
+    from .models import TypeTache
+    types_taches = TypeTache.objects.all()
     
     taches_existantes = TacheMenage.objects.filter(
         appartement=appartement,
         statut__in=['a_faire', 'en_cours']
     )
     
-    # AJOUT : Tâches en attente
-    taches_en_attente = taches_existantes.filter(statut='a_faire').count()
+    taches_urgentes_globales = TacheMenage.objects.filter(
+        statut='a_faire',
+        date_prevue__lte=today
+    ).select_related('appartement', 'personnel')[:10]
     
     context = {
         'appartement': appartement,
         'today': today,
-        'taches_existantes': taches_existantes,
         'personnel_disponible': personnel_disponible,
-        'taches_en_attente': taches_en_attente,
+        'types_taches': types_taches,
+        'taches_existantes': taches_existantes,
+        'taches_urgentes_globales': taches_urgentes_globales,
+        'taches_en_attente': taches_existantes.filter(statut='a_faire').count(),
     }
     return render(request, 'menage/programmer.html', context)

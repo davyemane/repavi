@@ -2,7 +2,9 @@
 # apps/menage/forms.py - Planning ménage basique
 # ==========================================
 from django import forms
-from .models import TacheMenage
+
+from apps.users.models import User
+from .models import TacheMenage, TypeTache
 
 class TacheMenageForm(forms.ModelForm):
     """
@@ -56,3 +58,14 @@ class TacheMenageForm(forms.ModelForm):
             'photo_apres': 'Photo après ménage (optionnel)',
             'notes_personnel': 'Notes du personnel',
         }
+
+
+class ProgrammerMenageForm(forms.Form):
+    date_prevue = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    personnel = forms.ModelChoiceField(queryset=User.objects.filter(profil__in=['gestionnaire', 'super_admin']), required=False)
+    taches = forms.ModelMultipleChoiceField(
+        queryset=TypeTache.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+    notes = forms.CharField(widget=forms.Textarea, required=False)

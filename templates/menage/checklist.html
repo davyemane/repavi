@@ -1,145 +1,216 @@
-<!-- ========================================== -->
-<!-- templates/menage/checklist.html -->
-<!-- ========================================== -->
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Check-list Ménage {{ tache.appartement.numero }} - RepAvi Lodges{% endblock %}
+{% block nav_menage %}
+flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-all duration-300
+{% endblock %}
 
-{% block page_title %}Check-list {{ tache.appartement.numero }}{% endblock %}
-{% block page_subtitle %}{{ tache.appartement.get_type_logement_display }} • {{ tache.appartement.maison }} • Prévu: {{ tache.date_prevue|date:"d/m/Y" }}{% endblock %}
+{% block title %}Check-list {{ tache.appartement.numero }} - RepAvi Lodges{% endblock %}
+{% block page_title %}Check-list Ménage - {{ tache.appartement.numero }}{% endblock %}
+{% block page_subtitle %}{{ tache.get_statut_display }} • Prévu: {{ tache.date_prevue|date:"d/m/Y" }}{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'menage:planning' %}" 
-   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
-    <span class="material-icons text-sm mr-2">arrow_back</span>
-    Retour Planning
-</a>
+<div class="flex items-center space-x-3">
+    {% if tache.statut != 'termine' %}
+    <a href="{% url 'menage:terminer' tache.pk %}" 
+       class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">check_circle</span>
+        Terminer
+    </a>
+    {% endif %}
+    <a href="{% url 'menage:planning' %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">arrow_back</span>
+        Retour
+    </a>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    
-    <!-- Info appartement -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-        <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-[#02066F] text-2xl">apartment</span>
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Info tâche -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F] text-2xl">cleaning_services</span>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 font-lato">{{ tache.appartement.numero }}</h2>
+                    <p class="text-gray-600 font-lato">{{ tache.appartement.get_type_logement_display }}</p>
+                    <p class="text-sm text-gray-500 font-lato">Programmé le {{ tache.date_prevue|date:"d/m/Y" }}</p>
+                </div>
             </div>
-            <div>
-                <h2 class="text-2xl font-bold text-gray-900 font-lato">{{ tache.appartement.numero }}</h2>
-                <p class="text-gray-600 font-lato">
-                    {{ tache.appartement.get_type_logement_display }} • {{ tache.appartement.maison }}
-                </p>
-            </div>
+            <span class="px-3 py-1 text-sm rounded-full font-lato
+                {% if tache.statut == 'termine' %}bg-green-100 text-green-800
+                {% elif tache.statut == 'en_cours' %}bg-blue-100 text-blue-800
+                {% else %}bg-orange-100 text-orange-800{% endif %}">
+                {{ tache.get_statut_display }}
+            </span>
         </div>
+        
+        {% if tache.notes_personnel %}
+        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-800 font-lato">
+                <span class="material-icons text-sm mr-1">info</span>
+                <strong>Notes :</strong> {{ tache.notes_personnel }}
+            </p>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- Formulaire check-list -->
-    <form method="post" enctype="multipart/form-data" class="space-y-8">
-        {% csrf_token %}
-        
-        <!-- Check-list simple selon cahier -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-                <span class="material-icons text-[#02066F]">checklist</span>
-                <span>Check-list Simple</span>
+    <!-- Tâches assignées -->
+    {% if tache.taches_a_effectuer.exists %}
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 font-lato">
+                <span class="material-icons text-blue-600 mr-2">task_alt</span>
+                Tâches à Effectuer
             </h3>
+        </div>
+        
+        <form method="POST" class="p-6">
+            {% csrf_token %}
+            <div class="space-y-4">
+                {% for tache_type in tache.taches_a_effectuer.all %}
+                <div class="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <input type="checkbox" 
+                           name="tache_{{ tache_type.pk }}_faite"
+                           {% if tache.statut == 'termine' %}checked disabled{% endif %}
+                           class="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-900 font-lato">{{ tache_type.nom }}</div>
+                        {% if tache_type.description %}
+                        <div class="text-sm text-gray-600 font-lato mt-1">{{ tache_type.description }}</div>
+                        {% endif %}
+                        {% if tache_type.obligatoire %}
+                        <span class="inline-flex items-center px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full mt-2 font-lato">
+                            Obligatoire
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if tache.statut != 'termine' %}
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors font-lato">
+                    <span class="material-icons text-sm mr-2">save</span>
+                    Sauvegarder Progression
+                </button>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Check-list standard -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 font-lato">
+                <span class="material-icons text-green-600 mr-2">checklist</span>
+                Check-list Standard
+            </h3>
+        </div>
+        
+        <form method="POST" class="p-6">
+            {% csrf_token %}
             
             <div class="space-y-6">
                 <!-- Ménage général -->
-                <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg">
-                    {{ form.menage_general_fait }}
-                    <label for="{{ form.menage_general_fait.id_for_label }}" class="text-lg font-medium text-gray-900 cursor-pointer font-lato">
-                        {{ form.menage_general_fait.label }}
-                    </label>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-3 font-lato">Ménage Général</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="menage_general_fait" 
+                                   {% if form.menage_general_fait.value %}checked{% endif %}
+                                   {% if tache.statut == 'termine' %}disabled{% endif %}
+                                   class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="text-sm font-lato">Nettoyage complet effectué</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="sols_nettoyes" 
+                                   {% if tache.statut == 'termine' %}disabled{% endif %}
+                                   class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="text-sm font-lato">Sols nettoyés et désinfectés</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="sanitaires_nettoyes" 
+                                   {% if tache.statut == 'termine' %}disabled{% endif %}
+                                   class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="text-sm font-lato">Sanitaires nettoyés</span>
+                        </label>
+                    </div>
                 </div>
-                
+
                 <!-- Équipements -->
-                <div class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg">
-                    {{ form.equipements_verifies }}
-                    <label for="{{ form.equipements_verifies.id_for_label }}" class="text-lg font-medium text-gray-900 cursor-pointer font-lato">
-                        {{ form.equipements_verifies.label }}
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-3 font-lato">Vérification Équipements</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="equipements_verifies" 
+                                   {% if form.equipements_verifies.value %}checked{% endif %}
+                                   {% if tache.statut == 'termine' %}disabled{% endif %}
+                                   class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="text-sm font-lato">Tous les équipements vérifiés</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="electromenager_fonctionne" 
+                                   {% if tache.statut == 'termine' %}disabled{% endif %}
+                                   class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            <span class="text-sm font-lato">Électroménager fonctionnel</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Problèmes -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-3 font-lato">Signalement Problèmes</h4>
+                    <label class="flex items-center space-x-3 mb-3">
+                        <input type="checkbox" name="problemes_signales" 
+                               {% if tache.statut == 'termine' %}disabled{% endif %}
+                               class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                        <span class="text-sm font-lato">Problèmes détectés</span>
                     </label>
+                    
+                    <textarea name="notes_problemes" 
+                              rows="3"
+                              {% if tache.statut == 'termine' %}disabled{% endif %}
+                              placeholder="Décrivez les problèmes rencontrés..."
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-lato"></textarea>
                 </div>
-                
-                <!-- Temps passé -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.temps_passe.label }}</label>
-                    {{ form.temps_passe }}
-                </div>
-            </div>
-        </div>
-        
-        <!-- Problèmes -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-                <span class="material-icons text-orange-600">report_problem</span>
-                <span>Problèmes Signalés</span>
-            </h3>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.problemes_signales.label }}</label>
-                {{ form.problemes_signales }}
-            </div>
-        </div>
-        
-        <!-- Photos optionnel selon cahier -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-                <span class="material-icons text-[#02066F]">photo_camera</span>
-                <span>Photos (Optionnel)</span>
-            </h3>
-            
-            <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.photo_avant.label }}</label>
-                    {{ form.photo_avant }}
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.photo_apres.label }}</label>
-                    {{ form.photo_apres }}
+
+                <!-- Photos -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-3 font-lato">Photos (Optionnel)</h4>
+                    {% if tache.statut != 'termine' %}
+                    <input type="file" name="photo_avant" accept="image/*" 
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 font-lato">
+                    <p class="text-xs text-gray-500 mt-1 font-lato">Photo avant/après ménage</p>
+                    {% endif %}
                 </div>
             </div>
-        </div>
-        
-        <!-- Notes -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-                <span class="material-icons text-[#02066F]">notes</span>
-                <span>Notes du Personnel</span>
-            </h3>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.notes_personnel.label }}</label>
-                {{ form.notes_personnel }}
-            </div>
-        </div>
-        
-        <!-- Actions -->
-        <div class="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-6">
-            <a href="{% url 'menage:planning' %}" 
-               class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors font-medium font-lato">
-                <span class="material-icons text-sm mr-2">arrow_back</span>
-                <span>Retour Planning</span>
-            </a>
-            
-            <div class="flex items-center space-x-3">
-                <button type="submit" 
-                        class="inline-flex items-center px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-medium font-lato">
+
+            {% if tache.statut != 'termine' %}
+            <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+                <button type="submit" name="action" value="save"
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors font-lato">
                     <span class="material-icons text-sm mr-2">save</span>
-                    <span>Sauvegarder</span>
+                    Sauvegarder
                 </button>
                 
-                <a href="{% url 'menage:terminer' tache.pk %}" 
-                   class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium font-lato"
-                   onclick="return confirm('Marquer comme terminé ?')">
+                <button type="submit" name="action" value="complete"
+                        class="inline-flex items-center px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors font-lato">
                     <span class="material-icons text-sm mr-2">check_circle</span>
-                    <span>Terminer</span>
-                </a>
+                    Terminer Ménage
+                </button>
             </div>
-        </div>
-    </form>
+            {% endif %}
+        </form>
+    </div>
+
 </div>
 {% endblock %}

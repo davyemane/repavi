@@ -3,6 +3,15 @@
 # ==========================================
 from django.db import models
 
+
+class TypeTache(models.Model):
+    nom = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    obligatoire = models.BooleanField(default=False)
+    ordre = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['ordre', 'nom']
 class TacheMenage(models.Model):
     """
     Planning ménage basique selon cahier
@@ -26,7 +35,8 @@ class TacheMenage(models.Model):
     equipements_verifies = models.BooleanField(default=False, verbose_name='Équipements vérifiés')
     problemes_signales = models.TextField(blank=True, verbose_name='Problèmes signalés')
     temps_passe = models.PositiveIntegerField(null=True, blank=True, verbose_name='Temps passé (minutes)')
-    
+    taches_a_effectuer = models.ManyToManyField(TypeTache, blank=True)
+
     # Photos avant/après (optionnel selon cahier)
     photo_avant = models.ImageField(upload_to='menage/avant/', blank=True)
     photo_apres = models.ImageField(upload_to='menage/apres/', blank=True)
