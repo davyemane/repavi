@@ -355,37 +355,66 @@ def annuler_facture(request, pk):
     return redirect('facturation:detail', pk=pk)
 
 
+import logging
+logger = logging.getLogger(__name__)
+import traceback
+from django.db import transaction
+from .forms import ParametresFacturationForm
 @login_required
 @user_passes_test(is_gestionnaire)
 def parametres_facturation(request):
-    """Gestion des paramètres de facturation"""
+    """Gestion des paramètres de facturation avec formulaire sécurisé"""
+    
+    # Récupérer les paramètres existants
     parametres = ParametresFacturation.get_parametres()
     
     if request.method == 'POST':
-        # Mise à jour des paramètres
-        parametres.nom_entreprise = request.POST.get('nom_entreprise')
-        parametres.adresse = request.POST.get('adresse')
-        parametres.telephone = request.POST.get('telephone')
-        parametres.email = request.POST.get('email')
-        parametres.site_web = request.POST.get('site_web', '')
-        parametres.numero_contribuable = request.POST.get('numero_contribuable', '')
-        parametres.numero_rccm = request.POST.get('numero_rccm', '')
-        parametres.taux_tva_defaut = float(request.POST.get('taux_tva_defaut'))
-        parametres.frais_menage_defaut = float(request.POST.get('frais_menage_defaut'))
-        parametres.delai_paiement_jours = int(request.POST.get('delai_paiement_jours'))
-        parametres.conditions_generales = request.POST.get('conditions_generales')
-        parametres.mentions_legales = request.POST.get('mentions_legales')
+        # Créer le formulaire avec les données POST et l'instance existante
+        form = ParametresFacturationForm(request.POST, instance=parametres)
         
-        parametres.save()
-        
-        messages.success(request, 'Paramètres de facturation mis à jour !')
-        return redirect('facturation:parametres')
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    # Sauvegarder les paramètres validés
+                    parametres_mis_a_jour = form.save()
+                    
+                    logger.info(
+                        f"Paramètres de facturation mis à jour par {request.user.username}"
+                    )
+                    
+                    messages.success(
+                        request, 
+                        'Paramètres de facturation mis à jour avec succès !'
+                    )
+                    
+                    return redirect('facturation:parametres')
+                    
+            except Exception as e:
+                logger.error(f"Erreur lors de la sauvegarde des paramètres: {e}")
+                messages.error(
+                    request,
+                    'Une erreur est survenue lors de la sauvegarde. Veuillez réessayer.'
+                )
+        else:
+            # Le formulaire contient des erreurs
+            messages.error(
+                request,
+                'Veuillez corriger les erreurs dans le formulaire.'
+            )
+            
+            # Log des erreurs pour le debug
+            for field, errors in form.errors.items():
+                logger.warning(f"Erreur formulaire - {field}: {errors}")
+    
+    else:
+        # GET request - afficher le formulaire pré-rempli
+        form = ParametresFacturationForm(instance=parametres)
     
     context = {
         'parametres': parametres,
+        'form': form,
     }
     return render(request, 'facturation/parametres.html', context)
-
 
 @login_required
 @user_passes_test(is_gestionnaire)

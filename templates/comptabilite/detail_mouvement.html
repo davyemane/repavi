@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block nav_comptabilite %}
+flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-all duration-300
+{% endblock %}
+
+{% block title %}Détail Mouvement - RepAvi Lodges{% endblock %}
+{% block page_title %}Détail du Mouvement Comptable{% endblock %}
+{% block page_subtitle %}{{ mouvement.type_mouvement|capfirst }} - {{ mouvement.appartement.numero }}{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-3">
+    {% if not mouvement.reservation and "Équipement" not in mouvement.libelle %}
+        <a href="{% url 'comptabilite:modifier_mouvement' mouvement.pk %}" 
+           class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+            <span class="material-icons text-sm mr-2">edit</span>
+            Modifier
+        </a>
+        <a href="{% url 'comptabilite:supprimer_mouvement' mouvement.pk %}" 
+           class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors font-lato">
+            <span class="material-icons text-sm mr-2">delete</span>
+            Supprimer
+        </a>
+    {% endif %}
+    <a href="{% url 'comptabilite:detail_appartement' mouvement.appartement.pk %}" 
+       class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">arrow_back</span>
+        Retour Appartement
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Informations principales -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="flex items-start justify-between mb-6">
+            <div class="flex items-center space-x-4">
+                {% if mouvement.type_mouvement == 'revenu' %}
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-green-600 text-xl">trending_up</span>
+                    </div>
+                {% else %}
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-red-600 text-xl">trending_down</span>
+                    </div>
+                {% endif %}
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 font-lato">
+                        {{ mouvement.get_type_mouvement_display }}
+                    </h2>
+                    <p class="text-gray-600 font-lato">Appartement {{ mouvement.appartement.numero }}</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-2xl font-bold {% if mouvement.type_mouvement == 'revenu' %}text-green-600{% else %}text-red-600{% endif %} font-lato">
+                    {% if mouvement.type_mouvement == 'revenu' %}+{% else %}-{% endif %}{{ mouvement.montant|floatformat:0 }} FCFA
+                </div>
+                <div class="text-sm text-gray-500 font-lato">{{ mouvement.date_mouvement|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+
+        <!-- Source du mouvement -->
+        <div class="mb-6 p-4 rounded-lg {% if mouvement.reservation %}bg-blue-50{% elif 'Équipement' in mouvement.libelle %}bg-orange-50{% else %}bg-gray-50{% endif %}">
+            {% if mouvement.reservation %}
+                <div class="flex items-center space-x-2 text-blue-800">
+                    <span class="material-icons text-blue-600">auto_awesome</span>
+                    <span class="font-semibold font-lato">Mouvement Automatique - Paiement</span>
+                </div>
+                <p class="text-sm text-blue-700 mt-1 font-lato">
+                    Créé automatiquement lors du paiement de la réservation #{{ mouvement.reservation.id }}
+                </p>
+            {% elif "Équipement" in mouvement.libelle %}
+                <div class="flex items-center space-x-2 text-orange-800">
+                    <span class="material-icons text-orange-600">auto_awesome</span>
+                    <span class="font-semibold font-lato">Mouvement Automatique - Équipement</span>
+                </div>
+                <p class="text-sm text-orange-700 mt-1 font-lato">
+                    Créé automatiquement lors du changement d'état d'un équipement
+                </p>
+            {% else %}
+                <div class="flex items-center space-x-2 text-gray-800">
+                    <span class="material-icons text-gray-600">edit</span>
+                    <span class="font-semibold font-lato">Mouvement Manuel</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-1 font-lato">
+                    Ajouté manuellement par un gestionnaire
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Détails -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Informations</h3>
+                <dl class="space-y-3">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 font-lato">Description</dt>
+                        <dd class="text-sm text-gray-900 font-lato">{{ mouvement.libelle }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 font-lato">Date du mouvement</dt>
+                        <dd class="text-sm text-gray-900 font-lato">{{ mouvement.date_mouvement|date:"l d F Y" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 font-lato">Date de saisie</dt>
+                        <dd class="text-sm text-gray-900 font-lato">{{ mouvement.date_saisie|date:"d/m/Y à H:i" }}</dd>
+                    </div>
+                    {% if mouvement.gestionnaire %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 font-lato">Saisi par</dt>
+                        <dd class="text-sm text-gray-900 font-lato">{{ mouvement.gestionnaire.get_full_name|default:mouvement.gestionnaire.username }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Appartement</h3>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <span class="material-icons text-[#02066F]">home</span>
+                        <div>
+                            <div class="font-medium text-gray-900 font-lato">{{ mouvement.appartement.numero }}</div>
+                            <div class="text-sm text-gray-500 font-lato">{{ mouvement.appartement.get_type_logement_display }}</div>
+                        </div>
+                    </div>
+                    {% if mouvement.appartement.adresse %}
+                    <p class="text-xs text-gray-500 font-lato">{{ mouvement.appartement.adresse }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Réservation liée (si applicable) -->
+    {% if mouvement.reservation %}
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Réservation Associée</h3>
+        <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="font-medium text-gray-900 font-lato">
+                        {{ mouvement.reservation.client.prenom }} {{ mouvement.reservation.client.nom }}
+                    </div>
+                    <div class="text-sm text-gray-600 font-lato">
+                        Du {{ mouvement.reservation.date_arrivee|date:"d/m/Y" }} au {{ mouvement.reservation.date_depart|date:"d/m/Y" }}
+                    </div>
+                </div>
+                <span class="px-3 py-1 text-xs rounded-full font-lato
+                    {% if mouvement.reservation.statut == 'confirmee' %}bg-green-100 text-green-800
+                    {% elif mouvement.reservation.statut == 'en_cours' %}bg-blue-100 text-blue-800
+                    {% elif mouvement.reservation.statut == 'terminee' %}bg-gray-100 text-gray-800
+                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {{ mouvement.reservation.get_statut_display }}
+                </span>
+            </div>
+            <div class="text-sm text-gray-700 font-lato">
+                <strong>Total réservation :</strong> {{ mouvement.reservation.prix_total|floatformat:0 }} FCFA
+            </div>
+            <div class="mt-3">
+                <a href="/reservations/{{ mouvement.reservation.pk }}/" 
+                   class="text-blue-600 hover:text-blue-700 text-sm font-lato">
+                    Voir la réservation →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Historique de modification (si manuel) -->
+    {% if not mouvement.reservation and "Équipement" not in mouvement.libelle %}
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Actions</h3>
+        <div class="flex items-center space-x-4">
+            <a href="{% url 'comptabilite:modifier_mouvement' mouvement.pk %}" 
+               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">edit</span>
+                Modifier ce mouvement
+            </a>
+            <a href="{% url 'comptabilite:supprimer_mouvement' mouvement.pk %}" 
+               class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">delete</span>
+                Supprimer ce mouvement
+            </a>
+        </div>
+        <p class="text-xs text-gray-500 mt-2 font-lato">
+            Les mouvements automatiques ne peuvent pas être modifiés manuellement
+        </p>
+    </div>
+    {% else %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div class="flex items-start space-x-3">
+            <span class="material-icons text-yellow-600 mt-1">info</span>
+            <div>
+                <h4 class="font-semibold text-yellow-900 font-lato">Mouvement automatique</h4>
+                <p class="text-sm text-yellow-800 font-lato">
+                    Ce mouvement a été créé automatiquement et ne peut pas être modifié manuellement. 
+                    Il sera supprimé automatiquement si l'élément source (paiement ou équipement) est modifié.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

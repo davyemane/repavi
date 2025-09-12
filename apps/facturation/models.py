@@ -1,5 +1,5 @@
 # ==========================================
-# apps/facturation/models.py - CORRIGÉ
+# apps/facturation/models.py - COMPLET HARMONISÉ
 # ==========================================
 from django.db import models
 from django.conf import settings
@@ -13,21 +13,36 @@ def get_date_echeance_defaut():
 
 
 class ParametresFacturation(models.Model):
-    """Paramètres globaux de facturation"""
+    """Paramètres globaux de facturation - COMPLET"""
+    
     # Informations entreprise
     nom_entreprise = models.CharField(max_length=200, default="RepAvi Lodges")
     adresse = models.TextField(default="Yaoundé, Cameroun")
     telephone = models.CharField(max_length=50, default="+237 XXX XXX XXX")
     email = models.EmailField(default="contact@repavi.com")
+    site_web = models.URLField(blank=True, verbose_name="Site web")
     
-    # Paramètres
-    delai_paiement_jours = models.IntegerField(default=30)
-    frais_menage_defaut = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    # Informations fiscales
+    numero_contribuable = models.CharField(max_length=50, blank=True, verbose_name="N° Contribuable")
+    numero_rccm = models.CharField(max_length=50, blank=True, verbose_name="N° RCCM")
     taux_tva_defaut = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('19.25'))
     
-    # Templates
+    # Paramètres de facturation
+    delai_paiement_jours = models.IntegerField(default=30)
+    frais_menage_defaut = models.DecimalField(max_digits=10, decimal_places=2, default=5000)
+    
+    # Textes par défaut
+    conditions_generales = models.TextField(
+        default="Paiement à réception de facture. Aucun remboursement après 24h de l'arrivée.",
+        verbose_name="Conditions générales"
+    )
+    mentions_legales = models.TextField(
+        default="RepAvi Lodges - Société responsabilité limitée au capital de 1.000.000 FCFA",
+        verbose_name="Mentions légales"
+    )
     footer_facture = models.TextField(
-        default="Merci de votre confiance. RepAvi Lodges - Votre séjour, notre priorité."
+        default="Merci de votre confiance. RepAvi Lodges - Votre séjour, notre priorité.",
+        verbose_name="Pied de page facture"
     )
     
     @classmethod
@@ -40,6 +55,15 @@ class ParametresFacturation(models.Model):
                 'adresse': 'Yaoundé, Cameroun',
                 'telephone': '+237 XXX XXX XXX',
                 'email': 'contact@repavi.com',
+                'site_web': '',
+                'numero_contribuable': '',
+                'numero_rccm': '',
+                'taux_tva_defaut': Decimal('19.25'),
+                'delai_paiement_jours': 30,
+                'frais_menage_defaut': Decimal('5000'),
+                'conditions_generales': "Paiement à réception de facture. Aucun remboursement après 24h de l'arrivée.",
+                'mentions_legales': "RepAvi Lodges - Société responsabilité limitée au capital de 1.000.000 FCFA",
+                'footer_facture': "Merci de votre confiance. RepAvi Lodges - Votre séjour, notre priorité."
             }
         )
         return parametres
@@ -114,7 +138,6 @@ class Facture(models.Model):
         help_text="Montant de CE paiement spécifique"
     )
     montant_ht = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    taux_tva = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('19.25'))
     montant_tva = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     montant_ttc = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     
@@ -130,7 +153,7 @@ class Facture(models.Model):
     
     # Notes
     notes = models.TextField(blank=True)
-    conditions_paiement = models.TextField(default="Paiement à réception de facture")
+    conditions_paiement = models.TextField(blank=True)
     
     # Métadonnées
     cree_par = models.ForeignKey(
@@ -148,6 +171,12 @@ class Facture(models.Model):
     def __str__(self):
         return f"Facture {self.numero} - {self.get_type_facture_display()} - {self.montant_ttc} FCFA"
     
+    @property
+    def taux_tva_applique(self):
+        """Retourne le taux TVA appliqué (depuis les paramètres)"""
+        parametres = ParametresFacturation.get_parametres()
+        return parametres.taux_tva_defaut
+    
     def save(self, *args, **kwargs):
         if not self.numero:
             self.numero = self.generer_numero()
@@ -158,6 +187,11 @@ class Facture(models.Model):
             self.client = self.echeance_paiement.reservation.client
             self.type_facture = self.echeance_paiement.type_paiement
             self.montant_paiement = self.echeance_paiement.montant_paye
+        
+        # Remplir conditions par défaut si vide
+        if not self.conditions_paiement:
+            parametres = ParametresFacturation.get_parametres()
+            self.conditions_paiement = parametres.conditions_generales
         
         # Calculs automatiques
         self.calculer_montants()
@@ -180,11 +214,15 @@ class Facture(models.Model):
     
     def calculer_montants(self):
         """Calcule les montants de cette facture"""
+        # Récupérer le taux TVA depuis les paramètres
+        parametres = ParametresFacturation.get_parametres()
+        taux_tva = parametres.taux_tva_defaut
+        
         # Montant HT = montant du paiement
         self.montant_ht = self.montant_paiement
         
         # Calculer la TVA
-        self.montant_tva = self.montant_ht * (self.taux_tva / 100)
+        self.montant_tva = self.montant_ht * (taux_tva / 100)
         
         # Montant TTC
         self.montant_ttc = self.montant_ht + self.montant_tva

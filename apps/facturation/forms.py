@@ -1,5 +1,5 @@
 # ==========================================
-# apps/facturation/forms.py
+# apps/facturation/forms.py - COMPLET HARMONISÉ
 # ==========================================
 from django import forms
 from django.core.exceptions import ValidationError
@@ -17,7 +17,6 @@ class FactureForm(forms.ModelForm):
         model = Facture
         fields = [
             'reservation', 'client', 'date_echeance', 
-            'frais_menage', 'frais_service', 'remise',
             'notes', 'conditions_paiement', 'statut'
         ]
         widgets = {
@@ -30,24 +29,6 @@ class FactureForm(forms.ModelForm):
             'date_echeance': forms.DateInput(attrs={
                 'type': 'date',
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
-            }),
-            'frais_menage': forms.NumberInput(attrs={
-                'step': '500',
-                'min': '0',
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
-                'placeholder': '0'
-            }),
-            'frais_service': forms.NumberInput(attrs={
-                'step': '500',
-                'min': '0',
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
-                'placeholder': '0'
-            }),
-            'remise': forms.NumberInput(attrs={
-                'step': '500',
-                'min': '0',
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
-                'placeholder': '0'
             }),
             'notes': forms.Textarea(attrs={
                 'rows': 4,
@@ -66,17 +47,11 @@ class FactureForm(forms.ModelForm):
             'reservation': 'Réservation',
             'client': 'Client',
             'date_echeance': 'Date d\'échéance',
-            'frais_menage': 'Frais de ménage (FCFA)',
-            'frais_service': 'Frais de service (FCFA)',
-            'remise': 'Remise accordée (FCFA)',
             'notes': 'Notes',
             'conditions_paiement': 'Conditions de paiement',
             'statut': 'Statut de la facture',
         }
         help_texts = {
-            'frais_menage': 'Frais de nettoyage de fin de séjour',
-            'frais_service': 'Frais administratifs ou services supplémentaires',
-            'remise': 'Réduction accordée au client',
             'notes': 'Informations supplémentaires qui apparaîtront sur la facture',
         }
     
@@ -84,10 +59,9 @@ class FactureForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
-        # Définir des valeurs par défaut
+        # Définir des valeurs par défaut depuis les paramètres
         if not self.instance.pk:  # Nouvelle facture
             parametres = ParametresFacturation.get_parametres()
-            self.fields['frais_menage'].initial = parametres.frais_menage_defaut
             self.fields['conditions_paiement'].initial = parametres.conditions_generales
             self.fields['date_echeance'].initial = datetime.now().date() + timedelta(days=parametres.delai_paiement_jours)
     
@@ -98,52 +72,15 @@ class FactureForm(forms.ModelForm):
             raise ValidationError("La date d'échéance ne peut pas être dans le passé.")
         return date_echeance
     
-    def clean_frais_menage(self):
-        """Valide les frais de ménage"""
-        frais = self.cleaned_data.get('frais_menage', 0)
-        if frais < 0:
-            raise ValidationError("Les frais de ménage ne peuvent pas être négatifs.")
-        if frais > 50000:  # Limite raisonnable
-            raise ValidationError("Les frais de ménage semblent anormalement élevés.")
-        return frais
-    
-    def clean_frais_service(self):
-        """Valide les frais de service"""
-        frais = self.cleaned_data.get('frais_service', 0)
-        if frais < 0:
-            raise ValidationError("Les frais de service ne peuvent pas être négatifs.")
-        return frais
-    
-    def clean_remise(self):
-        """Valide la remise"""
-        remise = self.cleaned_data.get('remise', 0)
-        if remise < 0:
-            raise ValidationError("La remise ne peut pas être négative.")
-        return remise
-    
     def clean(self):
         """Validation globale du formulaire"""
         cleaned_data = super().clean()
         reservation = cleaned_data.get('reservation')
         client = cleaned_data.get('client')
-        remise = cleaned_data.get('remise', 0)
         
         # Vérifier la cohérence réservation/client
         if reservation and client and reservation.client != client:
             raise ValidationError("Le client sélectionné ne correspond pas à la réservation.")
-        
-        # Vérifier que la remise n'est pas supérieure au montant total
-        if reservation and remise:
-            montant_base = reservation.prix_total
-            frais_menage = cleaned_data.get('frais_menage', 0)
-            frais_service = cleaned_data.get('frais_service', 0)
-            montant_total = montant_base + frais_menage + frais_service
-            
-            if remise > montant_total:
-                raise ValidationError(
-                    f"La remise ({remise:,.0f} FCFA) ne peut pas être supérieure "
-                    f"au montant total ({montant_total:,.0f} FCFA)."
-                )
         
         return cleaned_data
     
@@ -239,77 +176,128 @@ class GenerationFactureForm(forms.Form):
 
 
 class ParametresFacturationForm(forms.ModelForm):
-    """
-    Formulaire pour configurer les paramètres de facturation RepAvi
-    """
+    """Formulaire pour les paramètres de facturation avec validation"""
     
     class Meta:
         model = ParametresFacturation
-        fields = '__all__'
+        fields = [
+            'nom_entreprise', 'adresse', 'telephone', 'email', 'site_web',
+            'numero_contribuable', 'numero_rccm', 'taux_tva_defaut',
+            'frais_menage_defaut', 'delai_paiement_jours',
+            'conditions_generales', 'mentions_legales', 'footer_facture'
+        ]
+        
         widgets = {
             'nom_entreprise': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
-            }),
-            'adresse': forms.Textarea(attrs={
-                'rows': 3,
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
+                'required': True
             }),
             'telephone': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
-                'placeholder': '+237 XXX XXX XXX'
+                'type': 'tel',
+                'required': True
             }),
             'email': forms.EmailInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
+                'required': True
             }),
             'site_web': forms.URLInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
-                'placeholder': 'https://www.repavilodges.com'
+                'placeholder': 'https://www.exemple.com'
+            }),
+            'adresse': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
+                'rows': 3,
+                'required': True
             }),
             'numero_contribuable': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
             }),
             'numero_rccm': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
             }),
             'taux_tva_defaut': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
                 'step': '0.01',
                 'min': '0',
-                'max': '50',
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'max': '100',
+                'required': True
             }),
             'frais_menage_defaut': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
                 'step': '500',
-                'min': '0',
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'min': '0'
             }),
             'delai_paiement_jours': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
                 'min': '1',
-                'max': '365',
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'max': '365'
             }),
             'conditions_generales': forms.Textarea(attrs={
-                'rows': 4,
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
+                'rows': 4
             }),
             'mentions_legales': forms.Textarea(attrs={
-                'rows': 3,
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
+                'rows': 3
+            }),
+            'footer_facture': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato',
+                'rows': 2
             }),
         }
     
+    def clean_telephone(self):
+        """Validation du numéro de téléphone"""
+        telephone = self.cleaned_data.get('telephone')
+        if telephone:
+            telephone_clean = telephone.replace(' ', '').replace('-', '')
+            if not telephone_clean.startswith('+'):
+                raise forms.ValidationError("Le numéro de téléphone doit commencer par +")
+            if len(telephone_clean) < 8:
+                raise forms.ValidationError("Le numéro de téléphone est trop court")
+        return telephone
+    
     def clean_taux_tva_defaut(self):
-        """Valide le taux de TVA"""
+        """Validation du taux TVA"""
         taux = self.cleaned_data.get('taux_tva_defaut')
-        if taux < 0 or taux > 50:
-            raise ValidationError("Le taux de TVA doit être entre 0% et 50%.")
+        if taux is not None:
+            if taux < 0 or taux > 100:
+                raise forms.ValidationError("Le taux TVA doit être entre 0 et 100%")
         return taux
     
+    def clean_frais_menage_defaut(self):
+        """Validation des frais de ménage"""
+        frais = self.cleaned_data.get('frais_menage_defaut')
+        if frais is not None and frais < 0:
+            raise forms.ValidationError("Les frais de ménage ne peuvent pas être négatifs")
+        return frais
+    
+    def clean_delai_paiement_jours(self):
+        """Validation du délai de paiement"""
+        delai = self.cleaned_data.get('delai_paiement_jours')
+        if delai is not None:
+            if delai < 1:
+                raise forms.ValidationError("Le délai de paiement doit être d'au moins 1 jour")
+            if delai > 365:
+                raise forms.ValidationError("Le délai de paiement ne peut pas dépasser 1 an")
+        return delai
+    
     def clean_email(self):
-        """Valide l'email de l'entreprise"""
+        """Validation de l'email"""
         email = self.cleaned_data.get('email')
-        if email and not email.endswith(('.com', '.fr', '.org', '.net', '.cm')):
-            raise ValidationError("Veuillez utiliser une adresse email valide.")
+        if email:
+            if not '@' in email or not '.' in email.split('@')[-1]:
+                raise forms.ValidationError("Adresse email invalide")
         return email
+    
+    def clean_site_web(self):
+        """Validation du site web"""
+        site_web = self.cleaned_data.get('site_web')
+        if site_web:
+            if not site_web.startswith(('http://', 'https://')):
+                site_web = 'https://' + site_web
+        return site_web
 
 
 class RechercheFactureForm(forms.Form):

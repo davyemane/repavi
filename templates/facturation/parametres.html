@@ -21,7 +21,23 @@ flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg 
 
 {% block content %}
 <div class="max-w-4xl mx-auto space-y-6">
-    <form method="post" class="space-y-6">
+    
+    <!-- Affichage des messages d'erreur globaux -->
+    {% if form.non_field_errors %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex">
+                <span class="material-icons text-red-400 mr-2">error</span>
+                <div class="flex-1">
+                    <h3 class="text-sm font-medium text-red-800">Erreurs dans le formulaire</h3>
+                    {% for error in form.non_field_errors %}
+                        <p class="mt-1 text-sm text-red-700">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+    <form method="post" class="space-y-6" novalidate>
         {% csrf_token %}
         
         <!-- Informations Entreprise -->
@@ -33,47 +49,93 @@ flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg 
             
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Nom de l'entreprise</label>
-                    <input type="text" 
-                           name="nom_entreprise" 
-                           value="{{ parametres.nom_entreprise }}"
-                           required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.nom_entreprise.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Nom de l'entreprise
+                        {% if form.nom_entreprise.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    {{ form.nom_entreprise }}
+                    {% if form.nom_entreprise.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.nom_entreprise.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Téléphone</label>
-                    <input type="tel" 
-                           name="telephone" 
-                           value="{{ parametres.telephone }}"
-                           required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.telephone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Téléphone
+                        {% if form.telephone.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    {{ form.telephone }}
+                    {% if form.telephone.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.telephone.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Email</label>
-                    <input type="email" 
-                           name="email" 
-                           value="{{ parametres.email }}"
-                           required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Email
+                        {% if form.email.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.email.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Site web (optionnel)</label>
-                    <input type="url" 
-                           name="site_web" 
-                           value="{{ parametres.site_web|default:'' }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.site_web.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Site web (optionnel)
+                    </label>
+                    {{ form.site_web }}
+                    {% if form.site_web.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.site_web.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             
             <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Adresse complète</label>
-                <textarea name="adresse" 
-                          rows="3"
-                          required
-                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">{{ parametres.adresse }}</textarea>
+                <label for="{{ form.adresse.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                    Adresse complète
+                    {% if form.adresse.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                </label>
+                {{ form.adresse }}
+                {% if form.adresse.errors %}
+                    <div class="mt-1 text-sm text-red-600">
+                        {% for error in form.adresse.errors %}
+                            <p class="flex items-center">
+                                <span class="material-icons text-xs mr-1">error</span>
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
         </div>
 
@@ -86,31 +148,55 @@ flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg 
             
             <div class="grid md:grid-cols-3 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Taux TVA par défaut (%)</label>
-                    <input type="number" 
-                           name="taux_tva_defaut" 
-                           value="{{ parametres.taux_tva_defaut }}"
-                           step="0.01"
-                           min="0"
-                           max="100"
-                           required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.taux_tva_defaut.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Taux TVA par défaut (%)
+                        {% if form.taux_tva_defaut.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    {{ form.taux_tva_defaut }}
+                    {% if form.taux_tva_defaut.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.taux_tva_defaut.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">N° Contribuable</label>
-                    <input type="text" 
-                           name="numero_contribuable" 
-                           value="{{ parametres.numero_contribuable|default:'' }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.numero_contribuable.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        N° Contribuable
+                    </label>
+                    {{ form.numero_contribuable }}
+                    {% if form.numero_contribuable.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.numero_contribuable.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">N° RCCM</label>
-                    <input type="text" 
-                           name="numero_rccm" 
-                           value="{{ parametres.numero_rccm|default:'' }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.numero_rccm.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        N° RCCM
+                    </label>
+                    {{ form.numero_rccm }}
+                    {% if form.numero_rccm.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.numero_rccm.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -124,23 +210,37 @@ flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg 
             
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Frais de ménage par défaut (FCFA)</label>
-                    <input type="number" 
-                           name="frais_menage_defaut" 
-                           value="{{ parametres.frais_menage_defaut|default:5000 }}"
-                           step="500"
-                           min="0"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.frais_menage_defaut.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Frais de ménage par défaut (FCFA)
+                    </label>
+                    {{ form.frais_menage_defaut }}
+                    {% if form.frais_menage_defaut.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.frais_menage_defaut.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Délai de paiement (jours)</label>
-                    <input type="number" 
-                           name="delai_paiement_jours" 
-                           value="{{ parametres.delai_paiement_jours|default:30 }}"
-                           min="1"
-                           max="365"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">
+                    <label for="{{ form.delai_paiement_jours.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Délai de paiement (jours)
+                    </label>
+                    {{ form.delai_paiement_jours }}
+                    {% if form.delai_paiement_jours.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.delai_paiement_jours.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -154,24 +254,54 @@ flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg 
             
             <div class="space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Conditions générales</label>
-                    <textarea name="conditions_generales" 
-                              rows="4"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">{{ parametres.conditions_generales|default:"Paiement à réception de facture. Aucun remboursement après 24h de l'arrivée." }}</textarea>
+                    <label for="{{ form.conditions_generales.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Conditions générales
+                    </label>
+                    {{ form.conditions_generales }}
+                    {% if form.conditions_generales.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.conditions_generales.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Mentions légales</label>
-                    <textarea name="mentions_legales" 
-                              rows="3"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">{{ parametres.mentions_legales|default:"RepAvi Lodges - Société responsabilité limitée au capital de 1.000.000 FCFA" }}</textarea>
+                    <label for="{{ form.mentions_legales.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Mentions légales
+                    </label>
+                    {{ form.mentions_legales }}
+                    {% if form.mentions_legales.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.mentions_legales.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">Pied de page facture</label>
-                    <textarea name="footer_facture" 
-                              rows="2"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-blue-100 font-lato">{{ parametres.footer_facture }}</textarea>
+                    <label for="{{ form.footer_facture.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                        Pied de page facture
+                    </label>
+                    {{ form.footer_facture }}
+                    {% if form.footer_facture.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.footer_facture.errors %}
+                                <p class="flex items-center">
+                                    <span class="material-icons text-xs mr-1">error</span>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -186,4 +316,48 @@ flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg 
         </div>
     </form>
 </div>
+
+<!-- Script pour améliorer l'UX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-scroll vers la première erreur si elle existe
+    const firstError = document.querySelector('.text-red-600');
+    if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Validation en temps réel pour certains champs
+    const emailField = document.querySelector('input[type="email"]');
+    const telephoneField = document.querySelector('input[type="tel"]');
+    const urlField = document.querySelector('input[type="url"]');
+    
+    if (emailField) {
+        emailField.addEventListener('blur', function() {
+            if (this.value && !this.validity.valid) {
+                this.classList.add('border-red-500');
+            } else {
+                this.classList.remove('border-red-500');
+            }
+        });
+    }
+    
+    if (telephoneField) {
+        telephoneField.addEventListener('input', function() {
+            if (this.value && !this.value.startsWith('+')) {
+                this.setCustomValidity('Le numéro doit commencer par +');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    if (urlField) {
+        urlField.addEventListener('blur', function() {
+            if (this.value && !this.value.startsWith('http')) {
+                this.value = 'https://' + this.value;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

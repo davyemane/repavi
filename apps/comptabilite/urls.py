@@ -22,4 +22,5 @@ urlpatterns = [
 
     # Export simple (bonus)
     path('export/<int:annee>/<int:mois>/', views.export_rapport, name='export_rapport'),
+
 ]

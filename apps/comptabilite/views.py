@@ -2,7 +2,7 @@
 # apps/comptabilite/views.py - Comptabilité simple
 # ==========================================
 import csv
-from pyexpat.errors import messages
+from django.contrib import messages  # ✅ Import correct
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -12,6 +12,7 @@ from datetime import datetime
 from apps.comptabilite.forms import MouvementComptableForm
 from apps.users.views import is_gestionnaire
 from .models import ComptabiliteAppartement
+
 
 @login_required
 @user_passes_test(is_gestionnaire)
@@ -82,6 +83,9 @@ def rapport_mensuel(request):
         'total_revenus': total_revenus,
         'total_charges': total_charges,
         'resultat_global': total_revenus - total_charges,
+        'annees': [2023, 2024, 2025],  # ✅ AJOUTER
+        'mois_liste': list(range(1, 13)),  # ✅ AJOUTER
+
     }
     return render(request, 'comptabilite/rapport_mensuel.html', context)
 
@@ -175,6 +179,8 @@ def detail_appartement(request, appartement_pk):
         'charges': charges,
         'resultat': resultat,
         'reservations_mois': reservations_mois,
+        'annees': [2023, 2024, 2025],  # ✅ AJOUTER
+        'mois_liste': list(range(1, 13)),  # ✅ AJOUTER
     }
     return render(request, 'comptabilite/detail_appartement.html', context)
 
@@ -265,3 +271,6 @@ def detail_mouvement(request, pk):
         'mouvement': mouvement,
     }        
     return render(request, 'comptabilite/detail_mouvement.html', context)
+
+
+
