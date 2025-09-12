@@ -1,349 +1,309 @@
-<!-- templates/reservations/formulaire.html -->
+<!-- templates/reservations/formulaire.html - Version responsive -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}{{ titre }} - RepAvi Lodges{% endblock %}
 
 {% block page_title %}{{ titre }}{% endblock %}
-{% block page_subtitle %}Création en 5 étapes selon cahier des charges{% endblock %}
+{% block page_subtitle %}
+    <span class="hidden sm:inline">Création en 5 étapes selon cahier des charges</span>
+    <span class="sm:hidden">Formulaire de réservation</span>
+{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'reservations:calendrier' %}" 
-   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
-    <span class="material-icons text-sm mr-2">calendar_view_month</span>
-    Retour Calendrier
-</a>
-<a href="{% url 'clients:nouveau' %}?retour=reservation" 
-   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
-    <span class="material-icons text-sm mr-2">person_add</span>
-    Nouveau Client
-</a>
+<div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+    <a href="{% url 'reservations:calendrier' %}" 
+       class="inline-flex items-center justify-center px-3 sm:px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">calendar_view_month</span>
+        <span class="hidden sm:inline">Retour Calendrier</span>
+        <span class="sm:hidden">Calendrier</span>
+    </a>
+    <a href="{% url 'clients:nouveau' %}?retour=reservation" 
+       class="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">person_add</span>
+        <span class="hidden sm:inline">Nouveau Client</span>
+        <span class="sm:hidden">Client</span>
+    </a>
+</div>
 {% endblock %}
 
 {% block content %}
-<!-- Navigation breadcrumb -->
-<div class="mb-8">
-    <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4 font-lato">
-        <a href="{% url 'dashboard' %}" class="hover:text-[#02066F]">Dashboard</a>
-        <span>/</span>
-        <a href="{% url 'reservations:calendrier' %}" class="hover:text-[#02066F]">Réservations</a>
-        <span>/</span>
-        <span class="text-gray-900">{{ titre }}</span>
-    </nav>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
     
-    <div class="flex items-center space-x-3">
-        <div class="w-12 h-12 bg-gradient-to-r from-[#02066F] to-blue-600 rounded-xl flex items-center justify-center">
-            <span class="material-icons text-white text-xl">event_available</span>
-        </div>
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900 font-lato">{{ titre }}</h1>
-            <p class="text-gray-600 font-lato">Création en 5 étapes selon cahier des charges</p>
-        </div>
-    </div>
-</div>
-
-<!-- Progression des étapes -->
-<div class="bg-white rounded-2xl p-6 border border-gray-100 mb-8">
-    <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4" id="steps-indicator">
-            <div class="flex items-center space-x-2" data-step="1">
-                <div class="step-circle w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">1</div>
-                <span class="step-label font-medium text-[#02066F] font-lato">Client</span>
-            </div>
-            <span class="material-icons text-gray-300">arrow_forward</span>
-            
-            <div class="flex items-center space-x-2" data-step="2">
-                <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">2</div>
-                <span class="step-label text-gray-600 font-lato">Appartement</span>
-            </div>
-            <span class="material-icons text-gray-300">arrow_forward</span>
-            
-            <div class="flex items-center space-x-2" data-step="3">
-                <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">3</div>
-                <span class="step-label text-gray-600 font-lato">Dates</span>
-            </div>
-            <span class="material-icons text-gray-300">arrow_forward</span>
-            
-            <div class="flex items-center space-x-2" data-step="4">
-                <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">4</div>
-                <span class="step-label text-gray-600 font-lato">Tarif</span>
-            </div>
-            <span class="material-icons text-gray-300">arrow_forward</span>
-            
-            <div class="flex items-center space-x-2" data-step="5">
-                <div class="step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm">5</div>
-                <span class="step-label text-gray-600 font-lato">Validation</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Formulaire -->
-<form method="post" class="space-y-8" id="reservation-form">
-    {% csrf_token %}
-    
-    <!-- Étape 1: Client -->
-    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="1">
-        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
-            <span>Sélection du Client</span>
-            <span class="step-status ml-auto text-green-600 hidden">
-                <span class="material-icons">check_circle</span>
-            </span>
-        </h2>
+    <!-- Navigation breadcrumb - Responsive -->
+    <div class="mb-6 sm:mb-8">
+        <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4 font-lato overflow-x-auto">
+            <a href="{% url 'dashboard' %}" class="hover:text-[#02066F] whitespace-nowrap">Dashboard</a>
+            <span>/</span>
+            <a href="{% url 'reservations:calendrier' %}" class="hover:text-[#02066F] whitespace-nowrap">Réservations</a>
+            <span>/</span>
+            <span class="text-gray-900 truncate">{{ titre }}</span>
+        </nav>
         
-        <div class="grid md:grid-cols-3 gap-6">
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.client.label }}</label>
-                {{ form.client }}
-                {% if form.client.errors %}
-                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.client.errors.0 }}</div>
+        <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[#02066F] to-blue-600 rounded-xl flex items-center justify-center">
+                <span class="material-icons text-white text-lg sm:text-xl">event_available</span>
+            </div>
+            <div>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 font-lato">{{ titre }}</h1>
+                <p class="text-sm sm:text-base text-gray-600 font-lato">
+                    <span class="hidden sm:inline">Création en 5 étapes selon cahier des charges</span>
+                    <span class="sm:hidden">Formulaire de réservation</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progression des étapes - Responsive -->
+    <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 mb-6 sm:mb-8">
+        <div class="flex items-center justify-between overflow-x-auto">
+            <div class="flex items-center space-x-2 sm:space-x-4" id="steps-indicator">
+                {% for i in "12345" %}
+                <div class="flex items-center space-x-1 sm:space-x-2 whitespace-nowrap" data-step="{{ i }}">
+                    <div class="step-circle w-6 h-6 sm:w-8 sm:h-8 {% if i == '1' %}bg-[#02066F] text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">{{ i }}</div>
+                    <span class="step-label font-medium text-xs sm:text-sm text-gray-700 font-lato hidden sm:inline">
+                        {% if i == '1' %}Client
+                        {% elif i == '2' %}Appartement
+                        {% elif i == '3' %}Dates
+                        {% elif i == '4' %}Calcul
+                        {% else %}Statut{% endif %}
+                    </span>
+                </div>
+                {% if i != '5' %}
+                <div class="w-4 sm:w-8 h-px bg-gray-300"></div>
                 {% endif %}
-            </div>
-            
-            <div class="flex items-end">
-                <a href="{% url 'clients:nouveau' %}?retour=reservation" 
-                   class="w-full bg-green-100 text-green-600 px-4 py-3 rounded-xl hover:bg-green-200 transition-colors font-medium flex items-center justify-center space-x-2 font-lato">
-                    <span class="material-icons text-sm">person_add</span>
-                    <span>Nouveau Client</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Info client sélectionné -->
-        <div id="client-info" class="mt-4 p-4 bg-[#02066F]/5 rounded-xl border border-[#02066F]/20 hidden">
-            <div class="flex items-center space-x-3">
-                <span class="material-icons text-[#02066F]">info</span>
-                <div id="client-details" class="text-[#02066F] font-lato"></div>
+                {% endfor %}
             </div>
         </div>
     </div>
-    
-    <!-- Étape 2: Appartement -->
-    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="2">
-        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
-            <span>Choix de l'Appartement</span>
-            <span class="step-status ml-auto text-green-600 hidden">
-                <span class="material-icons">check_circle</span>
-            </span>
-        </h2>
+
+    <!-- Formulaire -->
+    <form method="post" id="reservation-form" class="space-y-4 sm:space-y-6">
+        {% csrf_token %}
         
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.appartement.label }}</label>
-            {{ form.appartement }}
-            {% if form.appartement.errors %}
-            <div class="text-red-600 text-sm mt-1 font-lato">{{ form.appartement.errors.0 }}</div>
-            {% endif %}
+        <!-- Étape 1: Client - Responsive -->
+        <div class="form-step bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100" data-step="1">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center space-x-2 font-lato">
+                <span class="w-6 h-6 sm:w-8 sm:h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">1</span>
+                <span>Sélection du Client</span>
+                <span class="step-status ml-auto text-green-600 hidden">
+                    <span class="material-icons text-lg sm:text-xl">check_circle</span>
+                </span>
+            </h2>
             
-            <!-- Info appartement sélectionné -->
-            <div id="appartement-info" class="mt-4 p-4 bg-[#02066F]/5 rounded-xl border border-[#02066F]/20 hidden">
-                <div class="flex items-center space-x-4">
-                    <span class="material-icons text-[#02066F]">info</span>
-                    <div id="appartement-details" class="font-lato"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div class="lg:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.client.label }}</label>
+                    {{ form.client }}
+                    {% if form.client.errors %}
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.client.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="flex items-end">
+                    <a href="{% url 'clients:nouveau' %}?retour=reservation" 
+                       class="w-full bg-green-100 text-green-600 px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:bg-green-200 transition-colors font-medium flex items-center justify-center space-x-2 font-lato text-sm sm:text-base">
+                        <span class="material-icons text-sm sm:text-base">person_add</span>
+                        <span class="hidden sm:inline">Nouveau Client</span>
+                        <span class="sm:hidden">Nouveau</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Info client sélectionné -->
+            <div id="client-info" class="mt-4 p-3 sm:p-4 bg-[#02066F]/5 rounded-lg sm:rounded-xl border border-[#02066F]/20 hidden">
+                <div class="flex items-start space-x-3">
+                    <span class="material-icons text-[#02066F] mt-0.5">info</span>
+                    <div id="client-details" class="text-[#02066F] font-lato text-sm sm:text-base"></div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Étape 3: Dates -->
-    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="3">
-        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
-            <span>Dates du Séjour</span>
-            <span class="step-status ml-auto text-green-600 hidden">
-                <span class="material-icons">check_circle</span>
-            </span>
-        </h2>
         
-        <div class="grid md:grid-cols-2 gap-6">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.date_arrivee.label }}</label>
-                {{ form.date_arrivee }}
-                {% if form.date_arrivee.errors %}
-                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.date_arrivee.errors.0 }}</div>
-                {% endif %}
-            </div>
+        <!-- Étape 2: Appartement - Responsive -->
+        <div class="form-step bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100" data-step="2">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center space-x-2 font-lato">
+                <span class="w-6 h-6 sm:w-8 sm:h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">2</span>
+                <span>Choix de l'Appartement</span>
+                <span class="step-status ml-auto text-green-600 hidden">
+                    <span class="material-icons text-lg sm:text-xl">check_circle</span>
+                </span>
+            </h2>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.date_depart.label }}</label>
-                {{ form.date_depart }}
-                {% if form.date_depart.errors %}
-                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.date_depart.errors.0 }}</div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.appartement.label }}</label>
+                {{ form.appartement }}
+                {% if form.appartement.errors %}
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.appartement.errors.0 }}</div>
+                {% endif %}
+                
+                <!-- Info appartement sélectionné -->
+                <div id="appartement-info" class="mt-4 p-3 sm:p-4 bg-[#02066F]/5 rounded-lg sm:rounded-xl border border-[#02066F]/20 hidden">
+                    <div class="flex items-start space-x-3">
+                        <span class="material-icons text-[#02066F] mt-0.5">info</span>
+                        <div id="appartement-details" class="font-lato text-sm sm:text-base"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Étape 3: Dates - Responsive -->
+        <div class="form-step bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100" data-step="3">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center space-x-2 font-lato">
+                <span class="w-6 h-6 sm:w-8 sm:h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">3</span>
+                <span>Dates du Séjour</span>
+                <span class="step-status ml-auto text-green-600 hidden">
+                    <span class="material-icons text-lg sm:text-xl">check_circle</span>
+                </span>
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.date_arrivee.label }}</label>
+                    {{ form.date_arrivee }}
+                    {% if form.date_arrivee.errors %}
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.date_arrivee.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.date_depart.label }}</label>
+                    {{ form.date_depart }}
+                    {% if form.date_depart.errors %}
+                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.date_depart.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Alerte conflit - Responsive -->
+            <div id="conflit-alerte" class="mt-4 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl text-red-600 hidden">
+                <div class="flex items-start space-x-2">
+                    <span class="material-icons mt-0.5">warning</span>
+                    <div>
+                        <span class="font-medium font-lato text-sm sm:text-base">Conflit détecté !</span>
+                        <div id="conflit-message" class="mt-1 sm:mt-2 text-xs sm:text-sm font-lato"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Étape 4: Calcul automatique - Responsive -->
+        <div class="form-step bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100" data-step="4">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center space-x-2 font-lato">
+                <span class="w-6 h-6 sm:w-8 sm:h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">4</span>
+                <span>Calcul Automatique</span>
+                <span class="step-status ml-auto text-green-600 hidden">
+                    <span class="material-icons text-lg sm:text-xl">check_circle</span>
+                </span>
+            </h2>
+            
+            <!-- Calcul automatique - Responsive -->
+            <div id="calcul-automatique" class="hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                    <div class="bg-blue-50 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs sm:text-sm text-blue-600 font-lato">Nuits</p>
+                                <p class="text-lg sm:text-xl font-bold text-blue-800 font-lato" id="nombre-nuits">-</p>
+                            </div>
+                            <span class="material-icons text-blue-600">nights_stay</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs sm:text-sm text-green-600 font-lato">Prix/Nuit</p>
+                                <p class="text-lg sm:text-xl font-bold text-green-800 font-lato"><span id="prix-nuit">-</span> FCFA</p>
+                            </div>
+                            <span class="material-icons text-green-600">attach_money</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-50 rounded-lg sm:rounded-xl p-3 sm:p-4 sm:col-span-2 lg:col-span-1">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs sm:text-sm text-purple-600 font-lato">Total</p>
+                                <p class="text-lg sm:text-xl font-bold text-purple-800 font-lato"><span id="prix-total">-</span> FCFA</p>
+                            </div>
+                            <span class="material-icons text-purple-600">calculate</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Échéancier automatique - Responsive -->
+                <div class="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                    <h3 class="font-semibold text-gray-900 mb-3 sm:mb-4 font-lato text-sm sm:text-base">Échéancier de Paiement (40% - 60%)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div class="flex justify-between items-center p-2 sm:p-3 bg-white rounded-lg border">
+                            <span class="text-xs sm:text-sm text-gray-600 font-lato">Acompte (40%)</span>
+                            <span class="font-bold text-gray-900 font-lato text-sm sm:text-base" id="montant-acompte">- FCFA</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 sm:p-3 bg-white rounded-lg border">
+                            <span class="text-xs sm:text-sm text-gray-600 font-lato">Solde (60%)</span>
+                            <span class="font-bold text-gray-900 font-lato text-sm sm:text-base" id="montant-solde">- FCFA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Étape 5: Statut - Responsive -->
+        <div class="form-step bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100" data-step="5">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center space-x-2 font-lato">
+                <span class="w-6 h-6 sm:w-8 sm:h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm">5</span>
+                <span>Statut Final</span>
+                <span class="step-status ml-auto text-green-600 hidden">
+                    <span class="material-icons text-lg sm:text-xl">check_circle</span>
+                </span>
+            </h2>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.statut.label }}</label>
+                {{ form.statut }}
+                {% if form.statut.errors %}
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.statut.errors.0 }}</div>
                 {% endif %}
             </div>
         </div>
-        
-        <!-- Alerte conflit -->
-        <div id="conflit-alerte" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 hidden">
-            <div class="flex items-center space-x-2">
-                <span class="material-icons">warning</span>
-                <span class="font-medium font-lato">Conflit détecté !</span>
-            </div>
-            <div id="conflit-message" class="mt-2 text-sm font-lato"></div>
-        </div>
-    </div>
 
-    <!-- Étape 4: Calcul automatique -->
-    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="4">
-        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
-            <span>Calcul Automatique</span>
-            <span class="step-status ml-auto text-green-600 hidden">
-                <span class="material-icons">check_circle</span>
-            </span>
-        </h2>
-
-        <div id="calcul-automatique" class="p-6 bg-green-50 border border-green-200 rounded-xl text-green-600 hidden">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                <div class="text-center">
-                    <div class="text-2xl font-bold font-lato" id="nombre-nuits">0</div>
-                    <div class="text-sm font-lato">Nuits</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold font-lato" id="prix-nuit">0</div>
-                    <div class="text-sm font-lato">FCFA/nuit</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-[#02066F] font-lato" id="prix-total">0</div>
-                    <div class="text-sm font-lato">FCFA Total</div>
-                </div>
-            </div>
-            <div class="text-center">
-                <div class="font-medium font-lato" id="details-calcul"></div>
-            </div>
+        <!-- Boutons d'action - Responsive -->
+        <div class="flex flex-col sm:flex-row justify-between space-y-3 sm:space-y-0 sm:space-x-4 pt-4 sm:pt-6">
+            <a href="{% url 'reservations:calendrier' %}" 
+               class="inline-flex items-center justify-center px-4 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-lato text-sm sm:text-base">
+                <span class="material-icons text-sm mr-2">arrow_back</span>
+                Annuler
+            </a>
+            
+            <button type="submit" 
+                    class="inline-flex items-center justify-center px-6 py-2 sm:py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato font-medium text-sm sm:text-base">
+                <span class="material-icons text-sm mr-2">save</span>
+                {{ action }} la Réservation
+            </button>
         </div>
+    </form>
+</div>
 
-        <!-- Statut -->
-        <div class="mt-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.statut.label }}</label>
-            {{ form.statut }}
-            {% if form.statut.errors %}
-            <div class="text-red-600 text-sm mt-1 font-lato">{{ form.statut.errors.0 }}</div>
-            {% endif %}
-        </div>
-    </div>
-    
-    <!-- Étape 5: Plan de Paiement -->
-    <div class="form-step bg-white rounded-2xl p-6 border border-gray-100" data-step="5">
-        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
-            <span class="w-8 h-8 bg-[#02066F] text-white rounded-full flex items-center justify-center font-bold text-sm">5</span>
-            <span>Plan de Paiement</span>
-        </h2>
-        
-        <div class="bg-[#02066F]/5 p-6 rounded-xl border border-[#02066F]/20">
-            <div class="text-[#02066F] font-medium mb-4 font-lato">Échéancier automatique selon cahier :</div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-[#02066F]">
-                <div class="flex justify-between items-center p-3 bg-white rounded-lg">
-                    <span class="font-medium font-lato">• Acompte (40%) :</span>
-                    <span class="font-bold text-lg font-lato" id="montant-acompte">0 FCFA</span>
-                </div>
-                <div class="flex justify-between items-center p-3 bg-white rounded-lg">
-                    <span class="font-medium font-lato">• Solde (60%) :</span>
-                    <span class="font-bold text-lg font-lato" id="montant-solde">0 FCFA</span>
-                </div>
-            </div>
-            <div class="text-[#02066F] text-sm mt-4 text-center font-lato">
-                L'échéancier sera créé automatiquement après validation
-            </div>
-        </div>
-    </div>
-    
-    <!-- Actions -->
-    <div class="flex items-center justify-between bg-white rounded-2xl p-6 border border-gray-100">
-        <a href="{% url 'reservations:calendrier' %}" 
-           class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-medium flex items-center space-x-2 font-lato">
-            <span class="material-icons text-sm">arrow_back</span>
-            <span>Retour Calendrier</span>
-        </a>
-        
-        <button type="submit" 
-                class="bg-gradient-to-r from-[#02066F] to-blue-600 text-white px-8 py-3 rounded-xl hover:from-[#030a8a] hover:to-blue-700 transition-colors font-medium flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed font-lato"
-                id="btn-creer" disabled>
-            <span class="material-icons text-sm">save</span>
-            <span>Créer la Réservation</span>
-        </button>
-    </div>
-</form>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-// État du formulaire
-let formState = {
-    currentStep: 1,
-    completedSteps: new Set(),
-    formData: {}
-};
+// Récupérer l'ID de réservation pour les modifications
+const reservationId = {{ reservation.pk|default:'null' }};
 
-// Validation et progression des étapes
-function validateStep(stepNumber) {
-    let isValid = false;
-    
-    switch(stepNumber) {
-        case 1:
-            isValid = document.querySelector('select[name="client"]').value !== '';
-            break;
-        case 2:
-            isValid = document.querySelector('select[name="appartement"]').value !== '';
-            break;
-        case 3:
-            const dateArrivee = document.querySelector('input[name="date_arrivee"]').value;
-            const dateDepart = document.querySelector('input[name="date_depart"]').value;
-            isValid = dateArrivee && dateDepart && dateDepart > dateArrivee;
-            break;
-        case 4:
-            isValid = !document.getElementById('calcul-automatique').classList.contains('hidden');
-            break;
-        case 5:
-            isValid = true; // Toujours valide si on arrive ici
-            break;
-    }
-    
-    return isValid;
-}
-
-function updateStepUI(stepNumber, isValid) {
-    const stepElement = document.querySelector(`[data-step="${stepNumber}"]`);
-    const circle = stepElement.querySelector('.step-circle');
-    const label = stepElement.querySelector('.step-label');
-    const status = document.querySelector(`.form-step[data-step="${stepNumber}"] .step-status`);
-    
-    if (isValid) {
-        circle.className = 'step-circle w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-sm';
-        label.className = 'step-label font-medium text-green-600 font-lato';
-        if (status) status.classList.remove('hidden');
-        formState.completedSteps.add(stepNumber);
-    } else {
-        circle.className = 'step-circle w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold text-sm';
-        label.className = 'step-label text-gray-600 font-lato';
-        if (status) status.classList.add('hidden');
-        formState.completedSteps.delete(stepNumber);
-    }
-    
-    // Activer le bouton submit si toutes les étapes sont complètes
-    const submitBtn = document.getElementById('btn-creer');
-    if (formState.completedSteps.size >= 4) {
-        submitBtn.disabled = false;
-    } else {
-        submitBtn.disabled = true;
-    }
-}
-
-// Calcul automatique selon cahier
-function calculerPrix() {
+// Fonction de vérification disponibilité corrigée
+function verifierDisponibilite() {
     const appartementSelect = document.querySelector('select[name="appartement"]');
     const dateArrivee = document.querySelector('input[name="date_arrivee"]').value;
     const dateDepart = document.querySelector('input[name="date_depart"]').value;
     
     if (!appartementSelect.value || !dateArrivee || !dateDepart) {
-        document.getElementById('calcul-automatique').classList.add('hidden');
-        updateStepUI(4, false);
         return;
     }
     
-    // Appel AJAX pour vérifier disponibilité et calculer prix
-    fetch(`{% url 'reservations:verifier_disponibilite' %}?appartement=${appartementSelect.value}&date_arrivee=${dateArrivee}&date_depart=${dateDepart}`)
+    // CORRECTION : Ajouter l'ID de réservation pour les modifications
+    let url = `{% url 'reservations:verifier_disponibilite' %}?appartement=${appartementSelect.value}&date_arrivee=${dateArrivee}&date_depart=${dateDepart}`;
+    if (reservationId) {
+        url += `&reservation_id=${reservationId}`;
+    }
+    
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             const calculDiv = document.getElementById('calcul-automatique');
@@ -357,7 +317,6 @@ function calculerPrix() {
                 document.getElementById('nombre-nuits').textContent = data.nombre_nuits;
                 document.getElementById('prix-nuit').textContent = data.prix_par_nuit.toLocaleString('fr-FR');
                 document.getElementById('prix-total').textContent = data.prix_total.toLocaleString('fr-FR');
-                document.getElementById('details-calcul').textContent = data.message;
                 
                 // Mettre à jour échéancier
                 const acompte = data.prix_total * 0.4;
@@ -379,73 +338,37 @@ function calculerPrix() {
         })
         .catch(error => {
             console.error('Erreur:', error);
-            updateStepUI(3, false);
-            updateStepUI(4, false);
         });
+}
+
+// Fonction pour mettre à jour l'UI des étapes
+function updateStepUI(step, valid) {
+    const stepDiv = document.querySelector(`[data-step="${step}"]`);
+    const circle = stepDiv.querySelector('.step-circle');
+    const status = stepDiv.querySelector('.step-status');
+    
+    if (valid) {
+        circle.classList.remove('bg-gray-200', 'text-gray-600');
+        circle.classList.add('bg-green-600', 'text-white');
+        status.classList.remove('hidden');
+    } else {
+        circle.classList.remove('bg-green-600', 'text-white');
+        circle.classList.add('bg-gray-200', 'text-gray-600');
+        status.classList.add('hidden');
+    }
 }
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Client selection
-    const clientSelect = document.querySelector('select[name="client"]');
-    clientSelect.addEventListener('change', function() {
-        const isValid = this.value !== '';
-        updateStepUI(1, isValid);
-        
-        if (isValid && this.selectedOptions[0]) {
-            const clientInfo = document.getElementById('client-info');
-            const clientDetails = document.getElementById('client-details');
-            
-            clientInfo.classList.remove('hidden');
-            const option = this.selectedOptions[0];
-            clientDetails.innerHTML = `
-                <div>
-                    <div class="font-medium">Client sélectionné : ${option.text}</div>
-                    <div class="text-sm">Informations chargées avec succès</div>
-                </div>
-            `;
-        } else {
-            document.getElementById('client-info').classList.add('hidden');
-        }
-    });
+    // Event listeners pour vérification automatique
+    document.querySelector('select[name="appartement"]').addEventListener('change', verifierDisponibilite);
+    document.querySelector('input[name="date_arrivee"]').addEventListener('change', verifierDisponibilite);
+    document.querySelector('input[name="date_depart"]').addEventListener('change', verifierDisponibilite);
     
-    // Appartement selection
-    const appartementSelect = document.querySelector('select[name="appartement"]');
-    appartementSelect.addEventListener('change', function() {
-        const isValid = this.value !== '';
-        updateStepUI(2, isValid);
-        
-        if (isValid && this.selectedOptions[0]) {
-            const appartementInfo = document.getElementById('appartement-info');
-            const appartementDetails = document.getElementById('appartement-details');
-            
-            appartementInfo.classList.remove('hidden');
-            const option = this.selectedOptions[0];
-            appartementDetails.innerHTML = `
-                <div>
-                    <div class="font-medium">Appartement sélectionné : ${option.text}</div>
-                    <div class="text-sm text-blue-600">Prêt pour calcul automatique</div>
-                </div>
-            `;
-        } else {
-            document.getElementById('appartement-info').classList.add('hidden');
-        }
-        
-        calculerPrix();
-    });
-    
-    // Date changes
-    document.querySelector('input[name="date_arrivee"]').addEventListener('change', calculerPrix);
-    document.querySelector('input[name="date_depart"]').addEventListener('change', calculerPrix);
-    
-    // Form validation
-    document.getElementById('reservation-form').addEventListener('submit', function(e) {
-        if (formState.completedSteps.size < 4) {
-            e.preventDefault();
-            alert('Veuillez compléter toutes les étapes avant de valider');
-            return false;
-        }
-    });
+    // Validation initiale si en mode modification
+    if (reservationId) {
+        setTimeout(verifierDisponibilite, 500);
+    }
 });
 </script>
 {% endblock %}

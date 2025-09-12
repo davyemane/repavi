@@ -6,10 +6,10 @@
 {% block page_subtitle %}Photos par pièce selon cahier des charges{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'appartements:ajouter_photo' %}" 
-   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
-    <span class="material-icons text-sm mr-2">add_a_photo</span>
-    Ajouter Photo
+<a href="{% url 'appartements:liste' %}" 
+   class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour
 </a>
 {% endblock %}
 

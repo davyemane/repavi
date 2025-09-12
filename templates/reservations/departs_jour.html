@@ -12,7 +12,7 @@
     <span class="material-icons text-sm mr-2">calendar_view_month</span>
     Calendrier
 </a>
-<a href="{% url 'menage:planning_jour' %}" 
+<a href="{% url 'menage:planning' %}" 
    class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
     <span class="material-icons text-sm mr-2">cleaning_services</span>
     Planning Ménage
@@ -238,7 +238,7 @@
     <h3 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Actions Post-Départ</h3>
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a href="{% url 'menage:planning_jour' %}?type=depart" 
+        <a href="{% url 'menage:planning' %}?type=depart" 
            class="flex items-center space-x-3 p-4 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
             <span class="material-icons">cleaning_services</span>
             <div class="font-lato">

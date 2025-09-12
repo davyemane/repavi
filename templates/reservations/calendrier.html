@@ -1,16 +1,19 @@
-<!-- templates/reservations/calendrier.html -->
+<!-- templates/reservations/calendrier.html - Version responsive -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Calendrier des Réservations - RepAvi Lodges{% endblock %}
 
-{% block page_title %}Calendrier des Réservations{% endblock %}
-{% block page_subtitle %}Vue mensuelle - {{ mois_nom|capfirst }} {{ annee }}{% endblock %}
+{% block page_title %}Calendrier{% endblock %}
+{% block page_subtitle %}
+    <span class="hidden sm:inline">{{ mois_nom|capfirst }} {{ annee }} - Vue mensuelle</span>
+    <span class="sm:hidden">{{ mois_nom|capfirst }} {{ annee }}</span>
+{% endblock %}
 
 {% block header_actions %}
-<div class="flex items-center space-x-4">
-    <!-- Navigation mois -->
-    <div class="flex items-center space-x-2">
+<div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+    <!-- Navigation mois - Responsive -->
+    <div class="flex items-center justify-center sm:justify-start space-x-2 order-2 sm:order-1">
         <a href="?{% if mois == 1 %}annee={{ annee|add:'-1' }}&mois=12{% else %}annee={{ annee }}&mois={{ mois|add:'-1' }}{% endif %}" 
            class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors">
             <span class="material-icons">chevron_left</span>
@@ -18,7 +21,8 @@
         
         <a href="{% url 'reservations:calendrier' %}" 
            class="px-3 py-2 text-sm text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg border border-gray-300 font-lato">
-            Aujourd'hui
+            <span class="hidden sm:inline">Aujourd'hui</span>
+            <span class="sm:hidden">Actuel</span>
         </a>
         
         <a href="?{% if mois == 12 %}annee={{ annee|add:'1' }}&mois=1{% else %}annee={{ annee }}&mois={{ mois|add:'1' }}{% endif %}" 
@@ -27,43 +31,64 @@
         </a>
     </div>
     
-    <a href="{% url 'reservations:nouvelle' %}" 
-       class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
-        <span class="material-icons text-sm mr-2">add</span>
-        Nouvelle Réservation
-    </a>
+    <!-- Actions principales -->
+    <div class="flex space-x-2 order-1 sm:order-2">
+        <a href="{% url 'reservations:nouvelle' %}" 
+           class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 sm:px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+            <span class="material-icons text-sm mr-2">add</span>
+            <span class="hidden sm:inline">Nouvelle Réservation</span>
+            <span class="sm:hidden">Nouvelle</span>
+        </a>
+        
+        <!-- Menu toggle mobile -->
+        <button id="mobile-menu-toggle" class="sm:hidden p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg transition-colors">
+            <span class="material-icons">menu</span>
+        </button>
+    </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-gray-200 overflow-y-auto">
-        <div class="p-6">
-            <div class="flex items-center space-x-3 mb-8">
-                <div class="w-10 h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
-                    <span class="material-icons text-white text-lg">event</span>
+<div class="flex flex-col sm:flex-row h-screen">
+    
+    <!-- Sidebar - Hidden on mobile, overlay on medium screens -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform -translate-x-full transition-transform duration-300 ease-in-out sm:relative sm:transform-none sm:block overflow-y-auto">
+        <div class="p-4 sm:p-6">
+            <!-- Header sidebar -->
+            <div class="flex items-center justify-between mb-6 sm:mb-8">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#02066F] rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-white text-sm sm:text-lg">event</span>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base sm:text-lg text-gray-900 font-lato">Calendrier</h1>
+                        <p class="text-xs text-gray-500 font-lato">Vue mensuelle</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-bold text-lg text-gray-900 font-lato">Calendrier</h1>
-                    <p class="text-xs text-gray-500 font-lato">Vue mensuelle</p>
-                </div>
+                <!-- Close button mobile -->
+                <button id="sidebar-close" class="sm:hidden p-1 text-gray-400 hover:text-gray-600">
+                    <span class="material-icons text-lg">close</span>
+                </button>
             </div>
 
+            <!-- Navigation -->
             <nav class="space-y-1">
-                <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium font-lato">
+                <a href="{% url 'reservations:calendrier' %}" 
+                   class="flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium font-lato">
                     <span class="material-icons text-sm">calendar_view_month</span>
                     <span>Calendrier</span>
                 </a>
 
-                <a href="{% url 'reservations:liste' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg font-lato">
+                <a href="{% url 'reservations:liste' %}" 
+                   class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/5 rounded-lg font-lato">
                     <span class="material-icons text-sm">list</span>
                     <span>Liste</span>
                 </a>
 
                 <div class="border-t border-gray-200 my-4"></div>
 
-                <a href="{% url 'reservations:arrivees_jour' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg font-lato">
+                <a href="{% url 'reservations:arrivees_jour' %}" 
+                   class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg font-lato">
                     <span class="material-icons text-sm">login</span>
                     <span>Arrivées du jour</span>
                     {% if arrivees_aujourd_hui.count > 0 %}
@@ -71,202 +96,245 @@
                     {% endif %}
                 </a>
 
-                <a href="{% url 'reservations:departs_jour' %}" class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg font-lato">
+                <a href="{% url 'reservations:departs_jour' %}" 
+                   class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg font-lato">
                     <span class="material-icons text-sm">logout</span>
                     <span>Départs du jour</span>
                 </a>
             </nav>
-        </div>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto bg-gray-50">
-        <!-- Légende -->
-        <div class="px-6 py-4 bg-white border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-6 text-sm font-lato">
+            <!-- Légende - Responsive -->
+            <div class="mt-6 sm:mt-8">
+                <h3 class="text-sm font-medium text-gray-700 mb-3 font-lato">Légende</h3>
+                <div class="space-y-2 text-sm font-lato">
                     <div class="flex items-center space-x-2">
                         <div class="w-3 h-3 bg-blue-500 rounded"></div>
-                        <span>Confirmée</span>
+                        <span class="text-gray-600">Confirmée</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <div class="w-3 h-3 bg-green-500 rounded"></div>
-                        <span>En cours</span>
+                        <span class="text-gray-600">En cours</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <div class="w-3 h-3 bg-gray-500 rounded"></div>
-                        <span>Terminée</span>
+                        <span class="text-gray-600">Terminée</span>
                     </div>
                     <div class="flex items-center space-x-2">
                         <div class="w-3 h-3 bg-red-500 rounded"></div>
-                        <span>Annulée</span>
+                        <span class="text-gray-600">Annulée</span>
                     </div>
-                </div>
-                
-                <div class="text-sm text-gray-600 font-lato">
-                    {{ calendrier_data|length }} appartement(s) • {{ jours_mois|length }} jours
                 </div>
             </div>
         </div>
+    </aside>
 
-        <!-- Calendrier -->
-        <div class="p-6">
-            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <!-- Overlay mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden sm:hidden"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-hidden bg-gray-50">
+        <div class="h-full flex flex-col">
+            
+            <!-- Calendrier mobile (vue simplifiée) -->
+            <div class="block sm:hidden p-4 space-y-4">
                 
-                <!-- En-tête des jours -->
-                <div class="bg-gray-50 border-b border-gray-200">
-                    <div class="grid grid-cols-8 text-center text-sm font-medium text-gray-600 font-lato">
-                        <div class="p-3 border-r border-gray-200 font-bold text-gray-900">Appartement</div>
-                        {% for jour in jours_mois|slice:":7" %}
-                        <div class="p-3 {% if not forloop.last %}border-r border-gray-200{% endif %}">
-                            <div class="font-semibold">{{ jour|date:"d" }}</div>
-                            <div class="text-xs">{{ jour|date:"D" }}</div>
+                <!-- Stats rapides mobile -->
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="bg-white rounded-lg border border-gray-200 p-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="material-icons text-[#02066F] text-lg">event</span>
+                            <div>
+                                <p class="text-xs text-gray-600 font-lato">Ce mois</p>
+                                <p class="text-sm font-bold text-[#02066F] font-lato">{{ stats.total_reservations|default:"0" }}</p>
+                            </div>
                         </div>
-                        {% endfor %}
+                    </div>
+                    
+                    <div class="bg-white rounded-lg border border-gray-200 p-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="material-icons text-green-600 text-lg">attach_money</span>
+                            <div>
+                                <p class="text-xs text-gray-600 font-lato">Revenus</p>
+                                <p class="text-sm font-bold text-green-600 font-lato">{{ stats.chiffre_affaires|floatformat:0|default:"0" }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Corps du calendrier -->
-                <div class="divide-y divide-gray-100">
-                    {% for appartement_data in calendrier_data %}
-                    <div class="grid grid-cols-8 min-h-[120px]">
-                        
-                        <!-- Colonne appartement -->
-                        <div class="p-4 border-r border-gray-200 bg-gray-50 flex flex-col justify-center">
-                            <div class="flex items-center space-x-2 mb-2">
-                                <span class="w-3 h-3 rounded-full {% if appartement_data.appartement.statut == 'disponible' %}bg-green-500{% elif appartement_data.appartement.statut == 'occupe' %}bg-red-500{% else %}bg-yellow-500{% endif %}"></span>
-                                <span class="font-bold text-gray-900 font-lato">{{ appartement_data.appartement.numero }}</span>
-                            </div>
-                            <div class="text-xs text-gray-600 font-lato">{{ appartement_data.appartement.get_type_logement_display }}</div>
-                            <div class="text-xs text-gray-500 mt-1 font-lato">{{ appartement_data.appartement.prix_par_nuit|floatformat:0 }} FCFA/nuit</div>
-                        </div>
-                        
-                        <!-- Colonnes jours -->
-                        {% for jour_data in appartement_data.jours|slice:":7" %}
-                        <div class="relative p-2 {% if not forloop.last %}border-r border-gray-100{% endif %} hover:bg-gray-50 group"
-                             data-appartement="{{ appartement_data.appartement.pk }}" 
-                             data-date="{{ jour_data.date|date:'Y-m-d' }}">
-                            
-                            <!-- Réservations du jour -->
-                            {% for reservation in jour_data.reservations %}
-                            <div class="mb-1 p-1 text-xs rounded cursor-pointer transition-all hover:scale-105
-                                {% if reservation.statut == 'confirmee' %}bg-blue-500 text-white
-                                {% elif reservation.statut == 'en_cours' %}bg-green-500 text-white
-                                {% elif reservation.statut == 'terminee' %}bg-gray-500 text-white
-                                {% else %}bg-red-500 text-white{% endif %} font-lato"
-                                 onclick="window.location.href='{% url 'reservations:detail' reservation.pk %}'">
-                                <div class="font-semibold truncate">{{ reservation.client.prenom }}</div>
-                                <div class="opacity-80">{{ reservation.nombre_nuits }}n</div>
+
+                <!-- Liste des réservations mobile -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-semibold text-gray-900 font-lato">Réservations du mois</h3>
+                    
+                    {% for appartement in calendrier_data %}
+                        {% for jour in appartement.jours %}
+                            {% for reservation in jour.reservations %}
+                            <div class="bg-white rounded-lg border border-gray-200 p-3">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900 font-lato">
+                                            {{ reservation.client.prenom }} {{ reservation.client.nom }}
+                                        </h4>
+                                        <p class="text-sm text-gray-600 font-lato">{{ reservation.appartement.numero }}</p>
+                                        <p class="text-xs text-gray-500 font-lato">
+                                            {{ reservation.date_arrivee|date:"d/m" }} - {{ reservation.date_depart|date:"d/m" }}
+                                        </p>
+                                    </div>
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full 
+                                           {% if reservation.statut == 'confirmee' %}bg-blue-100 text-blue-800 
+                                           {% elif reservation.statut == 'en_cours' %}bg-green-100 text-green-800 
+                                           {% elif reservation.statut == 'terminee' %}bg-gray-100 text-gray-800 
+                                           {% else %}bg-red-100 text-red-800{% endif %} font-lato">
+                                        {{ reservation.get_statut_display }}
+                                    </span>
+                                </div>
+                                
+                                <div class="mt-2 flex space-x-2">
+                                    <a href="{% url 'reservations:detail' reservation.pk %}" 
+                                       class="flex-1 text-center py-1 px-2 text-xs bg-[#02066F] text-white rounded font-lato">
+                                        Voir
+                                    </a>
+                                    {% if reservation.statut != 'annulee' %}
+                                    <a href="{% url 'reservations:modifier' reservation.pk %}" 
+                                       class="flex-1 text-center py-1 px-2 text-xs border border-[#02066F] text-[#02066F] rounded font-lato">
+                                        Modifier
+                                    </a>
+                                    {% endif %}
+                                </div>
                             </div>
                             {% endfor %}
+                        {% endfor %}
+                    {% empty %}
+                    <div class="text-center py-8">
+                        <span class="material-icons text-gray-400 text-4xl mb-3">event_busy</span>
+                        <p class="text-gray-500 font-lato">Aucune réservation ce mois</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Calendrier desktop -->
+            <div class="hidden sm:block h-full overflow-auto">
+                
+                <!-- Header avec info mois -->
+                <div class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 font-lato">{{ mois_nom|capfirst }} {{ annee }}</h2>
+                            <p class="text-sm text-gray-600 font-lato">{{ calendrier_data|length }} appartement(s) • {{ jours_mois|length }} jours</p>
+                        </div>
+                        
+                        <!-- Actions rapides desktop -->
+                        <div class="flex items-center space-x-3">
+                            <a href="{% url 'reservations:arrivees_jour' %}" 
+                               class="inline-flex items-center space-x-2 px-3 py-2 text-sm text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors font-lato">
+                                <span class="material-icons text-sm">login</span>
+                                <span>Arrivées</span>
+                                {% if arrivees_aujourd_hui.count > 0 %}
+                                <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">{{ arrivees_aujourd_hui.count }}</span>
+                                {% endif %}
+                            </a>
                             
-                            <!-- Bouton ajout rapide -->
-                            <button onclick="ajouterReservation('{{ appartement_data.appartement.pk }}', '{{ jour_data.date|date:'Y-m-d' }}')" 
-                                    class="absolute inset-0 border-2 border-dashed border-transparent group-hover:border-[#02066F]/30 rounded text-[#02066F] hover:text-[#030a8a] transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center">
-                                <span class="material-icons text-lg">add_circle_outline</span>
-                            </button>
-                            
-                            <!-- Indicateur jour actuel -->
-                            {% now "Y-m-d" as today %}
-                            {% if jour_data.date|date:"Y-m-d" == today %}
-                            <div class="absolute top-1 right-1 w-2 h-2 bg-[#02066F] rounded-full"></div>
-                            {% endif %}
+                            <a href="{% url 'reservations:departs_jour' %}" 
+                               class="inline-flex items-center space-x-2 px-3 py-2 text-sm text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors font-lato">
+                                <span class="material-icons text-sm">logout</span>
+                                <span>Départs</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendrier proprement dit -->
+                <div class="p-4 sm:p-6">
+                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        
+                        <!-- En-têtes des jours -->
+                        <div class="grid grid-cols-8 bg-gray-50 border-b border-gray-200">
+                            <div class="p-2 sm:p-4 text-center">
+                                <span class="text-xs sm:text-sm font-medium text-gray-700 font-lato">Apt.</span>
+                            </div>
+                            {% for jour in jours_mois|slice:":7" %}
+                            <div class="p-2 sm:p-4 text-center border-l border-gray-200">
+                                <div class="text-xs sm:text-sm font-medium text-gray-700 font-lato">
+                                    <div class="hidden sm:block">{{ jour|date:"l" }}</div>
+                                    <div class="sm:hidden">{{ jour|date:"D" }}</div>
+                                    <div class="text-xs sm:text-sm text-gray-900">{{ jour|date:"j" }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Lignes appartements -->
+                        {% for appartement_data in calendrier_data %}
+                        <div class="grid grid-cols-8 border-b border-gray-100 hover:bg-gray-50">
+                            <!-- Colonne appartement -->
+                            <div class="p-2 sm:p-4 bg-gray-50 border-r border-gray-200">
+                                <div class="text-sm font-medium text-gray-900 font-lato">{{ appartement_data.appartement.numero }}</div>
+                                <div class="text-xs text-gray-500 font-lato">{{ appartement_data.appartement.get_type_logement_display }}</div>
+                                <div class="text-xs text-gray-500 font-lato">{{ appartement_data.appartement.prix_par_nuit }} FCFA/nuit</div>
+                            </div>
+
+                            <!-- Cellules jours -->
+                            {% for jour_data in appartement_data.jours|slice:":7" %}
+                            <div class="relative p-1 sm:p-2 border-l border-gray-100 min-h-[60px] sm:min-h-[80px]">
+                                {% for reservation in jour_data.reservations %}
+                                <div class="mb-1 p-1 rounded text-xs font-medium cursor-pointer
+                                           {% if reservation.statut == 'confirmee' %}bg-blue-100 text-blue-800 border border-blue-200
+                                           {% elif reservation.statut == 'en_cours' %}bg-green-100 text-green-800 border border-green-200
+                                           {% elif reservation.statut == 'terminee' %}bg-gray-100 text-gray-800 border border-gray-200
+                                           {% else %}bg-red-100 text-red-800 border border-red-200{% endif %}"
+                                    onclick="window.location.href='{% url 'reservations:detail' reservation.pk %}'">
+                                    <div class="truncate font-lato">{{ reservation.client.prenom|slice:":1" }}. {{ reservation.client.nom|truncatechars:10 }}</div>
+                                    <div class="text-xs opacity-75 font-lato">{{ reservation.nombre_nuits }}n</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
                         </div>
                         {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
-            </div>
 
-            <!-- Navigation semaines -->
-            <div class="mt-6 flex justify-center">
-                <div class="flex items-center space-x-2">
-                    {% for semaine in calendrier_html %}
-                    <div class="text-xs text-gray-500 font-lato">
-                        Semaine {{ forloop.counter }}
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Arrivées du jour -->
-        {% if arrivees_aujourd_hui %}
-        <div class="px-6 pb-6">
-            <div class="bg-green-50 rounded-xl p-6 border border-green-200">
-                <h3 class="text-lg font-bold text-green-900 mb-4 flex items-center space-x-2 font-lato">
-                    <span class="material-icons">today</span>
-                    <span>Arrivées du jour ({{ arrivees_aujourd_hui.count }})</span>
-                </h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {% for reservation in arrivees_aujourd_hui %}
-                    <div class="bg-white p-4 rounded-lg border border-green-200 hover:border-green-300 transition-colors cursor-pointer"
-                         onclick="window.location.href='{% url 'reservations:detail' reservation.pk %}'">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                <span class="material-icons text-green-600 text-sm">person</span>
+                <!-- Stats du mois - Desktop -->
+                <div class="px-4 sm:px-6 pb-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-lg border border-gray-200 p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 font-lato">Réservations</p>
+                                    <p class="text-xl font-bold text-[#02066F] font-lato">{{ stats.total_reservations|default:"0" }}</p>
+                                </div>
+                                <span class="material-icons text-[#02066F]">event</span>
                             </div>
-                            <div class="flex-1">
-                                <div class="font-medium text-gray-900 font-lato">{{ reservation.client.prenom }} {{ reservation.client.nom }}</div>
-                                <div class="text-sm text-gray-600 font-lato">{{ reservation.appartement.numero }} • {{ reservation.nombre_nuits }} nuits</div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg border border-gray-200 p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 font-lato">Nuits vendues</p>
+                                    <p class="text-xl font-bold text-green-600 font-lato">{{ stats.nuits_vendues|default:"0" }}</p>
+                                </div>
+                                <span class="material-icons text-green-600">nights_stay</span>
                             </div>
-                            <span class="material-icons text-green-600">arrow_forward</span>
                         </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Statistiques du mois -->
-        <div class="px-6 pb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white rounded-lg border border-gray-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 font-lato">Réservations</p>
-                            <p class="text-xl font-bold text-[#02066F] font-lato">{{ stats.total_reservations|default:"0" }}</p>
+                        
+                        <div class="bg-white rounded-lg border border-gray-200 p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 font-lato">Revenus</p>
+                                    <p class="text-xl font-bold text-blue-600 font-lato">{{ stats.chiffre_affaires|floatformat:0|default:"0" }} FCFA</p>
+                                </div>
+                                <span class="material-icons text-blue-600">attach_money</span>
+                            </div>
                         </div>
-                        <div class="w-8 h-8 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-[#02066F] text-sm">event</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg border border-gray-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 font-lato">Nuits vendues</p>
-                            <p class="text-xl font-bold text-green-600 font-lato">{{ stats.nuits_vendues|default:"0" }}</p>
-                        </div>
-                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-green-600 text-sm">nights_stay</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg border border-gray-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 font-lato">Chiffre d'affaires</p>
-                            <p class="text-xl font-bold text-blue-600 font-lato">{{ stats.chiffre_affaires|floatformat:0|default:"0" }}</p>
-                        </div>
-                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-blue-600 text-sm">payments</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg border border-gray-200 p-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 font-lato">Taux d'occupation</p>
-                            <p class="text-xl font-bold text-orange-600 font-lato">{{ stats.taux_occupation|default:"0" }}%</p>
-                        </div>
-                        <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <span class="material-icons text-orange-600 text-sm">trending_up</span>
+                        
+                        <div class="bg-white rounded-lg border border-gray-200 p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 font-lato">Occupation</p>
+                                    <p class="text-xl font-bold text-purple-600 font-lato">{{ stats.taux_occupation|default:"0" }}%</p>
+                                </div>
+                                <span class="material-icons text-purple-600">home</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -274,42 +342,52 @@
         </div>
     </main>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-// Ajout rapide de réservation
-function ajouterReservation(appartementId, date) {
-    const url = "{% url 'reservations:nouvelle' %}";
-    window.location.href = `${url}?appartement=${appartementId}&date_arrivee=${date}`;
-}
-
-// Navigation clavier
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'ArrowLeft') {
-        document.querySelector('[href*="mois={{ mois|add:"-1" }}"]')?.click();
-    } else if (e.key === 'ArrowRight') {
-        document.querySelector('[href*="mois={{ mois|add:"1" }}"]')?.click();
-    } else if (e.key === 'Home') {
-        window.location.href = "{% url 'reservations:calendrier' %}";
-    }
-});
-
-// Tooltip pour les réservations
+// Gestion du menu mobile
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser les tooltips si nécessaire
-    const reservationElements = document.querySelectorAll('[data-reservation]');
-    
-    reservationElements.forEach(element => {
-        element.addEventListener('mouseenter', function() {
-            // Afficher tooltip avec détails réservation
-        });
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const sidebarClose = document.getElementById('sidebar-close');
+
+    function openSidebar() {
+        sidebar.classList.remove('-translate-x-full');
+        sidebarOverlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.add('-translate-x-full');
+        sidebarOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', openSidebar);
+    }
+
+    if (sidebarClose) {
+        sidebarClose.addEventListener('click', closeSidebar);
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+    }
+
+    // Fermer avec Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSidebar();
+        }
+    });
+
+    // Fermer sidebar sur redimensionnement vers desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 640) { // sm breakpoint
+            closeSidebar();
+        }
     });
 });
-
-// Auto-refresh toutes les 5 minutes
-setInterval(() => {
-    window.location.reload();
-}, 300000);
 </script>
 {% endblock %}

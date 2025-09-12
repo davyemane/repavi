@@ -398,10 +398,12 @@
                         {% endif %}
                         {% endblock %}
 
-                        <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons">notifications</span>
-                        </button>
-
+<button onclick="window.location.href='{% url 'notifications:all' %}'" 
+        class="relative p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+    <span class="material-icons">notifications</span>
+    <!-- Badge pour notifications non lues -->
+    <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+</button>
                         <button class="p-2 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
                             <span class="material-icons">refresh</span>
                         </button>

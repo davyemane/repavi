@@ -19,10 +19,28 @@ from .forms import ReservationForm
 def calendrier_reservations(request):
     """Vue mensuelle avec couleurs par statut selon cahier"""
     import calendar
+    import re
     
-    # Mois en cours par défaut
-    annee = int(request.GET.get('annee', datetime.now().year))
-    mois = int(request.GET.get('mois', datetime.now().month))
+    # Nettoyage et validation des paramètres
+    def clean_int_param(param_name, default_value):
+        """Nettoie et convertit un paramètre en entier"""
+        try:
+            value = request.GET.get(param_name, str(default_value))
+            # Supprimer les espaces insécables et autres caractères non-numériques
+            cleaned_value = re.sub(r'[^\d]', '', str(value))
+            return int(cleaned_value) if cleaned_value else default_value
+        except (ValueError, TypeError):
+            return default_value
+    
+    # Mois en cours par défaut avec nettoyage
+    annee = clean_int_param('annee', datetime.now().year)
+    mois = clean_int_param('mois', datetime.now().month)
+    
+    # Validation des valeurs
+    if not (1 <= mois <= 12):
+        mois = datetime.now().month
+    if not (2000 <= annee <= 2050):  # Plage raisonnable
+        annee = datetime.now().year
     
     # Premier et dernier jour du mois
     premier_jour = datetime(annee, mois, 1).date()
@@ -85,7 +103,6 @@ def calendrier_reservations(request):
         'premier_jour': premier_jour,
         'dernier_jour': dernier_jour,
         'arrivees_aujourd_hui': arrivees_aujourd_hui,
-        'calendrier_html': cal,
     }
     return render(request, 'reservations/calendrier.html', context)
 
@@ -135,6 +152,8 @@ def creer_reservation(request):
         'action': 'Créer'
     })
 
+# apps/reservations/views.py - Corriger la vue verifier_disponibilite
+
 @login_required
 @user_passes_test(is_gestionnaire)
 def verifier_disponibilite(request):
@@ -142,6 +161,7 @@ def verifier_disponibilite(request):
     appartement_id = request.GET.get('appartement')
     date_arrivee = request.GET.get('date_arrivee')
     date_depart = request.GET.get('date_depart')
+    reservation_id = request.GET.get('reservation_id')  # AJOUT
     
     if not all([appartement_id, date_arrivee, date_depart]):
         return JsonResponse({'error': 'Paramètres manquants'})
@@ -156,13 +176,17 @@ def verifier_disponibilite(request):
         if date_depart <= date_arrivee:
             return JsonResponse({'error': 'Date de départ invalide'})
         
-        # Vérifier conflits selon cahier
+        # Vérifier conflits - EXCLURE la réservation en cours de modification
         conflits = Reservation.objects.filter(
             appartement=appartement,
             statut__in=['confirmee', 'en_cours'],
             date_arrivee__lt=date_depart,
             date_depart__gt=date_arrivee
         )
+        
+        # AJOUT : Exclure la réservation en cours de modification
+        if reservation_id:
+            conflits = conflits.exclude(pk=reservation_id)
         
         if conflits.exists():
             return JsonResponse({
@@ -182,7 +206,6 @@ def verifier_disponibilite(request):
             'message': f'Disponible - {nombre_nuits} nuits × {appartement.prix_par_nuit} FCFA'
         })        
     
-
     except Exception as e:
         return JsonResponse({'error': str(e)})
 

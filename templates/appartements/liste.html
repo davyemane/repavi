@@ -1,306 +1,396 @@
-<!-- Example.html -->
+<!-- templates/appartements/liste.html - Version complète avec icônes -->
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Gestion des Appartements - RepAvi Lodges{% endblock %}
+{% block title %}Appartements - RepAvi Lodges{% endblock %}
 
-{% block page_title %}Gestion des Appartements{% endblock %}
-{% block page_subtitle %}Administration du parc immobilier RepAvi Lodges{% endblock %}
+{% block page_title %}Appartements{% endblock %}
+{% block page_subtitle %}Gestion du parc immobilier{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'appartements:creer' %}" 
-   class="inline-flex items-center px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
-    <span class="material-icons text-sm mr-2">add_home</span>
-    Nouvel Appartement
-</a>
-<a href="{% url 'appartements:photos' %}" 
-   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
-    <span class="material-icons text-sm mr-2">photo_camera</span>
-    Photos
-</a>
+<div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+    <a href="{% url 'appartements:creer' %}" 
+       class="inline-flex items-center justify-center px-3 sm:px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">add</span>
+        <span class="hidden sm:inline">Nouvel Appartement</span>
+        <span class="sm:hidden">Nouveau</span>
+    </a>
+    <a href="{% url 'appartements:photos' %}" 
+       class="inline-flex items-center justify-center px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+        <span class="material-icons text-sm mr-2">photo_library</span>
+        <span class="hidden sm:inline">Gérer Photos</span>
+        <span class="sm:hidden">Photos</span>
+    </a>
+</div>
 {% endblock %}
 
 {% block content %}
-<!-- Stats rapides -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 font-lato">Total Appartements</p>
-                <p class="text-2xl font-bold text-gray-900 font-lato">{{ appartements|length }}</p>
-            </div>
-            <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-[#02066F]">apartment</span>
-            </div>
-        </div>
-    </div>
+<div class="px-4 sm:px-6 lg:px-8">
     
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 font-lato">Disponibles</p>
-                <p class="text-2xl font-bold text-green-600 font-lato">{{ appartements_disponibles }}</p>
-            </div>
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-green-600">check_circle</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 font-lato">Occupés</p>
-                <p class="text-2xl font-bold text-orange-600 font-lato">{{ appartements_occupes }}</p>
-            </div>
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-orange-600">people</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 font-lato">Maintenance</p>
-                <p class="text-2xl font-bold text-red-600 font-lato">{{ appartements_maintenance }}</p>
-            </div>
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <span class="material-icons text-red-600">build</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Filtres et recherche -->
-<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-    <form method="GET" class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
-        
-        <!-- Recherche -->
-        <div class="flex-1">
-            <div class="relative">
-                <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
-                <input type="text" 
-                       name="q" 
-                       value="{{ recherche }}"
-                       placeholder="Rechercher par numéro ou maison..."
-                       class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato">
-            </div>
-        </div>
-        
-        <!-- Filtre type -->
-        <div>
-            <select name="type" 
-                    class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato">
-                <option value="">Tous les types</option>
-                {% for value, label in types %}
-                <option value="{{ value }}" {% if type_filtre == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <!-- Filtre statut -->
-        <div>
-            <select name="statut" 
-                    class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato">
-                <option value="">Tous les statuts</option>
-                {% for value, label in statuts %}
-                <option value="{{ value }}" {% if statut_filtre == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <!-- Actions -->
-        <div class="flex items-center space-x-2">
-            <button type="submit" 
-                    class="flex items-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
-                <span class="material-icons text-sm">search</span>
-                <span>Filtrer</span>
-            </button>
-            
-            {% if recherche or type_filtre or statut_filtre %}
-            <a href="{% url 'appartements:liste' %}" 
-               class="flex items-center space-x-2 px-4 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-lato">
-                <span class="material-icons text-sm">clear</span>
-                <span>Effacer</span>
-            </a>
-            {% endif %}
-        </div>
-    </form>
-</div>
-
-<!-- Liste des appartements -->
-{% if appartements %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for appartement in appartements %}
-    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300 group">
-        
-        <!-- Image principale -->
-        <div class="relative h-48 bg-gray-200">
-            {% if appartement.get_photo_principale %}
-            <img src="{{ appartement.get_photo_principale.photo.url }}" 
-                 alt="{{ appartement.get_photo_principale.nom_piece }}"
-                 class="w-full h-full object-cover">
-            {% else %}
-            <div class="w-full h-full flex items-center justify-center bg-gray-100">
-                <div class="text-center">
-                    <span class="material-icons text-gray-400 text-4xl">image</span>
-                    <p class="text-gray-500 text-sm mt-2 font-lato">Aucune photo</p>
+    <!-- Statistiques par statut -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div class="bg-white rounded-lg border border-gray-200 p-3 sm:p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs sm:text-sm text-gray-600 font-lato">Total</p>
+                    <p class="text-lg sm:text-2xl font-bold text-gray-900 font-lato">{{ stats.total }}</p>
+                    <p class="text-xs text-gray-500 font-lato">Appartements</p>
+                </div>
+                <div class="w-8 h-8 sm:w-12 sm:h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-gray-600 text-sm sm:text-base">apartment</span>
                 </div>
             </div>
-            {% endif %}
+        </div>
+        
+        <div class="bg-white rounded-lg border border-gray-200 p-3 sm:p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs sm:text-sm text-gray-600 font-lato">Disponibles</p>
+                    <p class="text-lg sm:text-2xl font-bold text-green-600 font-lato">{{ stats.disponible }}</p>
+                    <p class="text-xs text-green-500 font-lato">Prêts à louer</p>
+                </div>
+                <div class="w-8 h-8 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-green-600 text-sm sm:text-base">check_circle</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg border border-gray-200 p-3 sm:p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs sm:text-sm text-gray-600 font-lato">Occupés</p>
+                    <p class="text-lg sm:text-2xl font-bold text-orange-600 font-lato">{{ stats.occupe }}</p>
+                    <p class="text-xs text-orange-500 font-lato">En location</p>
+                </div>
+                <div class="w-8 h-8 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-orange-600 text-sm sm:text-base">people</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg border border-gray-200 p-3 sm:p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs sm:text-sm text-gray-600 font-lato">Maintenance</p>
+                    <p class="text-lg sm:text-2xl font-bold text-red-600 font-lato">{{ stats.maintenance }}</p>
+                    <p class="text-xs text-red-500 font-lato">En réparation</p>
+                </div>
+                <div class="w-8 h-8 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-red-600 text-sm sm:text-base">build</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
+        <form method="get" class="space-y-4 sm:space-y-0 sm:flex sm:items-end sm:space-x-4">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                    <span class="material-icons text-sm mr-1 align-middle">search</span>
+                    Recherche
+                </label>
+                <input type="text" name="q" value="{{ recherche|default:'' }}" 
+                       placeholder="Numéro ou maison..." 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02066F] focus:border-[#02066F] font-lato">
+            </div>
             
-            <!-- Badge statut -->
-            <div class="absolute top-3 right-3">
-                {% if appartement.statut == 'disponible' %}
-                <span class="px-3 py-1 bg-green-500 text-white text-xs rounded-full font-medium font-lato">
-                    Disponible
-                </span>
-                {% elif appartement.statut == 'occupe' %}
-                <span class="px-3 py-1 bg-orange-500 text-white text-xs rounded-full font-medium font-lato">
-                    Occupé
-                </span>
-                {% else %}
-                <span class="px-3 py-1 bg-red-500 text-white text-xs rounded-full font-medium font-lato">
-                    Maintenance
-                </span>
+            <div class="sm:w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                    <span class="material-icons text-sm mr-1 align-middle">filter_list</span>
+                    Statut
+                </label>
+                <select name="statut" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02066F] focus:border-[#02066F] font-lato">
+                    <option value="">Tous les statuts</option>
+                    {% for value, label in statuts %}
+                    <option value="{{ value }}" {% if statut_filtre == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="sm:w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                    <span class="material-icons text-sm mr-1 align-middle">category</span>
+                    Type
+                </label>
+                <select name="type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02066F] focus:border-[#02066F] font-lato">
+                    <option value="">Tous les types</option>
+                    {% for value, label in types %}
+                    <option value="{{ value }}" {% if type_filtre == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="flex space-x-2">
+                <button type="submit" 
+                        class="w-full sm:w-auto px-4 py-2 bg-[#02066F] text-white rounded-lg text-sm font-medium hover:bg-[#030a8a] transition-colors font-lato">
+                    <span class="material-icons text-sm mr-2">search</span>
+                    Filtrer
+                </button>
+                {% if recherche or statut_filtre or type_filtre %}
+                <a href="{% url 'appartements:liste' %}" 
+                   class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+                    <span class="material-icons text-sm mr-2">clear</span>
+                    Reset
+                </a>
                 {% endif %}
             </div>
+        </form>
+    </div>
+
+    <!-- Liste des appartements -->
+    {% if appartements %}
+    
+    <!-- Version mobile -->
+    <div class="block sm:hidden space-y-4">
+        {% for appartement in appartements %}
+        <div class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-start space-x-3">
+                    {% if appartement.get_photo_principale %}
+                    <img class="h-12 w-12 rounded-lg object-cover" 
+                         src="{{ appartement.get_photo_principale.photo.url }}" 
+                         alt="{{ appartement.numero }}">
+                    {% else %}
+                    <div class="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <span class="material-icons text-gray-400">apartment</span>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h3 class="font-semibold text-gray-900 font-lato flex items-center">
+                            <span class="material-icons text-sm mr-1">home</span>
+                            {{ appartement.numero }}
+                        </h3>
+                        <p class="text-sm text-gray-600 font-lato flex items-center">
+                            <span class="material-icons text-xs mr-1">location_city</span>
+                            {{ appartement.get_type_logement_display }} - {{ appartement.maison }}
+                        </p>
+                        <p class="text-sm font-medium text-[#02066F] font-lato flex items-center">
+                            <span class="material-icons text-xs mr-1">attach_money</span>
+                            {{ appartement.prix_par_nuit|floatformat:0 }} FCFA/nuit
+                        </p>
+                    </div>
+                </div>
+                <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full 
+                       {% if appartement.statut == 'disponible' %}bg-green-100 text-green-800 
+                       {% elif appartement.statut == 'occupe' %}bg-orange-100 text-orange-800 
+                       {% else %}bg-red-100 text-red-800{% endif %} font-lato">
+                    {% if appartement.statut == 'disponible' %}
+                        <span class="material-icons text-xs mr-1">check_circle</span>
+                    {% elif appartement.statut == 'occupe' %}
+                        <span class="material-icons text-xs mr-1">people</span>
+                    {% else %}
+                        <span class="material-icons text-xs mr-1">build</span>
+                    {% endif %}
+                    {{ appartement.get_statut_display }}
+                </span>
+            </div>
+            
+            <!-- Actions rapides statut -->
+            <div class="flex items-center space-x-1 mb-3">
+                {% if appartement.statut != 'disponible' %}
+                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=disponible" 
+                   class="flex items-center space-x-1 px-2 py-1 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-xs font-lato"
+                   title="Marquer disponible">
+                    <span class="material-icons text-sm">check_circle</span>
+                </a>
+                {% endif %}
+                
+                {% if appartement.statut != 'occupe' %}
+                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=occupe" 
+                   class="flex items-center space-x-1 px-2 py-1 text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-xs font-lato"
+                   title="Marquer occupé">
+                    <span class="material-icons text-sm">people</span>
+                </a>
+                {% endif %}
+                
+                {% if appartement.statut != 'maintenance' %}
+                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=maintenance" 
+                   class="flex items-center space-x-1 px-2 py-1 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors text-xs font-lato"
+                   title="Marquer en maintenance">
+                    <span class="material-icons text-sm">build</span>
+                </a>
+                {% endif %}
+            </div>
+            
+            <div class="flex space-x-2">
+                <a href="{% url 'appartements:detail' appartement.pk %}" 
+                   class="flex-1 inline-flex items-center justify-center py-2 px-3 text-sm bg-[#02066F] text-white rounded-lg font-lato">
+                    <span class="material-icons text-sm mr-1">visibility</span>
+                    Voir
+                </a>
+                <a href="{% url 'appartements:modifier' appartement.pk %}" 
+                   class="flex-1 inline-flex items-center justify-center py-2 px-3 text-sm border border-gray-300 text-gray-700 rounded-lg font-lato">
+                    <span class="material-icons text-sm mr-1">edit</span>
+                    Modifier
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Version desktop -->
+    <div class="hidden sm:block bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">
+                            <span class="material-icons text-sm mr-1 align-middle">apartment</span>
+                            Appartement
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">
+                            <span class="material-icons text-sm mr-1 align-middle">category</span>
+                            Type
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">
+                            <span class="material-icons text-sm mr-1 align-middle">location_city</span>
+                            Maison
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">
+                            <span class="material-icons text-sm mr-1 align-middle">attach_money</span>
+                            Prix/Nuit
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">
+                            <span class="material-icons text-sm mr-1 align-middle">info</span>
+                            Statut
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">
+                            <span class="material-icons text-sm mr-1 align-middle">flash_on</span>
+                            Actions rapides
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider font-lato">
+                            <span class="material-icons text-sm mr-1 align-middle">settings</span>
+                            Gestion
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for appartement in appartements %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                {% if appartement.get_photo_principale %}
+                                <img class="h-10 w-10 rounded-lg object-cover mr-3" 
+                                     src="{{ appartement.get_photo_principale.photo.url }}" 
+                                     alt="{{ appartement.numero }}">
+                                {% else %}
+                                <div class="h-10 w-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="material-icons text-gray-400 text-sm">apartment</span>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900 font-lato">{{ appartement.numero }}</div>
+                                    <div class="text-sm text-gray-500 font-lato flex items-center">
+                                        <span class="material-icons text-xs mr-1">inventory</span>
+                                        {{ appartement.equipements|length }} équipements
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-lato">
+                            {{ appartement.get_type_logement_display }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-lato">
+                            {{ appartement.maison }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 font-lato">
+                            {{ appartement.prix_par_nuit|floatformat:0 }} FCFA
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full 
+                                   {% if appartement.statut == 'disponible' %}bg-green-100 text-green-800 
+                                   {% elif appartement.statut == 'occupe' %}bg-orange-100 text-orange-800 
+                                   {% else %}bg-red-100 text-red-800{% endif %} font-lato">
+                                {% if appartement.statut == 'disponible' %}
+                                    <span class="material-icons text-xs mr-1">check_circle</span>
+                                {% elif appartement.statut == 'occupe' %}
+                                    <span class="material-icons text-xs mr-1">people</span>
+                                {% else %}
+                                    <span class="material-icons text-xs mr-1">build</span>
+                                {% endif %}
+                                {{ appartement.get_statut_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <div class="flex items-center justify-center space-x-1">
+                                {% if appartement.statut != 'disponible' %}
+                                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=disponible" 
+                                   class="flex items-center space-x-1 px-2 py-1 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-xs font-lato"
+                                   title="Marquer disponible">
+                                    <span class="material-icons text-sm">check_circle</span>
+                                </a>
+                                {% endif %}
+                                
+                                {% if appartement.statut != 'occupe' %}
+                                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=occupe" 
+                                   class="flex items-center space-x-1 px-2 py-1 text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-xs font-lato"
+                                   title="Marquer occupé">
+                                    <span class="material-icons text-sm">people</span>
+                                </a>
+                                {% endif %}
+                                
+                                {% if appartement.statut != 'maintenance' %}
+                                <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=maintenance" 
+                                   class="flex items-center space-x-1 px-2 py-1 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors text-xs font-lato"
+                                   title="Marquer en maintenance">
+                                    <span class="material-icons text-sm">build</span>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end space-x-2">
+                                <a href="{% url 'appartements:detail' appartement.pk %}" 
+                                   class="inline-flex items-center text-[#02066F] hover:text-[#030a8a] font-lato">
+                                    <span class="material-icons text-sm mr-1">visibility</span>
+                                    Voir
+                                </a>
+                                <a href="{% url 'appartements:modifier' appartement.pk %}" 
+                                   class="inline-flex items-center text-green-600 hover:text-green-900 font-lato">
+                                    <span class="material-icons text-sm mr-1">edit</span>
+                                    Modifier
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- État vide -->
+    <div class="text-center py-12">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span class="material-icons text-gray-400 text-3xl">apartment</span>
         </div>
         
-        <!-- Contenu -->
-        <div class="p-6">
-            <!-- En-tête -->
-            <div class="flex items-start justify-between mb-4">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-900 group-hover:text-[#02066F] transition-colors font-lato">
-                        {{ appartement.numero }}
-                    </h3>
-                    <p class="text-gray-600 text-sm font-lato">
-                        {{ appartement.get_type_logement_display }} • {{ appartement.maison }}
-                    </p>
-                </div>
-                
-                <!-- Type -->
-                <div class="px-3 py-1 {% if appartement.type_logement == 'studio' %}bg-yellow-100 text-yellow-800{% elif appartement.type_logement == 't1' %}bg-[#02066F]/10 text-[#02066F]{% else %}bg-green-100 text-green-800{% endif %} rounded-full text-xs font-medium font-lato">
-                    {{ appartement.get_type_logement_display }}
-                </div>
-            </div>
-            
-            <!-- Prix -->
-            <div class="flex items-center space-x-2 mb-4">
-                <span class="material-icons text-gray-400 text-sm">payments</span>
-                <span class="text-2xl font-bold text-gray-900 font-lato">{{ appartement.prix_par_nuit|floatformat:0 }}</span>
-                <span class="text-gray-600 text-sm font-lato">FCFA/nuit</span>
-            </div>
-            
-            <!-- Équipements -->
-            {% if appartement.equipements %}
-            <div class="mb-4">
-                <p class="text-sm text-gray-600 mb-2 font-lato">Équipements :</p>
-                <div class="flex flex-wrap gap-1">
-                    {% for equipement in appartement.equipements|slice:":4" %}
-                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-lato">{{ equipement }}</span>
-                    {% endfor %}
-                    {% if appartement.equipements|length > 4 %}
-                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-lato">+{{ appartement.equipements|length|add:"-4" }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-            
-            <!-- Actions rapides -->
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div class="flex items-center space-x-1">
-                    <!-- Changement de statut rapide -->
-                    {% if appartement.statut != 'disponible' %}
-                    <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=disponible" 
-                       class="flex items-center space-x-1 px-2 py-1 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors text-xs font-lato"
-                       title="Marquer disponible">
-                        <span class="material-icons text-sm">check_circle</span>
-                    </a>
-                    {% endif %}
-                    
-                    {% if appartement.statut != 'maintenance' %}
-                    <a href="{% url 'appartements:changer_statut' appartement.pk %}?statut=maintenance" 
-                       class="flex items-center space-x-1 px-2 py-1 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors text-xs font-lato"
-                       title="Marquer en maintenance">
-                        <span class="material-icons text-sm">build</span>
-                    </a>
-                    {% endif %}
-                </div>
-                
-                <div class="flex items-center space-x-2">
-                    <!-- Voir détail -->
-                    <a href="{% url 'appartements:detail' appartement.pk %}" 
-                       class="flex items-center space-x-1 px-3 py-2 text-[#02066F] bg-[#02066F]/10 rounded-lg hover:bg-[#02066F]/20 transition-colors text-sm font-lato">
-                        <span class="material-icons text-sm">visibility</span>
-                        <span>Voir</span>
-                    </a>
-                    
-                    <!-- Modifier -->
-                    <a href="{% url 'appartements:modifier' appartement.pk %}" 
-                       class="flex items-center space-x-1 px-3 py-2 text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-sm font-lato">
-                        <span class="material-icons text-sm">edit</span>
-                        <span>Modifier</span>
-                    </a>
-                </div>
-            </div>
-        </div>
+        {% if recherche or type_filtre or statut_filtre %}
+        <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
+            <span class="material-icons text-lg mr-2 align-middle">search_off</span>
+            Aucun appartement trouvé
+        </h3>
+        <p class="text-gray-500 mb-6 font-lato">Aucun résultat ne correspond à vos critères de recherche.</p>
+        <a href="{% url 'appartements:liste' %}" 
+           class="inline-flex items-center text-[#02066F] hover:text-[#030a8a] font-lato">
+            <span class="material-icons text-sm mr-1">refresh</span>
+            Voir tous les appartements
+        </a>
+        {% else %}
+        <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
+            <span class="material-icons text-lg mr-2 align-middle">add_business</span>
+            Aucun appartement
+        </h3>
+        <p class="text-gray-500 mb-6 font-lato">Commencez par ajouter votre premier appartement à gérer.</p>
+        <a href="{% url 'appartements:creer' %}" 
+           class="inline-flex items-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
+            <span class="material-icons text-sm">add</span>
+            <span>Ajouter un appartement</span>
+        </a>
+        {% endif %}
     </div>
-    {% endfor %}
-</div>
-
-{% else %}
-<!-- État vide -->
-<div class="text-center py-12">
-    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <span class="material-icons text-gray-400 text-3xl">apartment</span>
-    </div>
-    
-    {% if recherche or type_filtre or statut_filtre %}
-    <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
-        Aucun appartement trouvé
-    </h3>
-    <p class="text-gray-500 mb-6 font-lato">
-        Aucun résultat ne correspond à vos critères de recherche.
-    </p>
-    <a href="{% url 'appartements:liste' %}" 
-       class="text-[#02066F] hover:text-[#030a8a] font-lato">
-        Voir tous les appartements
-    </a>
-    {% else %}
-    <h3 class="text-xl font-medium text-gray-900 mb-2 font-lato">
-        Aucun appartement
-    </h3>
-    <p class="text-gray-500 mb-6 font-lato">
-        Commencez par ajouter votre premier appartement à gérer.
-    </p>
-    <a href="{% url 'appartements:creer' %}" 
-       class="inline-flex items-center space-x-2 px-6 py-3 bg-[#02066F] text-white rounded-lg hover:bg-[#030a8a] transition-colors font-lato">
-        <span class="material-icons text-sm">add_home</span>
-        <span>Créer le Premier Appartement</span>
-    </a>
     {% endif %}
 </div>
-{% endif %}
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const statusLinks = document.querySelectorAll('a[href*="changer_statut"]');
-    
-    statusLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            const url = new URL(this.href);
-            const statut = url.searchParams.get('statut');
-            const message = `Confirmer le changement de statut vers "${statut}" ?`;
-            
-            if (!confirm(message)) {
-                e.preventDefault();
-            }
-        });
-    });
-});
-</script>
 {% endblock %}

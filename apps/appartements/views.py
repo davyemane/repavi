@@ -15,7 +15,7 @@ from apps.appartements.forms import AppartementForm, PhotoAppartementForm
 @login_required
 @user_passes_test(is_gestionnaire)
 def liste_appartements(request):
-    """Liste des appartements avec filtres selon cahier"""
+    """Liste des appartements avec filtres et statistiques selon cahier"""
     appartements = Appartement.objects.all().prefetch_related('photos')
     
     # Filtres simples
@@ -33,6 +33,54 @@ def liste_appartements(request):
             Q(maison__icontains=recherche)
         )
     
+    # AJOUT : Calcul des statistiques par statut
+    from django.db.models import Count
+    stats_statut = Appartement.objects.values('statut').annotate(
+        count=Count('id')
+    ).order_by('statut')
+    
+    # Convertir en dictionnaire pour faciliter l'accès
+    stats = {
+        'disponible': 0,
+        'occupe': 0,
+        'maintenance': 0,
+        'total': Appartement.objects.count()
+    }
+    
+    for stat in stats_statut:
+        stats[stat['statut']] = stat['count']
+    
+    # AJOUT : Statistiques par type
+    stats_type = Appartement.objects.values('type_logement').annotate(
+        count=Count('id')
+    ).order_by('type_logement')
+    
+    stats_types = {
+        'studio': 0,
+        't1': 0,
+        't2': 0
+    }
+    
+    for stat in stats_type:
+        stats_types[stat['type_logement']] = stat['count']
+    
+    # AJOUT : Revenus moyens par appartement
+    from apps.reservations.models import Reservation
+    from django.utils import timezone
+    from django.db.models import Avg, Sum
+    
+    mois_actuel = timezone.now().month
+    annee_actuelle = timezone.now().year
+    
+    revenus_mois = Reservation.objects.filter(
+        statut__in=['confirmee', 'en_cours', 'terminee'],
+        date_arrivee__month=mois_actuel,
+        date_arrivee__year=annee_actuelle
+    ).aggregate(
+        total=Sum('prix_total'),
+        moyenne=Avg('prix_total')
+    )
+    
     context = {
         'appartements': appartements,
         'statuts': Appartement.STATUT_CHOICES,
@@ -40,6 +88,11 @@ def liste_appartements(request):
         'statut_filtre': statut_filtre,
         'type_filtre': type_filtre,
         'recherche': recherche,
+        # AJOUT : Statistiques
+        'stats': stats,
+        'stats_types': stats_types,
+        'revenus_mois': revenus_mois.get('total') or 0,
+        'revenus_moyenne': revenus_mois.get('moyenne') or 0,
     }
     return render(request, 'appartements/liste.html', context)
 
