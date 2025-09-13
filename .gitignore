@@ -108,7 +108,6 @@ db.sqlite3-journal
 *.pyc
 
 # Fichiers statiques collectés
-/static/
 /staticfiles/
 staticfiles/
 

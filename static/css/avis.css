@@ -1,0 +1,58 @@
+/* Styles spécifiques aux avis */
+
+.avis-card {
+    transition: all 0.3s ease;
+}
+
+.avis-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.star-rating .fas.fa-star,
+.star-rating .far.fa-star {
+    transition: color 0.2s ease;
+}
+
+.like-button {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.like-button:hover {
+    transform: scale(1.1);
+}
+
+.like-button.text-red-500 {
+    color: #ef4444 !important;
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.pulse-animation {
+    animation: pulse 0.5s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .avis-card {
+        padding: 1rem;
+    }
+    
+    .star-rating {
+        font-size: 0.875rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .avis-card {
+        background-color: #1f2937;
+        border-color: #374151;
+        color: #f9fafb;
+    }
+}

@@ -1,0 +1,134 @@
+/* ==========================================
+   static/css/logo-background.css
+   Styles pour le logo RepAvi en arrière-plan
+   ========================================== */
+
+/* Configuration du logo principal */
+.repavi-background {
+    background-image: url('../images/logorepavie.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 25%;
+    background-attachment: fixed;
+    background-color: #f9fafb;
+    position: relative;
+}
+
+/* Overlay pour atténuer le logo */
+.repavi-background::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(249, 250, 251, 0.85);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Variantes d'opacité pour différentes pages */
+.repavi-light::before {
+    background-color: rgba(249, 250, 251, 0.95);
+}
+
+.repavi-dark::before {
+    background-color: rgba(249, 250, 251, 0.7);
+}
+
+/* Tailles responsive du logo */
+@media (max-width: 1024px) {
+    .repavi-background {
+        background-size: 30%;
+    }
+}
+
+@media (max-width: 768px) {
+    .repavi-background {
+        background-size: 40%;
+    }
+}
+
+@media (max-width: 480px) {
+    .repavi-background {
+        background-size: 50%;
+    }
+}
+
+/* Styles pour les contenus avec transparence */
+.content-with-logo {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(2px);
+}
+
+.card-with-logo {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(1px);
+}
+
+.sidebar-with-logo {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(3px);
+}
+
+/* Animation subtile du logo (optionnel) */
+@media (prefers-reduced-motion: no-preference) {
+    .repavi-background-animated {
+        background-size: 25%;
+        animation: breathe 8s ease-in-out infinite;
+    }
+    
+    @keyframes breathe {
+        0%, 100% {
+            background-size: 25%;
+        }
+        50% {
+            background-size: 26%;
+        }
+    }
+}
+
+/* Position alternative du logo (coin, côté, etc.) */
+.repavi-corner {
+    background-position: bottom right;
+    background-size: 15%;
+}
+
+.repavi-left {
+    background-position: center left;
+    background-size: 20%;
+}
+
+.repavi-watermark {
+    background-position: center center;
+    background-size: 60%;
+    opacity: 0.03;
+}
+
+/* Styles pour différents modules */
+.clients-bg::before {
+    background-color: rgba(249, 250, 251, 0.9);
+}
+
+.reservations-bg::before {
+    background-color: rgba(249, 250, 251, 0.88);
+}
+
+.inventaire-bg::before {
+    background-color: rgba(249, 250, 251, 0.85);
+}
+
+.dashboard-bg::before {
+    background-color: rgba(249, 250, 251, 0.82);
+}
+
+/* Mode sombre (si nécessaire) */
+@media (prefers-color-scheme: dark) {
+    .repavi-background {
+        background-color: #1f2937;
+    }
+    
+    .repavi-background::before {
+        background-color: rgba(31, 41, 55, 0.85);
+    }
+}
