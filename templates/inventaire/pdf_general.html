@@ -351,7 +351,7 @@
             <table class="header-table">
                 <tr>
                     <td class="logo-cell">
-                        <img src="{% load static %}{% static 'images/logorepavie.svg' %}" alt="RepAvi Logo" 
+                        <img src="{{ STATIC_URL }}images/logorepavie.svg" alt="RepAvi Logo" 
                              style="width: 45px; height: 45px; float: left; margin-right: 15px;"
                              onerror="this.style.display='none'">
                         <div class="company-title">{{ parametres.nom_entreprise|default:"RepAvi Lodges" }}</div>
@@ -361,7 +361,7 @@
                         <div class="header-right">
                             <div class="phone">{{ parametres.telephone|default:"+237 XXX XXX XXX" }}</div>
                             <div>{{ parametres.email|default:"contact@repavi.com" }}</div>
-                            <div>{{ parametres.adresse|default:"Bafoussam, Cameroun" }}</div>
+                            <div>{{ parametres.adresse|default:"Yaoundé, Cameroun" }}</div>
                         </div>
                     </td>
                 </tr>
