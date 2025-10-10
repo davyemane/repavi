@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tâche Ménage {{ tache.appartement.numero }} - RepAvi Lodges{% endblock %}
+{% block page_title %}Ménage - {{ tache.appartement.numero }}{% endblock %}
+{% block page_subtitle %}{{ tache.appartement.get_type_logement_display }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'menage:planning' %}" 
+   class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour Planning
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Infos tâche -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+                <p class="text-sm text-gray-600 font-lato mb-1">Appartement</p>
+                <p class="text-lg font-bold text-[#02066F] font-lato">{{ tache.appartement.numero }}</p>
+            </div>
+            
+            <div>
+                <p class="text-sm text-gray-600 font-lato mb-1">Date prévue</p>
+                <p class="text-lg font-semibold text-gray-900 font-lato">{{ tache.date_prevue|date:"d/m/Y" }}</p>
+            </div>
+            
+            <div>
+                <p class="text-sm text-gray-600 font-lato mb-1">Statut</p>
+                {% if tache.statut == 'a_faire' %}
+                <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">À faire</span>
+                {% elif tache.statut == 'en_cours' %}
+                <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">En cours</span>
+                {% else %}
+                <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Terminé</span>
+                {% endif %}
+            </div>
+            
+            <div>
+                <p class="text-sm text-gray-600 font-lato mb-1">Type</p>
+                {% if tache.reservation %}
+                <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">Après départ</span>
+                {% else %}
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">Périodique</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if tache.reservation %}
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <p class="text-sm text-gray-600 font-lato">
+                <strong>Réservation liée :</strong> 
+                {{ tache.reservation.client.get_full_name }} 
+                ({{ tache.reservation.date_arrivee|date:"d/m/Y" }} → {{ tache.reservation.date_depart|date:"d/m/Y" }})
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Formulaire Rapport -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4 font-lato">
+            {% if tache.statut == 'termine' %}
+            📋 Rapport de ménage
+            {% else %}
+            ✍️ Rédiger le rapport
+            {% endif %}
+        </h2>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="rapport" class="block text-sm font-medium text-gray-700 mb-2 font-lato">
+                    Rapport complet (état de la maison, meubles, problèmes constatés)
+                    {% if tache.statut != 'termine' %}
+                    <span class="text-red-600">*</span>
+                    {% endif %}
+                </label>
+                <textarea 
+                    id="rapport" 
+                    name="rapport" 
+                    rows="8"
+                    {% if tache.statut == 'termine' %}readonly{% endif %}
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#02066F] focus:ring-2 focus:ring-[#02066F]/20 font-lato"
+                    placeholder="Décrivez l'état général de la maison, l'état des meubles, les équipements, les problèmes constatés, les réparations nécessaires, etc."
+                >{{ tache.rapport }}</textarea>
+            </div>
+            
+            {% if tache.statut != 'termine' %}
+            <div class="flex flex-col sm:flex-row gap-3">
+                {% if tache.statut == 'a_faire' %}
+                <button type="submit" name="action" value="commencer"
+                        class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-lato font-medium">
+                    <span class="material-icons text-sm mr-2">play_arrow</span>
+                    Commencer la tâche
+                </button>
+                {% endif %}
+                
+                {% if tache.statut == 'en_cours' %}
+                <button type="submit" name="action" value="sauvegarder"
+                        class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-lato font-medium">
+                    <span class="material-icons text-sm mr-2">save</span>
+                    Sauvegarder le rapport
+                </button>
+                
+                <button type="submit" name="action" value="terminer"
+                        class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-lato font-medium">
+                    <span class="material-icons text-sm mr-2">check_circle</span>
+                    Terminer la tâche
+                </button>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {% if tache.statut == 'termine' %}
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center">
+                    <span class="material-icons text-green-600 mr-2">check_circle</span>
+                    <p class="text-green-800 font-medium font-lato">
+                        Tâche terminée le {{ tache.date_completion|date:"d/m/Y à H:i" }}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+</div>
+{% endblock %}

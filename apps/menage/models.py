@@ -1,20 +1,9 @@
-# ==========================================
-# apps/menage/models.py - Planning ménage basique
-# ==========================================
 from django.db import models
 
 
-class TypeTache(models.Model):
-    nom = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    obligatoire = models.BooleanField(default=False)
-    ordre = models.IntegerField(default=0)
-    
-    class Meta:
-        ordering = ['ordre', 'nom']
 class TacheMenage(models.Model):
     """
-    Planning ménage basique selon cahier
+    Tâche de ménage simplifiée - auto-générée tous les 2 jours ou après départ
     """
     STATUT_CHOICES = [
         ('a_faire', 'À faire'),
@@ -23,27 +12,33 @@ class TacheMenage(models.Model):
     ]
     
     # Liens
-    appartement = models.ForeignKey('appartements.Appartement', on_delete=models.CASCADE)
-    reservation = models.ForeignKey('reservations.Reservation', on_delete=models.CASCADE, null=True, blank=True)
+    appartement = models.ForeignKey(
+        'appartements.Appartement', 
+        on_delete=models.CASCADE,
+        related_name='taches_menage'
+    )
+    reservation = models.ForeignKey(
+        'reservations.Reservation', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        help_text="Réservation qui a déclenché cette tâche (si applicable)"
+    )
     
     # Informations tâche
     date_prevue = models.DateField(verbose_name='Date prévue')
-    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='a_faire')
+    statut = models.CharField(
+        max_length=20, 
+        choices=STATUT_CHOICES, 
+        default='a_faire'
+    )
     
-    # Check-list simple (selon cahier)
-    menage_general_fait = models.BooleanField(default=False, verbose_name='Ménage général fait')
-    equipements_verifies = models.BooleanField(default=False, verbose_name='Équipements vérifiés')
-    problemes_signales = models.TextField(blank=True, verbose_name='Problèmes signalés')
-    temps_passe = models.PositiveIntegerField(null=True, blank=True, verbose_name='Temps passé (minutes)')
-    taches_a_effectuer = models.ManyToManyField(TypeTache, blank=True)
-
-    # Photos avant/après (optionnel selon cahier)
-    photo_avant = models.ImageField(upload_to='menage/avant/', blank=True)
-    photo_apres = models.ImageField(upload_to='menage/apres/', blank=True)
-    
-    # Personnel
-    personnel = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True)
-    notes_personnel = models.TextField(blank=True, verbose_name='Notes du personnel')
+    # Rapport obligatoire pour terminer
+    rapport = models.TextField(
+        blank=True,
+        verbose_name='Rapport de ménage',
+        help_text='État de la maison, meubles, problèmes constatés, etc.'
+    )
     
     # Métadonnées
     date_creation = models.DateTimeField(auto_now_add=True)
@@ -56,3 +51,4 @@ class TacheMenage(models.Model):
         verbose_name = 'Tâche Ménage'
         verbose_name_plural = 'Tâches Ménage'
         ordering = ['date_prevue', 'appartement__numero']
+        unique_together = ['appartement', 'date_prevue']
