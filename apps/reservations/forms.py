@@ -8,31 +8,29 @@ from apps.clients.models import Client
 from apps.appartements.models import Appartement
 
 class ReservationForm(forms.ModelForm):
-    """
-    Formulaire réservation selon cahier des charges
-    5 étapes : Client → Appartement → Dates → Tarif → Paiement
-    """
-    
     class Meta:
         model = Reservation
-        fields = ['client', 'appartement', 'date_arrivee', 'date_depart', 'statut']
+        fields = ['client', 'appartement', 'date_arrivee', 'date_depart', 'reduction', 'statut']
         widgets = {
             'client': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
             }),
             'appartement': forms.Select(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100',
-                'onchange': 'calculerPrix()'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
             }),
             'date_arrivee': forms.DateInput(attrs={
                 'type': 'date',
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100',
-                'onchange': 'calculerPrix()'
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
             }),
             'date_depart': forms.DateInput(attrs={
                 'type': 'date',
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+            }),
+            'reduction': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100',
-                'onchange': 'calculerPrix()'
+                'min': '0',
+                'step': '100',
+                'placeholder': '0'
             }),
             'statut': forms.Select(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
@@ -43,6 +41,7 @@ class ReservationForm(forms.ModelForm):
             'appartement': '2. Choisir l\'appartement',
             'date_arrivee': '3. Date d\'arrivée',
             'date_depart': '3. Date de départ',
+            'reduction': 'Réduction (FCFA)',
             'statut': '4. Statut de la réservation',
         }
     

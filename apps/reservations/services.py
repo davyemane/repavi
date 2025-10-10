@@ -163,31 +163,42 @@ class ReservationService:
         return True
     
     @staticmethod
-    def creer_echeancier(reservation):
-        """Créer l'échéancier de paiement automatique selon cahier"""
+    def creer_echeancier(reservation, plan='40_60'):
+        """Créer l'échéancier de paiement automatique selon le plan choisi"""
         from apps.paiements.models import EcheancierPaiement
         
         # Supprimer ancien échéancier pour éviter les bugs de calcul
         EcheancierPaiement.objects.filter(reservation=reservation).delete()
         
-        # Acompte (40% selon cahier)
-        acompte = reservation.prix_total * Decimal('0.4')
+        # Définir les pourcentages selon le plan
+        plans = {
+            '40_60': (0.4, 0.6),
+            '50_50': (0.5, 0.5),
+            '30_70': (0.3, 0.7),
+            '100_0': (1.0, 0.0),
+        }
+        
+        pct_acompte, pct_solde = plans.get(plan, (0.4, 0.6))
+        
+        # Créer l'acompte
+        montant_acompte = reservation.prix_total * Decimal(str(pct_acompte))
         EcheancierPaiement.objects.create(
             reservation=reservation,
             type_paiement='acompte',
-            montant_prevu=acompte,
+            montant_prevu=montant_acompte,
             date_echeance=reservation.date_arrivee - timedelta(days=7)
         )
         
-        # Solde (60% selon cahier) - CORRECTION : toujours 60%, pas recalcul
-        solde = reservation.prix_total * Decimal('0.6')
-        EcheancierPaiement.objects.create(
-            reservation=reservation,
-            type_paiement='solde',
-            montant_prevu=solde,
-            date_echeance=reservation.date_arrivee
-        )
-    
+        # Créer le solde si nécessaire
+        if pct_solde > 0:
+            montant_solde = reservation.prix_total * Decimal(str(pct_solde))
+            EcheancierPaiement.objects.create(
+                reservation=reservation,
+                type_paiement='solde',
+                montant_prevu=montant_solde,
+                date_echeance=reservation.date_arrivee
+            )
+
     @staticmethod
     def get_prochaines_arrivees(user, nb_jours: int = 7):
         """Récupère les prochaines arrivées"""

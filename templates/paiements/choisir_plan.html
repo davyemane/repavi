@@ -1,0 +1,180 @@
+<!-- ========================================== -->
+<!-- templates/paiements/choisir_plan.html -->
+<!-- ========================================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Choisir Plan de Paiement - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Choisir un Plan de Paiement{% endblock %}
+{% block page_subtitle %}Personnaliser l'échéancier de paiement{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'reservations:detail' reservation.pk %}" 
+   class="inline-flex items-center px-4 py-2 border border-[#02066F] text-[#02066F] rounded-lg text-sm font-medium hover:bg-[#02066F]/5 transition-colors font-lato">
+    <span class="material-icons text-sm mr-2">arrow_back</span>
+    Retour Réservation
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    
+    <!-- Info réservation -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Réservation #{{ reservation.id }}</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-1 font-lato">Client</h3>
+                <p class="text-lg font-semibold text-gray-900 font-lato">{{ reservation.client.prenom }} {{ reservation.client.nom }}</p>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-1 font-lato">Appartement</h3>
+                <p class="text-lg font-semibold text-gray-900 font-lato">{{ reservation.appartement.numero }}</p>
+            </div>
+            <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-1 font-lato">Prix Total</h3>
+                <p class="text-lg font-semibold text-[#02066F] font-lato">{{ reservation.prix_total|floatformat:0 }} FCFA</p>
+            </div>
+        </div>
+    </div>
+
+    {% if echeanciers_existants %}
+    <!-- Alerte échéancier existant -->
+    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start space-x-3">
+            <span class="material-icons text-orange-600 mt-0.5">warning</span>
+            <div>
+                <h3 class="text-sm font-medium text-orange-900 font-lato">Échéancier existant</h3>
+                <p class="text-sm text-orange-700 mt-1 font-lato">
+                    Un échéancier existe déjà pour cette réservation. En choisissant un nouveau plan, l'ancien échéancier sera remplacé.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Formulaire -->
+    <form method="post" class="bg-white rounded-lg border border-gray-200 p-6">
+        {% csrf_token %}
+        
+        <h3 class="text-lg font-semibold text-gray-900 mb-6 font-lato">Sélectionner le Plan de Paiement</h3>
+        
+        <!-- Plan de paiement -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-3 font-lato">{{ form.plan_paiement.label }}</label>
+            <div class="space-y-3">
+                {% for value, label in form.plan_paiement.field.choices %}
+                <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input type="radio" name="plan_paiement" value="{{ value }}" 
+                           class="h-4 w-4 text-[#02066F] border-gray-300 focus:ring-[#02066F]"
+                           {% if form.plan_paiement.value == value or forloop.first and not form.plan_paiement.value %}checked{% endif %}
+                           onchange="updatePreview('{{ value }}', {{ reservation.prix_total }})">
+                    <span class="ml-3 font-lato text-gray-900">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% if form.plan_paiement.errors %}
+            <div class="text-red-600 text-sm mt-1 font-lato">{{ form.plan_paiement.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Prévisualisation -->
+        <div id="preview" class="bg-[#02066F]/5 rounded-lg p-4 mb-6 border border-[#02066F]/20">
+            <h4 class="text-sm font-medium text-[#02066F] mb-3 font-lato">Aperçu de l'échéancier</h4>
+            <div id="preview-content" class="space-y-2 text-sm font-lato">
+                <!-- Rempli par JavaScript -->
+            </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.date_acompte.label }}</label>
+                {{ form.date_acompte }}
+                {% if form.date_acompte.errors %}
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.date_acompte.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div id="date-solde-container">
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.date_solde.label }}</label>
+                {{ form.date_solde }}
+                {% if form.date_solde.errors %}
+                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.date_solde.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+            <a href="{% url 'reservations:detail' reservation.pk %}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">arrow_back</span>
+                Annuler
+            </a>
+            
+            <button type="submit" 
+                    class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-[#02066F] hover:bg-[#030a8a] transition-colors font-lato">
+                <span class="material-icons text-sm mr-2">check_circle</span>
+                Appliquer le Plan
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Prévisualisation du plan de paiement
+function updatePreview(plan, prixTotal) {
+    const plans = {
+        '40_60': { acompte: 0.4, solde: 0.6, label: 'Standard' },
+        '50_50': { acompte: 0.5, solde: 0.5, label: 'Équilibré' },
+        '30_70': { acompte: 0.3, solde: 0.7, label: 'Faible acompte' },
+        '100_0': { acompte: 1.0, solde: 0.0, label: 'Paiement intégral' }
+    };
+    
+    const planData = plans[plan];
+    const montantAcompte = Math.round(prixTotal * planData.acompte);
+    const montantSolde = Math.round(prixTotal * planData.solde);
+    
+    const previewContent = document.getElementById('preview-content');
+    const dateSoldeContainer = document.getElementById('date-solde-container');
+    
+    let html = `
+        <div class="flex justify-between items-center">
+            <span class="text-[#02066F]">• Acompte (${Math.round(planData.acompte * 100)}%):</span>
+            <span class="font-semibold text-[#02066F]">${montantAcompte.toLocaleString('fr-FR')} FCFA</span>
+        </div>
+    `;
+    
+    if (planData.solde > 0) {
+        html += `
+            <div class="flex justify-between items-center">
+                <span class="text-[#02066F]">• Solde (${Math.round(planData.solde * 100)}%):</span>
+                <span class="font-semibold text-[#02066F]">${montantSolde.toLocaleString('fr-FR')} FCFA</span>
+            </div>
+        `;
+        dateSoldeContainer.style.display = 'block';
+    } else {
+        dateSoldeContainer.style.display = 'none';
+    }
+    
+    html += `
+        <div class="flex justify-between items-center pt-2 mt-2 border-t border-[#02066F]/20">
+            <span class="text-[#02066F] font-medium">Total:</span>
+            <span class="font-bold text-[#02066F]">${prixTotal.toLocaleString('fr-FR')} FCFA</span>
+        </div>
+    `;
+    
+    previewContent.innerHTML = html;
+}
+
+// Initialiser la prévisualisation au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    const checkedRadio = document.querySelector('input[name="plan_paiement"]:checked');
+    if (checkedRadio) {
+        updatePreview(checkedRadio.value, {{ reservation.prix_total }});
+    }
+});
+</script>
+{% endblock %}

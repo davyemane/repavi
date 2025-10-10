@@ -17,4 +17,7 @@ urlpatterns = [
     
     # Génération automatique échéancier
     path('reservation/<int:reservation_pk>/generer/', views.generer_echeancier, name='generer_echeancier'),
+    
+    # NOUVEAU: Choisir le plan de paiement
+    path('reservation/<int:reservation_pk>/choisir-plan/', views.choisir_plan_paiement, name='choisir_plan'),
 ]

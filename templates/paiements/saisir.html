@@ -1,5 +1,5 @@
 <!-- ========================================== -->
-<!-- templates/paiements/saisir.html -->
+<!-- templates/paiements/saisir.html - VERSION AMÉLIORÉE -->
 <!-- ========================================== -->
 {% extends 'base.html' %}
 {% load static %}
@@ -87,7 +87,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 font-lato">Déjà Payé</p>
-                    <p class="text-xl font-bold text-green-600 font-lato">{{ montant_deja_paye|default:0|floatformat:0 }} FCFA</p>
+                    <p class="text-xl font-bold text-green-600 font-lato">{{ situation.montant_paye|default:0|floatformat:0 }} FCFA</p>
                 </div>
                 <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                     <span class="material-icons text-green-600 text-sm">check_circle</span>
@@ -117,10 +117,39 @@
                             {{ form.montant_paye.errors|first }}
                         </div>
                     {% endif %}
-                    <p class="mt-1 text-sm text-gray-500 font-lato">
-                        Montant prévu : {{ echeance.montant_prevu|floatformat:0 }} FCFA
-                    </p>
-                    <div id="solde-indicator" class="mt-2"></div>
+                    
+                    <!-- Indicateur de solde en temps réel -->
+                    <div id="solde-indicator" class="mt-3"></div>
+                    
+                    <!-- Message d'info sur le recalcul automatique -->
+                    <div id="recalcul-info" class="mt-3 hidden">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div class="flex items-start space-x-2">
+                                <span class="material-icons text-blue-600 text-sm mt-0.5">info</span>
+                                <div class="text-sm text-blue-800 font-lato">
+                                    <strong>Recalcul automatique activé</strong>
+                                    <p class="mt-1">Le surplus sera automatiquement déduit de la prochaine échéance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons de montant rapide -->
+                    <div class="flex flex-wrap items-center gap-2 mt-3">
+                        <span class="text-xs text-gray-500 font-lato">Montants rapides:</span>
+                        <button type="button" onclick="setMontant({{ echeance.montant_prevu }})" 
+                                class="px-3 py-1.5 bg-[#02066F] text-white text-xs rounded-lg hover:bg-[#030a8a] font-lato transition-colors">
+                            Montant exact ({{ echeance.montant_prevu|floatformat:0 }})
+                        </button>
+                        <button type="button" onclick="setMontant({{ echeance.montant_prevu }} * 0.5)" 
+                                class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 font-lato transition-colors">
+                            50%
+                        </button>
+                        <button type="button" onclick="setMontant(0)" 
+                                class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 font-lato transition-colors">
+                            Effacer
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Mode de paiement -->
@@ -167,7 +196,7 @@
                         Annuler
                     </button>
                     
-                    <button type="submit" 
+                    <button type="submit" id="submit-btn"
                             class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 transition-colors font-lato">
                         <span class="material-icons text-sm mr-2">save</span>
                         Enregistrer le paiement
@@ -186,6 +215,7 @@
                 <p class="text-sm text-[#02066F] mt-1 font-lato">
                     Le solde restant sera calculé automatiquement après enregistrement. 
                     La date de paiement sera automatiquement définie à aujourd'hui.
+                    En cas de sur-paiement, le surplus sera automatiquement déduit de la prochaine échéance.
                 </p>
             </div>
         </div>
@@ -194,72 +224,115 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-focus sur le montant
     const montantInput = document.querySelector('input[name="montant_paye"]');
     const soldeIndicator = document.getElementById('solde-indicator');
-    const montantPrevu = {{ echeance.montant_prevu }};
+    const recalculInfo = document.getElementById('recalcul-info');
+    const submitBtn = document.getElementById('submit-btn');
+    const montantPrevu = parseFloat({{ echeance.montant_prevu }});
     
+    // Auto-focus
     if (montantInput) {
         montantInput.focus();
         montantInput.select();
     }
 
-    // Validation en temps réel avec indicateur visuel
+    // Fonction de validation en temps réel
     function updateSoldeIndicator() {
+        if (!montantInput || !soldeIndicator) return;
+        
         const montantSaisi = parseFloat(montantInput.value) || 0;
         const solde = montantPrevu - montantSaisi;
         
+        // Reset classes
+        montantInput.classList.remove('border-gray-300', 'border-orange-500', 'border-red-500', 'border-green-500');
+        
         if (montantSaisi === 0) {
             soldeIndicator.innerHTML = '';
-            montantInput.style.borderColor = '#d1d5db';
+            if (recalculInfo) recalculInfo.classList.add('hidden');
+            montantInput.classList.add('border-gray-300');
+            submitBtn.disabled = false;
+            
+        } else if (montantSaisi < 0) {
+            montantInput.classList.add('border-red-500');
+            soldeIndicator.innerHTML = `
+                <div class="flex items-center space-x-2 text-red-600 bg-red-50 rounded-lg p-3 border border-red-200">
+                    <span class="material-icons text-sm">error</span>
+                    <span class="text-sm font-lato font-semibold">Montant invalide : doit être positif</span>
+                </div>
+            `;
+            if (recalculInfo) recalculInfo.classList.add('hidden');
+            submitBtn.disabled = true;
+            
         } else if (solde > 0) {
-            montantInput.style.borderColor = '#f59e0b';
+            montantInput.classList.add('border-orange-500');
+            const pourcentage = Math.round((montantSaisi / montantPrevu) * 100);
             soldeIndicator.innerHTML = `
-                <div class="flex items-center space-x-2 text-orange-600">
-                    <span class="material-icons text-sm">info</span>
-                    <span class="text-sm font-lato">Solde restant: ${solde.toLocaleString('fr-FR')} FCFA</span>
+                <div class="flex items-center justify-between bg-orange-50 rounded-lg p-3 border border-orange-200">
+                    <div class="flex items-center space-x-2 text-orange-700">
+                        <span class="material-icons text-sm">info</span>
+                        <div>
+                            <span class="text-sm font-lato font-semibold">Paiement partiel (${pourcentage}%)</span>
+                            <p class="text-xs font-lato mt-0.5">Reste à payer : ${solde.toLocaleString('fr-FR')} FCFA</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-16 h-2 bg-orange-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-orange-500 rounded-full" style="width: ${pourcentage}%"></div>
+                        </div>
+                    </div>
                 </div>
             `;
+            if (recalculInfo) recalculInfo.classList.add('hidden');
+            submitBtn.disabled = false;
+            
         } else if (solde < 0) {
-            montantInput.style.borderColor = '#ef4444';
+            montantInput.classList.add('border-red-500');
+            const surplus = Math.abs(solde);
+            const pourcentage = Math.round((montantSaisi / montantPrevu) * 100);
             soldeIndicator.innerHTML = `
-                <div class="flex items-center space-x-2 text-red-600">
-                    <span class="material-icons text-sm">warning</span>
-                    <span class="text-sm font-lato">Trop-perçu: ${Math.abs(solde).toLocaleString('fr-FR')} FCFA</span>
+                <div class="flex items-center justify-between bg-red-50 rounded-lg p-3 border border-red-200">
+                    <div class="flex items-center space-x-2 text-red-700">
+                        <span class="material-icons text-sm animate-pulse">warning</span>
+                        <div>
+                            <span class="text-sm font-lato font-semibold">Sur-paiement détecté (${pourcentage}%)</span>
+                            <p class="text-xs font-lato mt-0.5">Surplus : ${surplus.toLocaleString('fr-FR')} FCFA</p>
+                        </div>
+                    </div>
                 </div>
             `;
+            if (recalculInfo) recalculInfo.classList.remove('hidden');
+            submitBtn.disabled = false;
+            
         } else {
-            montantInput.style.borderColor = '#10b981';
+            montantInput.classList.add('border-green-500');
             soldeIndicator.innerHTML = `
-                <div class="flex items-center space-x-2 text-green-600">
-                    <span class="material-icons text-sm">check_circle</span>
-                    <span class="text-sm font-lato">Montant exact payé</span>
+                <div class="flex items-center space-x-2 bg-green-50 rounded-lg p-3 border border-green-200">
+                    <span class="material-icons text-sm text-green-600">check_circle</span>
+                    <span class="text-sm font-lato font-semibold text-green-700">✓ Montant exact payé</span>
                 </div>
             `;
+            if (recalculInfo) recalculInfo.classList.add('hidden');
+            submitBtn.disabled = false;
         }
     }
 
-    montantInput?.addEventListener('input', updateSoldeIndicator);
+    // Fonction globale pour boutons rapides
+    window.setMontant = function(montant) {
+        if (montantInput) {
+            montantInput.value = Math.round(montant);
+            updateSoldeIndicator();
+            montantInput.focus();
+        }
+    };
+
+    // Event listeners
+    if (montantInput) {
+        montantInput.addEventListener('input', updateSoldeIndicator);
+        montantInput.addEventListener('keyup', updateSoldeIndicator);
+    }
     
-    // Boutons de montant rapide
-    const quickAmountButtons = document.createElement('div');
-    quickAmountButtons.className = 'flex items-center space-x-2 mt-2';
-    quickAmountButtons.innerHTML = `
-        <span class="text-xs text-gray-500 font-lato">Montants rapides:</span>
-        <button type="button" onclick="document.querySelector('input[name=\\"montant_paye\\"]').value = ${montantPrevu}; updateSoldeIndicator();" 
-                class="px-2 py-1 bg-[#02066F] text-white text-xs rounded hover:bg-[#030a8a] font-lato">
-            Montant exact
-        </button>
-        <button type="button" onclick="document.querySelector('input[name=\\"montant_paye\\"]').value = ${montantPrevu * 0.4}; updateSoldeIndicator();" 
-                class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 font-lato">
-            40% (acompte)
-        </button>
-    `;
-    
-    montantInput.parentNode.insertBefore(quickAmountButtons, soldeIndicator);
-    
-    // Rendre la fonction globale pour les boutons
-    window.updateSoldeIndicator = updateSoldeIndicator;
+    // Validation initiale
+    updateSoldeIndicator();
 });
 </script>
 {% endblock %}

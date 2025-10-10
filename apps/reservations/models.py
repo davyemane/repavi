@@ -1,15 +1,11 @@
 # ==========================================
-# apps/reservations/models.py - CORRIGÉ
+# apps/reservations/models.py - AVEC REDUCTION
 # ==========================================
 from django.db import models
 from django.core.exceptions import ValidationError
 from decimal import Decimal
-from datetime import timedelta
 
 class Reservation(models.Model):
-    """
-    Réservation selon cahier des charges
-    """
     STATUT_CHOICES = [
         ('confirmee', 'Confirmée'),
         ('en_cours', 'En cours'),
@@ -17,19 +13,26 @@ class Reservation(models.Model):
         ('annulee', 'Annulée'),
     ]
     
-    # Liens (selon cahier)
+    # Liens
     client = models.ForeignKey('clients.Client', on_delete=models.CASCADE)
     appartement = models.ForeignKey('appartements.Appartement', on_delete=models.CASCADE)
     
-    # Dates (selon cahier)
+    # Dates
     date_arrivee = models.DateField(verbose_name='Date d\'arrivée')
     date_depart = models.DateField(verbose_name='Date de départ')
     
-    # Calculs automatiques - VALEURS PAR DÉFAUT AJOUTÉES
-    nombre_nuits = models.PositiveIntegerField(
-        verbose_name='Nombre de nuits',
-        default=1
+    # Calculs automatiques
+    nombre_nuits = models.PositiveIntegerField(verbose_name='Nombre de nuits', default=1)
+    
+    # NOUVEAU: Réduction
+    reduction = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        verbose_name='Réduction (FCFA)',
+        default=0,
+        help_text='Montant de la réduction appliquée sur le prix total'
     )
+    
     prix_total = models.DecimalField(
         max_digits=10, 
         decimal_places=2,
@@ -38,12 +41,7 @@ class Reservation(models.Model):
     )
     
     # Statut
-    statut = models.CharField(
-        max_length=20,
-        choices=STATUT_CHOICES,
-        default='confirmee',
-        verbose_name='Statut'
-    )
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='confirmee')
     
     # Métadonnées
     date_creation = models.DateTimeField(auto_now_add=True)
@@ -51,12 +49,19 @@ class Reservation(models.Model):
     gestionnaire = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True)
     
     def clean(self):
-        """Validation des dates et conflits"""
         if self.date_depart and self.date_arrivee:
             if self.date_depart <= self.date_arrivee:
                 raise ValidationError('La date de départ doit être après l\'arrivée')
         
-        # Vérifier conflits selon cahier
+        # Vérifier que la réduction ne dépasse pas le prix de base
+        if self.reduction and self.appartement_id and self.nombre_nuits:
+            from apps.appartements.models import Appartement
+            appartement = Appartement.objects.get(pk=self.appartement_id)
+            prix_base = Decimal(str(self.nombre_nuits)) * appartement.prix_par_nuit
+            if self.reduction > prix_base:
+                raise ValidationError(f'La réduction ({self.reduction} FCFA) ne peut pas dépasser le prix de base ({prix_base} FCFA)')
+        
+        # Vérifier conflits
         if self.appartement and self.date_arrivee and self.date_depart:
             conflits = Reservation.objects.filter(
                 appartement=self.appartement,
@@ -69,21 +74,17 @@ class Reservation(models.Model):
                     raise ValidationError(f'Conflit avec réservation {conf.pk}')
     
     def save(self, *args, **kwargs):
-        # Calcul automatique selon cahier AVANT validation
+        # Calcul automatique AVEC réduction
         if self.date_arrivee and self.date_depart:
             self.nombre_nuits = (self.date_depart - self.date_arrivee).days
             if self.appartement_id:
                 try:
-                    # Forcer le rechargement pour éviter les problèmes de cache
-                    if self.appartement_id:
-                        from apps.appartements.models import Appartement
-                        appartement = Appartement.objects.get(pk=self.appartement_id)
-                        # prix_par_nuit est déjà un Decimal, mais on s'assure de la cohérence
-                        self.prix_total = Decimal(str(self.nombre_nuits)) * appartement.prix_par_nuit
-                    else:
-                        self.prix_total = Decimal('0')
-                except Exception as e:
-                    # En cas d'erreur, laisser prix_total à 0
+                    from apps.appartements.models import Appartement
+                    appartement = Appartement.objects.get(pk=self.appartement_id)
+                    prix_base = Decimal(str(self.nombre_nuits)) * appartement.prix_par_nuit
+                    # Appliquer la réduction
+                    self.prix_total = prix_base - (self.reduction or Decimal('0'))
+                except Exception:
                     self.prix_total = Decimal('0')
         
         self.full_clean()

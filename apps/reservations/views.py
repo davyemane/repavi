@@ -126,11 +126,13 @@ def creer_reservation(request):
                 reservation.save()
 
                 NotificationService.notify_reservation_created(reservation, request.user)
-
                 
-                # Créer l'échéancier de paiement automatiquement
+                # Récupérer le plan de paiement choisi
+                plan_paiement = request.POST.get('plan_paiement', '40_60')
+                
+                # Créer l'échéancier de paiement avec le plan choisi
                 from .services import ReservationService
-                ReservationService.creer_echeancier(reservation)
+                ReservationService.creer_echeancier(reservation, plan=plan_paiement)
                 
                 messages.success(request, f'Réservation créée avec succès ! Échéancier généré automatiquement.')
                 return redirect('reservations:detail', pk=reservation.pk)

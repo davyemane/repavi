@@ -1,5 +1,5 @@
 # ==========================================
-# apps/paiements/views.py - Paiements par tranches CORRIGÉ
+# apps/paiements/views.py - AJOUT de choisir_plan_paiement
 # ==========================================
 from datetime import timedelta
 from decimal import Decimal
@@ -12,7 +12,7 @@ from django.db.models import Sum, Q
 from apps.reservations.models import Reservation
 from apps.users.views import is_gestionnaire
 from .models import EcheancierPaiement
-from .forms import PaiementForm
+from .forms import PaiementForm, EcheancierForm
 from apps.notifications.services import NotificationService
 
 @login_required
@@ -64,7 +64,7 @@ def echeancier_paiements(request):
 @login_required
 @user_passes_test(is_gestionnaire)
 def saisir_paiement(request, pk):
-    """Enregistrer un paiement reçu selon cahier - CORRIGÉ"""
+    """Enregistrer un paiement reçu selon cahier - CORRIGÉ avec recalcul automatique"""
     echeance = get_object_or_404(EcheancierPaiement, pk=pk)
     
     # Calculer la situation financière de la réservation
@@ -84,14 +84,34 @@ def saisir_paiement(request, pk):
                 paiement.save()  # Le recalcul se fait automatiquement dans save()
                 NotificationService.notify_paiement_received(paiement, request.user)
 
-                
-                # Messages informatifs
+                # NOUVEAU: Recalcul automatique en cas de sur-paiement
                 if montant_saisi > paiement.montant_prevu:
                     surplus = montant_saisi - paiement.montant_prevu
-                    messages.warning(
-                        request, 
-                        f'Sur-paiement de {surplus} FCFA détecté. L\'échéancier a été recalculé automatiquement.'
-                    )
+                    
+                    # Récupérer l'autre échéance (acompte ou solde)
+                    autres_echeances = EcheancierPaiement.objects.filter(
+                        reservation=echeance.reservation,
+                        statut='en_attente'
+                    ).exclude(pk=echeance.pk).order_by('date_echeance')
+                    
+                    if autres_echeances.exists():
+                        prochaine_echeance = autres_echeances.first()
+                        # Réduire le montant prévu de la prochaine échéance
+                        prochaine_echeance.montant_prevu -= surplus
+                        if prochaine_echeance.montant_prevu < 0:
+                            prochaine_echeance.montant_prevu = Decimal('0')
+                        prochaine_echeance.save()
+                        
+                        messages.warning(
+                            request, 
+                            f'Sur-paiement de {surplus} FCFA détecté. Le {prochaine_echeance.get_type_paiement_display()} a été réduit à {prochaine_echeance.montant_prevu} FCFA.'
+                        )
+                    else:
+                        messages.warning(
+                            request, 
+                            f'Sur-paiement de {surplus} FCFA détecté. Tous les paiements sont terminés.'
+                        )
+                        
                 elif montant_saisi < paiement.montant_prevu:
                     manquant = paiement.montant_prevu - montant_saisi
                     messages.info(
@@ -219,3 +239,70 @@ def generer_echeancier(request, reservation_pk):
     else:
         messages.error(request, 'Méthode non autorisée.')
         return redirect('paiements:echeancier')
+
+
+# NOUVEAU: Vue pour choisir le plan de paiement
+@login_required
+@user_passes_test(is_gestionnaire)
+def choisir_plan_paiement(request, reservation_pk):
+    """Permet de choisir un plan de paiement personnalisé"""
+    reservation = get_object_or_404(Reservation, pk=reservation_pk)
+    
+    # Vérifier si un échéancier existe déjà
+    echeanciers_existants = EcheancierPaiement.objects.filter(reservation=reservation)
+    
+    if request.method == 'POST':
+        form = EcheancierForm(request.POST)
+        if form.is_valid():
+            plan = form.cleaned_data['plan_paiement']
+            date_acompte = form.cleaned_data['date_acompte']
+            date_solde = form.cleaned_data['date_solde']
+            
+            # Supprimer l'ancien échéancier
+            echeanciers_existants.delete()
+            
+            # Extraire les pourcentages du plan
+            pourcentages = {
+                '40_60': (0.4, 0.6),
+                '50_50': (0.5, 0.5),
+                '30_70': (0.3, 0.7),
+                '100_0': (1.0, 0.0),
+            }
+            pct_acompte, pct_solde = pourcentages[plan]
+            
+            # Créer l'acompte
+            montant_acompte = reservation.prix_total * Decimal(str(pct_acompte))
+            EcheancierPaiement.objects.create(
+                reservation=reservation,
+                type_paiement='acompte',
+                montant_prevu=montant_acompte,
+                date_echeance=date_acompte
+            )
+            
+            # Créer le solde si nécessaire
+            if pct_solde > 0:
+                montant_solde = reservation.prix_total * Decimal(str(pct_solde))
+                EcheancierPaiement.objects.create(
+                    reservation=reservation,
+                    type_paiement='solde',
+                    montant_prevu=montant_solde,
+                    date_echeance=date_solde
+                )
+            
+            messages.success(request, f'Plan de paiement {dict(form.fields["plan_paiement"].choices)[plan]} appliqué avec succès !')
+            return redirect('reservations:detail', pk=reservation.pk)
+    else:
+        # Valeurs par défaut
+        initial = {
+            'plan_paiement': '40_60',
+            'date_acompte': reservation.date_arrivee - timedelta(days=7),
+            'date_solde': reservation.date_arrivee,
+        }
+        form = EcheancierForm(initial=initial)
+    
+    context = {
+        'form': form,
+        'reservation': reservation,
+        'echeanciers_existants': echeanciers_existants,
+    }
+    return render(request, 'paiements/choisir_plan.html', context)
