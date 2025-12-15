@@ -2,6 +2,7 @@
 # apps/clients/models.py - Fiche client simple
 # ==========================================
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 
 class Client(models.Model):
     """
@@ -10,14 +11,35 @@ class Client(models.Model):
     # Identité (selon cahier)
     nom = models.CharField(max_length=100, verbose_name='Nom')
     prenom = models.CharField(max_length=100, verbose_name='Prénom')
-    telephone = models.CharField(max_length=20, verbose_name='Téléphone')
-    email = models.EmailField(verbose_name='Email')
-    
+
+    # Téléphone avec code pays international
+    telephone = PhoneNumberField(
+        verbose_name='Téléphone',
+        region='CM',  # Région par défaut: Cameroun
+        unique=True,
+        error_messages={
+            'unique': 'Ce numéro de téléphone est déjà utilisé par un autre client.'
+        },
+        help_text='Format international (ex: +237 6XX XXX XXX)'
+    )
+
+    email = models.EmailField(
+        verbose_name='Email',
+        unique=True,
+        error_messages={
+            'unique': 'Cette adresse email est déjà utilisée par un autre client.'
+        }
+    )
+
     # Numéro d'identité (CNI, Passeport, etc.)
     numero_identite = models.CharField(
-        max_length=50, 
+        max_length=50,
         verbose_name='Numéro d\'identité',
-        help_text='Numéro de CNI, passeport ou autre pièce d\'identité'
+        help_text='Numéro de CNI, passeport ou autre pièce d\'identité',
+        unique=True,
+        error_messages={
+            'unique': 'Ce numéro d\'identité est déjà utilisé par un autre client.'
+        }
     )
     
     # Document (selon cahier)
@@ -43,7 +65,7 @@ class Client(models.Model):
     def get_nombre_sejours(self):
         """Nombre de séjours effectués"""
         return self.reservation_set.filter(statut='terminee').count()
-    
+
     class Meta:
         verbose_name = 'Client'
         verbose_name_plural = 'Clients'

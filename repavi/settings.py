@@ -43,7 +43,8 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'tailwind',
     'theme',
-    'axes'
+    'axes',
+    'phonenumber_field',
 ]
 
 

@@ -22,7 +22,20 @@
 <div class="max-w-4xl">
     <form method="post" enctype="multipart/form-data" class="space-y-8">
         {% csrf_token %}
-        
+
+        <!-- Messages d'erreur généraux -->
+        {% if form.errors or form.non_field_errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+            <div class="flex items-start">
+                <span class="material-icons text-red-500 mr-3">error</span>
+                <div class="flex-1">
+                    <h3 class="text-red-800 font-bold mb-2 font-lato">Erreurs de validation</h3>
+                    <p class="text-red-700 text-sm font-lato">Veuillez corriger les erreurs ci-dessous pour continuer.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Identité selon cahier -->
         <div class="bg-white rounded-lg border border-gray-200 p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2 font-lato">
@@ -35,23 +48,36 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.nom.label }}</label>
                     {{ form.nom }}
                     {% if form.nom.errors %}
-                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.nom.errors.0 }}</div>
+                    <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                        <span class="material-icons text-sm mr-2">error</span>
+                        {{ form.nom.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.prenom.label }}</label>
                     {{ form.prenom }}
                     {% if form.prenom.errors %}
-                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.prenom.errors.0 }}</div>
+                    <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                        <span class="material-icons text-sm mr-2">error</span>
+                        {{ form.prenom.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.telephone.label }}</label>
                     {{ form.telephone }}
+                    <p class="text-gray-500 text-xs mt-1 font-lato">
+                        <span class="material-icons text-xs align-middle">info</span>
+                        Format international avec code pays. Exemples: +237 (Cameroun), +33 (France), +1 (USA)
+                    </p>
                     {% if form.telephone.errors %}
-                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.telephone.errors.0 }}</div>
+                    <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                        <span class="material-icons text-sm mr-2">error</span>
+                        {{ form.telephone.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
                 
@@ -59,7 +85,10 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.email.label }}</label>
                     {{ form.email }}
                     {% if form.email.errors %}
-                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.email.errors.0 }}</div>
+                    <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                        <span class="material-icons text-sm mr-2">error</span>
+                        {{ form.email.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
 
@@ -67,10 +96,13 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.numero_identite.label }}</label>
                     {{ form.numero_identite }}
                     {% if form.numero_identite.help_text %}
-                    <p class="text-gray-500 text-sm mt-1 font-lato">{{ form.numero_identite.help_text }}</p>
+                    <p class="text-gray-500 text-xs mt-1 font-lato">{{ form.numero_identite.help_text }}</p>
                     {% endif %}
                     {% if form.numero_identite.errors %}
-                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.numero_identite.errors.0 }}</div>
+                    <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                        <span class="material-icons text-sm mr-2">error</span>
+                        {{ form.numero_identite.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -87,10 +119,13 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.piece_identite.label }}</label>
                 {{ form.piece_identite }}
                 {% if form.piece_identite.help_text %}
-                <p class="text-gray-500 text-sm mt-1 font-lato">{{ form.piece_identite.help_text }}</p>
+                <p class="text-gray-500 text-xs mt-1 font-lato">{{ form.piece_identite.help_text }}</p>
                 {% endif %}
                 {% if form.piece_identite.errors %}
-                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.piece_identite.errors.0 }}</div>
+                <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                    <span class="material-icons text-sm mr-2">error</span>
+                    {{ form.piece_identite.errors.0 }}
+                </div>
                 {% endif %}
                 
                 <!-- Aperçu de l'image actuelle -->
@@ -114,7 +149,10 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.adresse_residence.label }}</label>
                 {{ form.adresse_residence }}
                 {% if form.adresse_residence.errors %}
-                <div class="text-red-600 text-sm mt-1 font-lato">{{ form.adresse_residence.errors.0 }}</div>
+                <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                    <span class="material-icons text-sm mr-2">error</span>
+                    {{ form.adresse_residence.errors.0 }}
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -131,15 +169,21 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.contact_urgence_nom.label }}</label>
                     {{ form.contact_urgence_nom }}
                     {% if form.contact_urgence_nom.errors %}
-                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.contact_urgence_nom.errors.0 }}</div>
+                    <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                        <span class="material-icons text-sm mr-2">error</span>
+                        {{ form.contact_urgence_nom.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2 font-lato">{{ form.contact_urgence_tel.label }}</label>
                     {{ form.contact_urgence_tel }}
                     {% if form.contact_urgence_tel.errors %}
-                    <div class="text-red-600 text-sm mt-1 font-lato">{{ form.contact_urgence_tel.errors.0 }}</div>
+                    <div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-sm mt-2 font-lato flex items-center">
+                        <span class="material-icons text-sm mr-2">error</span>
+                        {{ form.contact_urgence_tel.errors.0 }}
+                    </div>
                     {% endif %}
                 </div>
             </div>

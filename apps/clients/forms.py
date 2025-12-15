@@ -28,7 +28,8 @@ class ClientForm(forms.ModelForm):
             }),
             'telephone': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100',
-                'placeholder': '+237 XXX XXX XXX'
+                'placeholder': 'Exemple: +237 6 12 34 56 78',
+                'type': 'tel'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100',

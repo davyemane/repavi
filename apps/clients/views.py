@@ -21,7 +21,7 @@ def liste_clients(request):
     recherche = request.GET.get('q')
     if recherche:
         clients = clients.filter(
-            Q(nom__icontains=recherche) | 
+            Q(nom__icontains=recherche) |
             Q(prenom__icontains=recherche) |
             Q(telephone__icontains=recherche)
         )
@@ -87,7 +87,7 @@ def modifier_client(request, pk):
     else:
         form = ClientForm(instance=client)
     
-    return render(request, 'clients/modifier_client.html', {
+    return render(request, 'clients/formulaire.html', {
         'form': form,
         'client': client,
         'titre': f'Modifier {client.prenom} {client.nom}',
@@ -116,7 +116,7 @@ def recherche_clients(request):
     if request.method == 'POST':
         q = request.POST.get('q')
         clients = Client.objects.filter(
-            Q(nom__icontains=q) | 
+            Q(nom__icontains=q) |
             Q(prenom__icontains=q) |
             Q(telephone__icontains=q)
         )
