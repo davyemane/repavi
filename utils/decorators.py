@@ -64,8 +64,23 @@ def super_admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if request.user.is_super_admin() or request.user.is_superuser:
             return view_func(request, *args, **kwargs)
-        
+
         messages.error(request, "Accès super admin requis.")
+        return redirect('home:index')
+    return _wrapped_view
+
+
+def receptionniste_required(view_func):
+    """
+    Décorateur pour les vues nécessitant les droits de réceptionniste (ou supérieur)
+    """
+    @wraps(view_func)
+    @login_required
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_receptionniste():
+            return view_func(request, *args, **kwargs)
+
+        messages.error(request, "Accès réceptionniste requis.")
         return redirect('home:index')
     return _wrapped_view
 
@@ -125,11 +140,26 @@ class SuperAdminRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('users:login')
-        
+
         if not (request.user.is_super_admin() or request.user.is_superuser):
             messages.error(request, "Accès super admin requis.")
             raise PermissionDenied("Accès super admin requis")
-        
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ReceptionnisteRequiredMixin:
+    """
+    Mixin pour les vues nécessitant les droits de réceptionniste (ou supérieur)
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('users:login')
+
+        if not request.user.is_receptionniste():
+            messages.error(request, "Accès réceptionniste requis.")
+            raise PermissionDenied("Accès réceptionniste requis")
+
         return super().dispatch(request, *args, **kwargs)
 
 

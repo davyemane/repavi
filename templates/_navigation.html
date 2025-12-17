@@ -16,70 +16,74 @@
 
       <!-- Menu Principal -->
       <div class="hidden md:flex items-center space-x-6">
-        <a href="{% url 'dashboard' %}" 
+        <a href="{% url 'dashboard' %}"
            class="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-blue-50 text-blue-600{% endif %}">
           <span class="material-icons text-sm">dashboard</span>
           <span style="font-family: 'Arimo', sans-serif;">Dashboard</span>
         </a>
 
-        <a href="{% url 'appartements:liste' %}" 
+        {% if user.profil != 'receptionniste' %}
+        <a href="{% url 'appartements:liste' %}"
            class="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors {% if 'appartements' in request.resolver_match.app_name %}bg-blue-50 text-blue-600{% endif %}">
           <span class="material-icons text-sm">apartment</span>
           <span style="font-family: 'Arimo', sans-serif;">Appartements</span>
         </a>
+        {% endif %}
 
-        <a href="{% url 'clients:liste' %}" 
+        <a href="{% url 'clients:liste' %}"
            class="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors {% if 'clients' in request.resolver_match.app_name %}bg-blue-50 text-blue-600{% endif %}">
           <span class="material-icons text-sm">people</span>
           <span style="font-family: 'Arimo', sans-serif;">Clients</span>
         </a>
 
-        <a href="{% url 'reservations:calendrier' %}" 
+        <a href="{% url 'reservations:calendrier' %}"
            class="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors {% if 'reservations' in request.resolver_match.app_name %}bg-blue-50 text-blue-600{% endif %}">
           <span class="material-icons text-sm">event</span>
           <span style="font-family: 'Arimo', sans-serif;">Réservations</span>
         </a>
 
-        <a href="{% url 'paiements:echeancier' %}" 
+        {% if user.profil != 'receptionniste' %}
+        <a href="{% url 'paiements:echeancier' %}"
            class="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors {% if 'paiements' in request.resolver_match.app_name %}bg-blue-50 text-blue-600{% endif %}">
           <span class="material-icons text-sm">payments</span>
           <span style="font-family: 'Arimo', sans-serif;">Paiements</span>
         </a>
 
-        <!-- Menu déroulant pour les autres modules -->
+        <!-- Menu déroulant pour les autres modules (Gestionnaires et Super Admin seulement) -->
         <div class="relative group">
           <button class="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
             <span class="material-icons text-sm">more_horiz</span>
             <span style="font-family: 'Arimo', sans-serif;">Plus</span>
             <span class="material-icons text-sm">expand_more</span>
           </button>
-          
+
           <div class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            <a href="{% url 'inventaire:general' %}" 
+            <a href="{% url 'inventaire:general' %}"
                class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors first:rounded-t-xl">
               <span class="material-icons text-sm">inventory</span>
               <span style="font-family: 'Arimo', sans-serif;">Inventaire</span>
             </a>
-            
-            <a href="{% url 'menage:planning' %}" 
+
+            <a href="{% url 'menage:planning' %}"
                class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
               <span class="material-icons text-sm">cleaning_services</span>
               <span style="font-family: 'Arimo', sans-serif;">Ménage</span>
             </a>
-            
-            <a href="{% url 'comptabilite:rapport_mensuel' %}" 
+
+            <a href="{% url 'comptabilite:rapport_mensuel' %}"
                class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
               <span class="material-icons text-sm">account_balance</span>
               <span style="font-family: 'Arimo', sans-serif;">Comptabilité</span>
             </a>
-            
-            <a href="{% url 'facturation:generer' %}" 
+
+            <a href="{% url 'facturation:generer' %}"
                class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors last:rounded-b-xl">
               <span class="material-icons text-sm">receipt</span>
               <span style="font-family: 'Arimo', sans-serif;">Facturation</span>
             </a>
           </div>
         </div>
+        {% endif %}
       </div>
 
       <!-- Menu utilisateur -->
@@ -111,18 +115,26 @@
             </a>
             
             {% if user.profil == 'super_admin' %}
-            <a href="{% url 'users:liste_gestionnaires' %}" 
+            <a href="{% url 'users:liste_gestionnaires' %}"
                class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
               <span class="material-icons text-sm">supervisor_account</span>
               <span style="font-family: 'Arimo', sans-serif;">Gestionnaires</span>
             </a>
+
+            <a href="{% url 'users:liste_receptionistes' %}"
+               class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
+              <span class="material-icons text-sm">badge</span>
+              <span style="font-family: 'Arimo', sans-serif;">Réceptionnistes</span>
+            </a>
             {% endif %}
-            
-            <a href="{% url 'users:historique' %}" 
+
+            {% if user.profil != 'receptionniste' %}
+            <a href="{% url 'users:historique' %}"
                class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors">
               <span class="material-icons text-sm">history</span>
               <span style="font-family: 'Arimo', sans-serif;">Historique</span>
             </a>
+            {% endif %}
             
             <hr class="my-1">
             
@@ -151,26 +163,55 @@
         <span class="material-icons text-sm">dashboard</span>
         <span style="font-family: 'Arimo', sans-serif;">Dashboard</span>
       </a>
-      
+
+      {% if user.profil != 'receptionniste' %}
       <a href="{% url 'appartements:liste' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 transition-colors">
         <span class="material-icons text-sm">apartment</span>
         <span style="font-family: 'Arimo', sans-serif;">Appartements</span>
       </a>
-      
+      {% endif %}
+
       <a href="{% url 'clients:liste' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 transition-colors">
         <span class="material-icons text-sm">people</span>
         <span style="font-family: 'Arimo', sans-serif;">Clients</span>
       </a>
-      
+
       <a href="{% url 'reservations:calendrier' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 transition-colors">
         <span class="material-icons text-sm">event</span>
         <span style="font-family: 'Arimo', sans-serif;">Réservations</span>
       </a>
-      
+
+      {% if user.profil != 'receptionniste' %}
       <a href="{% url 'paiements:echeancier' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 transition-colors">
         <span class="material-icons text-sm">payments</span>
         <span style="font-family: 'Arimo', sans-serif;">Paiements</span>
       </a>
+
+      <!-- Modules additionnels pour Gestionnaires et Super Admin -->
+      <div class="border-t border-gray-200 pt-2 mt-2">
+        <p class="px-3 py-2 text-xs text-gray-500 font-semibold uppercase" style="font-family: 'Arimo', sans-serif;">Plus</p>
+
+        <a href="{% url 'inventaire:general' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 transition-colors">
+          <span class="material-icons text-sm">inventory</span>
+          <span style="font-family: 'Arimo', sans-serif;">Inventaire</span>
+        </a>
+
+        <a href="{% url 'menage:planning' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 transition-colors">
+          <span class="material-icons text-sm">cleaning_services</span>
+          <span style="font-family: 'Arimo', sans-serif;">Ménage</span>
+        </a>
+
+        <a href="{% url 'comptabilite:rapport_mensuel' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 transition-colors">
+          <span class="material-icons text-sm">account_balance</span>
+          <span style="font-family: 'Arimo', sans-serif;">Comptabilité</span>
+        </a>
+
+        <a href="{% url 'facturation:generer' %}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-white hover:text-blue-600 transition-colors">
+          <span class="material-icons text-sm">receipt</span>
+          <span style="font-family: 'Arimo', sans-serif;">Facturation</span>
+        </a>
+      </div>
+      {% endif %}
     </div>
   </div>
 </nav>

@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block nav_dashboard %}
+flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg font-medium transition-colors
+{% endblock %}
+
+{% block title %}Dashboard Réceptionniste - RepAvi Lodges{% endblock %}
+
+{% block page_title %}Bonjour {{ user.first_name|default:user.username }} ! 👋{% endblock %}
+{% block page_subtitle %}Bienvenue sur votre espace de réception - {{ date_jour|date:"l d F Y" }}{% endblock %}
+
+{% block content %}
+<!-- KPIs Section Simplifié -->
+<div>
+    <h2 class="text-lg font-semibold text-gray-900 mb-4 font-lato">Aperçu Rapide</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Total Appartements -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-[#02066F]/10 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-[#02066F] text-xl">apartment</span>
+                </div>
+                <span class="material-icons text-green-500">home</span>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_appartements }}</div>
+            <div class="text-sm text-gray-600 mb-2 font-lato">Appartements Total</div>
+            <div class="text-xs text-green-600 font-lato">{{ appartements_disponibles }} disponibles</div>
+        </div>
+
+        <!-- Clients -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-purple-600 text-xl">people</span>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ total_clients }}</div>
+            <div class="text-sm text-gray-600 mb-2 font-lato">Clients Total</div>
+            <div class="text-xs text-purple-600 font-lato">Base de données</div>
+        </div>
+
+        <!-- Arrivées Aujourd'hui -->
+        <div class="card-with-bg rounded-lg border border-gray-200 p-6 hover:shadow-repavi transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span class="material-icons text-green-600 text-xl">event_available</span>
+                </div>
+                {% if arrivees_aujourd_hui %}
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                {% endif %}
+            </div>
+            <div class="text-3xl font-bold text-gray-900 mb-1 font-lato">{{ arrivees_aujourd_hui.count }}</div>
+            <div class="text-sm text-gray-600 mb-2 font-lato">Arrivées Aujourd'hui</div>
+            <div class="text-xs text-green-600 font-lato">À accueillir</div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenu Principal -->
+<div class="grid lg:grid-cols-2 gap-6">
+
+    <!-- Arrivées du Jour -->
+    <div class="card-with-bg rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 font-lato">Arrivées du Jour</h3>
+                <p class="text-gray-600 text-sm font-lato">Clients attendus aujourd'hui</p>
+            </div>
+            <span class="material-icons text-green-600 text-3xl">check_circle</span>
+        </div>
+
+        {% if arrivees_aujourd_hui %}
+        <div class="space-y-3">
+            {% for reservation in arrivees_aujourd_hui %}
+            <a href="{% url 'reservations:detail' reservation.pk %}"
+               class="block p-4 bg-green-50/90 backdrop-blur-sm rounded-lg border border-green-100 hover:bg-green-100/90 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="material-icons text-green-700">person</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 font-lato">
+                                {{ reservation.client.prenom }} {{ reservation.client.nom }}
+                            </h4>
+                            <p class="text-sm text-gray-600 font-lato">
+                                <span class="material-icons text-xs">apartment</span>
+                                {{ reservation.appartement.numero }} • {{ reservation.nombre_nuits }} nuits
+                            </p>
+                        </div>
+                    </div>
+                    <span class="material-icons text-green-600">arrow_forward</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <span class="material-icons text-gray-300 text-5xl mb-2">event_busy</span>
+            <p class="text-sm text-gray-500 font-lato">Aucune arrivée prévue aujourd'hui</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Départs du Jour -->
+    <div class="card-with-bg rounded-lg border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 font-lato">Départs du Jour</h3>
+                <p class="text-gray-600 text-sm font-lato">Clients qui partent aujourd'hui</p>
+            </div>
+            <span class="material-icons text-orange-600 text-3xl">exit_to_app</span>
+        </div>
+
+        {% if departs_aujourd_hui %}
+        <div class="space-y-3">
+            {% for reservation in departs_aujourd_hui %}
+            <a href="{% url 'reservations:detail' reservation.pk %}"
+               class="block p-4 bg-orange-50/90 backdrop-blur-sm rounded-lg border border-orange-100 hover:bg-orange-100/90 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-orange-200 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="material-icons text-orange-700">person</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 font-lato">
+                                {{ reservation.client.prenom }} {{ reservation.client.nom }}
+                            </h4>
+                            <p class="text-sm text-gray-600 font-lato">
+                                <span class="material-icons text-xs">apartment</span>
+                                {{ reservation.appartement.numero }}
+                            </p>
+                        </div>
+                    </div>
+                    <span class="material-icons text-orange-600">arrow_forward</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <span class="material-icons text-gray-300 text-5xl mb-2">event_busy</span>
+            <p class="text-sm text-gray-500 font-lato">Aucun départ prévu aujourd'hui</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Actions Rapides & Dernières Réservations -->
+<div class="grid lg:grid-cols-3 gap-6">
+
+    <!-- Actions Rapides -->
+    <div class="card-with-bg rounded-lg border border-gray-200 p-6">
+        <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+            <span class="material-icons text-[#02066F]">flash_on</span>
+            <span>Actions Rapides</span>
+        </h3>
+
+        <div class="space-y-3">
+            <a href="{% url 'reservations:nouvelle' %}"
+               class="w-full flex items-center justify-between p-3 bg-[#02066F]/5 text-[#02066F] rounded-lg hover:bg-[#02066F]/10 transition-colors">
+                <span class="flex items-center space-x-3">
+                    <span class="material-icons text-sm">add_circle</span>
+                    <span class="font-medium font-lato">Nouvelle réservation</span>
+                </span>
+                <span class="material-icons text-sm">arrow_forward</span>
+            </a>
+
+            <a href="{% url 'clients:nouveau' %}"
+               class="w-full flex items-center justify-between p-3 bg-green-50/90 backdrop-blur-sm text-green-600 rounded-lg hover:bg-green-100/90 transition-colors">
+                <span class="flex items-center space-x-3">
+                    <span class="material-icons text-sm">person_add</span>
+                    <span class="font-medium font-lato">Nouveau client</span>
+                </span>
+                <span class="material-icons text-sm">arrow_forward</span>
+            </a>
+
+            <a href="{% url 'reservations:calendrier' %}"
+               class="w-full flex items-center justify-between p-3 bg-purple-50/90 backdrop-blur-sm text-purple-600 rounded-lg hover:bg-purple-100/90 transition-colors">
+                <span class="flex items-center space-x-3">
+                    <span class="material-icons text-sm">calendar_month</span>
+                    <span class="font-medium font-lato">Voir le calendrier</span>
+                </span>
+                <span class="material-icons text-sm">arrow_forward</span>
+            </a>
+
+            <a href="{% url 'clients:liste' %}"
+               class="w-full flex items-center justify-between p-3 bg-orange-50/90 backdrop-blur-sm text-orange-600 rounded-lg hover:bg-orange-100/90 transition-colors">
+                <span class="flex items-center space-x-3">
+                    <span class="material-icons text-sm">people</span>
+                    <span class="font-medium font-lato">Liste des clients</span>
+                </span>
+                <span class="material-icons text-sm">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Dernières Réservations -->
+    <div class="lg:col-span-2 card-with-bg rounded-lg border border-gray-200 p-6">
+        <h3 class="font-semibold text-gray-900 mb-4 flex items-center space-x-2 font-lato">
+            <span class="material-icons text-[#02066F]">history</span>
+            <span>Dernières Réservations</span>
+        </h3>
+
+        {% if dernieres_reservations %}
+        <div class="space-y-2">
+            {% for reservation in dernieres_reservations %}
+            <a href="{% url 'reservations:detail' reservation.pk %}"
+               class="block p-4 bg-gray-50/90 backdrop-blur-sm rounded-lg border border-gray-100 hover:bg-gray-100/90 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10
+                            {% if reservation.statut == 'confirmee' %}bg-green-100{% elif reservation.statut == 'en_cours' %}bg-blue-100{% elif reservation.statut == 'terminee' %}bg-gray-200{% else %}bg-red-100{% endif %}
+                            rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="material-icons
+                                {% if reservation.statut == 'confirmee' %}text-green-600{% elif reservation.statut == 'en_cours' %}text-blue-600{% elif reservation.statut == 'terminee' %}text-gray-500{% else %}text-red-600{% endif %}">
+                                event
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-900 font-lato">
+                                {{ reservation.client.prenom }} {{ reservation.client.nom }}
+                            </h4>
+                            <p class="text-sm text-gray-600 font-lato">
+                                <span class="material-icons text-xs">apartment</span>
+                                {{ reservation.appartement.numero }} •
+                                {{ reservation.date_arrivee|date:"d/m" }} - {{ reservation.date_depart|date:"d/m" }}
+                            </p>
+                        </div>
+                        <span class="px-2 py-1
+                            {% if reservation.statut == 'confirmee' %}bg-green-100 text-green-800{% elif reservation.statut == 'en_cours' %}bg-blue-100 text-blue-800{% elif reservation.statut == 'terminee' %}bg-gray-200 text-gray-800{% else %}bg-red-100 text-red-800{% endif %}
+                            text-xs rounded-full font-medium font-lato">
+                            {{ reservation.get_statut_display }}
+                        </span>
+                    </div>
+                    <span class="material-icons text-gray-400">arrow_forward</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <span class="material-icons text-gray-300 text-5xl mb-2">event_note</span>
+            <p class="text-sm text-gray-500 font-lato">Aucune réservation récente</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -10,14 +10,14 @@ from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta, date
 from apps.notifications.services import NotificationService
 
-from apps.users.views import is_gestionnaire, is_super_admin
+from apps.users.views import is_gestionnaire, is_super_admin, is_receptionniste
 from .models import Reservation
 from .forms import ReservationForm
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def calendrier_reservations(request):
-    """Vue mensuelle avec couleurs par statut selon cahier"""
+    """Vue mensuelle avec couleurs par statut selon cahier - Accessible aux réceptionnistes"""
     import calendar
     import re
     
@@ -107,9 +107,9 @@ def calendrier_reservations(request):
     return render(request, 'reservations/calendrier.html', context)
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def creer_reservation(request):
-    """Création de réservation en 5 étapes selon cahier"""
+    """Création de réservation en 5 étapes selon cahier - Accessible aux réceptionnistes"""
     if request.method == 'POST':
         form = ReservationForm(request.POST)
         if form.is_valid():
@@ -157,9 +157,9 @@ def creer_reservation(request):
 # apps/reservations/views.py - Corriger la vue verifier_disponibilite
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def verifier_disponibilite(request):
-    """AJAX - Vérifier disponibilité et calculer prix selon cahier"""
+    """AJAX - Vérifier disponibilité et calculer prix selon cahier - Accessible aux réceptionnistes"""
     appartement_id = request.GET.get('appartement')
     date_arrivee = request.GET.get('date_arrivee')
     date_depart = request.GET.get('date_depart')
@@ -212,9 +212,9 @@ def verifier_disponibilite(request):
         return JsonResponse({'error': str(e)})
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def liste_reservations(request):
-    """Liste des réservations selon cahier"""
+    """Liste des réservations selon cahier - Accessible aux réceptionnistes"""
     statut_filtre = request.GET.get('statut', 'tous')
     
     reservations = Reservation.objects.select_related(
@@ -231,9 +231,9 @@ def liste_reservations(request):
     return render(request, 'reservations/liste.html', context)
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def detail_reservation(request, pk):
-    """Détail d'une réservation selon cahier"""
+    """Détail d'une réservation selon cahier - Accessible aux réceptionnistes"""
     reservation = get_object_or_404(Reservation, pk=pk)
     
     # Récupérer l'échéancier de paiement - CORRECTION
@@ -285,9 +285,9 @@ def modifier_reservation(request, pk):
 
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def arrivees_du_jour(request):
-    """Arrivées du jour selon cahier"""
+    """Arrivées du jour selon cahier - Accessible aux réceptionnistes"""
     arrivees = Reservation.objects.filter(
         date_arrivee=date.today(),
         statut='confirmee'
@@ -299,10 +299,10 @@ def arrivees_du_jour(request):
     }
     return render(request, 'reservations/arrivees_jour.html', context)
 
-@login_required  
-@user_passes_test(is_gestionnaire)
+@login_required
+@user_passes_test(is_receptionniste)
 def departs_du_jour(request):
-    """Départs du jour selon cahier"""
+    """Départs du jour selon cahier - Accessible aux réceptionnistes"""
     departs = Reservation.objects.filter(
         date_depart=date.today(),
         statut='en_cours'

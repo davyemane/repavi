@@ -180,12 +180,21 @@ flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg 
 
                 <!-- Actions Super Admin -->
                 {% if user.profil == 'super_admin' %}
-                <div class="border-t border-gray-200 pt-3 mt-3">
+                <div class="border-t border-gray-200 pt-3 mt-3 space-y-3">
                     <a href="{% url 'users:creer_gestionnaire' %}"
                        class="w-full flex items-center justify-between p-3 bg-indigo-50/90 backdrop-blur-sm text-indigo-600 rounded-lg hover:bg-indigo-100/90 transition-colors">
                         <span class="flex items-center space-x-3">
                             <span class="material-icons text-sm">supervisor_account</span>
                             <span class="font-medium font-lato">Nouveau gestionnaire</span>
+                        </span>
+                        <span class="material-icons text-sm">arrow_forward</span>
+                    </a>
+
+                    <a href="{% url 'users:creer_receptionniste' %}"
+                       class="w-full flex items-center justify-between p-3 bg-teal-50/90 backdrop-blur-sm text-teal-600 rounded-lg hover:bg-teal-100/90 transition-colors">
+                        <span class="flex items-center space-x-3">
+                            <span class="material-icons text-sm">badge</span>
+                            <span class="font-medium font-lato">Nouveau réceptionniste</span>
                         </span>
                         <span class="material-icons text-sm">arrow_forward</span>
                     </a>
@@ -280,10 +289,14 @@ flex items-center space-x-3 px-3 py-3 text-[#02066F] bg-[#02066F]/10 rounded-lg 
 
                 <!-- Stats Super Admin -->
                 {% if user.profil == 'super_admin' %}
-                <div class="border-t border-gray-200 pt-4 mt-4">
+                <div class="border-t border-gray-200 pt-4 mt-4 space-y-4">
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600 font-lato">Total gestionnaires</span>
                         <span class="font-semibold text-purple-600 font-lato">{{ total_gestionnaires|default:0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600 font-lato">Total réceptionnistes</span>
+                        <span class="font-semibold text-teal-600 font-lato">{{ total_receptionistes|default:0 }}</span>
                     </div>
                 </div>
                 {% endif %}

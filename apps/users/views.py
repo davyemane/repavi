@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.paginator import Paginator
 
-from apps.users.forms import GestionnaireCreationForm, ProfilUtilisateurForm
+from apps.users.forms import GestionnaireCreationForm, ProfilUtilisateurForm, ReceptionnisteCreationForm
 from apps.users.models import User
 
 def is_gestionnaire(user):
@@ -21,14 +21,27 @@ def is_super_admin(user):
     """Vérifier si l'utilisateur est super admin"""
     return user.is_authenticated and user.profil == 'super_admin'
 
+def is_receptionniste(user):
+    """Vérifier si l'utilisateur est réceptionniste (ou niveau supérieur)"""
+    return user.is_authenticated and user.profil in ['receptionniste', 'gestionnaire', 'super_admin']
+
 class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     """
     Dashboard principal selon cahier des charges avec activité récente
+    Redirige les réceptionnistes vers leur dashboard simplifié
     """
     template_name = 'dashboard/index.html'
-    
+
     def test_func(self):
-        return is_gestionnaire(self.request.user)
+        # Autoriser tous les utilisateurs authentifiés (gestionnaire, super_admin, réceptionniste)
+        return self.request.user.is_authenticated
+
+    def dispatch(self, request, *args, **kwargs):
+        # Rediriger les réceptionnistes vers leur dashboard simplifié
+        if request.user.profil == 'receptionniste':
+            return redirect('users:dashboard_receptionniste')
+        # Les gestionnaires et super_admin continuent vers le dashboard complet
+        return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -111,10 +124,15 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             context.update({
                 'total_gestionnaires': User.objects.filter(profil='gestionnaire').count(),
                 'gestionnaires_actifs': User.objects.filter(
-                    profil='gestionnaire', 
+                    profil='gestionnaire',
                     is_active=True
                 ).count(),
                 'super_admins': User.objects.filter(profil='super_admin').count(),
+                'total_receptionistes': User.objects.filter(profil='receptionniste').count(),
+                'receptionistes_actifs': User.objects.filter(
+                    profil='receptionniste',
+                    is_active=True
+                ).count(),
             })
         
         # Données pour le graphique des revenus (exemple)
@@ -200,8 +218,59 @@ class DashboardView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         
         return jours, revenus
 
+
+class DashboardReceptionnisteView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    """
+    Dashboard simplifié pour les réceptionnistes
+    Affiche uniquement les informations essentielles : arrivées, départs, dernières réservations
+    """
+    template_name = 'dashboard/receptionniste.html'
+
+    def test_func(self):
+        return is_receptionniste(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Importer les modèles
+        from apps.appartements.models import Appartement
+        from apps.clients.models import Client
+        from apps.reservations.models import Reservation
+
+        now = timezone.now()
+        today = now.date()
+
+        # Informations de base pour le réceptionniste
+        context.update({
+            # Statistiques simples
+            'total_appartements': Appartement.objects.count(),
+            'appartements_disponibles': Appartement.objects.filter(statut='disponible').count(),
+            'total_clients': Client.objects.count(),
+
+            # Arrivées et départs du jour
+            'arrivees_aujourd_hui': Reservation.objects.filter(
+                date_arrivee=today,
+                statut='confirmee'
+            ).select_related('client', 'appartement'),
+            'departs_aujourd_hui': Reservation.objects.filter(
+                date_depart=today,
+                statut='en_cours'
+            ).select_related('client', 'appartement'),
+
+            # Dernières réservations créées
+            'dernieres_reservations': Reservation.objects.select_related(
+                'client', 'appartement'
+            ).order_by('-date_creation')[:5],
+
+            # Métadonnées
+            'date_jour': today,
+        })
+
+        return context
+
+
 @login_required
-@user_passes_test(is_gestionnaire)      
+@user_passes_test(is_gestionnaire)
 def historique_activites(request):
     """Historique des activités selon cahier"""
     from apps.reservations.models import Reservation
@@ -483,3 +552,164 @@ def statistiques_audit(request):
     }
     
     return render(request, 'users/statistiques_audit.html', {'stats': stats})
+
+
+# ==========================================
+# Gestion des réceptionnistes (Super Admin uniquement)
+# ==========================================
+
+@login_required
+@user_passes_test(is_super_admin)
+def liste_receptionistes(request):
+    """Liste des réceptionnistes - Réservé au Super Admin"""
+    # Filtrer les utilisateurs réceptionnistes
+    receptionistes = User.objects.filter(profil='receptionniste').order_by('-date_joined')
+
+    # Recherche
+    search = request.GET.get('search', '').strip()
+    if search:
+        receptionistes = receptionistes.filter(
+            Q(username__icontains=search) |
+            Q(email__icontains=search) |
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search)
+        )
+
+    # Filtrer par statut
+    statut = request.GET.get('statut', '')
+    if statut == 'actif':
+        receptionistes = receptionistes.filter(is_active=True)
+    elif statut == 'inactif':
+        receptionistes = receptionistes.filter(is_active=False)
+
+    # Pagination
+    paginator = Paginator(receptionistes, 20)
+    page = request.GET.get('page')
+    receptionistes_page = paginator.get_page(page)
+
+    context = {
+        'receptionistes': receptionistes_page,
+        'total_receptionistes': User.objects.filter(profil='receptionniste').count(),
+        'receptionistes_actifs': User.objects.filter(profil='receptionniste', is_active=True).count(),
+        'receptionistes_inactifs': User.objects.filter(profil='receptionniste', is_active=False).count(),
+    }
+    return render(request, 'users/liste_receptionistes.html', context)
+
+
+@login_required
+@user_passes_test(is_super_admin)
+def creer_receptionniste(request):
+    """Créer un réceptionniste - Réservé au Super Admin"""
+    if request.method == 'POST':
+        form = ReceptionnisteCreationForm(request.POST)
+        if form.is_valid():
+            receptionniste = form.save(commit=False)
+            receptionniste.set_password(form.cleaned_data['password1'])
+            receptionniste.save()
+
+            messages.success(
+                request,
+                f'Réceptionniste {receptionniste.username} créé avec succès ! '
+                f'Il peut maintenant se connecter au système.'
+            )
+            return redirect('users:liste_receptionistes')
+    else:
+        form = ReceptionnisteCreationForm()
+
+    context = {
+        'form': form,
+        'titre': 'Créer un réceptionniste',
+    }
+    return render(request, 'users/creer_receptionniste.html', context)
+
+
+@login_required
+@user_passes_test(is_super_admin)
+def modifier_receptionniste(request, pk):
+    """Modifier un réceptionniste - Réservé au Super Admin"""
+    receptionniste = get_object_or_404(User, pk=pk)
+
+    # Vérifier que c'est bien un réceptionniste
+    if receptionniste.profil != 'receptionniste':
+        messages.error(request, "Cet utilisateur n'est pas un réceptionniste.")
+        return redirect('users:liste_receptionistes')
+
+    if request.method == 'POST':
+        form = ReceptionnisteCreationForm(request.POST, instance=receptionniste)
+        if form.is_valid():
+            receptionniste = form.save(commit=False)
+
+            # Changer le mot de passe seulement s'il est fourni
+            if form.cleaned_data.get('password1'):
+                receptionniste.set_password(form.cleaned_data['password1'])
+
+            receptionniste.save()
+
+            messages.success(
+                request,
+                f'Réceptionniste {receptionniste.username} modifié avec succès !'
+            )
+            return redirect('users:liste_receptionistes')
+    else:
+        # Pré-remplir le formulaire avec les données existantes
+        form = ReceptionnisteCreationForm(instance=receptionniste)
+        # Vider les champs de mot de passe pour la modification
+        form.fields['password1'].required = False
+        form.fields['password2'].required = False
+
+    context = {
+        'form': form,
+        'receptionniste': receptionniste,
+        'titre': f'Modifier {receptionniste.username}',
+    }
+    return render(request, 'users/modifier_receptionniste.html', context)
+
+
+@login_required
+@user_passes_test(is_super_admin)
+def desactiver_receptionniste(request, pk):
+    """Désactiver un réceptionniste - Réservé au Super Admin"""
+    receptionniste = get_object_or_404(User, pk=pk)
+
+    # Vérifier que c'est bien un réceptionniste
+    if receptionniste.profil != 'receptionniste':
+        messages.error(request, "Cet utilisateur n'est pas un réceptionniste.")
+        return redirect('users:liste_receptionistes')
+
+    if request.method == 'POST':
+        receptionniste.is_active = False
+        receptionniste.save()
+
+        messages.success(
+            request,
+            f'Réceptionniste {receptionniste.username} désactivé avec succès ! '
+            f'Il ne peut plus se connecter au système.'
+        )
+        return redirect('users:liste_receptionistes')
+
+    context = {
+        'receptionniste': receptionniste,
+        'titre': f'Désactiver {receptionniste.username}',
+    }
+    return render(request, 'users/desactiver_receptionniste.html', context)
+
+
+@login_required
+@user_passes_test(is_super_admin)
+def reactiver_receptionniste(request, pk):
+    """Réactiver un réceptionniste désactivé - Réservé au Super Admin"""
+    receptionniste = get_object_or_404(User, pk=pk)
+
+    if receptionniste.is_active:
+        messages.info(request, f"Le réceptionniste {receptionniste.username} est déjà actif.")
+    else:
+        receptionniste.is_active = True
+        receptionniste.save()
+
+        messages.success(
+            request,
+            f'Réceptionniste {receptionniste.username} réactivé avec succès ! '
+            f'Il peut maintenant se reconnecter au système.'
+        )
+
+    return redirect('users:liste_receptionistes')

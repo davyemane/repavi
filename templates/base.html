@@ -214,12 +214,14 @@
                 <!-- Navigation Menu -->
                 <nav class="flex-1 overflow-y-auto py-4 px-3">
                     <div class="space-y-1">
-                        <a href="{% url 'dashboard' %}" 
+                        <a href="{% url 'dashboard' %}"
                            class="{% block nav_dashboard %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
                             <span class="material-icons text-sm">dashboard</span>
                             <span class="font-lato">Dashboard</span>
                         </a>
 
+                        {% if user.profil != 'receptionniste' %}
+                        <!-- Menu complet pour Gestionnaires et Super Admin -->
                         <a href="{% url 'appartements:liste' %}"
                            class="{% block nav_appartements %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
                             <span class="material-icons text-sm">apartment</span>
@@ -280,35 +282,97 @@
                             <span class="font-lato">Facturation</span>
                         </a>
 
-                        <!-- Administration Section (Super Admin uniquement) -->
-                        {% if user.profil == 'super_admin' %}
+                        {% elif user.profil == 'receptionniste' %}
+                        <!-- Menu simplifié pour Réceptionnistes -->
+                        <a href="{% url 'clients:liste' %}"
+                           class="{% block nav_clients_recep %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
+                            <span class="material-icons text-sm">people</span>
+                            <span class="font-lato">Clients</span>
+                        </a>
+
+                        <a href="{% url 'reservations:calendrier' %}"
+                           class="{% block nav_reservations_recep %}flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors{% endblock %}">
+                            <span class="material-icons text-sm">event</span>
+                            <span class="font-lato">Réservations</span>
+                            {% if reservations_aujourd_hui > 0 %}
+                            <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ reservations_aujourd_hui }}</span>
+                            {% endif %}
+                        </a>
+
+                        <!-- Divider -->
                         <div class="border-t border-gray-200 my-4"></div>
-                        
+
+                        <!-- Actions rapides pour réceptionniste -->
                         <div class="px-3 py-2">
                             <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider font-lato">
-                                Administration
+                                Actions Rapides
                             </h4>
                         </div>
 
-                        <a href="{% url 'users:liste_gestionnaires' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">supervisor_account</span>
-                            <span class="font-lato">Gestion Gestionnaires</span>
-                            <span class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full font-lato">Admin</span>
+                        <a href="{% url 'clients:nouveau' %}"
+                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                            <span class="material-icons text-sm">person_add</span>
+                            <span class="font-lato">Nouveau Client</span>
                         </a>
 
-                        <a href="{% url 'users:historique' %}"
+                        <a href="{% url 'reservations:nouvelle' %}"
                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
-                            <span class="material-icons text-sm">history</span>
-                            <span class="font-lato">Historique Activités</span>
+                            <span class="material-icons text-sm">add_circle</span>
+                            <span class="font-lato">Nouvelle Réservation</span>
                         </a>
-                        
-                        <a href="{% url 'users:journal_actions' %}"
-                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg">
-                            <span class="material-icons text-sm">security</span>
-                            <span class="font-lato">Journal d'audit</span>
+
+                        <a href="{% url 'reservations:arrivees_jour' %}"
+                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                            <span class="material-icons text-sm">event_available</span>
+                            <span class="font-lato">Arrivées du Jour</span>
+                        </a>
+
+                        <a href="{% url 'reservations:departs_jour' %}"
+                           class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
+                            <span class="material-icons text-sm">exit_to_app</span>
+                            <span class="font-lato">Départs du Jour</span>
                         </a>
                         {% endif %}
+
+                        <!-- Administration Section (Super Admin uniquement) -->
+                        {% if user.profil == 'super_admin' %}
+                        <div class="border-t border-gray-200 my-4">
+                        
+                            <div class="px-3 py-2">
+                                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider font-lato">
+                                    Administration
+                                </h4>
+                            </div>
+
+                            <a href="{% url 'users:liste_gestionnaires' %}"
+                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                                <span class="material-icons text-sm">supervisor_account</span>
+                                <span class="font-lato">Gestion Gestionnaires</span>
+                                <span class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full font-lato">Admin</span>
+                            </a>
+
+                            <a href="{% url 'users:liste_receptionistes' %}"
+                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                                <span class="material-icons text-sm">supervisor_account</span>
+                                <span class="font-lato">Gestion Receptionniste</span>
+                                <span class="ml-auto bg-purple-100 text-purple-600 text-xs px-2 py-1 rounded-full font-lato">Admin</span>
+                            </a>
+
+
+                            <a href="{% url 'users:historique' %}"
+                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-[#02066F] hover:bg-[#02066F]/10 rounded-lg transition-colors">
+                                <span class="material-icons text-sm">history</span>
+                                <span class="font-lato">Historique Activités</span>
+                            </a>
+                            
+                            <a href="{% url 'users:journal_actions' %}"
+                            class="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg">
+                                <span class="material-icons text-sm">security</span>
+                                <span class="font-lato">Journal d'audit</span>
+                            </a>
+                        </div>
+                        {% endif %}
+                        
                     </div>
                 </nav>
 

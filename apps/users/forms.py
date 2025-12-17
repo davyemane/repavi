@@ -49,6 +49,54 @@ class GestionnaireCreationForm(UserCreationForm):
             'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
         })
 
+
+class ReceptionnisteCreationForm(UserCreationForm):
+    """
+    Formulaire création réceptionniste pour Super Admin
+    Seuls Super Admin peuvent créer des réceptionnistes
+    """
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'telephone']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+            }),
+            'telephone': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Styles pour les champs password
+        self.fields['password1'].widget.attrs.update({
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100'
+        })
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        # Forcer le profil à réceptionniste
+        user.profil = 'receptionniste'
+        if commit:
+            user.save()
+        return user
+
+
 #profil_utilisateur
 class ProfilUtilisateurForm(forms.ModelForm):
     """

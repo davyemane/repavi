@@ -7,16 +7,16 @@ from django.contrib import messages
 from django.db.models import Q
 
 from apps.reservations.models import Reservation
-from apps.users.views import is_gestionnaire
+from apps.users.views import is_gestionnaire, is_receptionniste
 from .models import Client
 from .forms import ClientForm
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def liste_clients(request):
-    """Liste des clients avec recherche selon cahier"""
+    """Liste des clients avec recherche selon cahier - Accessible aux réceptionnistes"""
     clients = Client.objects.all()
-    
+
     # Recherche par nom ou téléphone selon cahier
     recherche = request.GET.get('q')
     if recherche:
@@ -25,7 +25,7 @@ def liste_clients(request):
             Q(prenom__icontains=recherche) |
             Q(telephone__icontains=recherche)
         )
-    
+
     context = {
         'clients': clients,
         'recherche': recherche,
@@ -33,15 +33,15 @@ def liste_clients(request):
     return render(request, 'clients/liste.html', context)
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def detail_client(request, pk):
-    """Fiche client avec historique des séjours selon cahier"""
+    """Fiche client avec historique des séjours selon cahier - Accessible aux réceptionnistes"""
     client = get_object_or_404(Client, pk=pk)
-    
+
     # Historique des séjours selon cahier
     from apps.reservations.models import Reservation
     reservations = Reservation.objects.filter(client=client).order_by('-date_arrivee')
-    
+
     context = {
         'client': client,
         'reservations': reservations,
@@ -50,9 +50,9 @@ def detail_client(request, pk):
     return render(request, 'clients/detail.html', context)
 
 @login_required
-@user_passes_test(is_gestionnaire)
+@user_passes_test(is_receptionniste)
 def creer_client(request):
-    """Créer nouvelle fiche client selon cahier"""
+    """Créer nouvelle fiche client selon cahier - Accessible aux réceptionnistes"""
     if request.method == 'POST':
         form = ClientForm(request.POST, request.FILES)
         if form.is_valid():
@@ -61,7 +61,7 @@ def creer_client(request):
             return redirect('clients:detail', pk=client.pk)
     else:
         form = ClientForm()
-    
+
     return render(request, 'clients/formulaire.html', {
         'form': form,
         'titre': 'Nouveau Client',
